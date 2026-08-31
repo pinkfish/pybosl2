@@ -27,7 +27,7 @@ import pytest
 from pybosl2 import Path2D
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path3d import Path3D
-from pybosl2.paths import require_path
+from pybosl2.paths import require_path, require_paths
 
 # `os.PathLike` is a FILE path and unrelated to `pybosl2.paths.PathLike`; a name match sweeps it up.
 # `ArrayLike`/`NDArray` belong here because C-7a names a NumPy array explicitly: they are the same
@@ -70,6 +70,10 @@ _POINTY = frozenset(
 EXCLUDED = frozenset(
     {
         "pybosl2/sdf/paths.py::as_points::pts",
+        # A per-sample de Casteljau kernel, called once per spline step inside `bezpath_points()`.
+        # Its "curve" is not always a polyline either: `path_to_bezpath()` evaluates it over a
+        # control array built from *normal vectors*, which no point type describes.
+        "pybosl2/sdf/paths.py::bezier_points::curve",
     }
 )
 
@@ -83,14 +87,6 @@ STILL_RAW = frozenset(
         "pybosl2/path2d.py::is_closed_path::path",
         "pybosl2/path2d.py::polygon_area::poly",
         "pybosl2/regions.py::even_odd::paths",
-        "pybosl2/sdf/paths.py::bezier_points::curve",
-        "pybosl2/sdf/paths.py::offset_polyline::path",
-        "pybosl2/sdf/paths.py::path_cut_points::path",
-        "pybosl2/sdf/paths.py::path_normals::path",
-        "pybosl2/sdf/paths.py::path_tangents::path",
-        "pybosl2/sdf/paths.py::path_to_bezpath::path",
-        "pybosl2/sdf/paths.py::round_corners::path",
-        "pybosl2/sdf/paths.py::total_length::path",
         "pybosl2/skin.py::clockwise_polygon::poly",
         "pybosl2/skin.py::path3d::path",
         "pybosl2/surfaces3d.py::plot_revolution::path",
@@ -260,3 +256,79 @@ def test_path_sweep_takes_a_2d_profile_along_a_path_of_either_width() -> None:
     spatial = path_sweep(profile, Path3D([[0, 0, 0], [0, 5, 0], [2, 9, 0]])).bounds()
     assert planar.size == pytest.approx(spatial.size)
     assert planar.size[1] > 8, f"the spine runs 9 units along y, so the sweep should too: {planar.size}"
+
+
+@pytest.mark.parametrize(
+    ("function", "arguments"),
+    [
+        ("path_tangents", ()),
+        ("path_normals", ()),
+        ("total_length", ()),
+        ("path_cut_points", (1.0,)),
+        ("round_corners", ()),
+        ("offset_polyline", (1.0,)),
+        ("path_to_bezpath", ()),
+    ],
+)
+def test_the_sdf_path_utilities_refuse_raw_points(function: str, arguments: tuple) -> None:
+    """Each utility names itself and the wrapper, so the fix is in the message (C-7b)."""
+    import pybosl2.sdf.paths as sdf_paths
+
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        getattr(sdf_paths, function)([[0, 0], [10, 0], [10, 10]], *arguments)
+    message = str(excinfo.value)
+    assert function + "()" in message, message
+    assert "Path2D(" in message, message
+
+
+def test_path_tangents_takes_either_width_and_path_normals_does_not() -> None:
+    """`Path`, not `Path2D | Path3D`, where a construction really is dimension-agnostic.
+
+    A tangent is the same thing in 2-D and 3-D, so `path_tangents` takes either. A *normal* is not:
+    rotating the tangent a quarter turn only defines one in the plane, and a 3-D path has a whole
+    normal plane instead. Typing both the same way would have made one of them lie.
+    """
+    from pybosl2.sdf.paths import path_normals, path_tangents
+
+    assert path_tangents(Path2D([[0, 0], [10, 0]])).shape == (2, 2)
+    assert path_tangents(Path3D([[0, 0, 0], [10, 0, 0]])).shape == (2, 3)
+    assert path_normals(Path2D([[0, 0], [10, 0]])).shape == (2, 2)
+    with pytest.raises(Bosl2ValueError, match="Path2D"):
+        path_normals(Path3D([[0, 0, 0], [10, 0, 0]]))  # type: ignore[arg-type]
+
+
+def test_a_normalizer_is_excluded_rather_than_owed() -> None:
+    """The two carve-outs still accept the wide form -- that is what they are for (PLAN T-4d).
+
+    A permanent entry on a list defined to only shrink would be a lie about the debt, so these are
+    listed as exclusions with their reason instead.
+    """
+    from pybosl2.sdf.paths import as_points, bezier_points
+
+    assert as_points([[0, 0], [1, 1]]).shape == (2, 2)
+    assert list(bezier_points([[0, 0], [10, 0]], 0.5)) == [5, 0]
+
+
+def test_the_guard_checks_the_width_not_merely_that_it_is_a_path() -> None:
+    """A `Path3D` must not satisfy a `Path2D` parameter (SPEC C-7a).
+
+    `Path2D` and `Path3D` are siblings, so `isinstance(value, Path)` accepts both. Every parameter
+    typed `Path2D` that only checked *that* would take a `Path3D` and run it through a formula
+    indexing columns 0 and 1 -- dropping z and returning a wrong answer instead of refusing. That
+    is worse than the raw sequence the migration set out to remove, because it is silent.
+    """
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        require_path(Path3D([[0, 0, 0], [1, 1, 1]]), "path", "stroke", Path2D)
+    message = str(excinfo.value)
+    assert "must be a Path2D" in message
+    assert "got a Path3D" in message
+    assert ".path2d()" in message, f"the message should say how to convert: {message}"
+    # ...and the check is opt-in, so a parameter that genuinely takes either still does.
+    both = Path3D([[0, 0, 0], [1, 1, 1]])
+    assert require_path(both, "path", "path_tangents") is both
+
+
+def test_the_width_check_reaches_into_a_sequence() -> None:
+    """`require_paths` names the index *and* the width, since one bad profile is the usual case."""
+    with pytest.raises(Bosl2ValueError, match=r"paths\[1\] must be a Path2D, got a Path3D"):
+        require_paths([Path2D([[0, 0], [1, 1]]), Path3D([[0, 0, 0], [1, 1, 1]])], "paths", "skin", Path2D)

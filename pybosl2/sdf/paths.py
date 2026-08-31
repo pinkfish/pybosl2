@@ -27,6 +27,8 @@ import numpy as np
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import vector_angle3 as _vector_angle3
+from pybosl2.path2d import Path2D
+from pybosl2.paths import require_path
 from pybosl2.sdf._libfive import LVTree, lv
 from pybosl2.sdf.edges import _pick_radius
 
@@ -35,7 +37,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
-    from pybosl2.path2d import Path2D
+    from pybosl2.paths import Path
 
     _VecLike = Sequence[float] | NDArray[np.float64]
 
@@ -69,7 +71,7 @@ def as_path_list(
     from pybosl2.paths import require_path, require_paths
 
     if isinstance(paths, _PathBase):
-        return [as_points(require_path(paths, parameter, function))]
+        return [as_points(require_path(paths, parameter, function, Path2D))]
     if (
         isinstance(paths, _Sequence)
         and not isinstance(paths, (str, bytes))
@@ -83,7 +85,7 @@ def as_path_list(
             f"{function}(): {parameter} must be a Path2D, or a sequence of them, not raw points -- "
             f"wrap one outline with Path2D(points), or wrap each of several."
         )
-    return [as_points(p) for p in require_paths(paths, parameter, function)]
+    return [as_points(p) for p in require_paths(paths, parameter, function, Path2D)]
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:
@@ -405,6 +407,11 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     """Evaluate a Bezier curve (any degree, from its control points) at parameter u in [0, 1].
 
     -- de Casteljau.
+
+    `curve` stays array-like rather than becoming a `Path` (SPEC C-7a's normalizer carve-out, PLAN
+    T-4d): this is a per-sample kernel, called once per spline step inside `bezpath_points()`, and
+    its "curve" is not always a polyline -- `path_to_bezpath()` evaluates it over a control array
+    built from *normal vectors*, which no point type describes.
     """
     pts = np.asarray(curve, dtype=float)
     while len(pts) > 1:
@@ -638,13 +645,16 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
     )
 
 
-def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
+def path_tangents(path: "Path", closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
     """Compute unit tangents at each path point.
 
     When *uniform* is False the derivative is weighted by segment lengths, which is what
     rabbit_clip() uses.
+
+    Takes a `Path` rather than either concrete type: a tangent is the same construction in 2-D and
+    3-D, so both are meant (SPEC C-7a).
     """
-    pts = as_points(path)
+    pts = as_points(require_path(path, "path", "path_tangents"))
     if uniform:
         d = deriv(pts, closed=closed)
     else:
@@ -701,7 +711,7 @@ def _cubic_real_roots(p: list[float]) -> list[float]:
 
 
 def path_to_bezpath(  # type: ignore[no-untyped-def]
-    path: ArrayLike,
+    path: "Path",
     closed: bool = False,
     tangents: ArrayLike | None = None,
     uniform: bool = False,
@@ -716,10 +726,10 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     """
     if not (size is None or relsize is None):
         raise Bosl2ValueError("Can't define both size and relsize")
-    path = as_points(path)
+    pts = as_points(require_path(path, "path", "path_to_bezpath"))
     curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
     relative = size is None
-    lastpt = len(path) - (0 if closed else 1)
+    lastpt = len(pts) - (0 if closed else 1)
     sizevect = [curvesize] * lastpt if isinstance(curvesize, (int, float)) else list(curvesize)
     assert len(sizevect) == lastpt
     tang = (
@@ -730,14 +740,14 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
 
     out = []
     for i in range(lastpt):
-        first = path[i]
-        second = path[(i + 1) % len(path)]
+        first = pts[i]
+        second = pts[(i + 1) % len(pts)]
         seglength = math.dist(first, second)
         if not (seglength > 0):
             raise Bosl2ValueError(f"zero-length path segment at index {i}")
         segdir = (second - first) / seglength
         tangent1 = tang[i]
-        tangent2 = -tang[(i + 1) % len(path)]  # points backward, along the curve
+        tangent2 = -tang[(i + 1) % len(pts)]  # points backward, along the curve
         parallel = abs(_v_dot(tangent1, segdir)) + abs(_v_dot(tangent2, segdir))
         lmax = seglength / parallel if parallel > 1e-12 else float("inf")
         sz = sizevect[i] * seglength if relative else sizevect[i]
@@ -771,7 +781,7 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
         out.append(first)
         out.append(first + tangent1 * ln)
         out.append(second + tangent2 * ln)
-    out.append(path[lastpt % len(path)])
+    out.append(pts[lastpt % len(pts)])
     return np.asarray(out, dtype=float)
 
 
@@ -813,14 +823,14 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
     return np.asarray(result, dtype=float)
 
 
-def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
+def offset_polyline(path: "Path2D", delta: float) -> NDArray[np.float64]:
     """Return the input open polyline shifted `delta` to the LEFT of its direction of travel, using.
 
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
     rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling).
     """
-    pts = as_points(path)
-    tang = path_tangents(pts, closed=False, uniform=False)
+    pts = as_points(require_path(path, "path", "offset_polyline", Path2D))
+    tang = path_tangents(path, closed=False, uniform=False)
     left = np.stack([-tang[:, 1], tang[:, 0]], axis=1)
     return pts + left * delta
 
@@ -831,22 +841,22 @@ def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
 # ---------------------------------------------------------------------------
 
 
-def total_length(path: ArrayLike, closed: bool = False) -> float:
-    """Total arc length of an open (or closed) polyline."""
-    pts = as_points(path)
+def total_length(path: "Path", closed: bool = False) -> float:
+    """Total arc length of an open (or closed) polyline, in 2-D or 3-D alike."""
+    pts = as_points(require_path(path, "path", "total_length"))
     total = float(np.sum(np.linalg.norm(np.diff(pts, axis=0), axis=1)))
     if closed and len(pts) > 1:
         total += float(np.linalg.norm(pts[-1] - pts[0]))
     return total
 
 
-def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
+def path_cut_points(path: "Path", cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
     """Return the point(s) at the given arc-length distance(s) from the start of `path`, each as.
 
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points().
     """
-    path = as_points(path)
+    pts = as_points(require_path(path, "path", "path_cut_points"))
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
@@ -857,13 +867,13 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
 
     def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:  # type: ignore[type-arg]
         while True:
-            if ind == len(path) - (0 if closed else 1):
+            if ind == len(pts) - (0 if closed else 1):
                 if not (dist < eps):
                     raise Bosl2ValueError("Path2D is too short for specified cut distance")
-                return [np.array(select(path, ind)), ind + 1]
-            d = float(np.linalg.norm(select(path, ind + 1) - path[ind]))
+                return [np.array(select(pts, ind)), ind + 1]
+            d = float(np.linalg.norm(select(pts, ind + 1) - pts[ind]))
             if d > dist:
-                return [_lerp_pt(path[ind], select(path, ind + 1), dist / d), ind + 1]
+                return [_lerp_pt(pts[ind], select(pts, ind + 1), dist / d), ind + 1]
             dist -= d
             ind += 1
 
@@ -872,11 +882,11 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     dtotal = 0.0
     for dist in cutdist:
         lastpt = None if not result else result[-1][0]
-        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))  # type: ignore[operator]
+        dpartial = 0.0 if not result else float(np.linalg.norm(select(pts, pind) - lastpt))  # type: ignore[operator]
         nextpoint: list[Any]
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
-            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]  # type: ignore[arg-type]
+            nextpoint = [_lerp_pt(lastpt, select(pts, pind), t), pind]  # type: ignore[arg-type]
         else:
             nextpoint = cut_single(dist - dtotal - dpartial, pind)
         result.append(nextpoint)
@@ -885,9 +895,13 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     return result
 
 
-def path_normals(path: ArrayLike, closed: bool = False) -> NDArray[np.float64]:
-    """Return the 2-D normal (to the RIGHT of travel, matching the bosl2 port) at each path point."""
-    tangents = path_tangents(path, closed=closed)
+def path_normals(path: "Path2D", closed: bool = False) -> NDArray[np.float64]:
+    """Return the 2-D normal (to the RIGHT of travel, matching the bosl2 port) at each path point.
+
+    `Path2D`, not `Path`: rotating the tangent a quarter turn in the plane is a 2-D construction,
+    and a 3-D path has a whole normal *plane* rather than one normal.
+    """
+    tangents = path_tangents(require_path(path, "path", "path_normals", Path2D), closed=closed)
     return np.stack([tangents[:, 1], -tangents[:, 0]], axis=1)
 
 
@@ -933,14 +947,14 @@ def _circlecorner(
 
 
 def round_corners(  # type: ignore[no-untyped-def]
-    path: ArrayLike, radius=None, r=None, closed: bool = True, fn: float | None = None
+    path: "Path2D", radius=None, r=None, closed: bool = True, fn: float | None = None
 ) -> NDArray[np.float64]:
     """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each.
 
     vertex -- the bosl2 port's round_corners() (radius method), pure python.
     """
-    path = as_points(path)
-    n = len(path)
+    pts = as_points(require_path(path, "path", "round_corners", Path2D))
+    n = len(pts)
     if not (n > 2):
         raise Bosl2ValueError(f"Path2D has length {n}. Length must be 3 or more.")
     size = radius if radius is not None else r
@@ -953,7 +967,7 @@ def round_corners(  # type: ignore[no-untyped-def]
         if (not closed and (i == 0 or i == n - 1)) or parm[i] == 0:
             dk.append([0.0, 0.0])
             continue
-        p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
+        p0, p1, p2 = pts[(i - 1) % n], pts[i], pts[(i + 1) % n]
         angle = _vector_angle3(p0, p1, p2) / 2
         if not (angle > 1e-09):
             raise Bosl2ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding")
@@ -962,9 +976,9 @@ def round_corners(  # type: ignore[no-untyped-def]
     out: list[Any] = []
     for i in range(n):
         if dk[i][0] == 0:
-            out.append(path[i])
+            out.append(pts[i])
             continue
-        p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
+        p0, p1, p2 = pts[(i - 1) % n], pts[i], pts[(i + 1) % n]
         out.extend(_circlecorner(p0, p1, p2, dk[i][0], dk[i][1], fn))
     # drop consecutive duplicates (arc endpoints can coincide with straight-segment ends)
     cleaned: list[Any] = []

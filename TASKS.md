@@ -1906,15 +1906,16 @@ np.ndarray)` is an SDF sampling kernel called per evaluation batch, not a caller
 wrapping it would be both wrong and slow. `heightfield(data=...)` and `tri_array(points=...)` take
 a *grid*, not a path.
 
-**Landed so far (26 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
+**Landed so far (35 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
 the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`, `flat.circle`,
 `shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`, `shapes2d.jittered_poly`,
 `sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`, `skin.subdivide_and_slice`,
 `VNF.from_skin`, and the whole SDF shape-entry-point family — `sdf.paths.as_path_list`,
 `sdf.shapes2d.polygon2d`/`region2d`, and `sdf.shapes3d.rotate_extrude`/`tapered_polygon_prism`/
 `spiral_sweep`/`polygon_prism`/`polygon_extrude`/`convex_polyhedron`/`path_sweep` (both
-parameters)/`bezier_sweep` (both). The ratchet in `tests/test_polyline_parameters.py` holds the
-remaining **25**.
+parameters)/`bezier_sweep` (both) — and the `sdf.paths` utility family: `path_tangents`,
+`path_normals`, `total_length`, `path_cut_points`, `round_corners`, `offset_polyline` and
+`path_to_bezpath`. The ratchet in `tests/test_polyline_parameters.py` holds the remaining **16**.
 
 **The denominator moved, and the debt did not.** It was stated as 36. The scan missed `ArrayLike`
 outright — although C-7a names a NumPy array explicitly — and it walked *every* function node, so
@@ -1961,6 +1962,17 @@ Things the tranches showed, all worth expecting on the rest:
   because 2-D geometry is a CSG-only notion. Converting there, once, in the SDF adapter, fixed
   every part that reaches the SDF backend through it -- rather than pushing a wrapper onto every
   caller of `get_backend()`.
+* **A `Path2D` annotation was not a `Path2D` check.** `require_path` asked only "is this a
+  `Path`?", and `Path2D`/`Path3D` are siblings -- so a `Path3D` satisfied every `Path2D`-typed
+  parameter this migration had produced and flowed into planar arithmetic that reads columns 0 and
+  1 and drops z. A silent wrong answer, in the guard built to stop silent wrong answers. It
+  surfaced only because a behavioural test asserted the refusal rather than the acceptance.
+  `require_path`/`require_paths` now take `expect=`, every converted call site passes it, and the
+  rule is SPEC C-7d. **Test what a guard *rejects*, not only what it lets through.**
+* **A regex rename edits prose as happily as code.** Renaming the shadowing local `path` to `pts`
+  inside `path_to_bezpath` also rewrote the error message it raises, to "zero-length pts segment".
+  `mypy --strict` and `ruff` were both clean; only the test asserting that message caught it. When
+  a sweep is the tool, diff the strings and comments separately afterwards.
 * **Do not edit files while a full suite runs.** Two failures in one run (`test_ci_gates`,
   `test_docstring_examples`) came from editing the tree mid-run; `test_ci_gates` passed in
   isolation immediately after. A failure caused by the harness is worse than no signal, because

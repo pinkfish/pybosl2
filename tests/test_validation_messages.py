@@ -389,12 +389,12 @@ SDF_PATH_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdfp.egg_path(length=5, radius1=4, radius2=6, arc_radius=40), "longer than radius1"),
     (lambda: sdfp.path_to_bezpath(SQUARE_OUTLINE, size=2, relsize=0.5), "both size and relsize"),
     (
-        lambda: sdfp.path_to_bezpath([[0.0, 0.0], [0.0, 0.0], [5.0, 5.0]], tangents=[[1.0, 0.0]] * 3, size=1),
+        lambda: sdfp.path_to_bezpath(Path2D([[0.0, 0.0], [0.0, 0.0], [5.0, 5.0]]), tangents=[[1.0, 0.0]] * 3, size=1),
         "zero-length path segment",
     ),
     (lambda: sdfp.path_cut_points(SQUARE_OUTLINE, [20.0, 5.0]), "increasing list"),
     (lambda: sdfp.path_cut_points(SQUARE_OUTLINE, [500.0]), "too short"),
-    (lambda: sdfp.round_corners([[0.0, 0.0], [10.0, 0.0]], radius=1), "Length must be 3"),
+    (lambda: sdfp.round_corners(Path2D([[0.0, 0.0], [10.0, 0.0]]), radius=1), "Length must be 3"),
     (lambda: sdfp.round_corners(SQUARE_OUTLINE), "Must specify radius"),
 ]
 
@@ -846,8 +846,8 @@ SDF_PATHS_MORE_CASES: list[tuple[Callable[[], object], str]] = [
         lambda: sdfp._convex_deficiency_sdf(None, None, np.zeros((3, 2)), _depth=16),
         "recursed implausibly deep",
     ),
-    (lambda: sdfp.path_tangents([[0.0, 0.0], [0.0, 0.0], [1.0, 1.0]], uniform=False), "zero-length segment"),
-    (lambda: sdfp.path_tangents([[0.0, 0.0], [1.0, 1.0], [0.0, 0.0]]), "cannot normalize a zero tangent"),
+    (lambda: sdfp.path_tangents(Path2D([[0.0, 0.0], [0.0, 0.0], [1.0, 1.0]]), uniform=False), "zero-length segment"),
+    (lambda: sdfp.path_tangents(Path2D([[0.0, 0.0], [1.0, 1.0], [0.0, 0.0]])), "cannot normalize a zero tangent"),
     (lambda: sdfp._v_unit([0.0, 0.0, 0.0]), "cannot normalize a zero vector"),
     (lambda: sdfp.bezpath_points([[0.0, 0.0], [1.0, 1.0]]), "multiple of 3 points"),
 ]
@@ -1094,7 +1094,10 @@ MISC_MODULE_CASES: list[tuple[Callable[[], object], str]] = [
         lambda: sdfskin.skin_sdf([Path2D(_SQ2D, closed=True), Path2D(_SQ2D, closed=True)], z=[0.0]),
         "same length",
     ),
-    (lambda: sdfp.round_corners([[0.0, 0.0], [10.0, 0.0], [10.0001, 0.0]], radius=1), "turns back on itself"),
+    (
+        lambda: sdfp.round_corners(Path2D([[0.0, 0.0], [10.0, 0.0], [10.0001, 0.0]]), radius=1),
+        "turns back on itself",
+    ),
     (lambda: turtle2d([TurtleCommand(TurtleCommandType.XYZMOVE, size=Point(1.0, 1.0, 1.0))]), "z-component must be 0"),
     (lambda: turtle2d([TurtleCommand(TurtleCommandType.ARCLEFTTO, radius=5)]), "needs a numeric angle"),
 ]

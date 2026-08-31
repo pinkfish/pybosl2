@@ -31,6 +31,7 @@ from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.paths import require_path
 from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from pybosl2.sdf._libfive import LVTree, lv
@@ -67,7 +68,6 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
-    from pybosl2.path3d import Path3D
     from pybosl2.vnf import VNF
 
 
@@ -2154,7 +2154,7 @@ def convex_polyhedron(points: "Path3D", res: int = 10) -> PyShape:
     count -- entirely fine for the tens-of-vertices solids this is for, and it happens once in
     Python at construction time, not per SDF evaluation.
     """
-    coords = np.asarray(require_path(points, "points", "convex_polyhedron"), dtype=float)
+    coords = np.asarray(require_path(points, "points", "convex_polyhedron", Path3D), dtype=float)
     pts = [[float(v) for v in p] for p in coords]
     n = len(pts)
     if not (n >= 4):
@@ -3029,7 +3029,7 @@ def polygon_extrude(pts: "Path2D", length: float, res: int = 10) -> PyShape:
     CAVEAT: `pts` must describe a CONVEX polygon. A concave vertex's half-plane doesn't bound
     the shape there, so both the sign and the surface would come out wrong.
     """
-    coords = as_points(require_path(pts, "pts", "polygon_extrude"))
+    coords = as_points(require_path(pts, "pts", "polygon_extrude", Path2D))
     area2 = sum(
         coords[i][0] * coords[(i + 1) % len(coords)][1] - coords[(i + 1) % len(coords)][0] * coords[i][1]
         for i in range(len(coords))
@@ -3534,7 +3534,7 @@ def path_sweep(profile: "Path2D", path: "Path2D | Path3D", res: int = 12, twist:
     uses over the convex-only :func:`polygon_extrude`). `twist` is a total rotation of the profile
     (in degrees) applied evenly along the path.
     """
-    prof = as_points(require_path(profile, "profile", "path_sweep"))
+    prof = as_points(require_path(profile, "profile", "path_sweep", Path2D))
     if not (len(prof) >= 3):
         raise Bosl2ValueError("sweep profile needs at least 3 points")
     spine = require_path(path, "path", "path_sweep")

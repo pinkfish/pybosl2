@@ -1113,7 +1113,7 @@ def stroke2d(
 
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
     """
-    path = cast("Path2D", require_path(path, "path", "stroke2d"))
+    path = cast("Path2D", require_path(path, "path", "stroke2d", Path2D))
     pts = as_points(path)
     if not (len(pts) >= 2):
         raise Bosl2ValueError("stroke2d() needs at least 2 points")

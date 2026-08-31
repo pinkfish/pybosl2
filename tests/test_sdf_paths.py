@@ -8,6 +8,7 @@ import math
 
 import pytest
 
+from pybosl2.path2d import Path2D
 from pybosl2.sdf import paths as sdf_paths
 
 SQRT2 = math.sqrt(2)
@@ -27,7 +28,7 @@ def chamfer_offset(c: float) -> float:
 
 class TestPathToBezpath:
     def test_bezpath_hits_input_points(self) -> None:
-        path = [[0, 0], [10, 0], [10, 10]]
+        path = Path2D([[0, 0], [10, 0], [10, 10]])
         bez = sdf_paths.path_to_bezpath(path, relsize=0.1)
         assert len(bez) == 7, "two cubic segments"
         assert list(bez[0]) == [0, 0]
@@ -37,7 +38,7 @@ class TestPathToBezpath:
         assert len(pts) == 17
 
     def test_tangents_respected(self) -> None:
-        path = [[0, 0], [10, 0]]
+        path = Path2D([[0, 0], [10, 0]])
         bez = sdf_paths.path_to_bezpath(path, tangents=[[1, 0], [1, 0]], relsize=0.1)
         # Straight segment with parallel tangents: control points stay on the line y=0.
         assert all(abs(p[1]) < 1e-9 for p in bez)
@@ -77,7 +78,7 @@ class TestPolygonPathUtils:
     bosl2 helpers the cap-box polygon machinery uses."""
 
     def test_path_length_and_cut_points(self) -> None:
-        path = [[0, 0], [10, 0], [10, 10]]
+        path = Path2D([[0, 0], [10, 0], [10, 10]])
         assert sdf_paths.total_length(path) == pytest.approx(20.0)
         cuts = sdf_paths.path_cut_points(path, [5.0, 15.0])
         assert cuts[0][0][0] == pytest.approx(5.0)  # type: ignore[index]
@@ -90,12 +91,12 @@ class TestPolygonPathUtils:
     def test_path_normals_two_point_segment(self) -> None:
         # A segment heading +x: the bosl2 port's normal points to the RIGHT of travel
         # (-y).
-        n = sdf_paths.path_normals([[0, 0], [10, 0]])
+        n = sdf_paths.path_normals(Path2D([[0, 0], [10, 0]]))
         assert n[0][0] == pytest.approx(0.0)
         assert n[0][1] == pytest.approx(-1.0)
 
     def test_round_corners_inserts_tangent_arcs(self) -> None:
-        sq = [[0, 0], [20, 0], [20, 20], [0, 20]]
+        sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
         rounded = sdf_paths.round_corners(sq, radius=2, fn=16)
         assert len(rounded) > 8, "arcs inserted"
         for p in rounded:
@@ -103,7 +104,7 @@ class TestPolygonPathUtils:
                 assert math.dist(p, [2, 2]) >= 2 - 1e-9
 
     def test_round_corners_right_angle_tangent_points(self) -> None:
-        sq = [[0, 0], [20, 0], [20, 20], [0, 20]]
+        sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
         rounded = sdf_paths.round_corners(sq, radius=2, fn=16)
         assert any(abs(p[0] - 2) < 1e-9 and abs(p[1]) < 1e-9 for p in rounded), "tangent point [2,0] present"
         assert any(abs(p[0]) < 1e-9 and abs(p[1] - 2) < 1e-9 for p in rounded), "tangent point [0,2] present"

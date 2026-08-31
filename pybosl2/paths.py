@@ -74,7 +74,7 @@ PathLike: "TypeAlias" = "Path | Sequence[Sequence[float]] | NDArray[np.float64]"
 __all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod", "require_path", "require_paths"]
 
 
-def require_path(value: object, parameter: str, function: str) -> "Path":
+def require_path(value: object, parameter: str, function: str, expect: "type[Path] | None" = None) -> "Path":
     """Return *value* as a :class:`Path`, refusing raw points and naming the wrapper (SPEC C-7a/b).
 
     A bare sequence carries no dimension, no open/closed flag and no winding, so every function
@@ -90,20 +90,40 @@ def require_path(value: object, parameter: str, function: str) -> "Path":
         value: the argument supplied for a polyline parameter.
         parameter: the parameter's name, so the message points at the argument that was wrong.
         function: the function's name, so it points at the call.
+        expect: the concrete type the parameter needs, when only one width will do -- pass
+            :class:`~pybosl2.path2d.Path2D` for a parameter typed `Path2D`, and leave it `None`
+            only where the annotation is `Path` because both widths really are meant. **A wrong
+            width is not a type error a caller can see:** `Path2D` and `Path3D` are siblings, so
+            without this a `Path3D` satisfies a `Path2D`-typed parameter and flows into a formula
+            that indexes columns 0 and 1 and drops z -- a wrong answer rather than a refusal.
 
     Returns:
-        *value* unchanged, when it is already a :class:`Path`.
+        *value* unchanged, when it is already a :class:`Path` of the expected width.
 
     Raises:
-        Bosl2ValueError: If *value* is not a :class:`Path`.
+        Bosl2ValueError: If *value* is not a :class:`Path`, or is not an *expect*.
 
     """
-    if isinstance(value, Path):
-        return value
-    raise Bosl2ValueError(f"{function}(): {parameter} must be a {_suggest_path_type(value)}.")
+    if not isinstance(value, Path):
+        raise Bosl2ValueError(f"{function}(): {parameter} must be a {_suggest_path_type(value)}.")
+    if expect is not None and not isinstance(value, expect):
+        raise Bosl2ValueError(
+            f"{function}(): {parameter} must be a {expect.__name__}, got a {type(value).__name__}. "
+            f"{_conversion_hint(type(value).__name__, expect.__name__)}"
+        )
+    return value
 
 
-def require_paths(values: object, parameter: str, function: str) -> "list[Path]":
+def _conversion_hint(got: str, wanted: str) -> str:
+    """Say how to get from the path type the caller has to the one the parameter needs."""
+    if got == "Path3D" and wanted == "Path2D":
+        return "Drop the third column with .path2d(), or build the outline in the XY plane."
+    if got == "Path2D" and wanted == "Path3D":
+        return "Lift it with .path3d(), which places the points at z=0."
+    return f"Rebuild it as a {wanted}."
+
+
+def require_paths(values: object, parameter: str, function: str, expect: "type[Path] | None" = None) -> "list[Path]":
     """Return *values* as a list of :class:`Path`, refusing raw points elementwise (SPEC C-7a).
 
     The sequence form of :func:`require_path`. The index of the offending element is part of the
@@ -114,21 +134,20 @@ def require_paths(values: object, parameter: str, function: str) -> "list[Path]"
         values: the argument supplied for a sequence-of-polylines parameter.
         parameter: the parameter's name.
         function: the function's name.
+        expect: the concrete type each element needs, as :func:`require_path` takes it.
 
     Returns:
         The paths as a list, unchanged.
 
     Raises:
-        Bosl2ValueError: If *values* is not a sequence, or any element is not a `Path`.
+        Bosl2ValueError: If *values* is not a sequence, or any element is not an *expect*.
 
     """
     if isinstance(values, (str, bytes)) or not isinstance(values, abc.Sequence):
         raise Bosl2ValueError(f"{function}(): {parameter} must be a sequence of Path2D/Path3D, got {values!r}.")
     out: list[Path] = []
     for index, value in enumerate(values):
-        if not isinstance(value, Path):
-            raise Bosl2ValueError(f"{function}(): {parameter}[{index}] must be a {_suggest_path_type(value)}.")
-        out.append(value)
+        out.append(require_path(value, f"{parameter}[{index}]", function, expect))
     return out
 
 
