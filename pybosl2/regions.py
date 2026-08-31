@@ -32,8 +32,7 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
 
     from pybosl2._backend import Solid
     from pybosl2.color import Color
-    from pybosl2.shapes2d import Bosl2Shape2D
-    from pybosl2.shapes3d import Bosl2Solid
+    from pybosl2.flat import Flat
 
 __all__ = ["Region"]
 
@@ -697,7 +696,7 @@ class Region:
         all_pts = np.vstack([p.array for p in self.paths])
         return Bounds2D.from_min_max(all_pts.min(axis=0).tolist(), all_pts.max(axis=0).tolist())
 
-    def geometry(self) -> "Bosl2Shape2D":
+    def geometry(self) -> "Flat":
         """2-D geometry: every polygon in the region, each with its holes subtracted.
 
         When :attr:`_polygon_colors` is populated each polygon is coloured individually
@@ -726,20 +725,18 @@ class Region:
                 piece = piece.color(poly_color)
             shape = piece if shape is None else (shape | piece)
         if shape is None:
-            from pythonscad import polygon as _polygon
+            from pybosl2.flat import polygon as _facade_polygon  # local: flat imports this module
 
-            from pybosl2.shapes2d import Bosl2Shape2D
-
-            shape = Bosl2Shape2D(_polygon([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]))
+            shape = _facade_polygon(Path2D([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]))
         return shape
 
-    def fill(self) -> "Bosl2Shape2D":
+    def fill(self) -> "Flat":
         """Return this region as 2-D geometry with its holes filled in.
 
         Equivalent to just the outline (OpenSCAD ``fill()``).
 
         Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
+            A :class:`~pybosl2.flat.Flat` with its holes closed.
 
         """
         result = self.geometry().fill()
@@ -968,7 +965,7 @@ class Region:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> "Bosl2Solid":
+    ) -> "Solid":
         """Revolve this region about the Y axis into a 3-D solid.
 
         Args:
@@ -978,8 +975,8 @@ class Region:
             fs: Minimum size for polygon segments.
 
         Returns:
-            A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no
-            revolve).
+            A :class:`~pybosl2._backend.Solid` from the active backend (SPEC A-10). Revolving is
+            CSG-only, so the SDF backend refuses rather than approximating (SPEC B-4).
 
         """
         result = self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)

@@ -1,0 +1,86 @@
+# The layer model, as data (SPEC A-1).
+#
+# SPEC 4 states "a lower layer MUST NOT import a higher one" and, until T29, nothing measured it.
+# Two things came out of measuring it. The rule held far less often than the prose implied, and
+# the table in SPEC 4 could not have described the code even in principle: it put `exceptions`,
+# `enums` and `_edges_lang` in a layer *above* pure geometry, when every geometry module raises
+# `Bosl2ValueError` and takes an `Anchor`, and it left six modules out altogether.
+#
+# So the layers below are a corrected model, chosen by measurement: the foundations that
+# everything may use sit at the bottom, the backend contract above them (it is FFI-free and the
+# geometry types are declared against it), pure geometry above that, the backend implementations
+# above that, the façade above those, and the parts library on top.
+#
+# An edge from a lower layer to a higher one is classified three ways:
+#
+#   * runtime, module level -- the violation. Listed in `known_violations` while it exists; the
+#     list only shrinks.
+#   * type-checking only    -- allowed and unlisted. `if TYPE_CHECKING:` creates no runtime
+#                              dependency and PLAN M-4 requires annotations to use it.
+#   * deferred (in a body)  -- allowed only when listed in `allowed_deferred` with a reason,
+#                              which is PLAN M-5's "genuine cycle, and commented" made checkable.
+
+[layers]
+# Bottom to top. A module may import anything at its own level or below.
+L0_foundations = [
+    "exceptions", "enums", "constants", "math", "version", "_mctable",
+    "points", "vectors", "_edges_lang", "defaults",
+]
+L1_contract = ["_backend"]
+L2_geometry = [
+    "geometry", "paths", "path2d", "path3d", "regions", "beziers", "nurbs", "quaternions",
+    "vnf", "rounding", "skin", "texture", "bounds", "color", "transforms", "svg", "turtle",
+    "_helpers", "_anchoring", "distributors", "export", "caps",
+]
+L3_backends = [
+    "shapes2d", "shapes3d", "sdf", "masking", "partitions", "surfaces3d", "isosurface",
+    "miscellaneous", "_shape", "_csg", "_native", "_stroke2d", "_stroke3d",
+]
+L4_facade = ["solid", "flat"]
+L5_parts = ["parts"]
+
+# Deferred edges that are architecture rather than debt: PLAN M-5 reserves the function-local
+# import for a genuine cycle, so an entry here is only legitimate if the target imports the source
+# back. That is checked, not taken on trust -- tests/test_layering.py resolves the cycle itself and
+# rejects an entry whose claim does not hold. Six deferred edges failed that check when the list
+# was first drawn up and went to known_violations instead, where they belong: deferring an import
+# to dodge a layer is not the same as deferring one to break a cycle.
+[allowed_deferred]
+"_backend -> _csg" = "Registry inversion: the contract module bootstraps the backends that register against it."
+"_backend -> sdf" = "Registry inversion, as above."
+"_helpers -> shapes2d" = "shapes2d imports the helpers it is built from."
+"_helpers -> shapes3d" = "shapes3d imports the helpers it is built from."
+"caps -> _stroke3d" = "The 3-D stroke builds its caps from this module."
+"path2d -> shapes3d" = "shapes3d takes Path2D for its extrusions."
+"path2d -> _stroke2d" = "The 2-D stroke takes the path it strokes."
+"regions -> _stroke2d" = "The 2-D stroke takes the region it strokes."
+"vnf -> isosurface" = "isosurface returns the mesh type."
+
+# The A-10 bridge: a geometry type reaching the façade to build a shape. It is an upward edge by
+# construction -- the façade sits above geometry -- so it cannot be justified as a cycle and is not
+# debt either. It is the door SPEC A-10 says to use. Checked by its target being a façade module,
+# so nothing else can be smuggled in under this heading.
+[facade_bridges]
+"path2d -> flat" = "Path2D.polygon() builds through the façade (A-10)."
+"regions -> flat" = "Region.geometry() builds through the façade (A-10)."
+
+# Runtime module-level edges, plus the deferred ones that are not cycles. Every one is debt and
+# the list only shrinks. `A-10` marks the geometry bridge -- a geometry type reaching a backend
+# module directly instead of the façade.
+[known_violations]
+"_helpers -> shapes2d" = "Native shape helpers reach the CSG modules directly at module level."
+"_helpers -> shapes3d" = "As above."
+"_helpers -> _native" = "Deferred, but not a cycle: _native does not import the helpers."
+"beziers -> shapes3d" = "A Bezier builds a solid through the CSG module rather than the façade (A-10). Module level and deferred, and not a cycle."
+"color -> _shape" = "Colour reaches the CSG shape wrapper to apply itself."
+"distributors -> _shape" = "Distribution reaches the CSG shape wrapper."
+"masking -> solid" = "Deferred, but not a cycle: the façade does not import masking."
+"path2d -> miscellaneous" = "The Extrudable mixin lives in an L3 module and is inherited by an L2 type."
+"path3d -> miscellaneous" = "Extrudable, as above."
+"path3d -> shapes3d" = "The geometry bridge, as above (A-10)."
+"path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
+"regions -> shapes3d" = "Region.text3d reaches the CSG module directly (A-10)."
+"skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
+"turtle2d -> shapes2d" = "The turtle builds its arcs through the CSG module (A-10)."
+"turtle3d -> shapes3d" = "As above (A-10)."
+"vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."

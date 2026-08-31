@@ -219,14 +219,31 @@ keyword = "MUST NOT"
 statement = '''
 A lower layer MUST NOT import a higher one.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_layering.py::test_every_runtime_upward_import_is_known_debt",
+]
 candidates = [
     "tests/test_mask_contract.py::test_no_public_masking_signature_mentions_a_native_type",
 ]
-status = "unenforced"
+status = "enforced"
 note = '''
-No test walks the import graph. 16 L0 modules import L2 today, 4 of them at module level (regions -> shapes3d, path2d/path3d -> miscellaneous, turtle2d -> shapes2d). T29.
+Measured for the first time in T29. The layer table this rule referred to could not describe the code even in principle — it placed exceptions/enums/_edges_lang above pure geometry, which every geometry module imports — so the model was corrected before the rule could be applied at all. Against the corrected model: 18 runtime up-edges, now a ratchet in spec/layers.toml, and 10 deferred ones that break a genuine cycle, which the test resolves in the import graph rather than accepting from a comment.
 '''
+
+[[requirement]]
+id = "SPEC-A-10"
+aliases = ["A-10"]
+layer = "contract"
+section = "4. Architecture"
+title = "A geometry object reaches geometry through the façade"
+keyword = "MUST"
+statement = '''
+Where an L2 geometry type builds a shape — `Path2D.polygon()`, `linear_extrude()`, `stroke()`, the sweeps — it MUST build through the L4 façade and return `Flat`/`Solid`, never import a backend module and return that backend's class. Reaching `shapes2d`/`shapes3d` directly is an A-1 violation, leaks an L3 type through an L2 signature, and silently produces a CSG shape inside `use_backend("sdf")` (A-6, PAR-1). S-11 requires a path to become geometry; this says which door it goes through.
+'''
+enforced_by = [
+    "tests/test_layering.py::test_every_runtime_upward_import_is_known_debt",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-A-2"
@@ -292,13 +309,15 @@ keyword = "MUST"
 statement = '''
 Everything exported from the top level MUST honour the active backend. A constructor that only one backend can build belongs on that backend's module, not on `pybosl2`, so that `from pybosl2 import …` never silently produces a shape on the backend the caller did not select. Mixed neutral and backend-specific names at the top level is the defect this rule exists to prevent.
 '''
-enforced_by = []
-candidates = [
+enforced_by = [
     "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
 ]
-status = "unenforced"
+candidates = [
+    "tests/test_backend_matrix.py::test_path_2d_geometry_builds_on_either_backend",
+]
+status = "enforced"
 note = '''
-The top-level export table is checked, but the L0 geometry bridges are not: Path2D.polygon() imports pythonscad directly and returns a CsgShape2D whatever backend is active. T29.
+The top-level export table was always checked; the geometry bridges were not, so Path2D.polygon() returned a CSG shape inside an sdf block whatever the caller had selected. Fixed in T29 by A-10 (build through the façade), and covered by the candidate test above as well as the export walk.
 '''
 
 [[requirement]]

@@ -32,9 +32,9 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
     from pybosl2.color import Color
+    from pybosl2.flat import Flat
     from pybosl2.paths import PathLike
     from pybosl2.regions import Region
-    from pybosl2.shapes2d import Bosl2Shape2D
 
 import shapely
 from shapely.geometry import LineString, Polygon
@@ -1462,17 +1462,17 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 "shape under the default (csg) backend.",
             )
 
-    def polygon(self) -> "Bosl2Shape2D":
-        """Return this path as 2-D geometry (crosses the FFI as plain floats).
+    def polygon(self) -> "Flat":
+        """Return this path as 2-D geometry, on whichever backend is active.
+
+        Builds through the backend-neutral façade (SPEC A-10), so the same call produces a CSG
+        outline by default and an SDF one inside ``use_backend("sdf")``. It used to reach the CSG
+        module directly and hand back a ``Bosl2Shape2D`` whichever backend was selected, which is
+        the silent cross-backend result SPEC A-6 exists to prevent.
 
         Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
-            operators (``.fill()``, ``.hull()``, ``.offset()``) and the extruders
-            (``.linear_extrude(...)``).
-
-        Raises:
-            UnsupportedByBackendError: under ``use_backend("sdf")``.
-            Use ``linear_extrude()`` instead; it works on both backends.
+            A :class:`~pybosl2.flat.Flat`, so the result chains straight into the 2-D operators
+            (``.fill()``, ``.hull()``, ``.offset()``) and the extruders (``.linear_extrude(...)``).
 
         Examples:
             .. pythonscad-example::
@@ -1483,17 +1483,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 shape.polygon().linear_extrude(height=5).show()
 
         """
-        from pythonscad import polygon as _polygon
+        from pybosl2.flat import polygon as _facade_polygon  # local: flat imports this module
 
-        from pybosl2.shapes2d import Bosl2Shape2D  # local: shapes2d imports this module
-
-        self._require_csg("polygon")
-        result = Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
-        if self._color is not None and hasattr(result, "color"):
+        result = _facade_polygon(self)
+        if self._color is not None:
             result = result.color(self._color)
         return result
 
-    def geometry(self) -> "Bosl2Shape2D":
+    def geometry(self) -> "Flat":
         """2-D geometry of this path.
 
         The name :class:`Region` also exposes this, so a caller that may hold either a Path2D or a
@@ -1501,14 +1498,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.polygon()
 
-    def fill(self) -> "Bosl2Shape2D":
+    def fill(self) -> "Flat":
         """Return this path as 2-D geometry with every hole filled in -- only the outermost outline survives.
 
         (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
         loops that ``polygon()`` would leave as holes.
 
         Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+            A :class:`~pybosl2.flat.Flat` with its holes closed.
 
         """
         return self.polygon().fill()

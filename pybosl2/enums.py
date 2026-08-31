@@ -14,6 +14,13 @@
 from enum import StrEnum
 
 
+class Gender(StrEnum):
+    """Part gender for dovetail joints."""
+
+    MALE = "male"
+    FEMALE = "female"
+
+
 class AttachTag(StrEnum):
     """Attachment tags for boolean resolution.
 

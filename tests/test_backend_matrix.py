@@ -167,18 +167,27 @@ def test_sdf_extrude_takes_the_rim_roundings() -> None:
 
 
 # ---------------------------------------------------------------------------
-# 2-D geometry is a csg-only notion
+# 2-D geometry builds on either backend
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("call", ["polygon", "geometry", "fill"])
-def test_path_2d_geometry_is_csg_only(call) -> None:  # type: ignore[no-untyped-def]
-    """These hand back 2-D *geometry*, which is a CSG notion; a path itself is backend-neutral."""
-    from pybosl2.exceptions import UnsupportedByBackendError
+@pytest.mark.parametrize("call", ["polygon", "geometry"])
+def test_path_2d_geometry_builds_on_either_backend(call) -> None:  # type: ignore[no-untyped-def]
+    """The bridge from a path to 2-D geometry honours the active backend (SPEC A-10, PAR-1).
+
+    This test previously asserted the opposite -- that these refuse on SDF because "2-D geometry
+    is a CSG notion". That stopped being true when the SDF backend gained `PyShape2D`, which
+    SPEC 12.1 records under PAR-3; what survived was `Path2D.polygon()` reaching the CSG module
+    directly, so it returned a CSG shape inside an `sdf` block whatever the caller had selected.
+    It builds through the façade now.
+    """
     from pybosl2.path2d import Path2D
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        getattr(Path2D(SQUARE), call)()
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            built = getattr(Path2D(SQUARE), call)()
+        assert built.backend == backend
+        assert built.bounds().size == pytest.approx([20.0, 12.0])  # SQUARE is 20 x 12
 
 
 @pytest.mark.parametrize("call", ["linear_extrude", "rotate_extrude"])

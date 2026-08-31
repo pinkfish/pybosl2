@@ -80,6 +80,15 @@ class Flat(Shape, Protocol):
         """Return the convex hull of this shape and any others."""
         ...
 
+    def fill(self) -> Self:
+        """Return this outline with its interior holes closed.
+
+        Declared because both 2-D implementations have it (SPEC C-20). Note that `fill` is listed
+        in ``CSG_ONLY_FEATURES`` while the SDF implementation meshes the field, crosses to CSG and
+        comes back — a refusal that never fires (SPEC §12.2, PLAN B-P4).
+        """
+        ...
+
     # In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put
     # these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is
     # the C-21 synonym work (SPEC §12.2).

@@ -118,14 +118,36 @@ show the basic case, the defaults are wrong, not the example.
 
 | Layer | Modules | Contract |
 |---|---|---|
-| **L0 Pure geometry** | `math`, `vectors`, `points`, `geometry`, `paths`, `path2d`, `path3d`, `regions`, `beziers`, `nurbs`, `quaternions`, `vnf`, `rounding`, `skin`, `texture`, `bounds`, `constants`, `color`, `defaults`, `transforms`, `svg`, `turtle` | Works in plain CPython with no CAD runtime. MUST NOT import a native module at load time. |
-| **L1 Backend contract** | `_backend`, `exceptions`, `caps`, `enums`, `_edges_lang` | Selection machinery and the shape protocols (`Shape`, `Flat`, `Solid`) only. MUST stay FFI-free. |
-| **L2 Backend implementations** | `shapes2d/`, `shapes3d/`, `masking`, `partitions`, `surfaces3d`, `isosurface`, `miscellaneous`, `_shape`, `_csg`, `_native`, `_stroke2d`, `_stroke3d` (CSG); `sdf/` (F-Rep) | Reach their native runtime lazily. Each backend registers itself under a name. |
-| **L3 Neutral façade** | `solid.py`, `flat.py` | Backend-agnostic constructors returning `Solid` / `Flat`. The recommended entry point. |
-| **L4 Parts library** | `parts/` | Built strictly on L0–L3. MUST NOT reach a native runtime directly. |
-| **L5 Presentation** | `docs/` | Generated from module headers and docstrings. |
+| **L0 Foundations** | `exceptions`, `enums`, `constants`, `math`, `version`, `points`, `vectors`, `_edges_lang`, `defaults`, `_mctable` | The vocabulary everything else is written in: error types, closed enums, the anchor language, the point types, ambient defaults. Depends on nothing in the package. |
+| **L1 Backend contract** | `_backend` | The shape protocols (`Shape`, `Flat`, `Solid`) and the selection machinery. MUST stay FFI-free. |
+| **L2 Pure geometry** | `geometry`, `paths`, `path2d`, `path3d`, `regions`, `beziers`, `nurbs`, `quaternions`, `vnf`, `rounding`, `skin`, `texture`, `bounds`, `color`, `transforms`, `svg`, `turtle`, `caps`, `distributors`, `export`, `_helpers`, `_anchoring` | Works in plain CPython with no CAD runtime. MUST NOT import a native module at load time. |
+| **L3 Backend implementations** | `shapes2d/`, `shapes3d/`, `masking`, `partitions`, `surfaces3d`, `isosurface`, `miscellaneous`, `_shape`, `_csg`, `_native`, `_stroke2d`, `_stroke3d` (CSG); `sdf/` (F-Rep) | Reach their native runtime lazily. Each backend registers itself under a name. |
+| **L4 Neutral façade** | `solid.py`, `flat.py` | Backend-agnostic constructors returning `Solid` / `Flat`. The recommended entry point. |
+| **L5 Parts library** | `parts/` | Built strictly on L0–L4. MUST NOT reach a native runtime directly. |
+| **L6 Presentation** | `docs/` | Generated from module headers and docstrings. |
 
-* **A-1** A lower layer MUST NOT import a higher one.
+The layer numbers changed in T29, and the reason is worth recording: the previous table could not
+describe the code even in principle. It placed `exceptions`, `enums` and `_edges_lang` in a layer
+*above* pure geometry, when every geometry module raises `Bosl2ValueError` and takes an `Anchor` —
+so A-1 was violated by construction, by every module, on the day it was written. It also left six
+modules out altogether, which is the other way a rule becomes unenforceable: there is nothing to
+apply it to. The model above is the one the code can actually satisfy, and `spec/layers.toml` is
+the machine-readable copy the test reads.
+
+* **A-1** A lower layer MUST NOT import a higher one. The layers, their members and the edges that
+  break the rule today are data (`spec/layers.toml`), walked by `tests/test_layering.py`: a new
+  runtime up-import fails, a deferred one is allowed only where it breaks a genuine cycle — which
+  the test resolves in the import graph rather than accepting from a comment (PLAN M-5) — and the
+  list of existing violations only shrinks. Stating this rule for years without measuring it left
+  18 of them.
+* **A-10 A geometry object reaches geometry through the façade.** Where an L2 type builds a shape —
+  `Path2D.polygon()`, `linear_extrude()`, `stroke()`, the sweeps — it MUST build through the L4
+  façade and return `Flat`/`Solid`, never import a backend module and return that backend's class.
+  Reaching `shapes2d`/`shapes3d` directly is an A-1 violation, leaks an L3 type through an L2
+  signature, and — since the constructor it reaches is one backend's — silently produces a CSG
+  shape inside `use_backend("sdf")`, which is A-6's defect arriving by a different road and, with
+  the SDF backend a full-parity target, a PAR-1 defect too. S-11 requires a path to *become
+  geometry*; this says which door it goes through.
 * **A-2** L0 MUST remain usable and tested with no CAD runtime installed.
 * **A-3** New geometry algorithms belong in L0, with native call sites isolated in L2.
 * **A-4** `import pybosl2` MUST stay cheap: top-level names resolve lazily, and every lazily
@@ -934,6 +956,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | 6 | **C-21 / PLAN S-2** | **Two rules that are closed for what a test walks and open everywhere else.** C-21 is guarded on the shape surface, so the geometry types kept three synonym pairs each: `deduplicate`/`deduplicated`, `subdivide`/`subdivide_path`, `resample`/`resample_path` on both `Path2D` and `Path3D`. PLAN S-2 asks for functions under 50 lines and **243 exceed it**, the longest at 237 — a rule with 243 violations and no test teaches contributors that the document is optional, so it is either ratcheted per module or it loses its number. T32. |
 | 7 | **G-1 … G-5** (new) / **B-3** | **The façade restates every backend parameter, and has already drifted.** `cyl()` names about 40 parameters in its signature, again in a dict literal, again in its docstring; the CSG backend names them, the SDF backend names them, the stub names them — 146 parameters across roughly five sites each. Three filters stack where B-3 describes one (`given_arguments` → `for_backend` → `refuse_unhonoured`), and F-P1's "the façade owns the real default" is already untrue in two spellings side by side: `cuboid(anchor=Anchor.CENTER)` against `cyl(anchor=None)`. The cost is not only maintenance — a caller reading `help(cyl)` gets 40 flat keywords with no structure. **G-1 … G-5** (new, §8): a parameter family that appears on more than three public callables and always travels together becomes a frozen group — `Facets(fn, fa, fs, res)`, `Placement(anchor, spin, orient)`, `EdgeTreatment(rounding, chamfer, edges, except_edges)`, `Texturing(...)` — forwarded whole, with the loose BOSL2 spellings kept for the one- or two-member common case so `cuboid([60, 40, 12], rounding=4)` still reads as it does today. R-1's plumbing becomes one value passed down rather than four parameters re-declared at every level, which is the rule most often broken. This is also what makes full SDF parity affordable: a group forwarded whole is one thing to keep in step. T30, T31. |
 | 8 | **C-23** (new) / **C-20** | `Shape` declares about 60 members and most are typed `*args: Any, **kwargs: Any`, so C-20 is satisfied by name-presence rather than by type-safety, and the protocol is a hand-maintained mirror of two concrete classes. **C-23** (new): a protocol member is typed, or it is on a bounded allowlist that only shrinks. Shared mixins inherited by both backends would let the protocol declare what genuinely varies instead. T33. |
+| 9 | **PAR-3 / B-5 / PLAN B-P4** | **A refusal that never fires, and it needs a decision rather than a fix.** `fill` is in `CSG_ONLY_FEATURES`, so `unsupported_feature()` reports that the SDF backend cannot do it — while `PyShape2D.fill()` is a working implementation that extrudes the field to a thin solid, meshes it, crosses to CSG, projects back and rebuilds an SDF polygon. That is PLAN B-P4's third case verbatim ("a name that is listed as exclusive and *works anyway*, so the refusal never fires"), which is how `projection` behaved before T4, and the round trip is the silent lossy conversion B-5 forbids. It is not an oversight: `tests/test_sdf_shapes2d.py::TestFill` asserts the meshing margin (`±5.1` for a 10×10 rect), so someone meant it. So the two records disagree and one of them has to go: either `fill` leaves `CSG_ONLY_FEATURES` and the meshing round trip is documented as what it is, or it refuses and names `.to_csg()`, as `projection` does. **The parity tests did not catch it because they walk the solid classes and not the 2-D ones** — which is the more general finding, and worth more than either answer. T34. |
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body

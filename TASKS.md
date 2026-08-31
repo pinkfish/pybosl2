@@ -53,7 +53,8 @@ spec renumbers as items close, and all but S-46a have.
 | 3 | spec maintainability | [T26](#t26--make-the-requirements-measurable) ✅ | M |
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) | M |
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
-| 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) | M |
+| 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
+| 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) | S |
@@ -2184,30 +2185,88 @@ setuptools happened to do, and nobody would have found out from a green suite.
 
 ---
 
-## T29 — Make the layering true
+## T29 — Make the layering true ✅
 
 **Closes:** §12.2 item 4 · **Implements:** A-10 (new), A-1, A-6, PAR-1 · **Size:** M
-**Risk:** medium — `Path2D.polygon()` changes its return type from a CSG class to `Flat`
+**Risk:** medium — `Path2D.polygon()` and three neighbours change their return type
 
-A-1 has never been measured, and 16 L0 modules import L2 today. The four module-level ones are
-plain violations; the twelve function-local ones are PLAN M-5's escape hatch used systematically,
-which means the rule is describing something the architecture does not do. The cause is S-11: an
-L0 path must *become geometry*, and today's bridge reaches a backend module to do it.
+1. `spec/layers.toml` — the layers, their members, and every upward edge, as data.
+2. `tests/test_layering.py` — walks the import graph and classifies each upward edge as runtime
+   (debt, ratcheted), type-checking-only (free, PLAN M-4), deferred-and-a-cycle (PLAN M-5), or a
+   façade bridge (A-10).
+3. **A-10** (new, §4): a geometry type builds through the façade and returns `Flat`/`Solid`.
+4. Fix `Path2D.polygon()`, the case A-10 was written for.
 
-1. **A-10** (new, §4): an L0 object's geometry bridge — `polygon()`, `linear_extrude()`,
-   `stroke()`, the sweeps — returns `Flat`/`Solid` and builds through the L3 façade, never a
-   backend module. The deferred import is the sanctioned mechanism and the only one.
-2. Fix `Path2D.polygon()` (`path2d.py:1465`) first: it imports `pythonscad` directly and is typed
-   `-> Bosl2Shape2D`, so inside `use_backend("sdf")` it hands back a CSG shape. That is an A-6
-   defect, an A-1 defect, and — now that SDF is a full-parity target — a PAR-1 defect.
-3. Move the four module-level L0→L2 imports (`regions` → `shapes3d`, `path2d`/`path3d` →
-   `miscellaneous`, `turtle2d` → `shapes2d`) below the boundary or behind the façade.
-4. `spec/layers.toml` declares the layers and their allowed edges; a test walks the import graph
-   and fails on an edge that is not declared, module-level or deferred.
+**Done when:** the layer test passes with every edge accounted for, and
+`Path2D(...).polygon()` inside `use_backend("sdf")` returns an SDF shape.
 
-**Done when:** the layer test passes with the exception list empty of module-level edges and each
-deferred edge named with its reason; `Path2D([[0,0],[1,0],[1,1]]).polygon()` inside
-`use_backend("sdf")` returns an SDF shape or refuses, and a test asserts which.
+**Landed.** `Path2D(...).polygon()` inside `use_backend("sdf")` now returns an `SdfShape2D` with
+the right bounds; it previously returned a `CsgShape2D` whatever backend was selected. `geometry()`,
+`fill()` and `Region.geometry()`/`fill()`/`rotate_extrude()` follow it to the contract types.
+`Gender` moved from `pybosl2.parts.enums` to `pybosl2.enums` — the SDF backend needed it, and an L3
+module may not import L5 — re-exported from its old home so every existing import still works.
+
+**The rule could not have been enforced against the table that stated it.** SPEC §4 put
+`exceptions`, `enums` and `_edges_lang` in a layer *above* pure geometry, and every geometry module
+raises `Bosl2ValueError` and takes an `Anchor` — so A-1 was violated by construction, by every
+module, from the day it was written. It also omitted six modules, which is the other way a rule
+becomes unenforceable: there is nothing to apply it to. The table in §4 is corrected, and the
+measurement only became possible afterwards.
+
+Against the corrected model: **16 runtime upward edges** (down from 18 — two died when the last
+runtime use went, and ruff moved the imports to type-only), **9 deferred edges that break a genuine
+cycle**, and **2 façade bridges**. The cycle claim is *checked*: the test resolves the cycle in the
+import graph and rejects an entry whose claim does not hold, which is how six deferred edges that
+were dodging a layer rather than breaking a cycle ended up in the debt list where they belong.
+
+Two things the work turned up that were not in the plan:
+
+* **The façade bridge needed its own category**, and the ratchet is what said so. Routing
+  `Path2D.polygon()` through `flat` replaced one upward edge with another — `regions -> flat` is
+  not a cycle, and listing it as one would have been a lie the cycle check would have caught. It is
+  the door A-10 says to use, so it is justified by its *target* being a façade module, which the
+  test verifies.
+* **`fill` on the SDF backend is a refusal that never fires** (§12.2 item 9, T34), found because
+  `Path2D.fill()` chains off `polygon()`. It needs a decision, not a fix, so it is recorded rather
+  than settled here.
+
+One test asserted the opposite of A-10 — `test_path_2d_geometry_is_csg_only`, on the grounds that
+"2-D geometry is a CSG notion". That stopped being true when the SDF backend gained `PyShape2D`,
+which §12.1 already records under PAR-3; the test outlived the belief. It now asserts that both
+backends build, with the bounds to prove it. Writing it also produced a small demonstration of why
+X-8 asks for content assertions: my first version asserted 20×20 for a fixture that is 20×12, and
+the test failed on my mistake rather than the code's.
+
+---
+
+## T34 — Decide what `fill` means on a distance field
+
+**Closes:** §12.2 item 9 · **Implements:** PAR-3, B-5, PLAN B-P4 · **Size:** S
+**This one needs a decision before any code moves.**
+
+`fill` is in `CSG_ONLY_FEATURES` and `PyShape2D.fill()` works anyway, by extruding the field,
+meshing it, crossing to CSG, projecting, and rebuilding a polygon. Two records disagree:
+
+* **PAR-3 / B-P4** say an exclusive feature is *declared and refuses*, and name this exact case as
+  the one that must never happen.
+* **B-5** says a lossy backend conversion is never implicit, and a mesh round trip is one.
+* **`tests/test_sdf_shapes2d.py::TestFill`** asserts the meshing margin, so the behaviour is
+  deliberate and someone wanted it.
+
+Either answer closes it, and they are genuinely different products:
+
+1. **`fill` refuses on SDF**, naming `.to_csg()`, as `projection` does after T4. Consistent with
+   PAR-3 and B-5; costs the SDF backend a working operation.
+2. **`fill` leaves `CSG_ONLY_FEATURES`**, and the round trip is documented as what it is. Honest
+   about what the code does; needs B-5 to say that an *explicit, documented* round trip inside one
+   named operation is not the implicit conversion it forbids.
+
+**Whichever is chosen, the general finding stands and is worth more than either:** the backend
+parity tests walk the solid classes and not the 2-D ones, so nothing was ever going to catch this.
+That gap is the first thing to close.
+
+**Done when:** the lists and the code agree, and the parity tests cover `CsgShape2D`/`PyShape2D`
+the way they cover the solids.
 
 ---
 

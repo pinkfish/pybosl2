@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pybosl2.constants import UP
+from pybosl2.enums import Gender
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.parts.enums import Gender
 from pybosl2.path2d import Path2D
 from pybosl2.sdf.paths import (
     bezpath_points,
