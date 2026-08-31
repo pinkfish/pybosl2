@@ -2187,13 +2187,73 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 
-<span class="c1">#: Anything an API that wants a polyline accepts: a :class:`Path` (what the library hands back and</span>
-<span class="c1">#: what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array.</span>
-<span class="c1">#: Normalise it on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest</span>
-<span class="c1">#: of the body works on one shape (PLAN T-4).</span>
+<span class="c1">#: **Internal.** The permissive form a body normalises *from*, never a public parameter type</span>
+<span class="c1">#: (SPEC C-7c, PLAN T-4a). A public parameter meaning an ordered set of points is typed `Path2D`,</span>
+<span class="c1">#: `Path3D` or `Path` and guarded with :func:`require_path` (SPEC C-7a).</span>
+<span class="c1">#:</span>
+<span class="c1">#: This alias used to be documented as "anything an API that wants a polyline accepts", and that</span>
+<span class="c1">#: sentence is how it reached 36 public signatures: the widest form read as the intended contract,</span>
+<span class="c1">#: so every new function copied it. A bare sequence carries no dimension, no open/closed flag and</span>
+<span class="c1">#: no winding, leaving each callee to re-derive all three -- and they disagreed.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Normalise on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest of</span>
+<span class="c1">#: the body works on one shape.</span>
 <span class="n">PathLike</span><span class="p">:</span> <span class="s2">"TypeAlias"</span> <span class="o">=</span> <span class="s2">"Path | Sequence[Sequence[float]] | NDArray[np.float64]"</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">,</span> <span class="s2">"require_path"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="require_path">
+<a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.require_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_path</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *value* as a :class:`Path`, refusing raw points and naming the wrapper (SPEC C-7a/b).</span>
+
+<span class="sd">    A bare sequence carries no dimension, no open/closed flag and no winding, so every function</span>
+<span class="sd">    that accepted one had to re-derive all three -- and they did not agree: the same list was a</span>
+<span class="sd">    2-D outline to one and a degenerate 3-D path to the next. Requiring the type moves that</span>
+<span class="sd">    decision to the single place that can make it once, at construction.</span>
+
+<span class="sd">    Raw points are what a caller usually has -- literals, a CSV, another library's output -- so the</span>
+<span class="sd">    refusal names the wrapper to apply, picking `Path2D` or `Path3D` from the width of what was</span>
+<span class="sd">    passed rather than making the caller work it out (SPEC C-7b).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: the argument supplied for a polyline parameter.</span>
+<span class="sd">        parameter: the parameter's name, so the message points at the argument that was wrong.</span>
+<span class="sd">        function: the function's name, so it points at the call.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        *value* unchanged, when it is already a :class:`Path`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: If *value* is not a :class:`Path`.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Describe the Path type *value* should have been wrapped in, from its own shape."""</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">_point_width</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"Path2D, not raw points -- wrap them with Path2D(points)"</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"Path3D, not raw points -- wrap them with Path3D(points)"</span>
+    <span class="k">return</span> <span class="s2">"Path2D or Path3D, not raw points -- wrap them with Path2D(points) or Path3D(points)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_point_width</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the number of components per point, or None if *value* is not point-shaped."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="SubdivideMethod">

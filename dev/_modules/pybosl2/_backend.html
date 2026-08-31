@@ -2153,6 +2153,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextvars</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Error</span><span class="p">,</span> <span class="n">UnsupportedByBackendError</span>
@@ -2542,6 +2543,16 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
+<span class="c1"># A path or a region is the library's own, and is *not* geometry -- the distinction C-16 and</span>
+<span class="c1"># S-23a rest on. Each has one call that turns it into geometry, so name that call rather than let</span>
+<span class="c1"># the native layer answer "invalid argument left to operator".</span>
+<span class="n">_NOT_GEOMETRY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Path2D"</span><span class="p">:</span> <span class="s2">"a 2-D path; call .linear_extrude(height=...) to make geometry from it"</span><span class="p">,</span>
+    <span class="s2">"Path3D"</span><span class="p">:</span> <span class="s2">"a 3-D path; sweep a profile along it, or call .stroke() to give it thickness"</span><span class="p">,</span>
+    <span class="s2">"Region"</span><span class="p">:</span> <span class="s2">"a 2-D region; call .geometry() to make geometry from it"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">check_operand_backend</span><span class="p">(</span><span class="n">self_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">self_dimensions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Raise if *other* cannot be combined with a shape on *self_backend* in *self_dimensions*.</span>
 
@@ -2570,6 +2581,27 @@
 <span class="sd">        Bosl2ValueError: If *other* has a different number of dimensions.</span>
 
 <span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+
+    <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># The pass-through for objects with no `backend` attribute exists for raw native interop,</span>
+        <span class="c1"># and None went through it: the native operator returned the left operand unchanged, so</span>
+        <span class="c1"># `part - cutter` where `cutter` came back None left the solid uncut and said nothing.</span>
+        <span class="c1"># A function that falls off its end returns None, which is the ordinary way to get here.</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="s2">"cannot combine a shape with None. The operation would have returned the shape "</span>
+            <span class="s2">"unchanged -- check whether the operand came from a function that returned nothing."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)):</span>
+        <span class="c1"># Never a shape, and the native layer answered these with its own "invalid argument left</span>
+        <span class="c1"># to operator" -- a TypeError that named no operand and escaped `except Bosl2Error`.</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cannot combine a shape with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">other</span><span class="si">!r}</span><span class="s2">); the right-hand "</span>
+            <span class="sa">f</span><span class="s2">"operand of a boolean must be a shape."</span>
+        <span class="p">)</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="n">_NOT_GEOMETRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot combine a shape with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: it is </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="n">other_backend</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">"backend"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">other_backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other_backend</span> <span class="o">!=</span> <span class="n">self_backend</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossBackendError</span>

@@ -2879,7 +2879,7 @@ ignored for the <cite>corner</cite>/<cite>points</cite> forms, matching BOSL2.</
 </dd>
 <dt id="pybosl2.shapes2d.circle.circle.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.circle.diameter" title="Permalink to this definition">¶</a></dt><dd><p>diameter of the circle</p>
 </dd>
-<dt id="pybosl2.shapes2d.circle.circle.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../../paths/paths.html#pybosl2.paths.PathLike" title="pybosl2.paths.PathLike (Python data) — a Path (what the library hands back and what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array. Normalise it on the first line -- np.asarray(x, dtype=float) or Path2D(x) -- so the rest of the body works on one shape (PLAN T-4).">PathLike</a> | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.circle.points" title="Permalink to this definition">¶</a></dt><dd><p>three 2-D points the circle should pass through</p>
+<dt id="pybosl2.shapes2d.circle.circle.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.circle.points" title="Permalink to this definition">¶</a></dt><dd><p>three 2-D points the circle should pass through</p>
 </dd>
 <dt id="pybosl2.shapes2d.circle.circle.corner"><span class="sig-name descname">corner</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.circle.corner" title="Permalink to this definition">¶</a></dt><dd><p>three 2-D points defining a path the circle should be tangent to</p>
 </dd>
@@ -2939,7 +2939,7 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 </dd>
 <dt id="pybosl2.shapes2d.circle.arc.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.arc.center" title="Permalink to this definition">¶</a></dt><dd><p>centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p>
 </dd>
-<dt id="pybosl2.shapes2d.circle.arc.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../../paths/paths.html#pybosl2.paths.PathLike" title="pybosl2.paths.PathLike (Python data) — a Path (what the library hands back and what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array. Normalise it on the first line -- np.asarray(x, dtype=float) or Path2D(x) -- so the rest of the body works on one shape (PLAN T-4).">PathLike</a> | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.arc.points" title="Permalink to this definition">¶</a></dt><dd><p>two points (with <em>center</em>) or three points the arc passes through</p>
+<dt id="pybosl2.shapes2d.circle.arc.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.arc.points" title="Permalink to this definition">¶</a></dt><dd><p>two points (with <em>center</em>) or three points the arc passes through</p>
 </dd>
 <dt id="pybosl2.shapes2d.circle.arc.corner"><span class="sig-name descname">corner</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.circle.arc.corner" title="Permalink to this definition">¶</a></dt><dd><p>three points; the arc is the radius fillet tangent to both legs</p>
 </dd>
@@ -2971,7 +2971,7 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>wedge</em> is set).</p>
 </dd>
 <dt class="field-odd" id="pybosl2.shapes2d.circle.arc-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.circle.arc-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Path2D</p>
+<dd class="field-odd"><p><em>Path2D</em></p>
 </dd>
 </dl>
 </dd></dl>
