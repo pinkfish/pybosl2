@@ -2206,7 +2206,7 @@
 
 <div class="viewcode-block" id="require_path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.require_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">require_path</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path"</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_path</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expect</span><span class="p">:</span> <span class="s2">"type[Path] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return *value* as a :class:`Path`, refusing raw points and naming the wrapper (SPEC C-7a/b).</span>
 
 <span class="sd">    A bare sequence carries no dimension, no open/closed flag and no winding, so every function</span>
@@ -2222,23 +2222,43 @@
 <span class="sd">        value: the argument supplied for a polyline parameter.</span>
 <span class="sd">        parameter: the parameter's name, so the message points at the argument that was wrong.</span>
 <span class="sd">        function: the function's name, so it points at the call.</span>
+<span class="sd">        expect: the concrete type the parameter needs, when only one width will do -- pass</span>
+<span class="sd">            :class:`~pybosl2.path2d.Path2D` for a parameter typed `Path2D`, and leave it `None`</span>
+<span class="sd">            only where the annotation is `Path` because both widths really are meant. **A wrong</span>
+<span class="sd">            width is not a type error a caller can see:** `Path2D` and `Path3D` are siblings, so</span>
+<span class="sd">            without this a `Path3D` satisfies a `Path2D`-typed parameter and flows into a formula</span>
+<span class="sd">            that indexes columns 0 and 1 and drops z -- a wrong answer rather than a refusal.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        *value* unchanged, when it is already a :class:`Path`.</span>
+<span class="sd">        *value* unchanged, when it is already a :class:`Path` of the expected width.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        Bosl2ValueError: If *value* is not a :class:`Path`.</span>
+<span class="sd">        Bosl2ValueError: If *value* is not a :class:`Path`, or is not an *expect*.</span>
 
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span>
-    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">expect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expect</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a </span><span class="si">{</span><span class="n">expect</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, got a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_conversion_hint</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span><span class="w"> </span><span class="n">expect</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_conversion_hint</span><span class="p">(</span><span class="n">got</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wanted</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Say how to get from the path type the caller has to the one the parameter needs."""</span>
+    <span class="k">if</span> <span class="n">got</span> <span class="o">==</span> <span class="s2">"Path3D"</span> <span class="ow">and</span> <span class="n">wanted</span> <span class="o">==</span> <span class="s2">"Path2D"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"Drop the third column with .path2d(), or build the outline in the XY plane."</span>
+    <span class="k">if</span> <span class="n">got</span> <span class="o">==</span> <span class="s2">"Path2D"</span> <span class="ow">and</span> <span class="n">wanted</span> <span class="o">==</span> <span class="s2">"Path3D"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"Lift it with .path3d(), which places the points at z=0."</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"Rebuild it as a </span><span class="si">{</span><span class="n">wanted</span><span class="si">}</span><span class="s2">."</span>
 
 
 <div class="viewcode-block" id="require_paths">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.require_paths">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">require_paths</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[Path]"</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_paths</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expect</span><span class="p">:</span> <span class="s2">"type[Path] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[Path]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return *values* as a list of :class:`Path`, refusing raw points elementwise (SPEC C-7a).</span>
 
 <span class="sd">    The sequence form of :func:`require_path`. The index of the offending element is part of the</span>
@@ -2249,21 +2269,20 @@
 <span class="sd">        values: the argument supplied for a sequence-of-polylines parameter.</span>
 <span class="sd">        parameter: the parameter's name.</span>
 <span class="sd">        function: the function's name.</span>
+<span class="sd">        expect: the concrete type each element needs, as :func:`require_path` takes it.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The paths as a list, unchanged.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        Bosl2ValueError: If *values* is not a sequence, or any element is not a `Path`.</span>
+<span class="sd">        Bosl2ValueError: If *values* is not a sequence, or any element is not an *expect*.</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a sequence of Path2D/Path3D, got </span><span class="si">{</span><span class="n">values</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">] must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">require_path</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">]"</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">expect</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
