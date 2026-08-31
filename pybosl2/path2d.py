@@ -32,7 +32,6 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
     from pybosl2.color import Color
-    from pybosl2.path3d import Path3D
     from pybosl2.paths import PathLike
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -56,6 +55,7 @@ from pybosl2.paths import (
     CutPoint,
     Path,
     SubdivideMethod,
+    require_path,
 )
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable
@@ -1030,7 +1030,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     @property
     def is_closed(self) -> bool:
         """Return True if the first and last points of the path coincide."""
-        return bool(Path2D.is_closed_path(self._points))
+        return bool(Path2D._is_closed(self._points))
 
     def is_simple(self) -> bool:
         """Return True if the path does not self-intersect."""
@@ -1273,7 +1273,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of non-intersecting simple :class:`Path2D` polygon parts.
 
         """
-        poly = Path2D.cleanup_path(self._points, eps=eps)
+        poly = Path2D.cleanup_path(self, eps=eps)
         temp = Path2D(poly, closed=True)
         tagged = temp._tag_self_crossing_subpaths(nonzero=nonzero, closed=True, eps=eps)
         kept = [sub[1] for sub in tagged if sub[0] == "O"]
@@ -2102,7 +2102,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        p = Path2D.close_path(self._points, eps=eps) if closed else list(self._points)
+        p = Path2D.close_path(self, eps=eps) if closed else list(self._points)
         arr = np.asarray(p, dtype=float)
         result: list[SelfIntersection] = []
         for i, j in Path2D._crossing_candidates(arr, closed, eps):
@@ -2221,7 +2221,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        path = Path2D.cleanup_path(self._points, eps=eps)
+        path = Path2D.cleanup_path(self, eps=eps)
         temp = Path2D(path)
         raw = []
         for a in temp.self_intersections(closed=closed, eps=eps):
@@ -2598,10 +2598,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             raise Bosl2ValueError(
                 f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
             )
-        source_sign = Path2D.polygon_area(source, signed=True)
+        source_sign = Path2D.polygon_area(Path2D(source), signed=True)
         return (
             ring
-            if math.copysign(1, Path2D.polygon_area(ring, signed=True)) == math.copysign(1, source_sign)
+            if math.copysign(1, Path2D.polygon_area(Path2D(ring), signed=True)) == math.copysign(1, source_sign)
             else ring[::-1]
         )
 
@@ -2685,15 +2685,18 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return out
 
     @staticmethod
-    def polygon_area(poly: Sequence[Sequence[float]] | np.ndarray | "Path2D", signed: bool = False) -> float:
+    def polygon_area(poly: "Path2D", signed: bool = False) -> float:
         """Area of a 2-D polygon (shoelace formula).
 
         Args:
-            poly: A sequence of [x, y] points.
+            poly: The outline, as a :class:`Path2D` -- the shoelace formula is planar (SPEC C-7a).
             signed: If True, preserve the sign so negative indicates clockwise winding.
 
+        Raises:
+            Bosl2ValueError: If *poly* is not a `Path2D`.
+
         """
-        arr = np.asarray(poly, dtype=float)
+        arr = np.asarray(require_path(poly, "poly", "polygon_area", Path2D), dtype=float)
         sides = len(arr)
         if sides < 3:
             return 0.0
@@ -2768,43 +2771,62 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return 2 * (crossings % 2) - 1
 
     @staticmethod
-    def is_closed_path(
-        path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
-    ) -> bool:
+    def is_closed_path(path: "Path", eps: float = EPSILON) -> bool:
         """Return True if the first and last points of path coincide.
+
+        Takes a `Path` rather than a concrete width: whether the ends meet is the same question
+        in 2-D and 3-D (SPEC C-7a).
 
         Args:
             path: A path to check for closure.
             eps: Epsilon for numerical comparison.
 
+        Raises:
+            Bosl2ValueError: If *path* is not a `Path`.
+
         """
-        return np.allclose(path[0], path[-1], rtol=0, atol=eps)
+        return Path2D._is_closed(require_path(path, "path", "is_closed_path"), eps)
 
     @staticmethod
-    def close_path(
-        path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
-    ) -> list[Any]:
+    def _is_closed(points: "PathLike", eps: float = EPSILON) -> bool:
+        """`is_closed_path` without the guard, for the private fragment machinery.
+
+        `_assemble_a_path_from_fragments` walks raw point lists in a `while True` loop and asks this
+        twice per turn; wrapping each in a `Path2D` only to unwrap it again would allocate per
+        iteration to re-derive what the loop already knows. This is the C-7c line: `PathLike` types
+        the normalisation inside a body, and the public entry point above is what holds the contract.
+        """
+        return bool(np.allclose(points[0], points[-1], rtol=0, atol=eps))
+
+    @staticmethod
+    def close_path(path: "Path", eps: float = EPSILON) -> list[Any]:
         """Append the start point to path if it isn't already closed.
 
         Args:
-            path: A path to close.
+            path: A path to close, at either width.
             eps: Epsilon for numerical comparison.
 
+        Raises:
+            Bosl2ValueError: If *path* is not a `Path`.
+
         """
-        return list(path) if Path2D.is_closed_path(path, eps=eps) else list(path) + [path[0]]
+        require_path(path, "path", "close_path")
+        return list(path) if Path2D._is_closed(path, eps) else list(path) + [path[0]]
 
     @staticmethod
-    def cleanup_path(
-        path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
-    ) -> list[Any]:
+    def cleanup_path(path: "Path", eps: float = EPSILON) -> list[Any]:
         """Drop the last point of path if it coincides with the first.
 
         Args:
-            path: A path to clean up.
+            path: A path to clean up, at either width.
             eps: Epsilon for numerical comparison.
 
+        Raises:
+            Bosl2ValueError: If *path* is not a `Path`.
+
         """
-        return list(path)[:-1] if Path2D.is_closed_path(path, eps=eps) else list(path)
+        require_path(path, "path", "cleanup_path")
+        return list(path)[:-1] if Path2D._is_closed(path, eps) else list(path)
 
     @staticmethod
     def _scad_round(x: float) -> float:
@@ -2937,13 +2959,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         path = fragments[startfrag]
         remainder = [fragments[i] for i in range(len(fragments)) if i != startfrag]
         while True:
-            if Path2D.is_closed_path(path, eps=eps):
+            if Path2D._is_closed(path, eps):
                 return [path, remainder]
             seg = Path2D._select(path, -2, -1)
             foundfrag, remainder2 = Path2D._extreme_angle_fragment(seg, remainder, rightmost=rightmost, eps=eps)
             if foundfrag is None:
                 return [path, remainder2]
-            if Path2D.is_closed_path(foundfrag, eps=eps):
+            if Path2D._is_closed(foundfrag, eps):
                 return [foundfrag, [path] + remainder2]
             fragend = foundfrag[-1]
             hits = [i for i in range(len(path) - 1) if np.allclose(path[i], fragend, rtol=0, atol=eps)]
@@ -2972,10 +2994,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             minxidx = minxs.index(min(minxs))
             result_l = Path2D._assemble_a_path_from_fragments(frags, startfrag=minxidx, rightmost=False, eps=eps)
             result_r = Path2D._assemble_a_path_from_fragments(frags, startfrag=minxidx, rightmost=True, eps=eps)
-            l_area = abs(Path2D.polygon_area(result_l[0])) if result_l[0] else 0
-            r_area = abs(Path2D.polygon_area(result_r[0])) if result_r[0] else 0
+            l_area = abs(Path2D.polygon_area(Path2D(result_l[0]))) if result_l[0] else 0
+            r_area = abs(Path2D.polygon_area(Path2D(result_r[0]))) if result_r[0] else 0
             result = result_l if l_area < r_area else result_r
-            newpath = Path2D.cleanup_path(result[0])
+            newpath = Path2D.cleanup_path(Path2D(result[0]))
             remainder = result[1]
             if min(l_area, r_area) >= eps:
                 finished.append(newpath)

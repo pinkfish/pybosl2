@@ -853,7 +853,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             True if the path endpoints are coincident, False otherwise.
 
         """
-        return bool(Path2D.is_closed_path(self._points))
+        return bool(Path2D._is_closed(self._points))
 
     def close(self) -> "Path3D":
         """Append the start point if the path is not already closed.

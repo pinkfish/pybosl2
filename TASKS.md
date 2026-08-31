@@ -1903,10 +1903,15 @@ do not always agree.
 **Excluded, and why:** `export(path: str | os.PathLike[str])` is a *file* path — `os.PathLike` is
 unrelated to `pybosl2.paths.PathLike` and must not be swept up by a name match. `field(pts:
 np.ndarray)` is an SDF sampling kernel called per evaluation batch, not a caller-supplied polyline;
-wrapping it would be both wrong and slow. `heightfield(data=...)` and `tri_array(points=...)` take
-a *grid*, not a path.
+wrapping it would be both wrong and slow. `heightfield(data=...)` takes a *grid*, not a path. Three
+more earned their place by inspection rather than by assertion, and are listed in the scan's
+`EXCLUDED` set with the reason (PLAN T-4d): `as_points()` and `bezier_points()` are normalisation
+and per-sample kernels, and `skin.path3d()` pads each row to three floats -- half its callers hand
+it **tangent vectors**, which no point type describes. `tri_array(points=)`/`vertex_array(points=)`
+were listed here as grids too; they are sequences of *rows*, and a row is a path, so they stay on
+the ratchet as real debt.
 
-**Landed so far (35 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
+**Landed so far (41 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
 the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`, `flat.circle`,
 `shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`, `shapes2d.jittered_poly`,
 `sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`, `skin.subdivide_and_slice`,
@@ -1915,7 +1920,9 @@ the offending index) and the C-7c docstring change are in. Converted: `flat.poly
 `spiral_sweep`/`polygon_prism`/`polygon_extrude`/`convex_polyhedron`/`path_sweep` (both
 parameters)/`bezier_sweep` (both) — and the `sdf.paths` utility family: `path_tangents`,
 `path_normals`, `total_length`, `path_cut_points`, `round_corners`, `offset_polyline` and
-`path_to_bezpath`. The ratchet in `tests/test_polyline_parameters.py` holds the remaining **16**.
+`path_to_bezpath`; then `Path2D`'s static polygon helpers -- `polygon_area`, `is_closed_path`,
+`close_path`, `cleanup_path` -- and `skin.clockwise_polygon`, which now returns a `Path2D` rather
+than raw points. The ratchet in `tests/test_polyline_parameters.py` holds the remaining **10**.
 
 **The denominator moved, and the debt did not.** It was stated as 36. The scan missed `ArrayLike`
 outright — although C-7a names a NumPy array explicitly — and it walked *every* function node, so
@@ -1969,6 +1976,18 @@ Things the tranches showed, all worth expecting on the rest:
   surfaced only because a behavioural test asserted the refusal rather than the acceptance.
   `require_path`/`require_paths` now take `expect=`, every converted call site passes it, and the
   rule is SPEC C-7d. **Test what a guard *rejects*, not only what it lets through.**
+* **Check what the callers actually pass before typing a parameter.** `skin.path3d()` reads as a
+  path function and half its callers hand it something else: `_path_sweep(tangent=)` and
+  `Bezier.sweep()` both use it to pad *direction vectors* to three components. Typing it `Path`
+  compiled and would have refused every one of those. It is a normalizer, and is excluded as one.
+  The same read saved `path_tangents` from being typed `Path2D` and `path_sweep`'s spine from
+  being typed 2-D.
+* **A private helper is where the wide form belongs, not a wrapper in a loop.**
+  `_assemble_a_path_from_fragments` walks raw point lists in a `while True` and asks
+  `is_closed_path` twice a turn. Wrapping each in a `Path2D` to unwrap it again would allocate per
+  iteration to re-derive what the loop already knows. The public entry point guards and delegates
+  to a private `_is_closed(points)`; that is the C-7c line, and it keeps the contract in exactly
+  one place.
 * **A regex rename edits prose as happily as code.** Renaming the shadowing local `path` to `pts`
   inside `path_to_bezpath` also rewrote the error message it raises, to "zero-length pts segment".
   `mypy --strict` and `ruff` were both clean; only the test asserting that message caught it. When

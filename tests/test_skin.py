@@ -80,9 +80,9 @@ def test_path3d_pads_z() -> None:
 
 
 def test_clockwise_polygon() -> None:
-    counterclockwise = [[0, 0], [1, 0], [1, 1], [0, 1]]
-    assert clockwise_polygon(counterclockwise) == list(reversed(counterclockwise))  # counterclockwise gets reversed
-    clockwise = list(reversed(counterclockwise))
+    counterclockwise = Path2D([[0, 0], [1, 0], [1, 1], [0, 1]])
+    assert clockwise_polygon(counterclockwise) == counterclockwise.reverse()  # counterclockwise gets reversed
+    clockwise = counterclockwise.reverse()
     assert clockwise_polygon(clockwise) == clockwise  # already clockwise, unchanged
 
 
