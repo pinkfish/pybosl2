@@ -2172,6 +2172,7 @@
     <span class="n">CutPoint</span><span class="p">,</span>
     <span class="n">Path</span><span class="p">,</span>
     <span class="n">SubdivideMethod</span><span class="p">,</span>
+    <span class="n">require_closed_flag</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.rounding</span><span class="w"> </span><span class="kn">import</span> <span class="n">Roundable</span>
@@ -2233,7 +2234,7 @@
                 <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path3D needs float64 points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">pts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="s2">"Color | None"</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">closed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">require_closed_flag</span><span class="p">(</span><span class="n">closed</span><span class="p">,</span> <span class="s2">"Path3D"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Path3D.copy">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path3d.Path3D.copy">[docs]</a>

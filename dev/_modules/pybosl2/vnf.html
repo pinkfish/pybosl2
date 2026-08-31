@@ -2830,9 +2830,9 @@
 <span class="sd">        .. pythonscad-example::</span>
 
 <span class="sd">            import math</span>
-<span class="sd">            from pybosl2 import VNF</span>
+<span class="sd">            from pybosl2 import Path3D, VNF</span>
 
-<span class="sd">            grid = [[[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)]</span>
+<span class="sd">            grid = [Path3D([[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)])</span>
 <span class="sd">                    for x in range(0, 60, 4)]</span>
 <span class="sd">            VNF.vertex_array(grid).polyhedron().show()</span>
 
@@ -2929,10 +2929,10 @@
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            from pybosl2 import VNF</span>
+<span class="sd">            from pybosl2 import Path3D, VNF</span>
 
-<span class="sd">            a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])</span>
-<span class="sd">            b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])</span>
+<span class="sd">            a = VNF.vertex_array([Path3D([[0, 0, 0], [1, 0, 0]]), Path3D([[0, 1, 0], [1, 1, 0]])])</span>
+<span class="sd">            b = VNF.vertex_array([Path3D([[0, 0, 1], [1, 0, 1]]), Path3D([[0, 1, 1], [1, 1, 1]])])</span>
 <span class="sd">            VNF.join([a, b]).polyhedron().show()</span>
 
 <span class="sd">        """</span>
@@ -3195,7 +3195,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vertex_array</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="s2">"Path3D | Sequence[Path3D] | Sequence[Sequence[Sequence[float]]] | Sequence[np.ndarray] | np.ndarray"</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="s2">"Sequence[Path3D]"</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="s2">"CapsSpec | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">col_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">row_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3212,7 +3212,8 @@
 <span class="sd">        *reverse* flips face winding. Degenerate (zero-area) faces are dropped.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            points: Input grid points.</span>
+<span class="sd">            points: The grid, one :class:`~pybosl2.path3d.Path3D` per row (SPEC C-7a). A grid is a</span>
+<span class="sd">                sequence of rows and a row is an ordered set of points, so each row is a path.</span>
 <span class="sd">            caps: Cap specification for both ends: a single :class:`CapType`,</span>
 <span class="sd">                  :class:`CapSpec`, or a two-element pair ``[cap_start, cap_end]``.</span>
 <span class="sd">                  Pass ``None`` (the default) for no caps.</span>
@@ -3234,7 +3235,10 @@
                 <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>
 
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">_to_grid</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span> <span class="k">as</span> <span class="n">_Path3D</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_paths</span>
+
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">_to_grid</span><span class="p">(</span><span class="n">require_paths</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">,</span> <span class="s2">"vertex_array"</span><span class="p">,</span> <span class="n">_Path3D</span><span class="p">))</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">([],</span> <span class="p">[])</span>
@@ -3416,7 +3420,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tri_array</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+        <span class="n">points</span><span class="p">:</span> <span class="s2">"Sequence[Path3D]"</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">cap1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cap2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3429,18 +3433,41 @@
 
 <span class="sd">        Triangulates between adjacent rows by repeatedly adding the shortest new edge, so it</span>
 <span class="sd">        meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: The rows, one :class:`~pybosl2.path3d.Path3D` each; unlike</span>
+<span class="sd">                :meth:`vertex_array` they may differ in length (SPEC C-7a).</span>
+<span class="sd">            caps: Close both open ends.</span>
+<span class="sd">            cap1: Close the first end (overrides *caps*).</span>
+<span class="sd">            cap2: Close the last end (overrides *caps*).</span>
+<span class="sd">            col_wrap: Wrap each row back to its own first point.</span>
+<span class="sd">            row_wrap: Wrap the last row back to the first.</span>
+<span class="sd">            reverse: Flip face winding.</span>
+<span class="sd">            limit_bunching: Limit how many triangles may fan from one vertex.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The triangulated mesh.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If *points* is not a sequence of `Path3D`, or caps are combined</span>
+<span class="sd">                with *row_wrap*.</span>
+
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">or</span> <span class="n">cap1</span> <span class="ow">or</span> <span class="n">cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="s2">"tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."</span>
             <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span> <span class="k">as</span> <span class="n">_Path3D</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_paths</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="n">require_paths</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">,</span> <span class="s2">"tri_array"</span><span class="p">,</span> <span class="n">_Path3D</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
         <span class="n">plen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="n">st</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">col_wrap</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="n">row</span> <span class="o">=</span> <span class="n">row</span> <span class="o">+</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
-            <span class="n">st</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">col_wrap</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span> <span class="o">+</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
         <span class="n">addcol</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">if</span> <span class="n">col_wrap</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">rowstarts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">st</span><span class="p">]</span>
         <span class="n">pcumlen</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -3474,7 +3501,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rng</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">pcumlen</span><span class="p">[</span><span class="n">plen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">pcumlen</span><span class="p">[</span><span class="n">plen</span><span class="p">]</span> <span class="o">-</span> <span class="n">addcol</span><span class="p">))</span>
             <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
-        <span class="n">verts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">st</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">st</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span></div>
 
 

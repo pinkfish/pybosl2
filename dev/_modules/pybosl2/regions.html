@@ -2142,7 +2142,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
@@ -2549,7 +2549,7 @@
 <div class="viewcode-block" id="Region.even_odd">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.even_odd">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">even_odd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="s2">"Sequence[Path2D | Sequence[Sequence[float]]]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">even_odd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="s2">"Sequence[Path2D]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a region from outlines nested by the EVEN-ODD rule.</span>
 
 <span class="sd">        Colours are read from each :class:`~pybosl2.path2d.Path2D` object (via</span>
@@ -2566,9 +2566,9 @@
 <span class="sd">        OpenSCAD's multi-path ``polygon()`` use.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or</span>
-<span class="sd">                point sequence.  Coloured ``Path2D`` objects carry their colour</span>
-<span class="sd">                through to the result.</span>
+<span class="sd">            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).</span>
+<span class="sd">                Coloured ``Path2D`` objects carry their colour through to the</span>
+<span class="sd">                result.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` whose solid area is the even-odd interpretation</span>
@@ -2593,7 +2593,9 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
 
-        <span class="n">rings</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_paths</span>
+
+        <span class="n">rings</span> <span class="o">=</span> <span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">require_paths</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="s2">"paths"</span><span class="p">,</span> <span class="s2">"even_odd"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)]</span>
 
         <span class="c1"># Repair each ring BEFORE it is used for nesting or unioning. Real drawings are full</span>
         <span class="c1"># of self-intersecting outlines -- 20 of the 148 rings in Wikipedia's Flag_of_Portugal</span>
@@ -2700,6 +2702,10 @@
 <span class="sd">            A :class:`Region` with the outline as the first path and holes as subsequent paths.</span>
 
 <span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_path</span><span class="p">,</span> <span class="n">require_paths</span>
+
+        <span class="n">outline</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">require_path</span><span class="p">(</span><span class="n">outline</span><span class="p">,</span> <span class="s2">"outline"</span><span class="p">,</span> <span class="s2">"with_holes"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">))</span>
+        <span class="n">require_paths</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">holes</span><span class="p">),</span> <span class="s2">"holes"</span><span class="p">,</span> <span class="s2">"with_holes"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">([</span><span class="n">outline</span><span class="p">,</span> <span class="o">*</span><span class="n">holes</span><span class="p">])</span></div>
 
 

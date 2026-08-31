@@ -2204,6 +2204,25 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">,</span> <span class="s2">"require_path"</span><span class="p">,</span> <span class="s2">"require_paths"</span><span class="p">]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">require_closed_flag</span><span class="p">(</span><span class="n">closed</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">type_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *closed* as a `bool`, refusing anything that is not one.</span>
+
+<span class="sd">    `closed` sits next to `points` in every `Path` constructor, so a misplaced positional argument</span>
+<span class="sd">    lands here rather than being rejected: `Path3D(row_a, row_b)` used to store the second *row* as</span>
+<span class="sd">    the closed flag and carry on, producing a path whose `closed` was a list of points. Nothing</span>
+<span class="sd">    downstream reads it as anything but truthy, so the result was an empty mesh with no error --</span>
+<span class="sd">    the silent wrong answer that SPEC C-7a exists to remove, in the constructor callers were being</span>
+<span class="sd">    sent to.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">closed</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">closed</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">type_name</span><span class="si">}</span><span class="s2">(): closed must be True or False, got </span><span class="si">{</span><span class="n">closed</span><span class="si">!r}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"For several outlines, pass a list of </span><span class="si">{</span><span class="n">type_name</span><span class="si">}</span><span class="s2"> objects to the function that takes them "</span>
+        <span class="sa">f</span><span class="s2">"-- </span><span class="si">{</span><span class="n">type_name</span><span class="si">}</span><span class="s2"> itself builds one path."</span>
+    <span class="p">)</span>
+
+
 <div class="viewcode-block" id="require_path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.require_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">require_path</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expect</span><span class="p">:</span> <span class="s2">"type[Path] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path"</span><span class="p">:</span>
