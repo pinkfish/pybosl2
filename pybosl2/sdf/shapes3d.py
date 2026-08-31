@@ -30,6 +30,8 @@ from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.path2d import Path2D
+from pybosl2.paths import require_path
 from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from pybosl2.sdf._libfive import LVTree, lv
 from pybosl2.sdf.edges import (
@@ -65,7 +67,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
-    from pybosl2.paths import PathLike
+    from pybosl2.path3d import Path3D
     from pybosl2.vnf import VNF
 
 
@@ -1921,7 +1923,7 @@ def _box_after_cutting(base: PyShape, tools: "list[PyShape]") -> "tuple[list[flo
 
 
 def rotate_extrude(
-    paths: "PathLike | Sequence[PathLike]",
+    paths: "Path2D | Sequence[Path2D]",
     angle: float = 360.0,
     res: int = 10,
 ) -> PyShape:
@@ -1938,7 +1940,7 @@ def rotate_extrude(
     would be self-intersecting, which OpenSCAD refuses too.
 
     Args:
-        paths: The profile outline as ``[[x, y], ...]``, or several disjoint outlines.
+        paths: The profile outline as a `Path2D`, or several disjoint ones (SPEC C-7a).
         angle: Sweep in degrees (default 360, a full revolution).
         res: libfive meshing resolution passed to frep().
 
@@ -1951,7 +1953,7 @@ def rotate_extrude(
     """
     if paths is None or len(paths) == 0:
         raise Bosl2ValueError("rotate_extrude(): needs at least one profile outline")
-    path_list = as_path_list(paths)
+    path_list = as_path_list(paths, "paths", "rotate_extrude")
     if not path_list:  # pragma: no cover - as_path_list never empties a non-empty input
         raise Bosl2ValueError("rotate_extrude(): needs at least one profile outline")
     for outline in path_list:
@@ -1991,7 +1993,7 @@ def rotate_extrude(
 
 
 def tapered_polygon_prism(
-    paths: "PathLike | Sequence[PathLike]",
+    paths: "Path2D | Sequence[Path2D]",
     height: float,
     scale_bottom: float = 1.0,
     scale_top: float = 1.0,
@@ -2009,7 +2011,7 @@ def tapered_polygon_prism(
     Sits on z=0, like `polygon_prism()`.
 
     Args:
-        paths: The base outline as ``[[x, y], ...]``, or several disjoint outlines.
+        paths: The base outline as a `Path2D`, or several disjoint ones (SPEC C-7a).
         height: Extrusion height along +Z.
         scale_bottom: Cross-section scale at z=0.
         scale_top: Cross-section scale at z=height.
@@ -2026,7 +2028,7 @@ def tapered_polygon_prism(
         raise Bosl2ValueError(f"tapered_polygon_prism(): height must be positive, got {height}")
     if scale_bottom <= 0 or scale_top <= 0:
         raise Bosl2ValueError(f"tapered_polygon_prism(): scales must be positive, got {scale_bottom} and {scale_top}")
-    path_list = as_path_list(paths)
+    path_list = as_path_list(paths, "paths", "tapered_polygon_prism")
     if not path_list:
         raise Bosl2ValueError("tapered_polygon_prism(): needs at least one outline")
 
@@ -2051,7 +2053,7 @@ def tapered_polygon_prism(
 
 
 def spiral_sweep(
-    profile: "PathLike",
+    profile: "Path2D",
     height: float,
     radius: float,
     turns: float = 1.0,
@@ -2081,7 +2083,7 @@ def spiral_sweep(
     -- but a bare coil's ends are square here.
 
     Args:
-        profile: The cross-section as ``[[x, y], ...]``: X outward from the helix, Y up.
+        profile: The cross-section as a `Path2D`: X outward from the helix, Y up (SPEC C-7a).
         height: Overall height of the coil.
         radius: Helix radius.
         turns: Number of revolutions. Negative sweeps the other way (a left-hand thread).
@@ -2095,7 +2097,7 @@ def spiral_sweep(
         ValueError: If the profile has fewer than 3 points, or turns or height is zero.
 
     """
-    points = np.asarray(as_path_list(profile)[0], dtype=float)
+    points = np.asarray(as_path_list(profile, "profile", "spiral_sweep")[0], dtype=float)
     if len(points) < 3:
         raise Bosl2ValueError(f"spiral_sweep(): the profile needs at least 3 points, got {len(points)}")
     if turns == 0:
@@ -2138,7 +2140,7 @@ def spiral_sweep(
     return PyShape(sdf_fn, [-outer, -outer, low], [outer, outer, high], res)
 
 
-def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
+def convex_polyhedron(points: "Path3D", res: int = 10) -> PyShape:
     """Return the convex hull of `points` as a libfive SDF.
 
     The max of the hull faces' signed half-space distances -- the 3-D analogue of
@@ -2152,8 +2154,8 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
     count -- entirely fine for the tens-of-vertices solids this is for, and it happens once in
     Python at construction time, not per SDF evaluation.
     """
-    points = np.asarray(points, dtype=float)
-    pts = [[float(v) for v in p] for p in points]
+    coords = np.asarray(require_path(points, "points", "convex_polyhedron"), dtype=float)
+    pts = [[float(v) for v in p] for p in coords]
     n = len(pts)
     if not (n >= 4):
         raise Bosl2ValueError(f"convex_polyhedron() needs at least 4 points, got {n}")
@@ -3011,7 +3013,7 @@ def rounding_edge_mask(
     return PyShape(sdf_fn, [-excess, -excess, -length / 2], [rad, rad, length / 2], res)
 
 
-def polygon_extrude(pts: ArrayLike, length: float, res: int = 10) -> PyShape:
+def polygon_extrude(pts: "Path2D", length: float, res: int = 10) -> PyShape:
     """Return a linear extrusion of a CONVEX 2-D polygon as a 3-D libfive SDF.
 
     Extrudes `pts` along Z by `length`, centered -- for a custom edge-profile cutter with no
@@ -3027,11 +3029,12 @@ def polygon_extrude(pts: ArrayLike, length: float, res: int = 10) -> PyShape:
     CAVEAT: `pts` must describe a CONVEX polygon. A concave vertex's half-plane doesn't bound
     the shape there, so both the sign and the surface would come out wrong.
     """
-    pts = as_points(pts)
+    coords = as_points(require_path(pts, "pts", "polygon_extrude"))
     area2 = sum(
-        pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts))
+        coords[i][0] * coords[(i + 1) % len(coords)][1] - coords[(i + 1) % len(coords)][0] * coords[i][1]
+        for i in range(len(coords))
     )
-    ordered = pts if area2 > 0 else list(reversed(pts))
+    ordered = coords if area2 > 0 else list(reversed(coords))
     n = len(ordered)
     edges = []
     for i in range(n):
@@ -3055,7 +3058,7 @@ def polygon_extrude(pts: ArrayLike, length: float, res: int = 10) -> PyShape:
 
 
 def polygon_prism(
-    paths: ArrayLike,
+    paths: "Path2D | Sequence[Path2D]",
     height: float,
     rounding_top: float = 0,
     rounding_bottom: float = 0,
@@ -3084,7 +3087,7 @@ def polygon_prism(
     the polygon via the 2-D SDF instead of along a straight edge).
 
     Args:
-        paths:           one [[x, y], ...] polygon, or a list of disjoint such polygons
+        paths:           one `Path2D` outline, or a sequence of disjoint ones (SPEC C-7a)
         height:               extrusion height (z from 0 to height)
         rounding_top:    top-rim treatment: >0 roundover radius, <0 flare, 0 square (default 0)
         rounding_bottom: bottom-rim treatment, same convention (default 0)
@@ -3093,11 +3096,9 @@ def polygon_prism(
         res:             libfive meshing resolution passed to frep() (default 10)
 
     """
-    if not isinstance(paths, (list, np.ndarray)):
-        raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
     if not (len(paths) >= 1):
         raise Bosl2ValueError("polygon_prism(): paths must not be empty")
-    path_list = as_path_list(paths)
+    path_list = as_path_list(paths, "paths", "polygon_prism")
     for p in path_list:
         if not (len(p) >= 3):
             raise Bosl2ValueError(f"polygon_prism(): every path needs >= 3 points, got {len(p)}")
@@ -3444,10 +3445,10 @@ def regular_prism(
                 "rounding or chamfer here; build it on the csg backend for that."
             )
         base = [[p[0] / rad * bottom, p[1] / rad * bottom] for p in pts]
-        prism = tapered_polygon_prism(base, length, 1.0, top / bottom, res=res)
+        prism = tapered_polygon_prism(Path2D(base), length, 1.0, top / bottom, res=res)
     else:
         prism = polygon_prism(
-            pts,
+            Path2D(pts),
             length,
             rounding_top=r2v,
             rounding_bottom=r1v,
@@ -3515,7 +3516,7 @@ def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.floa
     return t, nrm, b
 
 
-def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float = 0.0) -> PyShape:
+def path_sweep(profile: "Path2D", path: "Path2D | Path3D", res: int = 12, twist: float = 0.0) -> PyShape:
     """Sweep a 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`.
 
     (a list of ``[x, y, z]`` points -- 2-D points are lifted to ``z = 0``), as a libfive SDF.
@@ -3533,10 +3534,11 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
     uses over the convex-only :func:`polygon_extrude`). `twist` is a total rotation of the profile
     (in degrees) applied evenly along the path.
     """
-    prof = as_points(profile)
+    prof = as_points(require_path(profile, "profile", "path_sweep"))
     if not (len(prof) >= 3):
         raise Bosl2ValueError("sweep profile needs at least 3 points")
-    pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(path, dtype=float).tolist()]
+    spine = require_path(path, "path", "path_sweep")
+    pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(spine, dtype=float).tolist()]
     if not (len(pts3) >= 2):
         raise Bosl2ValueError("sweep path needs at least 2 points")
     p = np.asarray(pts3, dtype=float)
@@ -3617,7 +3619,11 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
 
 
 def bezier_sweep(
-    profile: ArrayLike, control_points: ArrayLike, splinesteps: int = 24, res: int = 12, twist: float = 0.0
+    profile: "Path2D",
+    control_points: "Path2D | Path3D",
+    splinesteps: int = 24,
+    res: int = 12,
+    twist: float = 0.0,
 ) -> PyShape:
     """Sweep a 2-D `profile` (convex or concave) along a 3-D Bezier curve, as a libfive SDF.
 
@@ -3631,8 +3637,8 @@ def bezier_sweep(
     """
     from pybosl2.beziers import Bezier
 
-    path = Bezier(control_points).curve(splinesteps=splinesteps)  # type: ignore[arg-type]
-    return path_sweep(profile, path, res=res, twist=twist)
+    curve = Bezier(require_path(control_points, "control_points", "bezier_sweep")).curve(splinesteps=splinesteps)
+    return path_sweep(profile, curve, res=res, twist=twist)
 
 
 def stroke_3d(

@@ -943,6 +943,7 @@ def _spiral_sweep(
         # the frame the helix carries it through (TASKS T14). A taper has none, so it refuses
         # rather than quietly sweeping a constant radius.
         from pybosl2.exceptions import UnsupportedByBackendError
+        from pybosl2.path2d import Path2D as _Path2D
         from pybosl2.sdf.shapes3d import spiral_sweep as _sdf_spiral_sweep
 
         if abs(rr1 - rr2) > 1e-12:
@@ -952,7 +953,7 @@ def _spiral_sweep(
                 hint="a helix of changing radius has no closed-form distance field here; build it "
                 'inside `with use_backend("csg")` and bring it over with .to_csg().',
             )
-        return _sdf_spiral_sweep(poly, height=height, radius=rr1, turns=turns, center=center)
+        return _sdf_spiral_sweep(_Path2D(poly), height=height, radius=rr1, turns=turns, center=center)
 
     nturns = abs(turns)
     sides = _segs(max(rr1, rr2), fn, fa, fs)

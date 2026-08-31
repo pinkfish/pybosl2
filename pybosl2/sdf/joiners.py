@@ -233,7 +233,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
                 [[-withclearance[0][0], -extra]],
             ]
         )
-        profile = polygon2d(finalpath, res=res)
+        profile = polygon2d(Path2D(finalpath), res=res)
 
     if lock:
         lock_poly = np.array(
@@ -244,9 +244,9 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
                 [sidepath[2][0], sidepath[1][1] + lock_clearance],
             ]
         )
-        lock_shape = polygon2d(lock_poly + [clearance, 0.0], res=res)
+        lock_shape = polygon2d(Path2D(lock_poly + [clearance, 0.0]), res=res)
         # lock=True mirrors the lock tab to both sides (BOSL2 xflip_copy()).
-        profile = profile | lock_shape | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
+        profile = profile | lock_shape | polygon2d(Path2D(lock_poly * [-1.0, 1.0] - [clearance, 0.0]), res=res)
 
     solid = profile.extrude(depth, center=True)
     # xrot(90) * translate([0, -dy/2, -depth/2]) on the pre-extruded profile centers the

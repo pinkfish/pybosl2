@@ -34,6 +34,8 @@ from pybosl2._backend import (
 )
 from pybosl2.defaults import resolve_res
 from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.sdf import shapes3d as _s
 
 __all__: list[str] = []
@@ -96,6 +98,19 @@ def _takes_res(constructor: Callable[..., Any]) -> bool:
         # pybosl2.sdf.shapes3d, so `signature()` always succeeds. It would only fire if a builtin
         # or a C callable were registered as a shape constructor.
         return False
+
+
+def _as_outlines(paths: Any) -> "list[Path2D]":
+    """Normalize the backend protocol's `paths` to `Path2D` outlines.
+
+    `Backend.linear_extrude`/`rotate_extrude` are typed `Any` and documented to carry raw point
+    paths deliberately -- 2-D *geometry* is a CSG-only notion, so the seam between the two backends
+    trades in points. That makes this adapter the boundary where SPEC C-7a's conversion belongs:
+    once, here, rather than pushed onto every caller of `get_backend()`.
+    """
+    from pybosl2.paths import Path
+
+    return [cast("Path2D", p) if isinstance(p, Path) else Path2D(p) for p in paths]
 
 
 class SdfBackend:
@@ -165,7 +180,7 @@ class SdfBackend:
                     "shape from SDF primitives and booleans."
                 ),
             )
-        return _s.convex_polyhedron(points)
+        return _s.convex_polyhedron(Path3D(points))
 
     def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Revolve *paths* about the Z axis via :func:`~pybosl2.sdf.shapes3d.rotate_extrude`.
@@ -177,7 +192,7 @@ class SdfBackend:
         res = int(options.pop("res", 10) or 10)
         for name in ("convexity", "fn", "fa", "fs"):
             options.pop(name, None)
-        return _s.rotate_extrude(paths, angle=angle, res=res)
+        return _s.rotate_extrude(_as_outlines(paths), angle=angle, res=res)
 
     def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Extrude *paths* into an SDF prism via :func:`~pybosl2.sdf.shapes3d.polygon_prism`.
@@ -215,7 +230,7 @@ class SdfBackend:
         if options:
             raise Bosl2ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
         shape = _s.polygon_prism(
-            paths,
+            _as_outlines(paths),
             height,
             rounding_top=rounding_top,
             rounding_bottom=rounding_bottom,

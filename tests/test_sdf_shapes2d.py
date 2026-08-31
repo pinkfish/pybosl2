@@ -62,7 +62,7 @@ class TestShape2D:
         assert shape.sample(5, 3, 1) < 0, "interior at the anchored position"
 
     def test_polygon2d_concave(self) -> None:
-        pts = [[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]]
+        pts = Path2D([[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]])
         shape = sdf_s2d.polygon2d(pts).extrude(3).mesh()
         assert shape.sample(5, 5, 1) < 0
         assert shape.sample(30, 30, 1) > 0, "the notch is outside"
@@ -95,7 +95,7 @@ class TestShape2D:
         assert rot.sample(4, 0, 1) > 0
 
     def test_mirror(self) -> None:
-        tri = sdf_s2d.polygon2d([[0, 0], [10, 0], [0, 10]])
+        tri = sdf_s2d.polygon2d(Path2D([[0, 0], [10, 0], [0, 10]]))
         mirrored = tri.mirror([1, 0]).extrude(2).mesh()
         assert mirrored.sample(-2, 2, 1) < 0, "flipped into -x"
         assert mirrored.sample(2, 2, 1) > 0
@@ -163,9 +163,9 @@ class TestShape2D:
 class TestRegion2D:
     """region2d(): BOSL2-style even-odd region data as a PyShape2D."""
 
-    OUTER = [[0, 0], [20, 0], [20, 20], [0, 20]]
-    HOLE = [[5, 5], [15, 5], [15, 15], [5, 15]]
-    ISLAND = [[8, 8], [12, 8], [12, 12], [8, 12]]
+    OUTER = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    HOLE = Path2D([[5, 5], [15, 5], [15, 15], [5, 15]])
+    ISLAND = Path2D([[8, 8], [12, 8], [12, 12], [8, 12]])
 
     def test_ring(self) -> None:
         shape = sdf_s2d.region2d([self.OUTER, self.HOLE]).extrude(2).mesh()
@@ -181,8 +181,8 @@ class TestRegion2D:
         assert shape.sample(10, 10, 1) < 0, "island solid again"
 
     def test_disjoint_outlines_union(self) -> None:
-        a = [[0, 0], [5, 0], [5, 5], [0, 5]]
-        b = [[10, 0], [15, 0], [15, 5], [10, 5]]
+        a = Path2D([[0, 0], [5, 0], [5, 5], [0, 5]])
+        b = Path2D([[10, 0], [15, 0], [15, 5], [10, 5]])
         shape = sdf_s2d.region2d([a, b]).extrude(2).mesh()
         assert shape.sample(2, 2, 1) < 0
         assert shape.sample(12, 2, 1) < 0

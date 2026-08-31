@@ -1878,7 +1878,7 @@ the first run, which is the rule working as intended. The index no longer points
 ## T24 — Make a point sequence a `Path2D`/`Path3D`, not a bare list 🔶
 
 **Closes:** §12.2 item 3 (C-7a, C-7b, C-7c) · **Implements:** PLAN T-4, T-4a, T-4b, T-4c · **Size:** L
-**Risk:** medium — API-breaking at 36 public parameters, and the raw form is what most examples use
+**Risk:** medium — API-breaking at 51 public parameters, and the raw form is what most examples use
 
 C-7 asked that an API taking a polyline *accept* a `Path`. They all do, through the permissive
 `PathLike` alias — and that is the defect, not the compliance: the widest form became the default
@@ -1890,7 +1890,7 @@ do not always agree.
 1. Add `require_path(value, parameter, function)` to `pybosl2.paths`: returns a `Path` unchanged,
    otherwise raises `Bosl2ValueError` naming the wrapper to apply, choosing `Path2D` or `Path3D`
    from the width of the points it was handed so the message is the fix (C-7b).
-2. Retype the 36 public parameters to `Path2D | Path3D | Path` and call `require_path()` on the
+2. Retype the 51 public parameters to `Path2D | Path3D | Path` and call `require_path()` on the
    first line, before any other work (E-4).
 3. Mark `PathLike` internal in its own docstring and in `pybosl2.paths.__all__`'s documentation —
    it types the normalisation *inside* a body, never a parameter (C-7c).
@@ -1906,29 +1906,47 @@ np.ndarray)` is an SDF sampling kernel called per evaluation batch, not a caller
 wrapping it would be both wrong and slow. `heightfield(data=...)` and `tri_array(points=...)` take
 a *grid*, not a path.
 
-**Landed so far (13 of 36).** `require_path()`, `require_paths()` (the sequence form, which names
-the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`,
-`flat.circle`, `shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`,
-`shapes2d.jittered_poly`, `sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`,
-`skin.subdivide_and_slice` and `VNF.from_skin`. The ratchet in
-`tests/test_polyline_parameters.py` holds the remaining **23**.
+**Landed so far (26 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
+the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`, `flat.circle`,
+`shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`, `shapes2d.jittered_poly`,
+`sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`, `skin.subdivide_and_slice`,
+`VNF.from_skin`, and the whole SDF shape-entry-point family — `sdf.paths.as_path_list`,
+`sdf.shapes2d.polygon2d`/`region2d`, and `sdf.shapes3d.rotate_extrude`/`tapered_polygon_prism`/
+`spiral_sweep`/`polygon_prism`/`polygon_extrude`/`convex_polyhedron`/`path_sweep` (both
+parameters)/`bezier_sweep` (both). The ratchet in `tests/test_polyline_parameters.py` holds the
+remaining **25**.
 
-Four things the tranches showed, all worth expecting on the rest:
+**The denominator moved, and the debt did not.** It was stated as 36. The scan missed `ArrayLike`
+outright — although C-7a names a NumPy array explicitly — and it walked *every* function node, so
+`region2d`'s local `contains` helper counted as public API. Fixing both put the real figure at 51,
+and put an entry on the list that no conversion could have removed. The scan's scope is now a stated
+rule (PLAN T-4c), and a normalizer whose job *is* the wide form is excluded with its reason rather
+than parked on a shrink-only list (PLAN T-4d).
+
+Things the tranches showed, all worth expecting on the rest:
 
 * **`mypy --strict` finds the internal callers.** Retyping `arc(points=)` immediately surfaced
   three call sites inside the library still passing raw lists (one in `shapes2d/circle.py`, two in
-  `turtle/turtle2d.py`). That is the migration's own safety net -- the raw form stops being
-  invisible the moment the parameter is typed.
+  `turtle/turtle2d.py`); typing the SDF entry points surfaced ten more. That is the migration's own
+  safety net -- the raw form stops being invisible the moment the parameter is typed.
 * **Runtime checks become redundant, and that is the payoff.** `arc()` carried its own
   "handles 2-D points only" branch; with the parameter typed `Path2D` that branch is unreachable,
-  because `Path2D` rejects 3-D points at construction. The check moved to the one place that can
-  make it once (C-7a), and the message improved -- it now names the type rather than the caller's
-  function. Eighteen tests failed on the retype and all were tests passing raw lists; one asserted
-  the old message and was updated to assert the new location.
+  because `Path2D` rejects 3-D points at construction. `as_path_list()` carried something worse: a
+  *guess* at whether it held one outline or several, made by inspecting `paths[0][0]`, which is
+  unanswerable for a 2-point argument (`[[0, 0], [1, 1]]` is either one 2-point outline or two
+  1-point ones). A `Path2D` says which it is, so the guess is gone rather than merely corrected.
+  `polygon_prism()`'s hand-rolled `TypeError` went the same way, replaced by a message that names
+  the wrapper (E-4, C-7b).
 * **The type has to be the *right* one, and only running it tells you.** `path_extrude` was
   retyped `Path2D` on the strength of its name; it sweeps along a **3-D** spine, so `Path2D` would
   have rejected every valid call. `mypy --strict` was clean -- the docstring example and a
-  behavioural test caught it. Read what the parameter carries, not what the module is called.
+  behavioural test caught it. `path_sweep` has the same shape (2-D profile, either-width spine) and
+  was typed from its body, not its name.
+* **Narrowing a return type is not free.** Making `Bezier.curve()` return `Path2D | Path3D` instead
+  of `Path` removed a `# type: ignore`, and broke a docstring example that had type-checked for as
+  long as it existed -- because `Path.stroke()` returns `Any`, so nothing downstream of it was ever
+  checked. The example was right at runtime and unprovable statically. Narrowing turns a gate on;
+  expect it to find something.
 * **`mypy --strict` passing is not the package importing.** Adding `from pybosl2.paths import
   require_path` to `caps.py` closed a cycle -- `pybosl2.paths` imports `CapSpec` from `caps` --
   and `import pybosl2` stopped working entirely while every static gate stayed green. Import
@@ -1938,6 +1956,11 @@ Four things the tranches showed, all worth expecting on the rest:
   existing ignore. Only the runtime refusal exposed it. Fixing the *producer* -- wrapping its
   result and widening the private helper to `PathLike` -- removed the ignore rather than adding
   another, which is the direction this migration should always push.
+* **The seam between backends is where the conversion belongs.** `Backend.linear_extrude`/
+  `rotate_extrude`/`polyhedron` are typed `Any` and documented to carry raw points deliberately,
+  because 2-D geometry is a CSG-only notion. Converting there, once, in the SDF adapter, fixed
+  every part that reaches the SDF backend through it -- rather than pushing a wrapper onto every
+  caller of `get_backend()`.
 * **Do not edit files while a full suite runs.** Two failures in one run (`test_ci_gates`,
   `test_docstring_examples`) came from editing the tree mid-run; `test_ci_gates` passed in
   isolation immediately after. A failure caused by the harness is worse than no signal, because
