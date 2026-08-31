@@ -1275,6 +1275,44 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.is_watertight (Python method) — Whether this mesh is a closed manifold: every undirected edge shared by exactly two faces."><span>is_<wbr>watertight</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="is_watertight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.vnf.VNF.volume" class="md-nav__link">
     
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
@@ -3030,6 +3068,44 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.is_watertight (Python method) — Whether this mesh is a closed manifold: every undirected edge shared by exactly two faces."><span>is_<wbr>watertight</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="is_watertight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.is_watertight-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.vnf.VNF.volume" class="md-nav__link">
     
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
@@ -3802,6 +3878,31 @@ primitives with <a class="reference internal" href="#pybosl2.vnf.VNF.from_metaba
 <dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.is_watertight">
+<span class="sig-name descname"><span class="pre">is_watertight</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.is_watertight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.is_watertight" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this mesh is a closed manifold: every undirected edge shared by exactly two faces.</p>
+<p>A watertight mesh bounds a solid, so it can be exported, unioned or measured; an open one
+cannot, and a slicer will either refuse it or repair it into something the caller did not
+ask for. The test is on topology alone – it reads <cite>faces</cite> and never <cite>vertices</cite> – so it is
+cheap and says nothing about self-intersection or winding.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.is_watertight-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.is_watertight-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>True if every edge has exactly two incident faces, False for an open or empty mesh.</p>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.is_watertight-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.is_watertight-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>A cube built as a closed grid is watertight; one open face is not:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VNF</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">is_watertight</span><span class="p">()</span>
+<span class="go">False</span>
+</code></pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method objdesc">
