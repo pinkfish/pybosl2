@@ -16,6 +16,7 @@ Concrete math helpers live in :mod:`pybosl2._path_math`.
 
 from __future__ import annotations
 
+import collections.abc as abc
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -70,7 +71,7 @@ if TYPE_CHECKING:
 #: the body works on one shape.
 PathLike: "TypeAlias" = "Path | Sequence[Sequence[float]] | NDArray[np.float64]"
 
-__all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod", "require_path"]
+__all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod", "require_path", "require_paths"]
 
 
 def require_path(value: object, parameter: str, function: str) -> "Path":
@@ -100,6 +101,35 @@ def require_path(value: object, parameter: str, function: str) -> "Path":
     if isinstance(value, Path):
         return value
     raise Bosl2ValueError(f"{function}(): {parameter} must be a {_suggest_path_type(value)}.")
+
+
+def require_paths(values: object, parameter: str, function: str) -> "list[Path]":
+    """Return *values* as a list of :class:`Path`, refusing raw points elementwise (SPEC C-7a).
+
+    The sequence form of :func:`require_path`. The index of the offending element is part of the
+    message, because a list of profiles where only one is raw is the usual way to get here and
+    saying only "profiles must be Paths" leaves the caller to find which.
+
+    Args:
+        values: the argument supplied for a sequence-of-polylines parameter.
+        parameter: the parameter's name.
+        function: the function's name.
+
+    Returns:
+        The paths as a list, unchanged.
+
+    Raises:
+        Bosl2ValueError: If *values* is not a sequence, or any element is not a `Path`.
+
+    """
+    if isinstance(values, (str, bytes)) or not isinstance(values, abc.Sequence):
+        raise Bosl2ValueError(f"{function}(): {parameter} must be a sequence of Path2D/Path3D, got {values!r}.")
+    out: list[Path] = []
+    for index, value in enumerate(values):
+        if not isinstance(value, Path):
+            raise Bosl2ValueError(f"{function}(): {parameter}[{index}] must be a {_suggest_path_type(value)}.")
+        out.append(value)
+    return out
 
 
 def _suggest_path_type(value: object) -> str:

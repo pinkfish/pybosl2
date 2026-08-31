@@ -22,6 +22,7 @@ import pybosl2.shapes2d as s2
 from pybosl2._helpers import unwrap
 from pybosl2.color import Color
 from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.regions import Region
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cuboid
@@ -561,8 +562,8 @@ def test_rotate_extrude_angle_sweeps_only_part_of_the_way() -> None:
 @needs_native_2d_bbox
 def test_path_extrude_follows_its_spine() -> None:
     """A radius-2 circle swept up 20mm and 5mm over reaches roughly that far in each axis."""
-    spine = [[0, 0, 0], [0, 0, 10], [5, 0, 20]]
-    tube = s2.circle(radius=2).path_extrude(spine)  # type: ignore[arg-type]
+    spine = Path3D([[0, 0, 0], [0, 0, 10], [5, 0, 20]])
+    tube = s2.circle(radius=2).path_extrude(spine)
     size = [float(v) for v in tube.bounds().size]
     assert size[2] == pytest.approx(20.8, abs=0.5)  # the spine's height, plus the profile's tilt
     assert 4.0 < size[0] < 12.0  # the 5mm dogleg, widened by the 4mm-diameter profile

@@ -242,8 +242,9 @@ def test_two_objects_differ(tmp_path):
 def test_skin_lofts_two_profiles(tmp_path):
     setup = (
         "from pybosl2.enums import SkinMethod\n"
-        "circle = [[6*math.cos(t), 6*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)]\n"
-        "square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]\n"
+        "from pybosl2 import Path2D\n"
+        "circle = Path2D([[6*math.cos(t), 6*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)])\n"
+        "square = Path2D([[-8, -8], [8, -8], [8, 8], [-8, 8]])\n"
     )
     m = _render(
         tmp_path,
