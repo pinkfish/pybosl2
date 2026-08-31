@@ -875,7 +875,6 @@ def textured_tile(
         TextureType,
         is_heightfield_texture,
         is_vnf_texture,
-        is_watertight_topology,
         rasterize_vnf_texture,
         vnf_tile_to_solid,
     )
@@ -906,12 +905,14 @@ def textured_tile(
         return [max(1, round(sz[0] / ts[0])), max(1, round(sz[1] / ts[1]))]
 
     if is_vnf_texture(texture) and not is_heightfield_texture(texture):
-        verts, faces = texture
+        # The texture arrives as BOSL2's `(verts, faces)` tuple; it becomes a VNF here, once, and
+        # everything downstream trades in the mesh type rather than its two halves (SPEC C-8).
+        tile = VNF(*texture)
         reps = resolve_reps(1)
-        v, f = vnf_tile_to_solid(verts, faces, sz, reps, tex_depth=tex_depth, inset=inset)
-        if is_watertight_topology(v, f):  # sharp VNF tiling closed cleanly
-            return VNF(v, f).polyhedron().with_nominal_size([sz[0], sz[1], abs(tex_depth) + 0.1])
-        texture = rasterize_vnf_texture(verts, faces)  # else fall back to a sampled height-field
+        solid = vnf_tile_to_solid(tile, sz, reps, tex_depth=tex_depth, inset=inset)
+        if solid.is_watertight():  # sharp VNF tiling closed cleanly
+            return solid.polyhedron().with_nominal_size([sz[0], sz[1], abs(tex_depth) + 0.1])
+        texture = rasterize_vnf_texture(tile)  # else fall back to a sampled height-field
 
     rows, cols = len(texture), len(texture[0])
     reps = resolve_reps(1)

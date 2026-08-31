@@ -14,11 +14,11 @@ from pybosl2.texture import (
     TEXTURES,
     is_heightfield_texture,
     is_vnf_texture,
-    is_watertight_topology,
     rasterize_vnf_texture,
     texture,
     vnf_tile_to_solid,
 )
+from pybosl2.vnf import VNF
 
 _HF = [n for n, (_b, k) in TEXTURES.items() if k == "heightfield"]
 _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]
@@ -57,11 +57,10 @@ def test_resolution_parameter() -> None:
 def test_vnf_texture_tiles_watertight_or_rasterizes(name: str) -> None:
     # every VNF texture must either tile to a closed manifold via the sharp path, or have a valid
     # height-field rasterization that textured_tile falls back to.
-    verts, faces = texture(name)
-    v, f = vnf_tile_to_solid(verts, faces, size=[30, 30], reps=[4, 4], tex_depth=3)  # type: ignore[arg-type]
-    if is_watertight_topology(v, f):
+    tile = VNF(*texture(name))  # type: ignore[misc]
+    if vnf_tile_to_solid(tile, size=[30, 30], reps=[4, 4], tex_depth=3).is_watertight():
         return
-    a: np.ndarray = np.array(rasterize_vnf_texture(verts, faces))  # type: ignore[arg-type]
+    a: np.ndarray = np.array(rasterize_vnf_texture(tile))
     assert a.ndim == 2
     assert a.min() >= -1e-6
     assert a.max() <= 1.6 + 1e-6
@@ -110,3 +109,20 @@ def test_textured_tile_tex_size_picks_reps(tex_size: float, reps: int) -> None:
     by_reps = textured_tile("pyramids", size=[40, 40], tex_reps=[reps, reps], tex_depth=2)  # type: ignore[operator]
     assert repr(by_size) == repr(by_reps)
     assert by_size.bounds().size == pytest.approx([40.0, 40.0, 2.1])
+
+
+def test_the_tile_functions_trade_in_meshes_not_halves() -> None:
+    """A texture tile crosses these boundaries as one `VNF` object (SPEC C-8, T25).
+
+    Passing `verts` and `faces` separately let a caller supply vertices from one mesh and faces from
+    another -- indices into an array that was never checked against them -- and get silent nonsense
+    rather than an error. One object cannot be mismatched with itself.
+    """
+    tile = VNF(*texture(_VNF[0]))  # type: ignore[misc]
+    solid = vnf_tile_to_solid(tile, size=[10, 10], reps=[2, 2], tex_depth=1)
+    assert isinstance(solid, VNF)
+    assert len(solid.vertices) > 0
+    assert len(solid.faces) > 0
+    field = rasterize_vnf_texture(tile, sides=8)
+    assert len(field) == 8
+    assert all(len(row) == 8 for row in field)

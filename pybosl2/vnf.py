@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 import math
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
@@ -738,6 +738,31 @@ class VNF:
     def reverse(self) -> "VNF":
         """Return a copy with every face wound the other way (flips the surface normals)."""
         return VNF(self.vertices, [f[::-1] for f in self.faces])
+
+    def is_watertight(self) -> bool:
+        """Whether this mesh is a closed manifold: every undirected edge shared by exactly two faces.
+
+        A watertight mesh bounds a solid, so it can be exported, unioned or measured; an open one
+        cannot, and a slicer will either refuse it or repair it into something the caller did not
+        ask for. The test is on topology alone -- it reads `faces` and never `vertices` -- so it is
+        cheap and says nothing about self-intersection or winding.
+
+        Returns:
+            True if every edge has exactly two incident faces, False for an open or empty mesh.
+
+        Examples:
+            A cube built as a closed grid is watertight; one open face is not:
+
+                >>> from pybosl2 import VNF
+                >>> VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]]).is_watertight()
+                False
+
+        """
+        edges: Counter[frozenset[int]] = Counter()
+        for face in self.faces:
+            for i in range(len(face)):
+                edges[frozenset((face[i], face[(i + 1) % len(face)]))] += 1
+        return bool(edges) and all(count == 2 for count in edges.values())
 
     def volume(self) -> float:
         """Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward.

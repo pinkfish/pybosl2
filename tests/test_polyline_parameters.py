@@ -87,12 +87,6 @@ EXCLUDED = frozenset(
         # `Path2D.from_list(lst)`, which escaped this scan only by not naming its parameter
         # `points`. `Bezier(path)` is the typed entry point; this is the wide one it needs.
         "pybosl2/beziers.py::from_list::points",
-        # `(verts, faces)` is a *mesh*: an unordered vertex array indexed by faces, where
-        # reordering `verts` without reindexing `faces` destroys the geometry. The type these
-        # want is `VNF` (SPEC C-8), not a `Path` -- recorded as §12.2 item 4, not dropped.
-        "pybosl2/texture.py::is_watertight_topology::verts",
-        "pybosl2/texture.py::rasterize_vnf_texture::verts",
-        "pybosl2/texture.py::vnf_tile_to_solid::verts",
     }
 )
 

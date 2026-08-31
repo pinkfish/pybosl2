@@ -614,3 +614,28 @@ def test_vnf_halfspace_closed() -> None:
     assert b_out.min_z == 0.0
     assert b_out.max_z == 10.0
     assert result.volume() == pytest.approx(vnf.volume())
+
+
+def test_is_watertight_on_a_closed_and_an_open_mesh() -> None:
+    """A closed manifold has exactly two faces on every edge; an open one does not (SPEC C-8)."""
+    # A tetrahedron: four triangles, six edges, each shared by two faces.
+    closed = VNF(
+        [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]],
+        [[0, 2, 1], [0, 1, 3], [1, 2, 3], [2, 0, 3]],
+    )
+    assert closed.is_watertight()
+    # Drop one face and four edges fall to a single incident face.
+    assert not VNF(closed.vertices, closed.faces[:-1]).is_watertight()
+    assert not VNF([], []).is_watertight(), "an empty mesh bounds nothing"
+
+
+def test_is_watertight_reads_topology_not_geometry() -> None:
+    """The check is on face connectivity alone, so moving a vertex cannot change it.
+
+    This is why the old `texture.is_watertight_topology(verts, faces)` took a `verts` argument and
+    immediately discarded it -- the clearest sign that the pair was one object split in two.
+    """
+    faces = [[0, 2, 1], [0, 1, 3], [1, 2, 3], [2, 0, 3]]
+    upright = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]], faces)
+    squashed = VNF([[0, 0, 0], [9, 0, 0], [0, 9, 0], [0, 0, 0.01]], faces)
+    assert upright.is_watertight() == squashed.is_watertight() is True
