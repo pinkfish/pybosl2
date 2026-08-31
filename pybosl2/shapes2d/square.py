@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
 
@@ -242,6 +242,10 @@ def polygon(
         spin:   Z-axis rotation in degrees after anchor (default 0)
 
     """
+    from pybosl2.path2d import Path2D as _Path2D
+    from pybosl2.paths import require_path
+
+    path = cast("Path2D", require_path(path, "path", "polygon", _Path2D))
     return _finish(_opolygon(path), anchor, spin)
 
 

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 from pybosl2.svg import region_from_svg, regions_from_svg, svg_element_groups, svg_outlines, svg_rings_with_colors
 
@@ -198,7 +199,7 @@ def test_fn_higher_gives_more_points_than_lower(tmp_path) -> None:
     coarse = svg_outlines(str(f), fn=4)[0]
     fine = svg_outlines(str(f), fn=32)[0]
     assert len(fine) > len(coarse)
-    assert Region.even_odd([fine]).geom.area >= Region.even_odd([coarse]).geom.area
+    assert Region.even_odd([Path2D(fine)]).geom.area >= Region.even_odd([Path2D(coarse)]).geom.area
 
 
 def test_fs_produces_more_points_for_longer_curve(tmp_path) -> None:

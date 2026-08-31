@@ -137,9 +137,10 @@ def test_single_outline_region_extrudes_on_both_backends(backend) -> None:  # ty
 
 def test_region_with_holes_extrudes_only_on_csg() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.path2d import Path2D
     from pybosl2.regions import Region
 
-    plate = Region.with_holes(SQUARE, [[5, 3], [15, 3], [15, 9], [5, 9]])  # type: ignore[arg-type]
+    plate = Region.with_holes(Path2D(SQUARE), Path2D([[5, 3], [15, 3], [15, 9], [5, 9]]))
     assert plate.linear_extrude(height=5).backend == "csg"
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         plate.linear_extrude(height=5)

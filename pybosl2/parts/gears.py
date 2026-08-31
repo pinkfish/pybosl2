@@ -48,6 +48,7 @@ from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import lerp as _math_lerp
 from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import cylinder
 from pybosl2.solid import cyl
 from pybosl2.solid import cylinder as facade_cylinder
@@ -1901,7 +1902,7 @@ class BevelGear(Buildable):
         thickness = abs(topz - botz)
         cpz = (topz + botz) / 2
         vertices = [row[::-1] for row in verts1]
-        sides = VNF.vertex_array(vertices, col_wrap=True, reverse=True)
+        sides = VNF.vertex_array([Path3D(r) for r in vertices], col_wrap=True, reverse=True)
         top_verts, bot_verts = vertices[-1], vertices[0]
         gear_pts = len(top_verts)
         face_pts = gear_pts // teeth
@@ -2042,7 +2043,9 @@ class Worm(Buildable):
             m = _m_zrot(i * astep - 360 * revs / 2) @ _m_up(i * zstep - length / 2)
             profiles.append(_apply(m, [[x, y, 0.0] for x, y in cross]))
         rprofiles = [prof[::-1] for prof in profiles]
-        vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style=VNFStyle.MIN_EDGE)
+        vnf = VNF.vertex_array(
+            [Path3D(r) for r in rprofiles], caps=CapType.BUTT, col_wrap=True, style=VNFStyle.MIN_EDGE
+        )
         if left_handed:
             vnf = _vnf_xflip(vnf)
         # Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so
@@ -2209,7 +2212,7 @@ class WormGear(Buildable):
         for i in range(teeth):
             top_faces.append([gear_pts, (i + 1) * face_pts - 1, i * face_pts])
             top_faces.append([gear_pts, ((i + 1) % teeth) * face_pts, (i + 1) * face_pts - 1])
-        sides = VNF.vertex_array(profiles, col_wrap=True, style=VNFStyle.MIN_EDGE)
+        sides = VNF.vertex_array([Path3D(r) for r in profiles], col_wrap=True, style=VNFStyle.MIN_EDGE)
         top_cap = VNF(top_verts + [[0, 0, top_verts[0][2]]], [f[::-1] for f in top_faces])
         bot_cap = VNF(bot_verts + [[0, 0, bot_verts[0][2]]], top_faces)
         vnf = _vnf_join([top_cap, bot_cap, sides])

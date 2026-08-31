@@ -663,6 +663,9 @@ class Bezier:
             input path.
 
         """
+        from pybosl2.paths import require_path
+
+        path = require_path(path, "path", "from_path")
         return create_bezier(path, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
     # -- sweeping (BOSL2 bezier_sweep / sweep) -------------------------------------
@@ -1458,7 +1461,9 @@ class BezierPatch:
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))
         vvals = list(lerpn(1, 0, int(ss[1]) + 1))
-        return VNF.vertex_array(self.points(uvals, vvals), style=style, reverse=False)
+        from pybosl2.path3d import Path3D as _Path3D
+
+        return VNF.vertex_array([_Path3D(r) for r in self.points(uvals, vvals)], style=style, reverse=False)
 
     @staticmethod
     def to_vnf(
@@ -1589,7 +1594,9 @@ class BezierPatch:
         offset0 = pts - diameter[0] * normals
         offset1 = pts - diameter[1] * normals
         allpoints = [np.concatenate([offset0[i], offset1[i][::-1]]) for i in range(len(offset0))]
-        vnf = VNF.vertex_array(allpoints, caps=CapType.BUTT, col_wrap=True, style=style)
+        from pybosl2.path3d import Path3D as _Path3D
+
+        vnf = VNF.vertex_array([_Path3D(r) for r in allpoints], caps=CapType.BUTT, col_wrap=True, style=style)
         return vnf.reverse() if diameter[0] < diameter[1] else vnf
 
     def vnf_degenerate(
@@ -1625,6 +1632,8 @@ class BezierPatch:
     def _vnf_degenerate(
         patch: np.ndarray, splinesteps: int, reverse: bool, return_edges: bool
     ) -> tuple[VNF, list[list[list[float]]]]:
+        from pybosl2.path3d import Path3D
+
         _ = return_edges
         patch = np.asarray(patch, dtype=float)
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -1648,7 +1657,7 @@ class BezierPatch:
             return (empty, [[ptl[0]], [ptl[-1]], ptl, ptl])
         if not top_degen and not bot_degen and not left_degen and not right_degen:
             pts = BezierPatch(patch).points(samplepts, samplepts)
-            vnf = VNF.vertex_array(pts, reverse=not reverse)
+            vnf = VNF.vertex_array([Path3D(r) for r in pts], reverse=not reverse)
             edges = [
                 [pts[k][0] for k in range(len(pts))],
                 [pts[k][-1] for k in range(len(pts))],
@@ -1666,7 +1675,7 @@ class BezierPatch:
             for j in range(splinesteps - 1):
                 dpts.append(_tolist(Bezier(bpatch[:, j + 1, :]).points(list(lerpn(0, 1, rowcount[j])))))
             dpts.append([bpatch[0][-1]])
-            vnf = VNF.tri_array(dpts, reverse=not reverse)
+            vnf = VNF.tri_array([Path3D(r) for r in dpts], reverse=not reverse)
             return (
                 vnf,
                 [
@@ -1691,7 +1700,7 @@ class BezierPatch:
             dpts = [[bpatch[0][0]]]
             for j in range(1, splinesteps + 1):
                 dpts.append(_tolist(Bezier(bpatch[:, j, :]).points(list(lerpn(0, 1, rowmax[j] + 1)))))
-            vnf = VNF.tri_array(dpts, reverse=not reverse)
+            vnf = VNF.tri_array([Path3D(r) for r in dpts], reverse=not reverse)
             return (
                 vnf,
                 [

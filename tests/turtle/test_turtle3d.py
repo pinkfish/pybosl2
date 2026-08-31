@@ -146,7 +146,9 @@ def test_debug_polygon_builds_with_labels() -> None:
 
 def test_debug_region_builds() -> None:
     """A region's debug view covers its outline, with the same markers standing proud of it."""
-    region = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])  # type: ignore[arg-type]
+    region = Region.with_holes(
+        Path2D([[0, 0], [50, 0], [50, 50], [0, 50]]), Path2D([[15, 15], [35, 15], [35, 35], [15, 35]])
+    )
     debug = region.debug_region(size=3)
     assert isinstance(debug, Bosl2Solid)
     assert float(debug.bounds().size[0]) > 50.0

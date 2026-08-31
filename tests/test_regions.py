@@ -15,8 +15,8 @@ from pybosl2.color import Color
 from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 
-SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
-HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]
+SQUARE = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
+HOLE = Path2D([[20, 20], [60, 20], [60, 40], [20, 40]])
 
 
 def area(region: Region) -> float:
@@ -37,7 +37,7 @@ def test_list_of_outlines() -> None:
 
 
 def test_with_holes() -> None:
-    radius = Region.with_holes(SQUARE, HOLE)  # type: ignore[arg-type]
+    radius = Region.with_holes(SQUARE, HOLE)
     assert len(radius) == 2
     np.testing.assert_allclose(radius.outline, [[float(x), float(y)] for x, y in SQUARE])
     assert len(radius.holes) == 1
@@ -90,7 +90,7 @@ def test_round_corners_follows_the_facet_count() -> None:
 
 def test_geometry_returns_a_solid() -> None:
     """The region becomes 2-D geometry with its hole cut, not just its outline."""
-    region = Region.with_holes(SQUARE, HOLE)  # type: ignore[arg-type]
+    region = Region.with_holes(SQUARE, HOLE)
     assert area(region) == pytest.approx(80 * 60 - 40 * 20)  # the hole is really missing
     geometry = region.geometry()
     assert geometry is not None
@@ -193,8 +193,8 @@ def test_intersection_with_hole() -> None:
     big = Region([[0, 0], [100, 0], [100, 100], [0, 100]])
     # donut: 100x100 square with a 50x50 hole
     donut = Region.with_holes(
-        [[0, 0], [100, 0], [100, 100], [0, 100]],  # type: ignore[arg-type]
-        [[25, 25], [75, 25], [75, 75], [25, 75]],  # type: ignore[arg-type]
+        Path2D([[0, 0], [100, 0], [100, 100], [0, 100]]),
+        Path2D([[25, 25], [75, 25], [75, 75], [25, 75]]),
     )
     result = big.intersection(donut)
     assert isinstance(result, Region)
@@ -530,10 +530,10 @@ def test_region_color_carries_through_stroke() -> None:
 # the extra solids get subtracted. A 118-outline SVG trace rendered visibly broken through it
 # while still producing geometry, which is exactly the failure mode that survives a smoke test.
 
-SQ_A = [[0, 0], [10, 0], [10, 10], [0, 10]]
-HOLE_A = [[3, 3], [7, 3], [7, 7], [3, 7]]
-SQ_B = [[20, 0], [30, 0], [30, 10], [20, 10]]
-HOLE_B = [[23, 3], [27, 3], [27, 7], [23, 7]]
+SQ_A = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
+HOLE_A = Path2D([[3, 3], [7, 3], [7, 7], [3, 7]])
+SQ_B = Path2D([[20, 0], [30, 0], [30, 10], [20, 10]])
+HOLE_B = Path2D([[23, 3], [27, 3], [27, 7], [23, 7]])
 
 
 def test_even_odd_keeps_disjoint_solids_solid() -> None:
@@ -553,7 +553,7 @@ def test_even_odd_single_outline_is_just_the_outline() -> None:
 
 def test_even_odd_island_inside_a_hole_is_solid_again() -> None:
     """Depth 2 is solid: an island in a hole comes back, which is what 'even-odd' means."""
-    island = [[4, 4], [6, 4], [6, 6], [4, 6]]
+    island = Path2D([[4, 4], [6, 4], [6, 6], [4, 6]])
     assert Region.even_odd([SQ_A, HOLE_A, island]).geom.area == pytest.approx(88.0)
 
 
@@ -666,8 +666,8 @@ def test_color_all_does_not_modify_original() -> None:
 
 def test_color_all_flattens_disjoint_polygons() -> None:
     """Two disjoint squares with same color stay separate after color_all union."""
-    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
-    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]])
     r = Region.even_odd([Path2D(a), Path2D(b)]).color_all(Color("red"))
     assert r._color == Color("red")
     # Disjoint → unary_union keeps them as separate geoms in MultiPolygon
@@ -679,8 +679,8 @@ def test_color_all_flattens_disjoint_polygons() -> None:
 
 def test_geometry_renders_multiple_disjoint_solids() -> None:
     """Two separate squares should both appear in the geometry, not just the first."""
-    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
-    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]])
     region = Region.even_odd([a, b])
     geom = region.geometry()
     assert geom is not None
@@ -689,7 +689,7 @@ def test_geometry_renders_multiple_disjoint_solids() -> None:
 
 def test_geometry_with_hole_region() -> None:
     """A region with a hole should render the hole correctly in geometry."""
-    region = Region.with_holes(SQUARE, HOLE)  # type: ignore[arg-type]
+    region = Region.with_holes(SQUARE, HOLE)
     geom = region.geometry()
     assert geom is not None
     # 80*60 - 40*20 = 4800 - 800 = 4000
@@ -727,7 +727,7 @@ def test_geometry_preserves_color() -> None:
 def test_even_odd_handles_self_touching_ring() -> None:
     """A figure-eight ring that touches itself should not crash even_odd."""
     # Two squares joined at a single vertex — the shared vertex creates a self-touch.
-    fig8 = [[0, 0], [20, 0], [20, 20], [0, 20], [0, 0], [20, -20], [40, -20], [40, 0], [20, 0]]
+    fig8 = Path2D([[0, 0], [20, 0], [20, 20], [0, 20], [0, 0], [20, -20], [40, -20], [40, 0], [20, 0]])
     r = Region.even_odd([fig8])
     assert isinstance(r, Region)
     assert r.geom.area > 0
@@ -735,8 +735,8 @@ def test_even_odd_handles_self_touching_ring() -> None:
 
 def test_even_odd_null_union_is_empty() -> None:
     """Two disjoint rings with no enclosing polygon."""
-    a = [[0, 0], [10, 0], [10, 10], [0, 10]]
-    b = [[20, 0], [30, 0], [30, 10], [20, 10]]
+    a = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
+    b = Path2D([[20, 0], [30, 0], [30, 10], [20, 10]])
     r = Region.even_odd([a, b])
     assert len(r) != 0
     assert r.geom.area == pytest.approx(200.0)
@@ -747,7 +747,7 @@ def test_even_odd_zero_area_rings_are_ignored() -> None:
     from shapely.geometry import Polygon
 
     p = Polygon([[0, 0], [0, 10], [0, 0]])  # degenerate, zero-area
-    invalid = list(p.exterior.coords)
+    invalid = Path2D(list(p.exterior.coords))
     r = Region.even_odd([invalid])
     assert len(r) == 0
 
@@ -800,9 +800,9 @@ def test_from_svg_no_ribext(tmp_path) -> None:
 
 
 COLORED_RINGS = {
-    "red": [[0, 0], [20, 0], [20, 20], [0, 20]],
-    "blue": [[30, 0], [50, 0], [50, 20], [30, 20]],
-    "green": [[60, 0], [80, 0], [80, 20], [60, 20]],
+    "red": Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]),
+    "blue": Path2D([[30, 0], [50, 0], [50, 20], [30, 20]]),
+    "green": Path2D([[60, 0], [80, 0], [80, 20], [60, 20]]),
 }
 
 
@@ -818,8 +818,8 @@ def test_even_odd_without_colors_still_works() -> None:
 
 def test_split_polygons_unions_all_polygons() -> None:
     """All polygons get unioned together via unary_union."""
-    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
-    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]])
     r = Region.even_odd([a, b])
     pieces = r._split_polygons()
     # Overlapping → unioned into one piece
@@ -829,8 +829,8 @@ def test_split_polygons_unions_all_polygons() -> None:
 
 def test_split_polygons_disjoint_polygons() -> None:
     """Two disjoint squares → two sub-Regions."""
-    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
-    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]])
     from shapely.geometry import MultiPolygon, Polygon
 
     r = Region(MultiPolygon([Polygon(a), Polygon(b)]))
@@ -862,8 +862,8 @@ def test_split_polygons_single_polygon() -> None:
 
 def test_even_odd_overlap_first_color_wins() -> None:
     """Red and blue squares overlap → red keeps full shape, blue has red subtracted."""
-    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
-    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]])
     r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
     assert len(r._polygon_colors) == 2
     assert r.geom.area == pytest.approx(1000.0)  # red=600 + blue=600-200
@@ -871,8 +871,8 @@ def test_even_odd_overlap_first_color_wins() -> None:
 
 def test_even_odd_same_color_overlap_merged() -> None:
     """Same-colour overlapping squares → unioned into one piece."""
-    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
-    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]])
     r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#ff0000"))])
     assert len(r._polygon_colors) == 1
     assert r.geom.area == pytest.approx(1000.0)
@@ -891,8 +891,8 @@ def test_even_odd_three_colors_overlap() -> None:
 
 def test_even_odd_disjoint_different_colors() -> None:
     """Disjoint different-colour squares → separate pieces, no overlap to resolve."""
-    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
-    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]])
     r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
     assert len(r._polygon_colors) == 2
     assert r.geom.area == pytest.approx(800.0)

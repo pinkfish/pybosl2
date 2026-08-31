@@ -285,6 +285,8 @@ def test_plot_revolution_taper_and_path() -> None:
     """Both forms revolve a 20-tall profile about Z, roughly 20 across at its widest."""
     import math
 
+    from pybosl2.path2d import Path2D
+
     def _f(a, _z):  # type: ignore[no-untyped-def]
         return 2 * math.sin(math.radians(a))
 
@@ -300,7 +302,7 @@ def test_plot_revolution_taper_and_path() -> None:
     assert size[0] == pytest.approx(20.0, abs=0.5)  # the radius-10 end, both sides
     assert size[2] == pytest.approx(20.0, abs=1.0)  # z=0..20
 
-    by_path = plot_revolution(_f, angle=list(range(0, 361, 20)), path=[[10, 0], [8, 10], [10, 20]])
+    by_path = plot_revolution(_f, angle=list(range(0, 361, 20)), path=Path2D([[10, 0], [8, 10], [10, 20]]))
     assert isinstance(by_path, Bosl2Solid)
     assert [float(v) for v in by_path.bounds().size][0] == pytest.approx(20.0, abs=0.5)  # type: ignore[operator]
 

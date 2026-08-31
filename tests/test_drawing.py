@@ -153,7 +153,9 @@ def test_stroke_closed_path_defaults_from_flag() -> None:
 
 def test_stroke_region_strokes_every_path() -> None:
     """Both the outline and the hole get their own ribbon, so the region keeps two paths."""
-    reg = Region.with_holes([[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]])  # type: ignore[arg-type]
+    reg = Region.with_holes(
+        Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]), Path2D([[10, 10], [30, 10], [30, 20], [10, 20]])
+    )
     stroked = reg.stroke(width=2)
     assert len(stroked.paths) == len(reg.paths) == 2
     corners = stroked.bounds()
@@ -396,7 +398,7 @@ def test_vnf_with_decorative_caps_produces_bosl2solid() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     grid = _tube_grid(3, 12)
-    vnf = VNF.vertex_array(grid, col_wrap=True)
+    vnf = VNF.vertex_array([Path3D(r) for r in grid], col_wrap=True)
     caps = [normalize_one(CapType.ARROW), normalize_one(CapType.ARROW)]
     result = vnf_with_decorative_caps(
         vnf,
@@ -416,7 +418,7 @@ def test_vnf_with_decorative_caps_closed_skips_caps() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     grid = _tube_grid(3, 12)
-    vnf = VNF.vertex_array(grid, col_wrap=True)
+    vnf = VNF.vertex_array([Path3D(r) for r in grid], col_wrap=True)
     caps = [normalize_one(CapType.ARROW), normalize_one(CapType.ARROW)]
     result = vnf_with_decorative_caps(
         vnf,

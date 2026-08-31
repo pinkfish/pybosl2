@@ -517,6 +517,8 @@ def _sweep(
         style:      vnf_vertex_array quad-subdivision style
 
     """
+    from pybosl2.path3d import Path3D
+
     shape3 = np.asarray(path3d(shape), dtype=float)
     if not (len(shape3) >= 3):
         raise Bosl2ValueError("shape must be a path of at least 3 points.")
@@ -528,7 +530,7 @@ def _sweep(
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(points, col_wrap=True, style=style)
+        vnf = VNF.vertex_array([Path3D(r) for r in points], col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(np.mean(points[0], axis=0))
         center2 = list(np.mean(points[-1], axis=0))
@@ -538,7 +540,7 @@ def _sweep(
         return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
-        points[:-1] if closed else points,
+        [Path3D(r) for r in (points[:-1] if closed else points)],
         caps=cap_specs,
         col_wrap=True,
         row_wrap=closed,
@@ -794,7 +796,7 @@ def _skin(
     grid = sliced if not closed else sliced + [sliced[0]]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(grid, col_wrap=True, style=style)
+        vnf = VNF.vertex_array([Path3D(r) for r in grid], col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
         center1 = list(grid_arr[0].mean(axis=0))
@@ -805,7 +807,7 @@ def _skin(
         return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
-        grid[:-1] if closed else grid,
+        [Path3D(r) for r in (grid[:-1] if closed else grid)],
         caps=cap_specs,
         col_wrap=True,
         row_wrap=closed,
@@ -834,6 +836,8 @@ def _linear_sweep(
 
     Public API: use :meth:`Sweepable.linear_sweep` instead of calling this directly.
     """
+    from pybosl2.path3d import Path3D
+
     hh = float(height if height is not None else (height if height is not None else 1))
     path = [[p[0], p[1]] for p in region]
     if slices is None:
@@ -854,7 +858,7 @@ def _linear_sweep(
         verts.append(np.asarray(_apply(m, base), dtype=float))
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(verts, col_wrap=True, style=style)
+        vnf = VNF.vertex_array([Path3D(r) for r in verts], col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(verts[0].mean(axis=0).tolist())
         center2 = list(verts[-1].mean(axis=0).tolist())
@@ -864,7 +868,7 @@ def _linear_sweep(
         return vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
-        verts,
+        [Path3D(r) for r in verts],
         caps=cap_specs,
         col_wrap=True,
         style=style,
@@ -1003,8 +1007,14 @@ def subdivide_and_slice(
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles.
+
+    Raises:
+        Bosl2ValueError: If *profiles* is not a sequence of `Path2D`/`Path3D`.
+
     """
     from pybosl2.path2d import Path2D
+
+    profiles = require_paths(profiles, "profiles", "subdivide_and_slice")  # type: ignore[assignment]
     from pybosl2.path3d import Path3D
 
     def _wrap(prof: PathLike) -> Path2D | Path3D:
@@ -1861,6 +1871,8 @@ def _bent_cutout_mask(
         style:     Subdivision style.
 
     """
+    from pybosl2.path3d import Path3D
+
     pts = [list(map(float, p)) for p in path]
     if not pts:
         return VNF([], [])
@@ -1882,7 +1894,7 @@ def _bent_cutout_mask(
         inner_ring.append([r_in * c, r_in * s, y])
         outer_ring.append([r_out * c, r_out * s, y])
 
-    vnf = VNF.vertex_array([inner_ring, outer_ring], caps=CapType.BUTT, col_wrap=True, style=style)
+    vnf = VNF.vertex_array([Path3D(inner_ring), Path3D(outer_ring)], caps=CapType.BUTT, col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1904,6 +1916,7 @@ def _path_sweep2d(
     Public API: use :meth:`Sweepable.path_sweep2d` instead of calling this directly.
     """
     from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     _ = quality
     shp: Path2D = shape if isinstance(shape, Path2D) else Path2D(shape)
@@ -1931,7 +1944,7 @@ def _path_sweep2d(
         grid = grid + [grid[0]]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(grid, col_wrap=True, style=style)
+        vnf = VNF.vertex_array([Path3D(r) for r in grid], col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
         center1 = list(grid_arr[0].mean(axis=0))
@@ -1942,7 +1955,7 @@ def _path_sweep2d(
         return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
-        grid,
+        [Path3D(r) for r in grid],
         caps=cap_specs,
         col_wrap=True,
         style=style,

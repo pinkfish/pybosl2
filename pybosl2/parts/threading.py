@@ -206,7 +206,9 @@ def _rod_solid(
     faces: list[list[int]] = []
     for k in range(starts):
         grid = _thread_grid(profile, pitch, radius, length, starts, left_handed, sides)
-        vnf = VNF.vertex_array(grid, col_wrap=False, style=VNFStyle.CONVEX)
+        from pybosl2.path3d import Path3D
+
+        vnf = VNF.vertex_array([Path3D(r) for r in grid], col_wrap=False, style=VNFStyle.CONVEX)
         rv = _rot_z(list(vnf.vertices), k * 360 / starts) if starts > 1 else list(vnf.vertices)
         off = len(verts)
         verts += [list(v) for v in rv]

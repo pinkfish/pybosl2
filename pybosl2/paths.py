@@ -74,6 +74,25 @@ PathLike: "TypeAlias" = "Path | Sequence[Sequence[float]] | NDArray[np.float64]"
 __all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod", "require_path", "require_paths"]
 
 
+def require_closed_flag(closed: object, type_name: str) -> bool:
+    """Return *closed* as a `bool`, refusing anything that is not one.
+
+    `closed` sits next to `points` in every `Path` constructor, so a misplaced positional argument
+    lands here rather than being rejected: `Path3D(row_a, row_b)` used to store the second *row* as
+    the closed flag and carry on, producing a path whose `closed` was a list of points. Nothing
+    downstream reads it as anything but truthy, so the result was an empty mesh with no error --
+    the silent wrong answer that SPEC C-7a exists to remove, in the constructor callers were being
+    sent to.
+    """
+    if isinstance(closed, bool):
+        return closed
+    raise Bosl2ValueError(
+        f"{type_name}(): closed must be True or False, got {closed!r}. "
+        f"For several outlines, pass a list of {type_name} objects to the function that takes them "
+        f"-- {type_name} itself builds one path."
+    )
+
+
 def require_path(value: object, parameter: str, function: str, expect: "type[Path] | None" = None) -> "Path":
     """Return *value* as a :class:`Path`, refusing raw points and naming the wrapper (SPEC C-7a/b).
 

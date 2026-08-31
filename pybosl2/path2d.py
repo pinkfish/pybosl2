@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -55,6 +55,7 @@ from pybosl2.paths import (
     CutPoint,
     Path,
     SubdivideMethod,
+    require_closed_flag,
     require_path,
 )
 from pybosl2.points import Point
@@ -263,6 +264,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self._color: "Color | None" = None
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
         # aliasing a caller's array here would freeze theirs too.
+        closed = require_closed_flag(closed, "Path2D")
         pts: np.ndarray = np.array(points, dtype=np.float64)
         if pts.size == 0:
             self._coords: list[tuple[float, float]] = []
@@ -2721,6 +2723,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         """
+        poly = cast("Path2D", require_path(poly, "poly", "point_in_polygon", Path2D))
         box = poly.bounds()
         if (
             point.x < box.min_x - eps

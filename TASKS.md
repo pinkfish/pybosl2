@@ -1875,9 +1875,9 @@ the first run, which is the rule working as intended. The index no longer points
 
 ---
 
-## T24 — Make a point sequence a `Path2D`/`Path3D`, not a bare list 🔶
+## T24 — Make a point sequence a `Path2D`/`Path3D`, not a bare list ✅
 
-**Closes:** §12.2 item 3 (C-7a, C-7b, C-7c) · **Implements:** PLAN T-4, T-4a, T-4b, T-4c · **Size:** L
+**Closed:** §12.2 item 3 → §12.1 (C-7a, C-7b, C-7c, C-7d) · **Implements:** PLAN T-4, T-4a–T-4d · **Size:** L
 **Risk:** medium — API-breaking at 51 public parameters, and the raw form is what most examples use
 
 C-7 asked that an API taking a polyline *accept* a `Path`. They all do, through the permissive
@@ -1911,7 +1911,7 @@ it **tangent vectors**, which no point type describes. `tri_array(points=)`/`ver
 were listed here as grids too; they are sequences of *rows*, and a row is a path, so they stay on
 the ratchet as real debt.
 
-**Landed so far (41 of 51).** `require_path()`, `require_paths()` (the sequence form, which names
+**Landed (51 of 51, T24 complete).** `require_path()`, `require_paths()` (the sequence form, which names
 the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`, `flat.circle`,
 `shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`, `shapes2d.jittered_poly`,
 `sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`, `skin.subdivide_and_slice`,
@@ -1922,7 +1922,15 @@ parameters)/`bezier_sweep` (both) — and the `sdf.paths` utility family: `path_
 `path_normals`, `total_length`, `path_cut_points`, `round_corners`, `offset_polyline` and
 `path_to_bezpath`; then `Path2D`'s static polygon helpers -- `polygon_area`, `is_closed_path`,
 `close_path`, `cleanup_path` -- and `skin.clockwise_polygon`, which now returns a `Path2D` rather
-than raw points. The ratchet in `tests/test_polyline_parameters.py` holds the remaining **10**.
+than raw points. The last tranche took `distributors.path_copies` (both the function and the
+`Distributable` method), `regions.even_odd`, `surfaces3d.plot_revolution`, `VNF.vertex_array` and
+`VNF.tri_array`, whose grid rows each *are* a path.
+
+**Eight carve-outs, each with its reason in `EXCLUDED`.** `as_points`, `bezier_points` and
+`skin.path3d` are normalizers or per-sample kernels whose job *is* the wide form; `transforms.apply`
+takes a single point as readily as many; `Bezier.from_list` is the plain-list constructor, the same
+convention as `Path2D.from_list`; and `texture`'s three `verts` parameters take a *mesh*, not a
+polyline — recorded as SPEC §12.2 item 3 against C-8, not dropped.
 
 **The denominator moved, and the debt did not.** It was stated as 36. The scan missed `ArrayLike`
 outright — although C-7a names a NumPy array explicitly — and it walked *every* function node, so
@@ -1992,6 +2000,18 @@ Things the tranches showed, all worth expecting on the rest:
   inside `path_to_bezpath` also rewrote the error message it raises, to "zero-length pts segment".
   `mypy --strict` and `ruff` were both clean; only the test asserting that message caught it. When
   a sweep is the tool, diff the strings and comments separately afterwards.
+* **An empty ratchet is not a closed contract.** `STILL_RAW` only sees *wide* annotations, so it
+  goes quiet the moment a signature is retyped -- whether or not a guard came with it. With the list
+  at zero, five parameters were still accepting raw points (`Region.even_odd`, `Bezier.from_path`,
+  `Region.with_holes`, `skin.subdivide_and_slice`, `shapes2d.polygon`) and `point_in_polygon` was
+  leaking a bare `AttributeError: 'list' object has no attribute 'bounds'`. I had retyped `even_odd`
+  in this very tranche and never added the guard. The fix is a second gate that checks every
+  path-typed parameter *calls* a guard, plus a negative control so an empty list cannot mean a scan
+  that stopped looking.
+* **`Path3D(row_a, row_b)` stored a row as the `closed` flag.** A misplaced positional argument
+  landed in `closed`, which nothing reads as more than truthy, so it produced an empty mesh with no
+  error -- in the constructor this whole migration sends callers to. `require_closed_flag` now
+  refuses a non-bool and says what to pass instead.
 * **Do not edit files while a full suite runs.** Two failures in one run (`test_ci_gates`,
   `test_docstring_examples`) came from editing the tree mid-run; `test_ci_gates` passed in
   isolation immediately after. A failure caused by the harness is worse than no signal, because

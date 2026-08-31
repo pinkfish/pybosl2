@@ -181,7 +181,7 @@ def test_solid_path_copies_returns_solid() -> None:
     """Six copies spread along a 60mm dogleg: evenly spaced, starting at the path's own start."""
     box = cuboid([4, 4, 4])
     path = Path2D([[0, 0], [30, 0], [30, 30]])
-    copies = box.path_copies(path, num_copies=6)  # type: ignore[arg-type, var-annotated]
+    copies = box.path_copies(Path2D(path), num_copies=6)
     assert len(copies) == 6
     assert all(isinstance(c, Bosl2Solid) for c in copies)
     first = [round(float(v), 3) for v in copies[0].bounds().center]
@@ -373,29 +373,29 @@ def test_yrot_copies_diameter() -> None:
 
 
 def test_path_copies_explicit_dist() -> None:
-    mats = path_copies([[0, 0], [30, 0], [30, 30]], dist=[5, 20, 50])
+    mats = path_copies(Path2D([[0, 0], [30, 0], [30, 30]]), dist=[5, 20, 50])
     assert len(mats) == 3
 
 
 def test_path_copies_start_pos_with_num_copies() -> None:
-    mats = path_copies([[0, 0], [30, 0], [30, 30]], start_pos=5, num_copies=4)
+    mats = path_copies(Path2D([[0, 0], [30, 0], [30, 30]]), start_pos=5, num_copies=4)
     assert len(mats) == 4
 
 
 def test_path_copies_spacing_only() -> None:
-    mats = path_copies([[0, 0], [40, 0]], spacing=10, num_copies=None)
+    mats = path_copies(Path2D([[0, 0], [40, 0]]), spacing=10, num_copies=None)
     assert len(mats) >= 3
 
 
 def test_path_copies_rotate_children_false() -> None:
-    mats = path_copies([[0, 0], [30, 0], [30, 30]], num_copies=3, rotate_children=False)
+    mats = path_copies(Path2D([[0, 0], [30, 0], [30, 30]]), num_copies=3, rotate_children=False)
     assert len(mats) == 3
     for m in mats:
         np.testing.assert_allclose(m[:3, :3], np.eye(3), atol=1e-9)
 
 
 def test_path_copies_3d() -> None:
-    mats = path_copies([[0, 0, 0], [100, 0, 0]], dist=[0, 50, 100])
+    mats = path_copies(Path3D([[0, 0, 0], [100, 0, 0]]), dist=[0, 50, 100])
     assert len(mats) == 3
     assert all(m.shape == (4, 4) for m in mats)
 

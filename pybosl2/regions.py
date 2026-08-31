@@ -15,7 +15,7 @@ point lists through free functions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
@@ -400,7 +400,7 @@ class Region:
         )
 
     @classmethod
-    def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
+    def even_odd(cls, paths: "Sequence[Path2D]") -> "Region":
         """Create a region from outlines nested by the EVEN-ODD rule.
 
         Colours are read from each :class:`~pybosl2.path2d.Path2D` object (via
@@ -417,9 +417,9 @@ class Region:
         OpenSCAD's multi-path ``polygon()`` use.
 
         Args:
-            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or
-                point sequence.  Coloured ``Path2D`` objects carry their colour
-                through to the result.
+            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).
+                Coloured ``Path2D`` objects carry their colour through to the
+                result.
 
         Returns:
             A :class:`Region` whose solid area is the even-odd interpretation
@@ -444,7 +444,9 @@ class Region:
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union as _unary_union
 
-        rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
+        from pybosl2.paths import require_paths
+
+        rings = [cast("Path2D", p) for p in require_paths(paths, "paths", "even_odd", Path2D)]
 
         # Repair each ring BEFORE it is used for nesting or unioning. Real drawings are full
         # of self-intersecting outlines -- 20 of the 148 rings in Wikipedia's Flag_of_Portugal
@@ -548,6 +550,10 @@ class Region:
             A :class:`Region` with the outline as the first path and holes as subsequent paths.
 
         """
+        from pybosl2.paths import require_path, require_paths
+
+        outline = cast("Path2D", require_path(outline, "outline", "with_holes", Path2D))
+        require_paths(list(holes), "holes", "with_holes", Path2D)
         return cls([outline, *holes])
 
     @property

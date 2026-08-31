@@ -1577,7 +1577,9 @@ def test_path_hull_wraps_a_concave_outline(tmp_path):
 
 def test_region_fill_removes_the_hole(tmp_path):
     setup = (
-        "region = Region.with_holes([[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]])\n"
+        "region = Region.with_holes(\n"
+        "    Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]), Path2D([[10, 10], [30, 10], [30, 20], [10, 20]])\n"
+        ")\n"
     )
     holed = _render(tmp_path, "region.linear_extrude(height=4)", setup=setup, name="region_holed")
     filled = _render(tmp_path, "region.fill().linear_extrude(height=4)", setup=setup, name="region_filled")
