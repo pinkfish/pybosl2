@@ -77,6 +77,70 @@ jobs:
       - name: Run tests (excluding render tests)
         run: pytest -q --deselect tests/test_stl_render.py --deselect tests/test_stl_render_2d.py
 
+  artifact:
+    # SPEC Q-7: every other gate reads the working copy. This one asks what a release actually
+    # contains -- build the wheel, install it into a virtualenv that has nothing else in it, and
+    # type-check a consumer snippet against the installed package rather than against the source.
+    # It is how `py.typed` came to be absent from every published wheel while `mypy --strict` ran
+    # clean on every commit.
+    name: artifact (wheel install + consumer type-check)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Build the wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel --outdir dist_ci
+
+      - name: The wheel carries its type declarations
+        run: |
+          python - <<'EOF'
+          import pathlib, zipfile
+          wheel = next(pathlib.Path("dist_ci").glob("*.whl"))
+          names = set(zipfile.ZipFile(wheel).namelist())
+          missing = [n for n in ["pybosl2/py.typed"] if n not in names]
+          stubs = sorted(p.as_posix() for p in pathlib.Path("pybosl2").rglob("*.pyi"))
+          missing += [s for s in stubs if s not in names]
+          if missing:
+              raise SystemExit(f"{wheel.name} is missing: {missing}")
+          print(f"{wheel.name}: py.typed and {len(stubs)} stubs present")
+          EOF
+
+      - name: Install it into a clean virtualenv
+        run: |
+          python -m venv /tmp/consumer
+          /tmp/consumer/bin/pip install --upgrade pip
+          /tmp/consumer/bin/pip install dist_ci/*.whl mypy
+
+      - name: It imports with nothing else installed
+        run: /tmp/consumer/bin/python -c "import pybosl2; print('import ok', pybosl2.__version__)"
+
+      - name: A consumer snippet type-checks against the installed package
+        run: |
+          mkdir -p /tmp/consumer-src
+          cat > /tmp/consumer-src/use_pybosl2.py <<'EOF'
+          """What a caller writes on day one, checked as they would receive it."""
+
+          from pybosl2 import Anchor, Path2D, cuboid
+
+          part = cuboid([60, 40, 12], rounding=4, edges=Anchor.Z)
+          width: float = part.bounds().size[0]
+
+          outline = Path2D([[0, 0], [80, 0], [80, 60]], closed=True)
+          perimeter: float = outline.perimeter()
+
+          print(width, perimeter)
+          EOF
+          cd /tmp/consumer-src && /tmp/consumer/bin/mypy --strict use_pybosl2.py
+
   test-render:
     name: render (${{ matrix.python-version }})
     runs-on: ubuntu-latest

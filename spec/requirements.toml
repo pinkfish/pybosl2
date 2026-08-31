@@ -1652,6 +1652,23 @@ enforced_by = []
 status = "untriaged"
 
 [[requirement]]
+id = "SPEC-Q-7"
+aliases = ["Q-7"]
+layer = "contract"
+section = "11. Quality gates"
+title = "The artifact passes, not only the source tree"
+statement = '''
+A gate builds the wheel, installs it into a clean virtualenv, imports it, and type-checks a short consumer snippet against it. Q-1…Q-6 all read the working copy, so nothing before this asked what a release actually contains — which is how `py.typed` came to be missing from every wheel this project has published while `mypy --strict` ran clean on every commit. What ships is a separate claim from what builds, and an unmeasured claim is a wish (B2-1).
+'''
+enforced_by = [
+    "tests/test_packaging.py::test_the_marker_is_declared_as_package_data",
+]
+status = "enforced"
+note = '''
+Two halves. The cheap half is tests/test_packaging.py, which reads the declarations that decide what the build collects. The full half is the `artifact` job in .github/workflows/tests.yml, which builds, installs into an empty virtualenv and type-checks a consumer snippet — it needs a network and a build, so it runs in CI rather than under pytest.
+'''
+
+[[requirement]]
 id = "SPEC-B-1"
 aliases = ["B-1"]
 layer = "contract"

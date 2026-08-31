@@ -64,12 +64,19 @@ C-21 and A-1 are *closed* in §12.1 — closed for the surface the test walks, a
 the test does not look. This is the argument for the registry: enforcement is a property of a
 requirement, and it belongs in the requirement.
 
-### 1.5 The typing investment does not reach users
+### 1.5 Nothing tests what ships
 
-The package ships no `py.typed`. Every rule in PLAN §2 — `mypy --strict`, the five `.pyi` stubs,
-C-7a's "the point type is the contract" — is invisible to an installed consumer, because PEP 561
-requires that marker. The gates Q-1…Q-6 test the source tree; nothing tests the artifact. The
-committed `dist/` wheel still contains `solid.pyi`, deleted from the source under T-8.
+The package ships no `py.typed`, and no gate builds the wheel, installs it, or imports it. Q-1…Q-6
+all read the working copy, so the first person to learn what a release contains is whoever
+installed it.
+
+**Corrected after measuring (T28).** This section first claimed the missing marker made the
+library's types invisible to installed users. It does not: against mypy 1.20, mypy 2.3 and pyright
+at default settings, a consumer in a clean virtualenv gets full type information with or without
+the marker, because each of those reads a library's inline types whether or not it declares them.
+The marker is hygiene; **the gate is the finding.** The wheel had never been inspected, so what it
+contained was whatever setuptools happened to do — which turned out to be all five `.pyi` stubs
+(included unasked) and no `py.typed` (never included unasked).
 
 ### 1.6 The façade is the largest maintenance cost in the code
 
@@ -193,7 +200,7 @@ to `docs/rationale/`. **No ID is renumbered** — SPEC §13 rule 5 survives inta
 ### 4.3 The distribution is part of the contract
 
 * **Q-7** `py.typed` ships, the stubs ship, and CI installs the built wheel into a clean virtualenv,
-  imports it, and runs `mypy --strict` over a consumer snippet. Untrack `dist/`.
+  imports it, and runs `mypy --strict` over a consumer snippet.
 
 ### 4.4 Two existing rules to settle rather than leave broken
 
@@ -213,7 +220,7 @@ to `docs/rationale/`. **No ID is renumbered** — SPEC §13 rule 5 survives inta
 |---|---|---|
 | **T26** | Registry + citation/uniqueness/enforcement tests. No behaviour change; produces the real enforced/unenforced number | M |
 | **T27** | `docs/_reqgen.py`; doc split into `CONFORMANCE.md`, `docs/rationale/`, `docs/tasks-archive.md`; SPEC/PLAN regenerated | M |
-| **T28** | `py.typed`, stub shipping, clean-venv CI gate, untrack `dist/` | XS |
+| **T28** | Artifact gate: build, install into a clean venv, import, type-check a consumer snippet | XS |
 | **T29** | `spec/layers.toml` + test; fix the 4 module-level violations; route L0 bridges through the façade | M |
 | **T30** | Argument groups: `Facets` first, then `Placement`, then `EdgeTreatment`/`Texturing` | L |
 | **T31** | Façade slimming: one filter path, groups forwarded whole | M |

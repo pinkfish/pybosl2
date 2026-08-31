@@ -74,6 +74,12 @@ version = { attr = "pybosl2.version.__version__" }
 # pybosl2 is the BOSL2 port
 include = ["pybosl2", "pybosl2.*"]
 
+# PEP 561: without py.typed in the wheel, every type checker downstream ignores this package --
+# `mypy --strict`, the .pyi stubs and the type-checked examples (SPEC Q-6) all stop at the
+# distribution boundary. setuptools ships the stubs unasked but not the marker (SPEC Q-7).
+[tool.setuptools.package-data]
+pybosl2 = ["py.typed", "*.pyi", "**/*.pyi"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # The render tests write meshes into tmp_path; keeping every passing test's scratch filled the
