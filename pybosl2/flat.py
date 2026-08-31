@@ -320,9 +320,10 @@ def polygon(
             polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()
 
     """
+    from pybosl2.path2d import Path2D
     from pybosl2.paths import require_path
 
-    points = cast("Path2D", require_path(points, "points", "polygon"))
+    points = cast("Path2D", require_path(points, "points", "polygon", Path2D))
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import polygon2d
 

@@ -405,9 +405,10 @@ def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[fl
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
     # Imported here, not at module scope: `pybosl2.paths` imports CapSpec from this module, so a
     # top-level import closes the cycle and the package stops importing at all.
+    from pybosl2.path2d import Path2D
     from pybosl2.paths import require_path
 
-    poly = cast("Path2D", require_path(poly, "poly", "place"))
+    poly = cast("Path2D", require_path(poly, "poly", "place", Path2D))
     radius = math.radians(theta_deg)
     c, s = math.cos(radius), math.sin(radius)
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]

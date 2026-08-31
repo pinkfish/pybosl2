@@ -523,5 +523,7 @@ def jittered_poly(path: "Path2D", dist: float = 1 / 512) -> list[list[float]]:
         dist: the amount to jitter points by (default 1/512)
 
     """
-    path = cast("Path2D", require_path(path, "path", "jittered_poly"))
+    from pybosl2.path2d import Path2D as _Path2D
+
+    path = cast("Path2D", require_path(path, "path", "jittered_poly", _Path2D))
     return [[p[0] + random.uniform(-dist, dist), p[1] + random.uniform(-dist, dist)] for p in path]

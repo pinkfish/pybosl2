@@ -1236,7 +1236,9 @@ def os_profile(profile: "Path2D", extra: float = 0.0) -> OSProfile:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    profile = cast("Path2D", require_path(profile, "profile", "os_profile"))
+    from pybosl2.path2d import Path2D as _Path2D
+
+    profile = cast("Path2D", require_path(profile, "profile", "os_profile", _Path2D))
     pts = [[float(p[0]), float(p[1])] for p in profile]
     if not (pts):
         raise Bosl2ValueError("os_profile(): First point of the profile must be [0, 0].")

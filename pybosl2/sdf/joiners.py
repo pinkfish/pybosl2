@@ -196,7 +196,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     if not (fullpath[4][1] < fullpath[3][1]):
         raise Bosl2ValueError("Pin is too wide for its length")
 
-    fulltangent = path_tangents(fullpath, closed=False, uniform=False)
+    fulltangent = path_tangents(Path2D(fullpath), closed=False, uniform=False)
     # Force vertical tangents at the outer edges of the clip to avoid overshoot.
     fulltangent[2] = [0.0, 1.0]
     fulltangent[8] = [0.0, -1.0]
@@ -211,7 +211,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     else:
         side_smooth = pin_smooth[:3]
         smoothing = side_smooth + [0.04] + list(reversed(side_smooth))
-    bez = path_to_bezpath(path, closed=False, relsize=smoothing, tangents=tangent)
+    bez = path_to_bezpath(Path2D(path), closed=False, relsize=smoothing, tangents=tangent)
     rounded = bezpath_points(bez, splinesteps=splinesteps)
     mins = rounded.min(axis=0)
     maxs = rounded.max(axis=0)
@@ -220,10 +220,10 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     if is_pin:
         # offset_stroke(rounded, width=[thickness, 0]): a ribbon between the path and its
         # offset `thickness` to the LEFT of travel -- built as a stroke2d along the midline.
-        midline = offset_polyline(rounded, thickness / 2)
+        midline = offset_polyline(Path2D(rounded), thickness / 2)
         profile: PyShape2D = stroke2d(Path2D(midline), width=thickness, res=res)
     else:
-        withclearance = offset_polyline(rounded, -clearance)
+        withclearance = offset_polyline(Path2D(rounded), -clearance)
         # np.vstack, NOT `list + ndarray`: the latter silently BROADCASTS (adds the closure
         # point onto every row) instead of concatenating.
         finalpath = np.vstack(

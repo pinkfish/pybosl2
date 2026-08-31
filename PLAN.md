@@ -80,6 +80,12 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   wrapper to apply — `Path2D(...)` for 2-D points, `Path3D(...)` for 3-D — chosen from the shape of
   what was passed, so the message is the fix (SPEC C-7b). Call it on the first line, before any
   other work, so the refusal arrives at the call that was wrong (SPEC E-4).
+* **T-4b(i) Pass `expect=` whenever the annotation names one width.** `require_path(value,
+  parameter, function, Path2D)` checks the concrete type; the bare three-argument form is only for a
+  parameter genuinely typed `Path`, where both widths are meant (`path_tangents`, `total_length`).
+  `Path2D` and `Path3D` are siblings, so the bare form accepts either — which turns a `Path2D`
+  annotation into documentation rather than a check, and lets a 3-D path reach planar arithmetic
+  that silently drops z (SPEC C-7d).
 * **T-4c The migration is ratcheted, not big-banged.** `tests/test_polyline_parameters.py` holds
   the list of public parameters still accepting a raw sequence; it only ever shrinks, so a new
   function cannot join them and the remaining debt is a measured number rather than an assertion.

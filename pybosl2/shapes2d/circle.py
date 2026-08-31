@@ -129,7 +129,7 @@ def circle(
     """
     fn, fa, fs = _resolve_facets(fn, fa, fs)
     if points is not None:
-        points = cast("Path2D", require_path(points, "points", "circle"))
+        points = cast("Path2D", require_path(points, "points", "circle", Path2D))
         center, rad = _circle_from_3pts(points)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     if corner is not None:
@@ -266,7 +266,7 @@ def arc(
 
     # -- points forms ------------------------------------------------------------------------
     if points is not None:
-        points = cast("Path2D", require_path(points, "points", "arc"))
+        points = cast("Path2D", require_path(points, "points", "arc", Path2D))
         pts = [[float(p[0]), float(p[1])] for p in points]
         if not (all((len(p) == 2 for p in points))):
             raise Bosl2ValueError("arc() port handles 2-D points only")
