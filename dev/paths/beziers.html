@@ -6148,14 +6148,14 @@ parameter values between 0 and 1.</p>
 <em>endpoint</em> is False) sampled uniformly along the curve.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.curve-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.curve-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference internal" href="paths.html#pybosl2.paths.Path" title="pybosl2.paths.Path (Python class) — Bases: ABC">Path</a></p>
+<dd class="field-odd"><p>Path2D | Path3D</p>
 </dd>
 </dl>
 <p>Examples:
 .. pythonscad-example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span><span class="p">,</span> <span class="n">Path2D</span>
 
-<span class="n">pts</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">([[</span><span class="mi">44</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">]])</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">Bezier</span><span class="p">([[</span><span class="mi">44</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">]])</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
 <span class="n">pts</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
