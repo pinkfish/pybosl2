@@ -46,8 +46,8 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.isosurface import MetaballSpec
+    from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
-    from pybosl2.paths import PathLike
 
 _EPS = 1e-9
 
@@ -1595,7 +1595,7 @@ class VNF:
     @classmethod
     def from_skin(
         cls,
-        profiles: Sequence[PathLike],
+        profiles: "Sequence[Path2D | Path3D]",
         slices: int,
         refine: float = 1.0,
         method: SkinMethod = SkinMethod.DIRECT,
@@ -1629,11 +1629,13 @@ class VNF:
 
                 import math
                 import numpy as np
-                from pybosl2 import VNF
+                from pybosl2 import VNF, Path2D
                 from pybosl2.enums import SkinMethod
 
-                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
-                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
+                circle = Path2D(
+                    [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+                )
+                square = Path2D([[-8, -8], [8, -8], [8, 8], [-8, 8]])
                 VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).show()
 
         """

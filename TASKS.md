@@ -1906,11 +1906,14 @@ np.ndarray)` is an SDF sampling kernel called per evaluation batch, not a caller
 wrapping it would be both wrong and slow. `heightfield(data=...)` and `tri_array(points=...)` take
 a *grid*, not a path.
 
-**Landed so far (4 of 36).** `require_path()` and the C-7c docstring change are in;
-`flat.polygon`, `flat.circle`, `shapes2d.circle` and `shapes2d.arc` now take a `Path2D`. The
-ratchet in `tests/test_polyline_parameters.py` holds the remaining **31**.
+**Landed so far (13 of 36).** `require_path()`, `require_paths()` (the sequence form, which names
+the offending index) and the C-7c docstring change are in. Converted: `flat.polygon`,
+`flat.circle`, `shapes2d.circle`, `shapes2d.arc`, `Bosl2Shape2D.path_extrude`,
+`shapes2d.jittered_poly`, `sdf.stroke2d`, `skin.os_profile`, `caps.place`, `skin.slice_profiles`,
+`skin.subdivide_and_slice` and `VNF.from_skin`. The ratchet in
+`tests/test_polyline_parameters.py` holds the remaining **23**.
 
-Two things the first tranche showed, both worth expecting on the rest:
+Four things the tranches showed, all worth expecting on the rest:
 
 * **`mypy --strict` finds the internal callers.** Retyping `arc(points=)` immediately surfaced
   three call sites inside the library still passing raw lists (one in `shapes2d/circle.py`, two in
@@ -1922,6 +1925,23 @@ Two things the first tranche showed, both worth expecting on the rest:
   make it once (C-7a), and the message improved -- it now names the type rather than the caller's
   function. Eighteen tests failed on the retype and all were tests passing raw lists; one asserted
   the old message and was updated to assert the new location.
+* **The type has to be the *right* one, and only running it tells you.** `path_extrude` was
+  retyped `Path2D` on the strength of its name; it sweeps along a **3-D** spine, so `Path2D` would
+  have rejected every valid call. `mypy --strict` was clean -- the docstring example and a
+  behavioural test caught it. Read what the parameter carries, not what the module is called.
+* **`mypy --strict` passing is not the package importing.** Adding `from pybosl2.paths import
+  require_path` to `caps.py` closed a cycle -- `pybosl2.paths` imports `CapSpec` from `caps` --
+  and `import pybosl2` stopped working entirely while every static gate stayed green. Import
+  `require_path` inside the function in any module `pybosl2.paths` itself depends on.
+* **A `# type: ignore` upstream hides the callers you need to find.** `slice_profiles` looked
+  clean to mypy because `_reindex_polygon` returned raw points into a `list[Path3D]` behind an
+  existing ignore. Only the runtime refusal exposed it. Fixing the *producer* -- wrapping its
+  result and widening the private helper to `PathLike` -- removed the ignore rather than adding
+  another, which is the direction this migration should always push.
+* **Do not edit files while a full suite runs.** Two failures in one run (`test_ci_gates`,
+  `test_docstring_examples`) came from editing the tree mid-run; `test_ci_gates` passed in
+  isolation immediately after. A failure caused by the harness is worse than no signal, because
+  it invites a fix to code that was never broken.
 
 ---
 

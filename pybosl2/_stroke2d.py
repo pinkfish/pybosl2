@@ -24,11 +24,11 @@ from shapely.geometry import LineString
 from pybosl2._backend import builds_with
 from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, normalize_one, place, trim_ends
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.path2d import Path2D
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2.path2d import Path2D
     from pybosl2.regions import Region
 
 
@@ -78,7 +78,7 @@ def _place_and_union(
     half = width / 2
 
     for ep_poly in endcap_polys(cap_spec, width):
-        placed = place(ep_poly, angle, at)
+        placed = place(Path2D(ep_poly), angle, at)
         if len(placed) < 2:
             continue
         coords: list[tuple[float, float]] = [(float(p[0]), float(p[1])) for p in placed]
@@ -103,8 +103,6 @@ def _shapely_to_path2d(geom: _shapely.Polygon | _shapely.MultiPolygon, fallback_
 
     For MultiPolygon results, the largest polygon by area is used.
     """
-    from pybosl2.path2d import Path2D
-
     if isinstance(geom, _shapely.Polygon) and not geom.is_empty:
         return Path2D([list(c) for c in geom.exterior.coords], closed=True)
     if isinstance(geom, _shapely.MultiPolygon) and not geom.is_empty:
@@ -131,8 +129,6 @@ def stroke_2d(
         A :class:`Path2D` of the stroked polygon outline.
 
     """
-    from pybosl2.path2d import Path2D
-
     pts = [list(map(float, p)) for p in path]
     if not (len(pts) >= 2):
         raise Bosl2ValueError("stroke(): need at least 2 points.")

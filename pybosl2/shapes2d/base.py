@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, cast
 
 import numpy as np
 
@@ -38,6 +38,7 @@ from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.bounds import Bounds2D
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.paths import require_path
 from pybosl2.points import Point
 from pybosl2.vectors import unit
 
@@ -45,7 +46,7 @@ if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
     from pybosl2.path2d import Path2D
-    from pybosl2.paths import PathLike
+    from pybosl2.path3d import Path3D
     from pybosl2.shapes3d.base import CsgSolid as Bosl2Solid
 
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
@@ -651,7 +652,7 @@ class CsgShape2D(BaseShape):
                 kw[name] = value
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
-    def path_extrude(self, path: "PathLike", convexity: int | None = None) -> "Bosl2Solid":
+    def path_extrude(self, path: "Path2D | Path3D", convexity: int | None = None) -> "Bosl2Solid":
         """Sweep this 2-D shape along *path* via the native ``path_extrude()``.
 
         *path* is a :class:`~pybosl2.paths.Path3D` or a point list.
@@ -664,12 +665,15 @@ class CsgShape2D(BaseShape):
 
                 from pybosl2 import shapes2d as s2
 
-                path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]
+                from pybosl2.path3d import Path3D
+
+                path = Path3D([[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]])
                 s2.circle(radius=5).path_extrude(path).show()
 
         """
         from pybosl2.shapes3d import Bosl2Solid
 
+        path = cast("Path2D | Path3D", require_path(path, "path", "path_extrude"))
         pts = [[float(c) for c in p] for p in path]
         if convexity is None:
             return Bosl2Solid(self.shape.path_extrude(pts))

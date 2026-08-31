@@ -18,6 +18,7 @@ import numpy as np
 from pybosl2.constants import UP
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.parts.enums import Gender
+from pybosl2.path2d import Path2D
 from pybosl2.sdf.paths import (
     bezpath_points,
     circle_circle_tangents,
@@ -220,7 +221,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
         # offset_stroke(rounded, width=[thickness, 0]): a ribbon between the path and its
         # offset `thickness` to the LEFT of travel -- built as a stroke2d along the midline.
         midline = offset_polyline(rounded, thickness / 2)
-        profile: PyShape2D = stroke2d(midline, width=thickness, res=res)
+        profile: PyShape2D = stroke2d(Path2D(midline), width=thickness, res=res)
     else:
         withclearance = offset_polyline(rounded, -clearance)
         # np.vstack, NOT `list + ndarray`: the latter silently BROADCASTS (adds the closure

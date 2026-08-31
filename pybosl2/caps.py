@@ -34,13 +34,13 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence, Union, cast
 
 from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     from pybosl2._backend import Solid
-    from pybosl2.paths import PathLike
+    from pybosl2.path2d import Path2D
     from pybosl2.vnf import VNF
 
 __all__ = [
@@ -401,8 +401,13 @@ def endcap_trim(spec: CapSpec, width: float) -> float:
     return 0.0
 
 
-def place(poly: PathLike, theta_deg: float, at: Sequence[float]) -> list[list[float]]:
+def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[float]]:
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
+    # Imported here, not at module scope: `pybosl2.paths` imports CapSpec from this module, so a
+    # top-level import closes the cycle and the package stops importing at all.
+    from pybosl2.paths import require_path
+
+    poly = cast("Path2D", require_path(poly, "poly", "place"))
     radius = math.radians(theta_deg)
     c, s = math.cos(radius), math.sin(radius)
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]

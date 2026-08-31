@@ -13,13 +13,14 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, cast
 
 import numpy as np
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.path2d import Path2D
     from pybosl2.paths import PathLike
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
@@ -30,6 +31,7 @@ from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
+from pybosl2.paths import require_path
 from pybosl2.sdf._constants import CENTER
 from pybosl2.sdf._libfive import lv
 from pybosl2.sdf.paths import (
@@ -1088,7 +1090,7 @@ def region2d(paths: Sequence[PathLike], res: int = 10) -> PyShape2D:
 
 
 def stroke2d(
-    path: PathLike,
+    path: "Path2D",
     width: float = 1,
     closed: bool = False,
     res: int = 10,
@@ -1097,6 +1099,7 @@ def stroke2d(
 
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
     """
+    path = cast("Path2D", require_path(path, "path", "stroke2d"))
     pts = as_points(path)
     if not (len(pts) >= 2):
         raise Bosl2ValueError("stroke2d() needs at least 2 points")

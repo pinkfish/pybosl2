@@ -277,7 +277,7 @@ TRIANGLE = [[0.0, 0.0], [10.0, 0.0], [5.0, 8.0]]
 
 SKIN_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: skin.os_circle(), "radius is required"),
-    (lambda: skin.os_profile([[1.0, 0.0], [1.0, 1.0]]), "First point of the profile"),
+    (lambda: skin.os_profile(Path2D([[1.0, 0.0], [1.0, 1.0]])), "First point of the profile"),
     (lambda: skin.subdivide_and_slice([TRIANGLE, TRIANGLE], slices=2, numpoints=2), "smaller than"),
     (lambda: skin.rot_resample([[0.0, 0.0, 0.0], [0.0, 0.0, 90.0]], num_copies=3, smoothlen=0), "positive odd"),
     (lambda: skin.rot_resample([[0.0, 0.0, 0.0], [0.0, 0.0, 90.0]], num_copies=1.5), "must be an integer"),
@@ -351,7 +351,7 @@ SDF_2D_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdf2.rect2d([20, 10], rounding=[9, 9, 9, 9]), "exceeds half"),
     (lambda: sdf2.polygon2d([[[0.0, 0.0], [10.0, 0.0]]]), "every path needs"),
     (lambda: sdf2.region2d([[[0.0, 0.0], [10.0, 0.0]]]), "every outline needs"),
-    (lambda: sdf2.stroke2d([[0.0, 0.0]], width=2), "at least 2 points"),
+    (lambda: sdf2.stroke2d(Path2D([[0.0, 0.0]]), width=2), "at least 2 points"),
     (lambda: sdf2.hull2d_discs([]), "at least one disc"),
     (lambda: sdf2.trapezoid2d(height=10, width1=-1, width2=5), "Degenerate"),
     (lambda: sdf2.trapezoid2d(height=10, width1=5, width2=-1), "Degenerate"),
@@ -712,7 +712,7 @@ SKIN_MORE_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: VNF.from_skin([_SQC2D, _SQC2D], slices=2), "matching-length z"),
     (lambda: VNF.from_skin([_SQC2D, _SQC2D], slices=2, z=[0.0]), "matching-length z"),
     (lambda: skin.subdivide_and_slice([_SQC2D, _SQC2D], slices=2, numpoints="nope"), "numpoints must be int"),
-    (lambda: skin.os_profile([[1.0, 1.0], [2.0, 2.0]]), r"First point of the profile must be \[0, 0\]"),
+    (lambda: skin.os_profile(Path2D([[1.0, 1.0], [2.0, 2.0]])), r"First point of the profile must be \[0, 0\]"),
     (
         lambda: Path2D(_SQC2D, closed=True).rounded_prism(height=2, joint_top=3, joint_bottom=3),
         "sum of the bottom and top rim heights",
@@ -1106,7 +1106,7 @@ def test_non_passthrough_native_method_is_not_silently_forwarded() -> None:
 SIBLING_GUARD_CASES: list[tuple[Callable[[], object], str]] = [
     # each of these is the second of a pair of near-identical guards: the sibling is exercised
     # above, and these hit the other half (top vs bottom, list vs scalar, empty vs malformed).
-    (lambda: skin.os_profile([]), r"First point of the profile must be \[0, 0\]"),
+    (lambda: skin.os_profile(Path2D([])), r"First point of the profile must be \[0, 0\]"),
     (lambda: s3.teardrop(height=10, radius=5, cap_height=1), "cap_height cannot be less than"),
     (
         lambda: s3.tube(height=10, outer_diameter1=20, outer_diameter2=5, inner_diameter=10),

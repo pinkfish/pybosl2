@@ -9,6 +9,7 @@ import math
 
 import pytest
 
+from pybosl2.path2d import Path2D
 from pybosl2.sdf import shapes2d as sdf_s2d
 
 SQRT2 = math.sqrt(2)
@@ -101,7 +102,7 @@ class TestShape2D:
 
     def test_stroke_round_caps_and_joins(self) -> None:
         w = 2.0
-        shape = sdf_s2d.stroke2d([[0, 0], [10, 0], [10, 10]], width=w).extrude(2).mesh()
+        shape = sdf_s2d.stroke2d(Path2D([[0, 0], [10, 0], [10, 10]]), width=w).extrude(2).mesh()
         assert math.isclose(float(shape.sample(5, 1, 1)), float(0), abs_tol=10 ** (-9)), "segment edge"
         assert math.isclose(float(shape.sample(-1, 0, 1)), float(0), abs_tol=10 ** (-9)), "round start cap"
         assert math.isclose(
@@ -112,7 +113,7 @@ class TestShape2D:
         assert shape.sample(5, 5, 1) > 0, "off the path"
 
     def test_stroke_closed(self) -> None:
-        shape = sdf_s2d.stroke2d([[0, 0], [10, 0], [10, 10], [0, 10]], width=2, closed=True).extrude(2).mesh()
+        shape = sdf_s2d.stroke2d(Path2D([[0, 0], [10, 0], [10, 10], [0, 10]]), width=2, closed=True).extrude(2).mesh()
         assert math.isclose(float(shape.sample(0, 5, 1)), float(-1), abs_tol=10 ** (-9)), "closing segment present"
 
     def test_hull_of_equal_discs_has_true_arc_corners(self) -> None:

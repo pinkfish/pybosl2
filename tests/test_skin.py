@@ -162,12 +162,12 @@ def test_sweep_direct_from_transforms() -> None:
 
 
 def test_slice_profiles_inserts_intermediates() -> None:
-    a = [[0, 0], [1, 0], [1, 1]]
-    b = [[0, 2], [1, 2], [1, 3]]
+    a = Path2D([[0, 0], [1, 0], [1, 1]])
+    b = Path2D([[0, 2], [1, 2], [1, 3]])
     out = slice_profiles([a, b], 3)  # 3 interpolated + final = 5 profiles
     assert len(out) == 5
-    np.testing.assert_allclose(out[0], a)
-    np.testing.assert_allclose(out[-1], b)
+    np.testing.assert_allclose(out[0], list(a))
+    np.testing.assert_allclose(out[-1], list(b))
 
 
 def test_skin_two_profiles() -> None:
@@ -464,13 +464,13 @@ def test_os_flat_fields() -> None:
 
 def test_os_profile_fields() -> None:
     prof = [[0, 0], [1, 2], [3, 4]]
-    d = os_profile(prof)
+    d = os_profile(Path2D(prof))
     assert d["type"] == "profile"
     assert d["points"] == [[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]]
 
     with pytest.raises(ValueError, match="First point of the"):
         # Must start at [0,0]
-        os_profile([[1, 1]])
+        os_profile(Path2D([[1, 1]]))
 
 
 def test_offset_sweep_smooth() -> None:
@@ -505,7 +505,7 @@ def test_offset_sweep_profile() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     # Custom profile: starts at [0,0], goes inward by 2 at z=3
     prof = [[0.0, 0.0], [2.0, 3.0]]
-    prof_sweep = Path2D(_SQ20).offset_sweep(height=20, top=os_profile(prof))
+    prof_sweep = Path2D(_SQ20).offset_sweep(height=20, top=os_profile(Path2D(prof)))
     assert _valid(prof_sweep)
     assert _mesh(prof_sweep).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
@@ -634,8 +634,8 @@ def test_sweepable_mixin() -> None:
 def test_oop_skin_and_sweep() -> None:
     from pybosl2.vnf import VNF
 
-    circle = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
-    square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+    circle = Path2D([[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)])
+    square = Path2D([[-1, -1], [1, -1], [1, 1], [-1, 1]])
     vnf_skinned = VNF.from_skin([circle, square], slices=5, method=SkinMethod.REINDEX, z=[0, 10])
     assert isinstance(vnf_skinned.vnf(), VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf()
     assert abs(_mesh(vnf_skinned).volume()) > 0
@@ -688,7 +688,7 @@ PRISM_RIMS = [
     ("teardrop", lambda: os_teardrop(radius=3)),
     ("smooth", lambda: os_smooth(cut=3, curvature=0.8)),
     ("chamfer", lambda: os_chamfer(width=2)),
-    ("profile", lambda: os_profile([[0, 0], [1, 3], [2, 5]])),
+    ("profile", lambda: os_profile(Path2D([[0, 0], [1, 3], [2, 5]]))),
 ]
 
 
@@ -743,7 +743,7 @@ def test_rounded_prism_chamfer_rim() -> None:
 def test_rounded_prism_profile_rim() -> None:
     """A hand-drawn rim profile is swept round the top edge like any of the named ones."""
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
-    custom = base.rounded_prism(height=10, joint_top=os_profile([[0, 0], [1, 3], [2, 5]]))  # type: ignore[arg-type]
+    custom = base.rounded_prism(height=10, joint_top=os_profile(Path2D([[0, 0], [1, 3], [2, 5]])))  # type: ignore[arg-type]
     plain = base.rounded_prism(height=10)
     assert float(_mesh(custom).volume()) < float(_mesh(plain).volume())
     assert np.asarray(_mesh(custom).vertices).max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01)

@@ -60,6 +60,7 @@ from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_
 from pybosl2.defaults import resolve_facets
 from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.paths import require_path, require_paths
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -687,7 +688,7 @@ def _path_sweep(
 # ---------------------------------------------------------------------------------------------
 
 
-def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequence[float]]) -> list[list[float]]:
+def _reindex_polygon(reference: "PathLike", poly: "PathLike") -> list[list[float]]:
     """Circularly rotate *poly*'s vertices to best line up with *reference* (BOSL2 reindex_polygon).
 
     Both must be equal-length point lists. Picks the rotation minimizing the summed vertex
@@ -705,12 +706,13 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
     return result
 
 
-def slice_profiles(profiles: Sequence[PathLike], slices: int, closed: bool = False) -> list[list[list[float]]]:
+def slice_profiles(profiles: "Sequence[Path2D | Path3D]", slices: int, closed: bool = False) -> list[list[list[float]]]:
     """Interpolate *slices* extra profiles between each consecutive pair.
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
     lists; the interpolation is vertex-by-vertex.
     """
+    profiles = require_paths(profiles, "profiles", "slice_profiles")  # type: ignore[assignment]
     sides = len(profiles)
     nseg = sides - (0 if closed else 1)
     count = list(slices) if isinstance(slices, (list, tuple, np.ndarray)) else [slices] * nseg
@@ -771,7 +773,7 @@ def _skin(
         if method[i - 1] == SkinMethod.DIRECT:
             fixedprof.append(resampled[i])
         else:
-            fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
+            fixedprof.append(Path3D(_reindex_polygon(fixedprof[i - 1], resampled[i])))
     sliced = slice_profiles(fixedprof, slices, closed)
     grid = sliced if not closed else sliced + [sliced[0]]
 
@@ -974,7 +976,7 @@ def _spiral_sweep(
 
 
 def subdivide_and_slice(
-    profiles: Sequence[PathLike],
+    profiles: "Sequence[Path2D | Path3D]",
     slices: int,
     numpoints: int | str | None = None,
     method: ResampleMethod = ResampleMethod.LENGTH,  # noqa: ARG001
@@ -1218,7 +1220,7 @@ def os_flat() -> OSProfile:
     return OSProfile(type=OSType.FLAT, radius=0.0, height=0.0)
 
 
-def os_profile(profile: PathLike, extra: float = 0.0) -> OSProfile:
+def os_profile(profile: "Path2D", extra: float = 0.0) -> OSProfile:
     """Return a custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
 
     Accepts a list of 2D points `[[x, y], ...]` defining the profile:
@@ -1233,6 +1235,7 @@ def os_profile(profile: PathLike, extra: float = 0.0) -> OSProfile:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
+    profile = cast("Path2D", require_path(profile, "profile", "os_profile"))
     pts = [[float(p[0]), float(p[1])] for p in profile]
     if not (pts):
         raise Bosl2ValueError("os_profile(): First point of the profile must be [0, 0].")
