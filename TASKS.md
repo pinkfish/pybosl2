@@ -2019,6 +2019,50 @@ Things the tranches showed, all worth expecting on the rest:
 
 ---
 
+## T25 — A mesh is a `VNF`, not a `(verts, faces)` pair ✅
+
+**Closed:** §12.2 item 3 → §12.1 (C-8, C-9) · **Implements:** SPEC C-8, C-9 · **Size:** S
+**Risk:** low — three public functions, one library caller
+
+Three functions in `pybosl2/texture.py` thread the two halves of a mesh through separately:
+`is_watertight_topology(verts, faces)`, `rasterize_vnf_texture(verts, faces, sides)` and
+`vnf_tile_to_solid(verts, faces, size, reps, ...)`, which also *returns* a bare `(verts, faces)`
+tuple. C-8 makes `VNF` the mesh interchange type, and these predate it. Splitting a mesh in two
+lets a caller pass vertices from one mesh and faces from another and get silent nonsense — nothing
+checks that the indices in `faces` are in range for `verts`. `is_watertight_topology` shows the
+shape of the problem plainly: it takes `verts` and immediately discards it (`_ = verts`), because
+edge parity needs only the faces.
+
+Found while closing [T24](#t24--make-a-point-sequence-a-path2dpath3d-not-a-bare-list): a mesh
+vertex array is *not* a polyline — reordering `verts` without reindexing `faces` destroys the
+geometry — so C-7a was the wrong requirement for these three, and they are carve-outs on that
+ratchet with a pointer to this task.
+
+1. Add `VNF.is_watertight()` — a mesh property belongs to the mesh type (C-9), and there is
+   currently no way to ask a `VNF` this at all; the only implementation lives in the texture module.
+2. Retype `rasterize_vnf_texture(tile: VNF, sides)` and `vnf_tile_to_solid(tile: VNF, ...) -> VNF`.
+3. Delete `is_watertight_topology`; `textured_tile` converts the texture tuple once, at the
+   boundary, and everything downstream of it trades in `VNF`.
+4. The `(verts, faces)` tuple stays as the *texture data* form `texture(name)` returns — that is
+   BOSL2's on-the-wire vocabulary, and `is_vnf_texture()` is the predicate for it. The boundary is
+   where it becomes a `VNF`, not where it is produced.
+
+**Landed.** `VNF.is_watertight()` is on the mesh type, `rasterize_vnf_texture(tile: VNF)` and
+`vnf_tile_to_solid(tile: VNF) -> VNF` take and return meshes, and `is_watertight_topology` is gone.
+`textured_tile` builds the `VNF` once and hands the object on. The three T24 carve-outs that pointed
+here came off `EXCLUDED`, which is down from 8 to 5 — and the staleness test written in T24
+(`test_every_exclusion_names_a_real_function`) is what forced that: it failed the moment
+`rasterize_vnf_texture` stopped having a `verts` parameter, so a carve-out could not outlive the
+signature that justified it.
+
+One thing worth keeping: **a parameter a function ignores is evidence about the design.**
+`is_watertight_topology` opened with `_ = verts`, discarding half its input. That was not a tidy-up
+waiting to happen — it was the split object showing through, because edge parity is a property of
+the faces and the pair was never one thing. The test now asserts it directly: squash the geometry
+without touching the topology and the answer must not move.
+
+---
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

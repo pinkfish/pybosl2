@@ -33,6 +33,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
+    from pybosl2.vnf import VNF
+
 import numpy as np
 
 from pybosl2._helpers import quantup as _quantup_float
@@ -776,24 +778,21 @@ def _close_to_base(
     return verts, faces
 
 
-def is_watertight_topology(verts: list[list[float]], faces: list[list[int]]) -> bool:
-    """Check if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
-    _ = verts
-    from collections import Counter
-
-    e: Counter[frozenset[int]] = Counter()
-    for f in faces:
-        for i in range(len(f)):
-            e[frozenset((f[i], f[(i + 1) % len(f)]))] += 1
-    return bool(e) and all(c == 2 for c in e.values())
-
-
-def rasterize_vnf_texture(verts: list[list[float]], faces: list[list[int]], sides: int = 24) -> list[list[float]]:
+def rasterize_vnf_texture(tile: "VNF", sides: int = 24) -> list[list[float]]:
     """Sample a VNF texture tile's top surface to an *sides* x *sides* height-field over ``[0,1]x[0,1]``.
 
     A robust fallback for VNF tiles whose exact geometry can't be tiled watertight (pinch points,
     interior holes): the top (max-z) surface is captured; overhangs/undercuts are flattened.
+
+    Args:
+        tile: The texture tile as a :class:`~pybosl2.vnf.VNF` (SPEC C-8).
+        sides: Samples per axis.
+
+    Returns:
+        An *sides* x *sides* height-field.
+
     """
+    verts, faces = tile.vertices, tile.faces
     verts_arr = np.asarray([[float(p[0]), float(p[1]), float(p[2])] for p in verts])
     tris = [[f[0], f[k], f[k + 1]] for f in faces for k in range(1, len(f) - 1)]
     tris_arr = np.asarray(tris)
@@ -819,17 +818,29 @@ def rasterize_vnf_texture(verts: list[list[float]], faces: list[list[int]], side
 
 
 def vnf_tile_to_solid(
-    verts: list[list[float]],
-    faces: list[list[int]],
+    tile: "VNF",
     size: Sequence[float],
     reps: Sequence[int],
     tex_depth: float = 1.0,
     inset: float = 0.0,
-) -> tuple[list[list[float]], list[list[int]]]:
+) -> "VNF":
     """Tile a VNF texture cell over a *size* ``[x, y]`` rectangle and close into a watertight solid.
 
-    Returns ``(verts, faces)`` for a polyhedron.
+    Args:
+        tile: The texture cell as a :class:`~pybosl2.vnf.VNF` (SPEC C-8).
+        size: The ``[x, y]`` rectangle to cover.
+        reps: Repetitions along each axis.
+        tex_depth: Scale applied to the tile's z.
+        inset: Subtracted from the tile's z before scaling.
+
+    Returns:
+        The closed solid. Ask :meth:`~pybosl2.vnf.VNF.is_watertight` whether the tiling closed
+        cleanly -- a tile with pinch points or interior holes will not.
+
     """
+    from pybosl2.vnf import VNF
+
+    verts, faces = tile.vertices, tile.faces
     sx, sy = float(size[0]), float(size[1])
     nx, ny = int(reps[0]), int(reps[1])
     v: list[list[float]] = []
@@ -843,7 +854,7 @@ def vnf_tile_to_solid(
                 f.append([off + k for k in face])
     v, f = _weld(v, f)
     bottom = min(p[2] for p in v) - 0.1
-    return _close_to_base(v, f, bottom)
+    return VNF(*_close_to_base(v, f, bottom))
 
 
 def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], list[list[int]]]) -> bool:
