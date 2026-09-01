@@ -17,6 +17,7 @@ ports that work in plain CPython. The modules that build native geometry
 * [Docs](https://pinkfish.github.io/pybosl2/)
 * [Specs](https://pinkfish.github.io/pybosl2/specs/index.html) of the various parts
 * [SPEC.md](SPEC.md) — what the system is and does, and the contracts it honours
+  (generated from [spec/requirements.toml](spec/requirements.toml) by `docs/_reqgen.py`)
 * [PLAN.md](PLAN.md) — how that is implemented in Python (typing, classes, docs, tests)
 * [TASKS.md](TASKS.md) — the ordered queue of conformance work
 
@@ -55,9 +56,14 @@ started](https://pinkfish.github.io/pybosl2/getting_started.html) for the guided
 
 **Start with [SPEC.md](SPEC.md), then [PLAN.md](PLAN.md).** Both are normative: the spec says what
 the system does and which contracts it honours, the plan says how that is written in Python
-(typing, class design, docstrings, errors, tests). Requirements are numbered (`P-1`, `D-3`, `T-2`,
-…) — cite them in reviews and commit bodies. [TASKS.md](TASKS.md) is the ordered queue of open
-conformance work, and [AGENTS.md](AGENTS.md) is the one-page index of all three.
+(typing, class design, docstrings, errors, tests). Requirements are numbered and permanent — cite
+them with their document (`SPEC-P-1`, `PLAN-T-2`) in reviews and commit bodies, since five prefixes
+mean different things in the two. [TASKS.md](TASKS.md) is the ordered queue of open
+conformance work, [CONFORMANCE.md](CONFORMANCE.md) is the history of what has closed, and
+[AGENTS.md](AGENTS.md) is the one-page index.
+
+SPEC.md and PLAN.md are **generated**: edit `spec/requirements.toml` for a requirement or the
+frames in `spec/` for prose, then run `python docs/_reqgen.py`.
 
 Before a change is done, all of these must pass:
 

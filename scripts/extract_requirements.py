@@ -52,7 +52,9 @@ def _title_and_body(rest: str) -> tuple[str, str]:
     if rest.startswith("**"):
         return "", rest[2:].strip()
     title, _, remainder = rest.partition("**")
-    return title.strip(" —-.").replace("~~", ""), remainder.strip()
+    # Verbatim but for the strikethrough: the trailing period and the em dash separator are how
+    # these read, and stripping them rewrites the prose.
+    return title.strip().replace("~~", ""), remainder.strip()
 
 
 def _unwrap(lines: list[str]) -> str:
@@ -125,13 +127,15 @@ def parse(document: str) -> list[dict[str, object]]:
             body = [first] if first else []
             continue
         if current is not None:
-            if line.startswith("* ") or line.strip() in ("---", "```"):
-                # A non-requirement bullet or a fence ends the statement; tables and prose
-                # between requirements belong to the section, not to the requirement above.
+            # A statement continues only while its lines are indented (or blank). A paragraph
+            # starting at column zero belongs to the *section*, not to the requirement above it --
+            # SPEC 3's "Review test:" note is one, and treating it as part of P-8 duplicated it
+            # when the prose was regenerated.
+            if line.strip() and not line.startswith(("  ", "\t")):
                 flush()
                 current, body = None, []
                 continue
-            body.append(line.strip() if not line.startswith("  ") else line)
+            body.append(line)
     flush()
     return requirements
 
@@ -242,7 +246,8 @@ def render(entries: list[dict[str, object]]) -> str:
         out.append(f'layer = "{entry["layer"]}"')
         out.append(f'section = "{entry["section"]}"')
         if entry["title"]:
-            out.append(f'title = "{str(entry["title"]).replace(chr(34), chr(39))}"')
+            title = str(entry["title"])
+            out.append(f"title = '{title}'" if '"' in title else f'title = "{title}"')
         if entry["keyword"]:
             out.append(f'keyword = "{entry["keyword"]}"')
         out.append(f"statement = {_literal(str(entry['statement']))}")
