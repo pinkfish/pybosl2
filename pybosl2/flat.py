@@ -20,6 +20,7 @@ from pybosl2._edges_lang import resolve_anchor
 from pybosl2.constants import CENTER
 from pybosl2.defaults import resolve_res as _resolve_res
 from pybosl2.exceptions import UnsupportedByBackendError
+from pybosl2.groups import Placement, resolve_placement_2d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -109,6 +110,7 @@ def circle(
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -125,6 +127,8 @@ def circle(
         corner: Three 2-D points defining a path the circle should be tangent to.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
         fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
@@ -142,6 +146,7 @@ def circle(
             circle(radius=15).linear_extrude(height=5).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "circle")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import circle2d
 
@@ -173,6 +178,7 @@ def square(
     chamfer: float | Sequence[float] = 0,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float | None = None,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -189,6 +195,8 @@ def square(
         chamfer: Corner chamfer distance.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
         fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
@@ -206,6 +214,7 @@ def square(
             square(size=20, rounding=2).linear_extrude(height=5).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "square")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import square2d
 
@@ -240,6 +249,7 @@ def rect(
     chamfer: float | Sequence[float] = 0,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -255,6 +265,8 @@ def rect(
         chamfer: Corner chamfer distance.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
         fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
@@ -272,6 +284,7 @@ def rect(
             rect(size=[30, 20], rounding=3).linear_extrude(height=5).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "rect")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import rect2d
 
@@ -312,6 +325,7 @@ def polygon(
     *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     res: int | None = None,
 ) -> Flat:
     """Return a polygon on the active backend.
@@ -322,6 +336,8 @@ def polygon(
         points: The outline, as a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
             applies.
 
@@ -336,6 +352,7 @@ def polygon(
             polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "polygon")
     from pybosl2.path2d import Path2D
     from pybosl2.paths import require_path
 
@@ -442,6 +459,7 @@ def ellipse(
     realign: bool = False,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -455,6 +473,8 @@ def ellipse(
         realign: Rotate by half a segment so a flat faces +X (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
         fa: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
@@ -471,6 +491,7 @@ def ellipse(
             ellipse(radius=[20, 10]).linear_extrude(height=4).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "ellipse")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import ellipse2d
 
@@ -495,6 +516,7 @@ def star(
     realign: bool = False,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     res: int | None = None,
 ) -> Flat:
     """Return a star on the active backend.
@@ -509,6 +531,8 @@ def star(
         realign: Rotate by half a point (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
@@ -521,6 +545,7 @@ def star(
             star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "star")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import star2d
 
@@ -565,6 +590,7 @@ def regular_ngon(
     realign: bool = False,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -582,6 +608,8 @@ def regular_ngon(
         realign: Rotate by half a side (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient
             ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
         fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
@@ -604,6 +632,7 @@ def regular_ngon(
             regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "regular_ngon")
     if current_backend() == "sdf":
         if rounding:
             raise UnsupportedByBackendError(
@@ -656,6 +685,7 @@ def trapezoid(
     shift: float = 0,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
+    placement: Placement | None = None,
     res: int | None = None,
 ) -> Flat:
     """Return a trapezoid on the active backend.
@@ -670,6 +700,8 @@ def trapezoid(
         shift: Shift of the top edge along X.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
@@ -685,6 +717,7 @@ def trapezoid(
             trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "trapezoid")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import trapezoid2d
 

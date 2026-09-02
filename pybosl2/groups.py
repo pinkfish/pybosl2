@@ -39,7 +39,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pybosl2._edges_lang import Anchor
 from pybosl2.exceptions import Bosl2ValueError
@@ -59,6 +59,15 @@ class Placement:
 
     The three always travel together (SPEC G-1), so they can be one value that is built once and
     reused. Frozen, like every group: :meth:`with_` returns a new one.
+
+    **A placement reads in two dimensions as well as three.** In the plane a shape has an anchor
+    and a spin but nothing to orient -- there is no third axis to turn a face towards -- so a 2-D
+    constructor honours those two. One placement can therefore serve a 2-D outline and the solid
+    extruded from it, which is the case worth having. What it must not do is *quietly* honour two
+    of the three: a placement carrying a real ``orient`` asks for something the plane cannot do, so
+    passing one to a 2-D constructor raises rather than silently dropping it (SPEC E-5). The
+    default ``orient`` is not "a real one" -- ``Placement()`` and ``Placement(anchor=...)`` are
+    dimension-neutral and pass anywhere.
 
     Attributes:
         anchor: The point on the shape that lands at the origin.
@@ -109,6 +118,24 @@ class Placement:
             orient=self.orient if orient is None else orient,
         )
 
+    def orients(self) -> bool:
+        """Whether this placement asks for an orientation the plane cannot give.
+
+        Returns:
+            ``True`` when ``orient`` differs from the default, which is what makes a placement
+            three-dimensional. A placement that only anchors and spins reads in either dimension.
+
+        Examples:
+            >>> from pybosl2 import Anchor, Placement
+            >>> Placement(anchor=Anchor.BOTTOM).orients()
+            False
+            >>> Placement(orient=Anchor.RIGHT).orients()
+            True
+
+        """
+        default = Placement.__dataclass_fields__["orient"].default
+        return bool(self.orient is not default and self.orient != default)
+
     def as_kwargs(self) -> dict[str, Any]:
         """Return the three members as keyword arguments.
 
@@ -117,6 +144,17 @@ class Placement:
 
         """
         return {"anchor": self.anchor, "spin": self.spin, "orient": self.orient}
+
+    def as_plane_kwargs(self) -> dict[str, Any]:
+        """Return the members a 2-D constructor can honour.
+
+        Returns:
+            A mapping with ``anchor`` and ``spin``. ``orient`` is absent because the plane has no
+            third axis to turn a face towards; :meth:`orients` says whether dropping it would lose
+            anything, and :func:`resolve_placement_2d` refuses rather than drop it.
+
+        """
+        return {"anchor": self.anchor, "spin": self.spin}
 
 
 @dataclass(frozen=True, slots=True)
@@ -288,3 +326,67 @@ def resolve_placement(
             f"or drop placement= and pass the loose arguments."
         )
     return placement.anchor, placement.spin, placement.orient
+
+
+#: The two placement members a 2-D constructor honours, typed so the resolver hands back exactly
+#: what it was given: `flat.py` declares them non-optional (`anchor: Anchor | Sequence[float]`)
+#: while `solid.py` declares them `| None`, and a resolver that widened would make every 2-D call
+#: site fail the checker for a value it can never actually receive.
+_AnchorT = TypeVar("_AnchorT", bound="Anchor | Sequence[float] | None")
+_SpinT = TypeVar("_SpinT", bound="float | None")
+
+
+def resolve_placement_2d(
+    placement: "Placement | None",
+    anchor: _AnchorT,
+    spin: _SpinT,
+    function: str,
+    *,
+    defaults: "Placement | None" = None,
+) -> "tuple[_AnchorT | Anchor | Sequence[float], _SpinT | float]":
+    """Resolve a placement for a 2-D constructor, which has an anchor and a spin but no orient.
+
+    A separate function rather than a flag on :func:`resolve_placement`, because a boolean that
+    selects how many values come back is a second function wearing the first one's name
+    (SPEC S-19b).
+
+    Args:
+        placement: The group, or ``None``.
+        anchor: The loose ``anchor`` as passed.
+        spin: The loose ``spin`` as passed.
+        function: Name of the calling function, for the error message.
+        defaults: What the loose members default to, so "given" can be told from "left alone".
+
+    Returns:
+        The anchor and spin to use.
+
+    Raises:
+        Bosl2ValueError: if *placement* is given together with either loose member (SPEC G-3), or
+            if it carries a real ``orient``, which the plane cannot honour (SPEC E-5).
+
+    """
+    if placement is None:
+        return anchor, spin
+    if placement.orients():
+        raise Bosl2ValueError(
+            f"{function}(): the placement sets orient={placement.orient!r}, which a 2-D shape "
+            f"cannot honour -- there is no third axis to turn a face towards. Drop the orient "
+            f"(`placement.with_(orient=Anchor.TOP)`), or apply it to the solid after extruding."
+        )
+    baseline = Placement() if defaults is None else defaults
+    given = [
+        name
+        for name, value, default in (
+            ("anchor", anchor, baseline.anchor),
+            ("spin", spin, baseline.spin),
+        )
+        if value is not None and value is not default and value != default
+    ]
+    if given:
+        raise Bosl2ValueError(
+            f"{function}(): given both placement= and {', '.join(given)}=. A placement carries "
+            f"anchor and spin together, so passing one of them beside it cannot mean two things "
+            f"-- pass placement=Placement({given[0]}=...), or drop placement= and pass the loose "
+            f"arguments."
+        )
+    return placement.anchor, placement.spin

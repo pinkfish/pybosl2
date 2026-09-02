@@ -13,7 +13,8 @@ import pytest
 from pybosl2 import Anchor, Facets, Placement, cuboid, cyl, use_defaults
 from pybosl2.defaults import resolve_facets, resolve_res
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.groups import resolve_placement
+from pybosl2.flat import circle, square
+from pybosl2.groups import resolve_placement, resolve_placement_2d
 
 
 class TestPlacement:
@@ -59,6 +60,61 @@ class TestPlacement:
     def test_resolve_placement_passes_the_loose_values_through(self) -> None:
         """With no group, the loose arguments are returned unchanged."""
         assert resolve_placement(None, Anchor.TOP, 30, Anchor.LEFT, "f") == (Anchor.TOP, 30, Anchor.LEFT)
+
+
+class TestPlacementInThePlane:
+    """A placement reads in two dimensions as well as three (SPEC G-1, E-5)."""
+
+    def test_one_placement_serves_an_outline_and_the_solid_from_it(self) -> None:
+        """The case worth having: anchor a 2-D profile and the solid extruded from it alike."""
+        upright = Placement(anchor=Anchor.LEFT)
+        outline = square([40, 20], placement=upright)
+        solid = cuboid([40, 20, 5], placement=upright)
+        assert outline.bounds().min[0] == pytest.approx(0.0)
+        assert solid.bounds().min[0] == pytest.approx(0.0)
+
+    def test_it_places_the_shape_where_the_loose_arguments_would(self) -> None:
+        """The group is a spelling, not a second behaviour."""
+        grouped = square([40, 20], placement=Placement(anchor=Anchor.LEFT))
+        loose = square([40, 20], anchor=Anchor.LEFT)
+        assert grouped.bounds().min == loose.bounds().min
+
+    def test_spin_travels_with_it(self) -> None:
+        """Both members the plane can honour, not just the anchor."""
+        spun = circle(radius=10, placement=Placement(spin=45))
+        assert spun.bounds().size[0] == pytest.approx(19.973, abs=0.05)
+
+    def test_a_placement_that_really_orients_is_refused(self) -> None:
+        """SPEC E-5: the plane has no third axis, so dropping the orient would be a silent lie."""
+        with pytest.raises(Bosl2ValueError, match="cannot honour"):
+            square([10, 10], placement=Placement(orient=Anchor.RIGHT))
+
+    def test_the_default_orient_is_dimension_neutral(self) -> None:
+        """`Placement()` and `Placement(anchor=...)` pass anywhere; only a real orient refuses."""
+        assert Placement(anchor=Anchor.LEFT).orients() is False
+        assert Placement(orient=Anchor.RIGHT).orients() is True
+        assert square([10, 10], placement=Placement()).bounds().size == pytest.approx([10.0, 10.0])
+
+    def test_the_group_and_member_conflict_applies_in_two_dimensions_too(self) -> None:
+        """SPEC G-3 is not a 3-D-only rule."""
+        with pytest.raises(Bosl2ValueError, match=r"placement= and anchor="):
+            square([10, 10], placement=Placement(anchor=Anchor.LEFT), anchor=Anchor.TOP)
+
+    def test_resolve_placement_2d_passes_the_loose_values_through(self) -> None:
+        """With no group, the loose arguments come back unchanged."""
+        assert resolve_placement_2d(None, Anchor.TOP, 30, "f") == (Anchor.TOP, 30)
+
+    def test_text_keeps_its_own_anchor_vocabulary(self) -> None:
+        """`text()` anchors on a typographic baseline string, not the anchor language.
+
+        That is an O-6b defect in its own right, and it is why `text()` is the one 2-D façade
+        constructor without `placement=`: a placement carries an `Anchor`, and this does not.
+        """
+        import inspect
+
+        from pybosl2.flat import text
+
+        assert "placement" not in inspect.signature(text).parameters
 
 
 class TestFacets:
