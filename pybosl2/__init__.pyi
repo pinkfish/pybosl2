@@ -59,6 +59,7 @@ from pybosl2.distributors import ydistribute as ydistribute
 from pybosl2.distributors import zdistribute as zdistribute
 from pybosl2.enums import AttachTag as AttachTag
 from pybosl2.enums import EdgeMode as EdgeMode
+from pybosl2.enums import EdgeTreatmentKind as EdgeTreatmentKind
 from pybosl2.enums import Measure as Measure
 from pybosl2.enums import PartitionCutType as PartitionCutType
 from pybosl2.enums import ResampleMethod as ResampleMethod
@@ -82,6 +83,7 @@ from pybosl2.flat import square as square
 from pybosl2.flat import star as star
 from pybosl2.flat import text as text
 from pybosl2.flat import trapezoid as trapezoid
+from pybosl2.groups import EdgeTreatment as EdgeTreatment
 from pybosl2.groups import Facets as Facets
 from pybosl2.groups import Placement as Placement
 from pybosl2.isosurface import Metaball as Metaball
@@ -229,6 +231,8 @@ __all__: list[str] = [
     "DOWN",
     "EPSILON",
     "EdgePlane",
+    "EdgeTreatment",
+    "EdgeTreatmentKind",
     "FORWARD",
     "FRONT",
     "Facets",

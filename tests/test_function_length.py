@@ -36,16 +36,12 @@ LIMIT = 50
 #: How many over-long functions each file still has. Lower a number when you split one; delete the
 #: row when it reaches zero. Nothing may be added.
 BUDGET: dict[str, int] = {
-    "_helpers.py": 1,
     "_shape.py": 1,
     "_stroke3d.py": 1,
     "beziers.py": 3,
     "caps.py": 1,
     "distributors.py": 2,
-    "flat.py": 1,
-    "masking.py": 1,
-    "miscellaneous.py": 3,
-    "nurbs.py": 1,
+    "miscellaneous.py": 2,
     "partitions.py": 2,
     "parts/ball_bearings.py": 1,
     "parts/cubetruss.py": 4,
@@ -56,52 +52,56 @@ BUDGET: dict[str, int] = {
     "parts/sliders.py": 1,
     "parts/tripod_mounts.py": 1,
     "parts/walls.py": 1,
-    "path2d.py": 4,
+    "path2d.py": 2,
     "path3d.py": 2,
     "regions.py": 2,
     "rounding.py": 2,
-    "sdf/joiners.py": 2,
+    "sdf/joiners.py": 1,
     "sdf/paths.py": 1,
-    "sdf/shapes2d.py": 2,
-    "sdf/shapes3d.py": 12,
+    "sdf/shapes3d.py": 7,
     "sdf/skin.py": 1,
-    "shapes2d/base.py": 1,
-    "shapes2d/circle.py": 3,
-    "shapes2d/curves.py": 1,
-    "shapes2d/square.py": 3,
-    "shapes3d/base.py": 4,
-    "shapes3d/cuboid.py": 5,
-    "shapes3d/cylinder.py": 7,
+    "shapes2d/circle.py": 1,
+    "shapes2d/square.py": 1,
+    "shapes3d/base.py": 1,
+    "shapes3d/cuboid.py": 3,
+    "shapes3d/cylinder.py": 3,
     "shapes3d/extrusions.py": 1,
-    "shapes3d/sphere.py": 1,
-    "shapes3d/torus.py": 2,
-    "skin.py": 9,
-    "solid.py": 9,
+    "skin.py": 8,
     "surfaces3d.py": 6,
     "svg.py": 2,
     "texture.py": 2,
-    "turtle/turtle2d.py": 3,
+    "turtle/turtle2d.py": 2,
     "turtle/turtle3d.py": 2,
-    "vnf.py": 9,
+    "vnf.py": 6,
 }
 
 
 def _body_length(node: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
-    """Return the function's length in *code* lines, not counting its docstring.
+    """Return the function's length in *code* lines: no signature, no docstring.
 
-    S-2 is about a function doing too much -- "split it rather than commenting it into sections".
-    A long docstring is the opposite of that problem, and DOC-2 asks for `Args:`, `Returns:`,
-    `Raises:` and a rendering example on every public callable. Counting those lines would make
-    this rule penalise documentation and put the two in direct conflict: the ambient-default
-    documentation sweep pushed a function over its budget without touching a line of its code,
-    which is what surfaced this.
+    S-2 is about a function doing too much -- "split it rather than commenting it into sections" --
+    so what it should measure is the code. The other two parts of a `def` are declaration, and
+    counting them puts S-2 in direct conflict with rules this project also holds:
+
+    * **Docstrings.** DOC-2 asks for `Args:`, `Returns:`, `Raises:` and a rendering example on
+      every public callable, so counting docstring lines makes S-2 penalise documentation. The
+      ambient-default sweep pushed a function over its budget without touching a line of its code,
+      which is what first surfaced this.
+    * **Signatures.** A façade constructor declares up to forty parameters, one per line, because
+      B-3 makes the façade own every shared default. `prismoid` crossed the limit on a signature
+      of thirty-odd lines around a body of twenty; splitting the *body* could not have helped,
+      because the body was never the problem. That duplication is real and it is B-3's, tracked as
+      T31 -- but it is not "this function does too much", and one rule should not report another
+      rule's debt.
+
+    Measured together the backlog was 243 functions; docstrings alone accounted for 112 of them
+    and signatures for another 63.
     """
-    span = (node.end_lineno or node.lineno) - node.lineno
     body = node.body
-    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
-        doc = body[0]
-        span -= (doc.end_lineno or doc.lineno) - doc.lineno + 1
-    return span
+    first = body[0]
+    if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and len(body) > 1:
+        first = body[1]
+    return (node.end_lineno or node.lineno) - first.lineno + 1
 
 
 def _over_long() -> dict[str, list[tuple[str, int]]]:

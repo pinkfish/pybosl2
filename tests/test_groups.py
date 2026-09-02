@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import pytest
 
-from pybosl2 import Anchor, Facets, Placement, cuboid, cyl, use_defaults
+from pybosl2 import Anchor, EdgeTreatment, Facets, Placement, cuboid, cyl, use_defaults
 from pybosl2.defaults import resolve_facets, resolve_res
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.flat import circle, square
+from pybosl2.flat import circle, rect, square
 from pybosl2.groups import resolve_placement, resolve_placement_2d
 
 
@@ -115,6 +115,49 @@ class TestPlacementInThePlane:
         from pybosl2.flat import text
 
         assert "placement" not in inspect.signature(text).parameters
+
+
+class TestEdgeTreatment:
+    """A rounding or a chamfer, never both, as one value (SPEC G-1, G-7)."""
+
+    def test_a_treatment_rounds_the_way_the_loose_argument_does(self) -> None:
+        """The group is a spelling, not a second behaviour."""
+        grouped = cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4))
+        loose = cuboid([40, 30, 20], rounding=4)
+        assert grouped.bounds().size == loose.bounds().size
+        assert grouped.vnf().volume() == pytest.approx(loose.vnf().volume(), rel=1e-6)
+
+    def test_rounding_and_chamfering_are_different_geometry(self) -> None:
+        """X-8: assert the content, not that an object came back."""
+        rounded = cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4))
+        chamfered = cuboid([40, 30, 20], treatment=EdgeTreatment.chamfer(4))
+        assert rounded.vnf().volume() != pytest.approx(chamfered.vnf().volume(), rel=1e-6)
+
+    def test_the_conflict_is_unrepresentable_in_the_group(self) -> None:
+        """One kind and one size, so there is nothing for the two to disagree about."""
+        assert EdgeTreatment.rounding(4).as_kwargs() == {"rounding": 4.0}
+        assert EdgeTreatment.chamfer(4).as_kwargs() == {"chamfer": 4.0}
+        assert EdgeTreatment.none().as_kwargs() == {}
+
+    def test_the_loose_pair_is_refused_with_one_message(self) -> None:
+        """SPEC G-5: the rule was written six times with six wordings, none naming the fix."""
+        with pytest.raises(Bosl2ValueError, match="rounded or chamfered, never both"):
+            cuboid([20, 20, 20], rounding=3, chamfer=2)
+
+    def test_the_group_beside_a_loose_member_is_refused(self) -> None:
+        """SPEC G-3, as for every group."""
+        with pytest.raises(Bosl2ValueError, match=r"treatment= and chamfer="):
+            cuboid([20, 20, 20], treatment=EdgeTreatment.rounding(3), chamfer=2)
+
+    def test_a_two_dimensional_constructor_takes_a_size_per_corner(self) -> None:
+        """`rect` rounds each corner independently, and the group carries that."""
+        shaped = rect([40, 20], treatment=EdgeTreatment.rounding([1, 2, 3, 4]))
+        assert shaped.bounds().size == pytest.approx([40.0, 20.0])
+
+    def test_a_per_corner_treatment_on_a_scalar_constructor_is_refused(self) -> None:
+        """SPEC E-1/E-4: it used to reach the backend and surface as a bare TypeError."""
+        with pytest.raises(Bosl2ValueError, match="one size to the whole shape"):
+            cuboid([20, 20, 20], treatment=EdgeTreatment.rounding([1, 2, 3, 4]))
 
 
 class TestFacets:
