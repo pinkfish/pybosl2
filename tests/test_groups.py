@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from pybosl2 import Anchor, EdgeTreatment, Facets, Placement, cuboid, cyl, use_defaults
+from pybosl2 import Anchor, EdgeSelection, EdgeTreatment, Facets, Placement, cuboid, cyl, use_defaults
 from pybosl2.defaults import resolve_facets, resolve_res
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.flat import circle, rect, square
@@ -158,6 +158,32 @@ class TestEdgeTreatment:
         """SPEC E-1/E-4: it used to reach the backend and surface as a bare TypeError."""
         with pytest.raises(Bosl2ValueError, match="one size to the whole shape"):
             cuboid([20, 20, 20], treatment=EdgeTreatment.rounding([1, 2, 3, 4]))
+
+
+class TestEdgeSelection:
+    """Which edges a treatment applies to, as one value (SPEC G-1)."""
+
+    def test_a_selection_treats_the_edges_the_loose_arguments_would(self) -> None:
+        """The group is a spelling, not a second behaviour."""
+        grouped = cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4), selection=EdgeSelection(edges=Anchor.TOP))
+        loose = cuboid([40, 30, 20], rounding=4, edges=Anchor.TOP)
+        assert grouped.vnf().volume() == pytest.approx(loose.vnf().volume(), rel=1e-9)
+
+    def test_selecting_edges_is_not_the_same_as_treating_them_all(self) -> None:
+        """X-8: the selection has to actually reach the geometry."""
+        some = cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4), selection=EdgeSelection(edges=Anchor.TOP))
+        every = cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4))
+        assert some.vnf().volume() != pytest.approx(every.vnf().volume(), rel=1e-6)
+
+    def test_the_group_beside_a_loose_member_is_refused(self) -> None:
+        """SPEC G-3, as for every group."""
+        with pytest.raises(Bosl2ValueError, match=r"selection= and edges="):
+            cuboid([20, 20, 20], selection=EdgeSelection(edges=Anchor.TOP), edges=Anchor.BOTTOM)
+
+    def test_the_two_members_compose_rather_than_conflict(self) -> None:
+        """Unlike a treatment, a selection's members narrow one another (SPEC G-7 does not apply)."""
+        both = EdgeSelection(edges=Anchor.TOP, excepted=Anchor.FRONT).as_kwargs()
+        assert both == {"edges": Anchor.TOP, "except_edges": Anchor.FRONT}
 
 
 class TestFacets:

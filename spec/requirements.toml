@@ -2086,6 +2086,21 @@ enforced_by = [
 status = "enforced"
 
 [[requirement]]
+id = "SPEC-G-8"
+aliases = ["G-8"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "A parameter is a promise, and an unkept one refuses as a library error."
+keyword = "MUST"
+statement = '''
+A parameter in a public signature says the library honours it. Where this port advertises one it does not build, the refusal MUST be a `Bosl2NotImplementedError` — a `Bosl2Error` so `except Bosl2Error` catches it (E-1), a `NotImplementedError` so existing callers are unaffected, and carrying a hint naming what to do meanwhile (E-2). Four public callables raised a bare `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and `VNF.from_field` with a range. The gaps are listed and the list only shrinks. **`texture=` is the one that matters:** S-34 and S-35 specify textures as a working subsystem, the registry is built, and thirteen public constructors take the five texture parameters — so grouping those five (G-1) would be polish on a promise nothing keeps, which is why the `Texturing` group was not built.
+'''
+enforced_by = [
+    "tests/test_unimplemented.py::test_every_gap_refuses_as_a_library_error",
+]
+status = "enforced"
+
+[[requirement]]
 id = "SPEC-G-2"
 aliases = ["G-2"]
 layer = "contract"

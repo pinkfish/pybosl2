@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, Union, cast
 
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 
 if TYPE_CHECKING:
     from pybosl2._backend import Solid
@@ -318,7 +318,10 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         return [[[float(c) for c in pt] for pt in spec.path]]
 
     if spec.cap_type == CapType.CIRCLE:
-        raise NotImplementedError("CapType.CIRCLE is not yet implemented")
+        raise Bosl2NotImplementedError(
+            "CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "
+            "CapSpec with a custom path for an exact circle."
+        )
 
     w = spec.width
     length = spec.length * spec.width

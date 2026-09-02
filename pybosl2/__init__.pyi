@@ -70,6 +70,7 @@ from pybosl2.enums import StaggerMode as StaggerMode
 from pybosl2.enums import SweepMethod as SweepMethod
 from pybosl2.enums import VNFStyle as VNFStyle
 from pybosl2.exceptions import Bosl2Error as Bosl2Error
+from pybosl2.exceptions import Bosl2NotImplementedError as Bosl2NotImplementedError
 from pybosl2.exceptions import Bosl2ValueError as Bosl2ValueError
 from pybosl2.exceptions import CrossBackendError as CrossBackendError
 from pybosl2.exceptions import UnsupportedByBackendError as UnsupportedByBackendError
@@ -83,6 +84,7 @@ from pybosl2.flat import square as square
 from pybosl2.flat import star as star
 from pybosl2.flat import text as text
 from pybosl2.flat import trapezoid as trapezoid
+from pybosl2.groups import EdgeSelection as EdgeSelection
 from pybosl2.groups import EdgeTreatment as EdgeTreatment
 from pybosl2.groups import Facets as Facets
 from pybosl2.groups import Placement as Placement
@@ -218,6 +220,7 @@ __all__: list[str] = [
     "Bezier",
     "BezierPatch",
     "Bosl2Error",
+    "Bosl2NotImplementedError",
     "Bounds2D",
     "Bounds3D",
     "CENTER",
@@ -231,6 +234,7 @@ __all__: list[str] = [
     "DOWN",
     "EPSILON",
     "EdgePlane",
+    "EdgeSelection",
     "EdgeTreatment",
     "EdgeTreatmentKind",
     "FORWARD",

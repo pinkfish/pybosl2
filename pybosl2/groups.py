@@ -50,9 +50,11 @@ __all__ = [
     "Placement",
     "Facets",
     "EdgeTreatment",
+    "EdgeSelection",
     "resolve_placement",
     "resolve_placement_2d",
     "resolve_edge_treatment",
+    "resolve_edge_selection",
 ]
 
 #: What an unset member looks like, so "not given" is distinguishable from "given the default".
@@ -581,3 +583,83 @@ def resolve_edge_treatment(
         cast("_RoundingT", resolved.get("rounding", 0)),
         cast("_ChamferT", resolved.get("chamfer", 0)),
     )
+
+
+@dataclass(frozen=True, slots=True)
+class EdgeSelection:
+    """Which edges a treatment applies to, and which are spared.
+
+    The pair travels together on 15 callables and neither member means much alone: `edges` without
+    `except_edges` is the common case, and `except_edges` without `edges` reads as "all of them
+    but these", which is what the default makes it. Unlike :class:`EdgeTreatment` the two are not
+    exclusive -- they compose, the second narrowing the first.
+
+    Both are expressed in the anchor language (SPEC C-10, O-6b), never as strings.
+
+    Attributes:
+        edges: The edges to treat. Defaults to every edge.
+        excepted: The edges to spare, spelled ``except_edges`` at a call site because ``except`` is
+            a Python keyword (SPEC B2-3).
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2 import Anchor, EdgeSelection, EdgeTreatment, cuboid
+
+            top_only = EdgeSelection(edges=Anchor.TOP)
+            cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4), selection=top_only).show()
+
+    """
+
+    edges: Any = Anchor.ALL
+    excepted: Any = None
+
+    def as_kwargs(self) -> dict[str, Any]:
+        """Return the pair as the keyword arguments a constructor declares.
+
+        Returns:
+            A mapping with ``edges`` and, when one is set, ``except_edges``.
+
+        """
+        out: dict[str, Any] = {"edges": self.edges}
+        if self.excepted is not None:
+            out["except_edges"] = self.excepted
+        return out
+
+
+def resolve_edge_selection(
+    selection: "EdgeSelection | None",
+    edges: Any,
+    except_edges: Any,
+    function: str,
+) -> tuple[Any, Any]:
+    """Resolve an edge-selection group against the loose ``edges``/``except_edges``.
+
+    Args:
+        selection: The group, or ``None``.
+        edges: The loose ``edges`` as passed.
+        except_edges: The loose ``except_edges`` as passed.
+        function: Name of the calling function, for the error message.
+
+    Returns:
+        The ``edges`` and ``except_edges`` to use.
+
+    Raises:
+        Bosl2ValueError: if the group is given beside either loose member (SPEC G-3).
+
+    """
+    if selection is None:
+        return edges, except_edges
+    given = [
+        name
+        for name, value, default in (("edges", edges, Anchor.ALL), ("except_edges", except_edges, None))
+        if value is not None and value is not default and value != default
+    ]
+    if given:
+        raise Bosl2ValueError(
+            f"{function}(): given both selection= and {', '.join(given)}=. An EdgeSelection "
+            f"already says which edges and which are spared, so passing one beside it cannot mean "
+            f"two things -- drop selection=, or drop the loose argument."
+        )
+    resolved = selection.as_kwargs()
+    return resolved["edges"], resolved.get("except_edges")

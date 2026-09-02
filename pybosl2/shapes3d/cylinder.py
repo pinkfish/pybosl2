@@ -29,7 +29,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -358,7 +358,12 @@ def cyl(
 
     """
     if texture is not None and texture != "none":
-        raise NotImplementedError("texture= (VNF surface texturing) is not supported by this pure-Python port.")
+        raise Bosl2NotImplementedError(
+            "cyl(): texture= is not built in this port yet, though the texture registry is -- "
+            "`texture('diamonds')` returns the tile. Apply it yourself with "
+            "`VNF.from_skin(...)`/`textured_tile(...)`, or build the plain cylinder and cut the "
+            "pattern. SPEC S-34/S-35 specify the parameter; this port does not honour it yet."
+        )
     _ = (tex_size, tex_reps, tex_depth, tex_inset)
 
     length_val = next((v for v in (length, height) if v is not None), 1.0)
