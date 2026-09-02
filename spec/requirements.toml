@@ -2048,10 +2048,25 @@ section = "8.1 Argument tiers"
 title = "A parameter family that travels together is a group."
 keyword = "MUST"
 statement = '''
-A parameter family that appears on more than three public callables and is always passed as a unit MUST be available as a frozen group object, so it can be built once and reused. `Placement(anchor, spin, orient)` is the case that motivated this: 50 callables take all three, another 31 take two of them, and every one of those restates the same defaults. `CapSpec` (S-24) is the pattern already in the library. A group is a *value*, not a namespace: it is frozen, it composes (`with_`), and it carries its own defaults.
+A parameter family that appears on more than three public callables and is always passed as a unit MUST be available as a frozen group object, so it can be built once and reused. `Placement(anchor, spin, orient)` is the case that motivated this: 50 callables take all three, another 31 take two of them, and every one of those restates the same defaults. `CapSpec` (S-24) is the pattern already in the library. A group is a *value*, not a namespace: it is frozen, it composes (`with_`), and it carries its own defaults. **A group reads in every dimension its members mean something in.** A placement is anchor, spin and orient in three dimensions and anchor and spin in two — there is no third axis in the plane to turn a face towards — so one placement serves a 2-D profile and the solid extruded from it, which is the case worth having.
 '''
 enforced_by = [
-    "tests/test_groups.py::TestPlacement::test_one_placement_serves_several_shapes",
+    "tests/test_groups.py::TestPlacementInThePlane::test_one_placement_serves_an_outline_and_the_solid_from_it",
+]
+status = "enforced"
+
+[[requirement]]
+id = "SPEC-G-6"
+aliases = ["G-6"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "A group refuses what a dimension cannot honour."
+keyword = "MUST"
+statement = '''
+Where a group means less in one dimension than another, the members that do not apply MUST be refused rather than dropped. A `Placement` carrying a real `orient` passed to a 2-D constructor raises, naming the way forward, because silently honouring two of its three members is the wrong answer E-5 forbids — the caller asked for an orientation and got a shape without one, with nothing said. The *default* `orient` is not a request: `Placement()` and `Placement(anchor=...)` are dimension-neutral and pass anywhere, which is what keeps one placement usable across a profile and its extrusion (G-1).
+'''
+enforced_by = [
+    "tests/test_groups.py::TestPlacementInThePlane::test_a_placement_that_really_orients_is_refused",
 ]
 status = "enforced"
 

@@ -57,6 +57,7 @@ spec renumbers as items close, and all but S-46a have.
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) | M |
+| 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
@@ -407,11 +408,30 @@ those lines put the two rules in direct conflict and made S-2 penalise documenta
 counts code lines now, and **the honest backlog is 131 functions across 47 files, not 243 across
 57**: 112 of the original "violations" were documentation.
 
+**`Placement` grew a 2-D reading** (second pass). The plane has an anchor and a spin but nothing to
+orient, so `Placement` is honoured on 8 of the 9 `flat.py` constructors and one placement now serves
+a 2-D profile and the solid extruded from it — the case that makes the group worth having. A
+placement setting a real `orient` **refuses** there rather than honouring two of its three members,
+because dropping it silently is the wrong answer E-5 forbids; the *default* orient is not a request,
+so `Placement()` and `Placement(anchor=...)` stay dimension-neutral (G-6). `resolve_placement_2d` is
+a separate function rather than a flag on the 3-D one, since a boolean selecting how many values
+come back is the defect S-19b names.
+
+Two things fell out of the wiring:
+
+* **`text()` is the ninth constructor and could not be wired**, because its `anchor` is typed `str`
+  and defaults to `"baseline"` — a typographic vocabulary, not the anchor language O-6b requires.
+  Recorded as §12.2 item 7b and T36; retyping it is not enough, since the typographic anchors mean
+  something `Anchor` has no member for.
+* **The un-wiring of `text()` removed the wrong docstring.** `s.replace(block, "", 1)` matched
+  `circle()`'s identical `Args:` block first, so `circle` lost its `placement:` entry while `text`
+  kept one for a parameter it no longer had. Caught by ruff's D417 and then by a check asserting
+  that *parameter and documentation agree for every constructor* — which is the check that should
+  have been there from the start, and is the same lesson as T30's first sweep: verify the
+  invariant, do not trust the edit.
+
 **Still open**, and why:
 
-* **`flat.py` has no `placement=`.** Its constructors take `anchor` and `spin` but not `orient`, so
-  `Placement` does not fit them as it stands. Either 2-D gets its own group or `Placement` grows a
-  2-D reading; that is a design question, not a wiring job.
 * **`EdgeTreatment` and `Texturing` are unbuilt.**
 * **The façade's parameter duplication (B-3) is untouched.** A group removes three parameters from
   a signature that has forty; T31 is still the task that addresses the rest.
@@ -648,6 +668,29 @@ concrete classes.
    inherit means the protocol declares what genuinely varies rather than everything both do.
 
 **Done when:** the `Any`-typed member count is written down and only shrinks.
+
+---
+
+## T36 — Give `text()` the anchor language
+
+**Closes:** §12.2 item 7b · **Implements:** PLAN O-6b · **Size:** S
+
+`flat.text()` declares `anchor: str = "baseline"`. O-6b requires a parameter meaning "which face,
+edge or corner" to be `Anchor | Sequence[float]` and resolved through `resolve_anchor()`, and the
+other eight 2-D façade constructors do exactly that. This one is a parallel vocabulary the reader
+has to learn twice — the defect O-6b exists to prevent.
+
+Found because it is the one 2-D constructor `placement=` could not be wired into (T30): a
+`Placement` carries an `Anchor`, and this does not.
+
+**Retyping it is not the fix.** The typographic anchors — `"baseline"`, and the `halign`/`valign`
+vocabulary beside it — mean things `Anchor` has no member for, and a baseline is genuinely not a
+bounding-box anchor. So the options are a text-specific enum (O-6) alongside the ordinary `anchor`,
+or folding the typographic ones into `halign`/`valign` where they belong and leaving `anchor` to
+mean what it means everywhere else. That is a design decision, which is why this is its own task.
+
+**Done when:** `text()` takes the anchor language like every other constructor, `placement=` is
+wired into all nine, and the typographic vocabulary has a home of its own.
 
 ---
 
