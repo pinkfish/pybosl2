@@ -514,3 +514,85 @@ def test_no_assertion_error_is_raised_directly() -> None:
             if isinstance(called, ast.Name) and called.id == "AssertionError":
                 offenders.append(f"{path.relative_to(PACKAGE.parent)}:{node.lineno}")
     assert not offenders, "raise AssertionError instead of ValueError:\n  " + "\n  ".join(offenders)
+
+
+# ---------------------------------------------------------------------------
+# The façade owns the shared defaults (SPEC B-3, PLAN F-P1)
+# ---------------------------------------------------------------------------
+
+#: Shared arguments the façade deliberately leaves at `None`, with the reason. `None` means
+#: "decide for me" (SPEC D-4), and these are the two cases where that is the right answer.
+JUSTIFIED_NONE: dict[str, str] = {
+    "res": (
+        "an ambient control: `None` means inherit (SPEC R-2), and with nothing set anywhere there "
+        "is nothing to inherit, so the backend's own facet default is the answer (R-7)"
+    ),
+    "anchor": (
+        "only on the cylinders and regular_prism, where the right anchor depends on `center` -- "
+        "the backend computes it, and no constant the façade could write would be right"
+    ),
+}
+
+
+def _shared_defaults() -> list[tuple[str, str, str]]:
+    """Return (shape, parameter, backend default) for façade arguments still defaulting to None."""
+    import inspect
+
+    import pybosl2.solid as facade
+    from pybosl2._csg import CsgBackend
+    from pybosl2.sdf import SdfBackend
+
+    rows: list[tuple[str, str, str]] = []
+    for name in sorted(n for n in facade.__all__ if callable(getattr(facade, n, None))):
+        function = getattr(facade, name)
+        reals: dict[str, str] = {}
+        for backend in (CsgBackend(), SdfBackend()):
+            try:
+                parameters = inspect.signature(backend.constructor(name)).parameters
+            except Exception:  # pragma: no cover - a shape one backend does not build
+                continue
+            for pname, parameter in parameters.items():
+                if parameter.default is not inspect.Parameter.empty and parameter.default is not None:
+                    reals.setdefault(pname, repr(parameter.default))
+        for pname, parameter in inspect.signature(function).parameters.items():
+            if parameter.default is None and pname in reals:
+                rows.append((name, pname, reals[pname]))
+    return rows
+
+
+def test_the_facade_owns_every_shared_default() -> None:
+    """A shared argument's default belongs in the façade signature, not the backend's.
+
+    SPEC B-3: the façade declares the default and always forwards it, so an identical call builds
+    identical geometry on either backend. It did not: **every** façade default was `None`, so the
+    backend's own default decided anything the caller left out and the two could resolve the same
+    call differently. 67 defaults were lifted in T31; what remains is `None` for a reason.
+    """
+    unjustified = [
+        (shape, parameter, default)
+        for shape, parameter, default in _shared_defaults()
+        if parameter not in JUSTIFIED_NONE
+    ]
+    assert not unjustified, (
+        f"these façade arguments default to None while a backend has a real default: "
+        f"{unjustified}. Lift the backend's default into the façade signature (PLAN F-P1), or "
+        f"add the parameter to JUSTIFIED_NONE with the reason `None` is right for it."
+    )
+
+
+def test_the_justified_list_is_not_stale() -> None:
+    """A reason for a parameter that no longer defaults to None overstates the debt."""
+    live = {parameter for _, parameter, _ in _shared_defaults()}
+    stale = sorted(set(JUSTIFIED_NONE) - live)
+    assert not stale, f"JUSTIFIED_NONE explains parameters that no longer default to None: {stale}"
+
+
+def test_an_omitted_shared_argument_resolves_the_same_on_both_backends() -> None:
+    """What B-3 is actually for, exercised rather than read off the signatures."""
+    from pybosl2 import cuboid, use_backend
+
+    sizes = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            sizes[backend] = tuple(cuboid([20, 20, 20]).bounds().size)
+    assert sizes["csg"] == pytest.approx(sizes["sdf"]), sizes

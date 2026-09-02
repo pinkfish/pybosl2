@@ -86,3 +86,30 @@ def test_the_task_archive_moved_out_and_stayed_whole() -> None:
     tasks = (ROOT / "TASKS.md").read_text()
     assert "## T0 — Make the backend tag tell the truth" not in tasks, "finished tasks are back in the queue"
     assert "tasks-archive.md" in tasks, "TASKS.md does not point at the archive"
+
+
+def test_no_task_appears_twice() -> None:
+    """One task, one section (SPEC C-21's reasoning, applied to the queue).
+
+    Five sections were duplicated at once: editing a task with `text.index("## T30")` always finds
+    the *first* copy, so once a duplicate exists every later edit updates one and leaves the other
+    stale -- `T33` was marked done in one copy and open in the other, which is the queue lying
+    about its own state.
+    """
+    import collections
+
+    headings = [
+        line.split("—")[0].strip() for line in (ROOT / "TASKS.md").read_text().splitlines() if line.startswith("## T")
+    ]
+    duplicates = sorted(name for name, count in collections.Counter(headings).items() if count > 1)
+    assert not duplicates, f"TASKS.md has a section twice: {duplicates}"
+
+
+def test_every_task_the_mapping_names_exists() -> None:
+    """The table at the top links to the sections; a link to nothing is a queue you cannot follow."""
+    import re
+
+    text = (ROOT / "TASKS.md").read_text()
+    linked = set(re.findall(r"\[T(\d+)\]\(#t\d+", text))
+    present = set(re.findall(r"^## T(\d+) —", text, re.M))
+    assert linked - present == set(), f"the mapping links to missing tasks: {sorted(linked - present)}"

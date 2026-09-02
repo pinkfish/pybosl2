@@ -34,7 +34,6 @@ from pybosl2._backend import (
     Solid,
     current_backend,
     get_backend,
-    given_arguments,
     set_default_backend,
     use_backend,
 )
@@ -119,9 +118,34 @@ __all__ = [
     "Solid",
     "CrossBackendError",
     "UnsupportedByBackendError",
-    # `given_arguments` is the façade's own forwarding filter, not API (SPEC A-9). It is still
-    # importable for the backends that call it; it is simply not advertised.
 ]
+
+
+def _forward(arguments: dict[str, Any]) -> dict[str, Any]:
+    """Return what the façade sends to the backend: everything it has a value for.
+
+    The façade owns the default for every argument both backends understand and forwards it
+    whether or not the caller passed one (SPEC B-3, PLAN F-P1); the backend then takes the subset
+    its own constructor declares (F-P2).
+
+    ``None`` is not one of those values. SPEC D-4 defines it as "not supplied, decide for me", so
+    an argument sitting at ``None`` is the façade declining to decide -- and forwarding the
+    decline would *override* the backend's own answer with nothing. That is not a filter on top of
+    F-P2; it is what D-4 means, and the two cases it covers are both real:
+
+    * **A default the backend computes.** ``cylinder()``'s anchor depends on ``center``, so no
+      constant the façade could write would be right.
+    * **An ambient control with nothing set.** ``fn``/``fa``/``fs``/``res`` mean "inherit"
+      (SPEC R-2), and with nothing set anywhere there is nothing to inherit, so the backend's own
+      facet default is the answer (R-7).
+
+    What this is *not* any more is the thing that decides shared arguments. It used to be: every
+    façade default was ``None``, so the backend's default won every time and the two backends
+    could resolve the same call differently. 67 of those are real values in the façade signature
+    now (`tests/test_defaults.py::test_the_facade_owns_every_shared_default`), so they are always
+    forwarded and both backends get the same answer.
+    """
+    return {name: value for name, value in arguments.items() if value is not None}
 
 
 def cube(
@@ -135,11 +159,11 @@ def cube(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
-    edges: Sequence[float] | None = None,
-    except_edges: Sequence[float] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] | None = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     selection: EdgeSelection | None = None,
-    teardrop: bool | None = None,
-    trimcorners: bool | None = None,
+    teardrop: bool | None = False,
+    trimcorners: bool | None = True,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -215,7 +239,7 @@ def cube(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cube")
     return get_backend().construct(
         "cube",
-        given_arguments(
+        _forward(
             {
                 "size": size,
                 "chamfer": chamfer,
@@ -240,9 +264,9 @@ def cube(
 def cuboid(
     size: float | Sequence[float] | None = (1, 1, 1),
     *,
-    chamfer: float | None = None,
+    chamfer: float | None = 0,
     treatment: EdgeTreatment | None = None,
-    rounding: float | None = None,
+    rounding: float | None = 0,
     edges: EdgeAtom | list[EdgeAtom] | None = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
     selection: EdgeSelection | None = None,
@@ -252,8 +276,8 @@ def cuboid(
     placement: Placement | None = None,
     p1: Sequence[float] | None = None,
     p2: Sequence[float] | None = None,
-    teardrop: bool | None = None,
-    trimcorners: bool | None = None,
+    teardrop: bool | None = False,
+    trimcorners: bool | None = True,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -320,7 +344,7 @@ def cuboid(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cuboid")
     return get_backend().construct(
         "cuboid",
-        given_arguments(
+        _forward(
             {
                 "size": size,
                 "chamfer": chamfer,
@@ -369,18 +393,18 @@ def cyl(
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
-    circumscribe: bool | None = None,
-    clip_angle: float | None = None,
-    extra: float | None = None,
+    circumscribe: bool | None = False,
+    clip_angle: float | None = 90.0,
+    extra: float | None = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
-    from_end: bool | None = None,
+    from_end: bool | None = False,
     from_end1: bool | None = None,
     from_end2: bool | None = None,
-    realign: bool | None = None,
-    teardrop: bool | float | None = None,
-    tex_depth: float | None = None,
-    tex_inset: bool | float | None = None,
+    realign: bool | None = False,
+    teardrop: bool | float | None = False,
+    tex_depth: float | None = 1.0,
+    tex_inset: bool | float | None = False,
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
@@ -482,7 +506,7 @@ def cyl(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cyl")
     return get_backend().construct(
         "cyl",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -555,19 +579,19 @@ def cylinder(
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
-    circumscribe: bool | None = None,
-    clip_angle: float | None = None,
-    extra: float | None = None,
+    circumscribe: bool | None = False,
+    clip_angle: float | None = 90.0,
+    extra: float | None = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
-    from_end: bool | None = None,
+    from_end: bool | None = False,
     from_end1: bool | None = None,
     from_end2: bool | None = None,
-    realign: bool | None = None,
-    shift: Sequence[float] | None = None,
-    teardrop: bool | float | None = None,
-    tex_depth: float | None = None,
-    tex_inset: bool | float | None = None,
+    realign: bool | None = False,
+    shift: Sequence[float] | None = (0, 0),
+    teardrop: bool | float | None = False,
+    tex_depth: float | None = 1.0,
+    tex_inset: bool | float | None = False,
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
@@ -669,7 +693,7 @@ def cylinder(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cylinder")
     return get_backend().construct(
         "cylinder",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -756,7 +780,7 @@ def octahedron(
     """
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "octahedron")
     return get_backend().construct(
-        "octahedron", given_arguments({"size": size, "anchor": anchor, "spin": spin, "orient": orient, "res": res})
+        "octahedron", _forward({"size": size, "anchor": anchor, "spin": spin, "orient": orient, "res": res})
     )
 
 
@@ -770,7 +794,7 @@ def onion(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
-    circumscribe: bool | None = None,
+    circumscribe: bool | None = False,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -818,7 +842,7 @@ def onion(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "onion")
     return get_backend().construct(
         "onion",
-        given_arguments(
+        _forward(
             {
                 "radius": radius,
                 "angle": angle,
@@ -905,7 +929,7 @@ def pie_slice(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "pie_slice")
     return get_backend().construct(
         "pie_slice",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -936,10 +960,10 @@ def prismoid(
     height: float | None = None,
     shift: Sequence[float] | None = (0, 0),
     length: float | None = None,
-    rounding: float | Sequence[float] | None = None,
+    rounding: float | Sequence[float] | None = 0,
     rounding1: float | Sequence[float] | None = None,
     rounding2: float | Sequence[float] | None = None,
-    chamfer: float | Sequence[float] | None = None,
+    chamfer: float | Sequence[float] | None = 0,
     treatment: EdgeTreatment | None = None,
     chamfer1: float | Sequence[float] | None = None,
     chamfer2: float | Sequence[float] | None = None,
@@ -1009,7 +1033,7 @@ def prismoid(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "prismoid")
     return get_backend().construct(
         "prismoid",
-        given_arguments(
+        _forward(
             {
                 "size1": size1,
                 "size2": size2,
@@ -1049,11 +1073,11 @@ def rect_tube(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
-    chamfer: float | None = None,
+    chamfer: float | None = 0,
     treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
-    inner_chamfer: float | None = None,
+    inner_chamfer: float | None = 0,
     inner_chamfer1: float | None = None,
     inner_chamfer2: float | None = None,
     inner_rounding1: float | None = None,
@@ -1062,7 +1086,7 @@ def rect_tube(
     isize2: Sequence[float] | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
-    shift: Sequence[float] | None = None,
+    shift: Sequence[float] | None = (0, 0),
     size1: Sequence[float] | None = None,
     size2: Sequence[float] | None = None,
     fn: int | None = None,
@@ -1134,7 +1158,7 @@ def rect_tube(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "rect_tube")
     return get_backend().construct(
         "rect_tube",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "size": size,
@@ -1183,8 +1207,8 @@ def regular_prism(
     length: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
-    shift: Sequence[float] | None = None,
-    circumscribe: bool | None = None,
+    shift: Sequence[float] | None = (0, 0),
+    circumscribe: bool | None = False,
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
@@ -1273,7 +1297,7 @@ def regular_prism(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "regular_prism")
     return get_backend().construct(
         "regular_prism",
-        given_arguments(
+        _forward(
             {
                 "sides": sides,
                 "height": height,
@@ -1315,7 +1339,7 @@ def sphere(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
-    circumscribe: bool | None = None,
+    circumscribe: bool | None = False,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1362,7 +1386,7 @@ def sphere(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "sphere")
     return get_backend().construct(
         "sphere",
-        given_arguments(
+        _forward(
             {
                 "radius": radius,
                 "diameter": diameter,
@@ -1387,7 +1411,7 @@ def spheroid(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
-    circumscribe: bool | None = None,
+    circumscribe: bool | None = False,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1433,7 +1457,7 @@ def spheroid(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "spheroid")
     return get_backend().construct(
         "spheroid",
-        given_arguments(
+        _forward(
             {
                 "radius": radius,
                 "diameter": diameter,
@@ -1467,11 +1491,11 @@ def teardrop(
     placement: Placement | None = None,
     cap_h1: float | None = None,
     cap_h2: float | None = None,
-    chamfer: float | None = None,
-    chamfer1: float | None = None,
-    chamfer2: float | None = None,
-    circumscribe: bool | None = None,
-    realign: bool | None = None,
+    chamfer: float | None = 0,
+    chamfer1: float | None = 0,
+    chamfer2: float | None = 0,
+    circumscribe: bool | None = False,
+    realign: bool | None = False,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1531,7 +1555,7 @@ def teardrop(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "teardrop")
     return get_backend().construct(
         "teardrop",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -1628,7 +1652,7 @@ def torus(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "torus")
     return get_backend().construct(
         "torus",
-        given_arguments(
+        _forward(
             {
                 "major_radius": major_radius,
                 "minor_radius": minor_radius,
@@ -1680,7 +1704,7 @@ def tube(
     outer_diameter2: float | None = None,
     outer_radius1: float | None = None,
     outer_radius2: float | None = None,
-    realign: bool | None = None,
+    realign: bool | None = False,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1760,7 +1784,7 @@ def tube(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "tube")
     return get_backend().construct(
         "tube",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "outer_radius": outer_radius,
@@ -1839,7 +1863,7 @@ def wedge(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "wedge")
     return get_backend().construct(
         "wedge",
-        given_arguments({"size": size, "anchor": anchor, "center": center, "spin": spin, "orient": orient, "res": res}),
+        _forward({"size": size, "anchor": anchor, "center": center, "spin": spin, "orient": orient, "res": res}),
     )
 
 
@@ -1868,19 +1892,19 @@ def xcyl(
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
-    circumscribe: bool | None = None,
-    clip_angle: float | None = None,
-    extra: float | None = None,
+    circumscribe: bool | None = False,
+    clip_angle: float | None = 90.0,
+    extra: float | None = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
-    from_end: bool | None = None,
+    from_end: bool | None = False,
     from_end1: bool | None = None,
     from_end2: bool | None = None,
-    realign: bool | None = None,
-    shift: Sequence[float] | None = None,
-    teardrop: bool | float | None = None,
-    tex_depth: float | None = None,
-    tex_inset: bool | float | None = None,
+    realign: bool | None = False,
+    shift: Sequence[float] | None = (0, 0),
+    teardrop: bool | float | None = False,
+    tex_depth: float | None = 1.0,
+    tex_inset: bool | float | None = False,
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
@@ -1965,7 +1989,7 @@ def xcyl(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "xcyl")
     return get_backend().construct(
         "xcyl",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -2038,19 +2062,19 @@ def ycyl(
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
-    circumscribe: bool | None = None,
-    clip_angle: float | None = None,
-    extra: float | None = None,
+    circumscribe: bool | None = False,
+    clip_angle: float | None = 90.0,
+    extra: float | None = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
-    from_end: bool | None = None,
+    from_end: bool | None = False,
     from_end1: bool | None = None,
     from_end2: bool | None = None,
-    realign: bool | None = None,
-    shift: Sequence[float] | None = None,
-    teardrop: bool | float | None = None,
-    tex_depth: float | None = None,
-    tex_inset: bool | float | None = None,
+    realign: bool | None = False,
+    shift: Sequence[float] | None = (0, 0),
+    teardrop: bool | float | None = False,
+    tex_depth: float | None = 1.0,
+    tex_inset: bool | float | None = False,
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
@@ -2135,7 +2159,7 @@ def ycyl(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "ycyl")
     return get_backend().construct(
         "ycyl",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -2208,19 +2232,19 @@ def zcyl(
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
-    circumscribe: bool | None = None,
-    clip_angle: float | None = None,
-    extra: float | None = None,
+    circumscribe: bool | None = False,
+    clip_angle: float | None = 90.0,
+    extra: float | None = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
-    from_end: bool | None = None,
+    from_end: bool | None = False,
     from_end1: bool | None = None,
     from_end2: bool | None = None,
-    realign: bool | None = None,
-    shift: Sequence[float] | None = None,
-    teardrop: bool | float | None = None,
-    tex_depth: float | None = None,
-    tex_inset: bool | float | None = None,
+    realign: bool | None = False,
+    shift: Sequence[float] | None = (0, 0),
+    teardrop: bool | float | None = False,
+    tex_depth: float | None = 1.0,
+    tex_inset: bool | float | None = False,
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
@@ -2305,7 +2329,7 @@ def zcyl(
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "zcyl")
     return get_backend().construct(
         "zcyl",
-        given_arguments(
+        _forward(
             {
                 "height": height,
                 "radius": radius,
@@ -2356,11 +2380,12 @@ def zcyl(
 def effective_defaults(shape: str, backend: str | None = None) -> dict[str, DefaultValue]:
     """Report the value each argument of *shape* takes when the caller leaves it out.
 
-    The facade constructors default every argument to ``None`` and forward only what was actually
-    given (:func:`~pybosl2._backend.given_arguments`), so the backend keeps its own defaults. That
-    keeps the two backends independent, but it would leave a caller unable to see what
-    ``cuboid()`` with no arguments actually builds -- this reports it, read live off the
-    constructor the backend would call, so it can never drift from the code.
+    The façade owns the default for every argument both backends understand and forwards it
+    whether or not the caller passed one (SPEC B-3, PLAN F-P1); the backend then takes the subset
+    its own constructor declares (F-P2). One filter, in one place. This reports what an omitted
+    argument resolves to, read live off the constructor the backend would call, so it can never
+    drift from the code -- and where the façade owns the default it is the façade's that is
+    reported, because that is the one that decides.
 
     Args:
         shape: BOSL2 shape name, e.g. ``"cuboid"``.

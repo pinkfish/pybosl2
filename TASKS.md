@@ -19,7 +19,7 @@ spec renumbers as items close, and all but S-46a have.
 
 | §12.2 | Requirement | Task | Size |
 |---|---|---|---|
-| 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
+| 1 | C-1 / E-3 | [T0](docs/tasks-archive.md#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
 | 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) ✅ | M |
 | 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) ✅ | L |
 | 4 | C-14 | [T0c](#t0c--make-partshape-a-property) ✅ | M |
@@ -27,29 +27,29 @@ spec renumbers as items close, and all but S-46a have.
 | 6 | A-7 | [T0d](#t0d--fix-the-broken-export) ✅ | XS |
 | 7 | S-46a | [T0f](#t0f--make-parts-honour-the-active-backend) ✅ | L |
 | 8 | S-51 | [T0f](#t0f--make-parts-honour-the-active-backend) step 3 ✅ | — |
-| 9 | B-3 / PAR-5 | [T2](#t2--give-the-façade-ownership-of-shared-defaults) ✅ | L |
-| 10 | C-15 … C-19 | [T1](#t1--merge-solid-and-flat-into-one-shape-contract) ✅ | M |
-| 11 | R-1 | [T5](#t5--close-the-facet-control-backlog) ✅ | L |
-| 12 | PAR-1 / C-1 / B-5 | [T3](#t3--stop-the-sdf-fallback-silently-meshing) ✅ | M |
-| 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) ✅ | S |
-| 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) ✅ | S |
-| 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) ✅ | M |
-| 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families-) ✅ | M |
-| 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage-) ✅ | M |
-| — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
-| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths-) ✅ | L |
-| — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
-| — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
-| — | S-46a / PAR-1 | [T14](#t14--give-parts-an-sdf-form-where-they-have-one-) 🔶 | XL |
-| — | bug | [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-) ✅ | S |
-| 2 | S-2b | [T16](#t16--one-bounds-type-everywhere) ✅ | M |
-| 3 | C-20 / C-21 / C-22 | [T17](#t17--make-the-contract-the-whole-object) ✅ | L |
-| 4 | S-19a / S-19b / S-19c | [T18](#t18--make-a-sweep-return-a-solid) ✅ | M |
-| 5 | S-53 / S-54 / S-55 | [T19](#t19--give-the-library-a-way-out) ✅ | M |
-| 6 | E-1 / E-5 / E-6 / E-7 | [T20](#t20--make-the-error-contract-usable) ✅ | M |
-| 7 | A-8 / A-9 | [T21](#t21--export-the-families-whole) ✅ | S |
-| 8 | S-26a … S-26c | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) ✅ | L |
-| 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
+| 9 | B-3 / PAR-5 | [T2](docs/tasks-archive.md#t2--give-the-façade-ownership-of-shared-defaults) ✅ | L |
+| 10 | C-15 … C-19 | [T1](docs/tasks-archive.md#t1--merge-solid-and-flat-into-one-shape-contract) ✅ | M |
+| 11 | R-1 | [T5](docs/tasks-archive.md#t5--close-the-facet-control-backlog) ✅ | L |
+| 12 | PAR-1 / C-1 / B-5 | [T3](docs/tasks-archive.md#t3--stop-the-sdf-fallback-silently-meshing) ✅ | M |
+| 13 | PAR-3 | [T4](docs/tasks-archive.md#t4--reconcile-the-parity-records-with-the-code) ✅ | S |
+| 14 | R-5 | [T6](docs/tasks-archive.md#t6--document-and-test-the-fn0-opt-out) ✅ | S |
+| 15 | Q-4 | [T7](docs/tasks-archive.md#t7--generalise-the-minimum-argument-check) ✅ | M |
+| 16 | P-8 | [T8](docs/tasks-archive.md#t8--class-ify-the-remaining-function-families-) ✅ | M |
+| 17 | B2-1 | [T9](docs/tasks-archive.md#t9--track-bosl2-feature-coverage-) ✅ | M |
+| — | housekeeping | [T10](docs/tasks-archive.md#t10--housekeeping-) ✅ | S |
+| — | E-4 follow-up | [T11](docs/tasks-archive.md#t11--cover-the-rejection-paths-) ✅ | L |
+| — | P-8 / coverage | [T12](docs/tasks-archive.md#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
+| — | test quality | [T13](docs/tasks-archive.md#t13--replace-the-existence-only-tests-) ✅ | L |
+| — | S-46a / PAR-1 | [T14](docs/tasks-archive.md#t14--give-parts-an-sdf-form-where-they-have-one-) 🔶 | XL |
+| — | bug | [T15](docs/tasks-archive.md#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-) ✅ | S |
+| 2 | S-2b | [T16](docs/tasks-archive.md#t16--one-bounds-type-everywhere) ✅ | M |
+| 3 | C-20 / C-21 / C-22 | [T17](docs/tasks-archive.md#t17--make-the-contract-the-whole-object) ✅ | L |
+| 4 | S-19a / S-19b / S-19c | [T18](docs/tasks-archive.md#t18--make-a-sweep-return-a-solid) ✅ | M |
+| 5 | S-53 / S-54 / S-55 | [T19](docs/tasks-archive.md#t19--give-the-library-a-way-out) ✅ | M |
+| 6 | E-1 / E-5 / E-6 / E-7 | [T20](docs/tasks-archive.md#t20--make-the-error-contract-usable) ✅ | M |
+| 7 | A-8 / A-9 | [T21](docs/tasks-archive.md#t21--export-the-families-whole) ✅ | S |
+| 8 | S-26a … S-26c | [T22](docs/tasks-archive.md#t22--make-the-masks-obey-the-librarys-own-rules) ✅ | L |
+| 9 | DOC-5 / DOC-6 / Q-6 | [T23](docs/tasks-archive.md#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
 | 3 | spec maintainability | [T26](#t26--make-the-requirements-measurable) ✅ | M |
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) ✅ | M |
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
@@ -59,7 +59,7 @@ spec renumbers as items close, and all but S-46a have.
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) | M |
 | 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) | L |
-| 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
+| 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
 
@@ -505,23 +505,51 @@ same story as A-1, C-21 and S-2 before them.
 
 ---
 
-## T31 — Slim the façade
+## T31 — Slim the façade ✅
 
 **Closes:** §12.2 item 7 (second half) · **Needs:** T30 · **Size:** M
-**Risk:** medium
 
-Three filters stack where B-3 describes one, and F-P1's "the façade owns the real default" is
-already untrue: `cuboid(anchor=Anchor.CENTER)` beside `cyl(anchor=None)`.
+**Landed. 67 shared defaults moved from the backends into the façade signature**, which is what
+B-3 has always asked for: the façade declares the default and forwards it, so an identical call
+builds identical geometry on either backend. It did not. *Every* façade default was `None`, so the
+backend's own default decided anything the caller left out, and the two backends could and did
+disagree — `cuboid`'s `rounding` defaulted to `None` on CSG and `0` on SDF.
 
-1. One filter path: the façade forwards everything it declares, groups whole, and the backend
-   filters by what it declares (F-P2). `given_arguments`'s None-dropping goes.
-2. Sweep the façade for defaults that are `None` where the backend has a real one, which is what
-   `effective_defaults()` already knows and can be asserted against.
-3. A test asserts every façade constructor's shared defaults match the backends' agreed value —
-   the existing `test_backends_agree_on_the_defaults_they_share` extended to the façade itself.
+`test_the_facade_owns_every_shared_default` keeps them there, and 24 remain `None` for a reason,
+in two groups named with it: `res` (an ambient control, so nothing set anywhere means the
+backend's own facet default is the answer, R-7) and `anchor` on the cylinders and `regular_prism`
+(the right value depends on `center`, so the backend computes it and no constant would be right).
 
-**Done when:** one forwarding path remains; no shared argument defaults to `None` at the façade
-unless `None` genuinely means "decide for me" (T-9b).
+**The task's own step 1 was wrong, and running it is what showed that.** It said to remove the
+façade's `None`-dropping so that "the façade forwards everything it declares". I did, and 48 tests
+failed: `res=None` reached the SDF backend and overrode its real default of 10 with nothing, and
+`anchor=None` reached a constructor that cannot take it. The plan had it backwards. `None` is not
+a value the façade owns and forwards — **SPEC D-4 defines it as "not supplied, decide for me"**, so
+forwarding it overrides the backend's answer with the absence of one.
+
+So there was never a third filter to remove. What there was is a façade that declined to decide
+*everything*, which is why the backend's default always won. Fixing that is the F-P1 sweep, and
+once the defaults are real the `None`-drop stops deciding anything for shared arguments: it only
+passes through the genuine "decide for me" cases, which is D-4 working, not a filter. It is
+`_forward()` now, with the two cases documented at the definition instead of a bare
+`given_arguments`.
+
+Two things fell out on the way:
+
+* **`cube(edges=...)` was annotated `Sequence[float]`** where `cuboid`'s is
+  `EdgeAtom | list[EdgeAtom]`. An edge selector is the anchor language (O-6b) and `cube` was the
+  odd one out; `mypy` found it the moment `Anchor.ALL` became its default.
+* **TASKS.md had five duplicated sections** — T30 through T34 each appearing twice, with `T33`
+  marked done in one copy and open in the other. Editing a task by `text.index("## T30")` always
+  finds the *first* copy, so once a duplicate existed every later edit updated one and left the
+  other stale: the queue was lying about its own state. Removed, and
+  `test_no_task_appears_twice` now guards it. The archived tasks' links had also dangled since
+  T27 moved them out of this file; they point at `docs/tasks-archive.md` now.
+
+**Still open:** the per-end variants themselves (`rounding1`, `chamfer_angle`, …) are still
+declared one-by-one on ten constructors. Their *defaults* are the façade's now, which is the half
+B-3 is about; the transcription that remains is the half a generated façade would remove, and that
+was the original T31 alternative this project did not take.
 
 ---
 
@@ -593,129 +621,6 @@ permitted.
 The scan behind the ratchet is keyed by `Protocol.member`, not by member name — `rotate` is loose
 on `Shape` and typed on `Flat`, and the first version keyed by name let one answer for the other.
 The same collision as the bare requirement ids, in a third place.
-
----
-
-## T34 — Decide what `fill` means on a distance field
-
-**Closes:** §12.2 item 9 · **Implements:** PAR-3, B-5, PLAN B-P4 · **Size:** S
-**This one needs a decision before any code moves.**
-
-`fill` is in `CSG_ONLY_FEATURES` and `PyShape2D.fill()` works anyway, by extruding the field,
-meshing it, crossing to CSG, projecting, and rebuilding a polygon. Two records disagree:
-
-* **PAR-3 / B-P4** say an exclusive feature is *declared and refuses*, and name this exact case as
-  the one that must never happen.
-* **B-5** says a lossy backend conversion is never implicit, and a mesh round trip is one.
-* **`tests/test_sdf_shapes2d.py::TestFill`** asserts the meshing margin, so the behaviour is
-  deliberate and someone wanted it.
-
-Either answer closes it, and they are genuinely different products:
-
-1. **`fill` refuses on SDF**, naming `.to_csg()`, as `projection` does after T4. Consistent with
-   PAR-3 and B-5; costs the SDF backend a working operation.
-2. **`fill` leaves `CSG_ONLY_FEATURES`**, and the round trip is documented as what it is. Honest
-   about what the code does; needs B-5 to say that an *explicit, documented* round trip inside one
-   named operation is not the implicit conversion it forbids.
-
-**Whichever is chosen, the general finding stands and is worth more than either:** the backend
-parity tests walk the solid classes and not the 2-D ones, so nothing was ever going to catch this.
-That gap is the first thing to close.
-
-**Done when:** the lists and the code agree, and the parity tests cover `CsgShape2D`/`PyShape2D`
-the way they cover the solids.
-
----
-
-## T30 — Group the arguments that travel together
-
-**Closes:** §12.2 item 7 (first half) · **Implements:** G-1 … G-5 (new) · **Size:** L
-**Risk:** high — public signatures change across the façade, both backends and the parts library
-
-`cyl()` takes about 40 keywords in one flat namespace. The same four facet controls are
-re-declared at every level of every call chain, which is why R-1 is the rule most often broken.
-
-1. **G-1 … G-5** (new, §8) land in the registry first, per T26's rules.
-2. `Facets(fn, fa, fs, res)` first: frozen, with `Facets.ambient()` resolving the block defaults
-   (R-4) once. It is the least visible group and the one that fixes the most R-1 plumbing.
-3. Then `Placement(anchor, spin, orient)`, then `EdgeTreatment` and `Texturing`.
-4. One shared resolver accepts either the group or its loose members and raises when given both,
-   mirroring D-5's conflict rule — so `cuboid([60, 40, 12], rounding=4)` keeps working, because it
-   is the getting-started promise and P-1 itself.
-5. Each group is one value through the façade → backend boundary (G-4).
-
-**Done when:** a test asserts a group and its loose members together raise, naming both; ambient
-resolution reaches a leaf constructor through one `Facets` rather than four parameters; the facet
-backlog in `tests/test_facets.py` has not grown.
-
----
-
-## T31 — Slim the façade
-
-**Closes:** §12.2 item 7 (second half) · **Needs:** T30 · **Size:** M
-**Risk:** medium
-
-Three filters stack where B-3 describes one, and F-P1's "the façade owns the real default" is
-already untrue: `cuboid(anchor=Anchor.CENTER)` beside `cyl(anchor=None)`.
-
-1. One filter path: the façade forwards everything it declares, groups whole, and the backend
-   filters by what it declares (F-P2). `given_arguments`'s None-dropping goes.
-2. Sweep the façade for defaults that are `None` where the backend has a real one, which is what
-   `effective_defaults()` already knows and can be asserted against.
-3. A test asserts every façade constructor's shared defaults match the backends' agreed value —
-   the existing `test_backends_agree_on_the_defaults_they_share` extended to the façade itself.
-
-**Done when:** one forwarding path remains; no shared argument defaults to `None` at the façade
-unless `None` genuinely means "decide for me" (T-9b).
-
----
-
-## T32 — Close the two rules that only half-closed ✅
-
-**Closes:** §12.2 item 6 · **Size:** S
-
-**Landed.** Both rules were true of the surface a test walked and false everywhere else.
-
-**C-21 on the geometry types.** `Path2D` and `Path3D` each carried three synonym pairs. BOSL2's
-spelling survives in each (B2-3): `deduplicate`, `subdivide_path`, `resample_path`. Two details
-that a blind delete would have got wrong — `subdivide` was not a pure duplicate, it carried a
-`refine=` parameter that BOSL2's own `subdivide_path` has and this port had dropped, so `refine`
-moved onto the survivor rather than disappearing with the wrapper; and the *fuller* docstrings,
-with the `Args:` sections and the rendering examples, were on the spellings being removed, so they
-moved across too. Deleting a synonym is not the same as deleting the code behind it.
-
-`tests/test_shape_contract.py::test_no_public_class_carries_both_spellings_of_one_operation` now
-walks **every public class reachable from the top level**, not one class family, which is what let
-this sit closed and untrue.
-
-**PLAN S-2.** 243 functions over 50 lines, the longest at 237, across 57 files. Retiring the rule
-was the alternative and it is the wrong one: the rule is right, the code has simply never been held
-to it, and a rule with 243 violations and no test teaches contributors that the document is
-optional. So it becomes what every other backlog here already is — a per-file budget that can only
-shrink, in `tests/test_function_length.py`. Per file rather than one total, because locality is
-what makes it actionable: the failure names the file you are in, not a global counter you have no
-way to move. A file with no row may not grow a long function at all.
-
-Both guards were checked against negative controls rather than assumed: restoring one synonym fails
-the first, and adding a 61-line function to a file with no budget row fails the second.
-
----
-
-## T33 — Type the contract
-
-**Closes:** §12.2 item 8 · **Implements:** C-23 (new) · **Size:** M
-
-`Shape` declares about 60 members and most are `*args: Any, **kwargs: Any`, so C-20 holds by
-name-presence rather than by type-safety, and the protocol is a hand-maintained mirror of two
-concrete classes.
-
-1. **C-23** (new, §5.1): a protocol member is typed, or it is on a bounded allowlist that only
-   shrinks — the same shape as every other ratchet here.
-2. Type the members whose two backend signatures already agree; those are free.
-3. For the rest, consider what T-6c hints at from the other side: a shared mixin both backends
-   inherit means the protocol declares what genuinely varies rather than everything both do.
-
-**Done when:** the `Any`-typed member count is written down and only shrinks.
 
 ---
 
