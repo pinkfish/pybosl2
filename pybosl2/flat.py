@@ -20,7 +20,7 @@ from pybosl2._edges_lang import resolve_anchor
 from pybosl2.constants import CENTER
 from pybosl2.defaults import resolve_res as _resolve_res
 from pybosl2.exceptions import UnsupportedByBackendError
-from pybosl2.groups import Placement, resolve_placement_2d
+from pybosl2.groups import EdgeTreatment, Placement, resolve_edge_treatment, resolve_placement_2d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -176,6 +176,7 @@ def square(
     center: bool | None = None,
     rounding: float | Sequence[float] = 0,
     chamfer: float | Sequence[float] = 0,
+    treatment: EdgeTreatment | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float | None = None,
     placement: Placement | None = None,
@@ -193,6 +194,9 @@ def square(
         center: Whether to center the shape (CSG only).
         rounding: Corner rounding radius.
         chamfer: Corner chamfer distance.
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
         placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
@@ -214,6 +218,7 @@ def square(
             square(size=20, rounding=2).linear_extrude(height=5).show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "square")
     anchor, spin = resolve_placement_2d(placement, anchor, spin, "square")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import square2d
@@ -247,6 +252,7 @@ def rect(
     *,
     rounding: float | Sequence[float] = 0,
     chamfer: float | Sequence[float] = 0,
+    treatment: EdgeTreatment | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     placement: Placement | None = None,
@@ -263,6 +269,9 @@ def rect(
         size: Size of the rectangle (scalar or 2-element sequence).
         rounding: Corner rounding radius.
         chamfer: Corner chamfer distance.
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
         placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
@@ -284,6 +293,7 @@ def rect(
             rect(size=[30, 20], rounding=3).linear_extrude(height=5).show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "rect")
     anchor, spin = resolve_placement_2d(placement, anchor, spin, "rect")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import rect2d

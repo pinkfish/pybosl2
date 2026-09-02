@@ -38,16 +38,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from pybosl2._edges_lang import Anchor
+from pybosl2.enums import EdgeTreatmentKind
 from pybosl2.exceptions import Bosl2ValueError
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-__all__ = ["Placement", "Facets", "resolve_placement"]
+__all__ = [
+    "Placement",
+    "Facets",
+    "EdgeTreatment",
+    "resolve_placement",
+    "resolve_placement_2d",
+    "resolve_edge_treatment",
+]
 
 #: What an unset member looks like, so "not given" is distinguishable from "given the default".
 _UNSET: Any = object()
@@ -328,6 +334,12 @@ def resolve_placement(
     return placement.anchor, placement.spin, placement.orient
 
 
+#: An edge size as the constructors spell it: one value, or one per corner. Two variables, not
+#: one, because a constructor may spell its two differently -- `rect_tube` takes a per-corner
+#: `rounding` and a scalar `chamfer` -- and a single variable could not bind to both.
+_RoundingT = TypeVar("_RoundingT", bound="float | Sequence[float] | None")
+_ChamferT = TypeVar("_ChamferT", bound="float | Sequence[float] | None")
+
 #: The two placement members a 2-D constructor honours, typed so the resolver hands back exactly
 #: what it was given: `flat.py` declares them non-optional (`anchor: Anchor | Sequence[float]`)
 #: while `solid.py` declares them `| None`, and a resolver that widened would make every 2-D call
@@ -390,3 +402,182 @@ def resolve_placement_2d(
             f"arguments."
         )
     return placement.anchor, placement.spin
+
+
+@dataclass(frozen=True, slots=True)
+class EdgeTreatment:
+    """What happens to an edge: a rounding of some radius, a chamfer of some size, or nothing.
+
+    Rounding and chamfer are **mutually exclusive on one edge** -- an edge is rounded or chamfered,
+    never both -- and the library checked that in six places with six different wordings, none of
+    which said what to do instead. As one value the conflict is not checkable, it is
+    *unrepresentable*: there is one size and one kind, so there is nothing to disagree.
+
+    Build one with :meth:`rounding` or :meth:`chamfer` rather than the constructor, so the kind and
+    the size are set together.
+
+    Attributes:
+        kind: Which treatment, or :attr:`~pybosl2.enums.EdgeTreatmentKind.NONE`.
+        size: The radius (rounding) or inset (chamfer). Negative rounds outward, as BOSL2's does.
+            A sequence gives a size per corner, which the 2-D constructors accept.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2 import EdgeTreatment, cuboid
+
+            cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4)).show()
+
+    """
+
+    kind: EdgeTreatmentKind = EdgeTreatmentKind.NONE
+    size: "float | Sequence[float]" = 0.0
+
+    @classmethod
+    def rounding(cls, size: "float | Sequence[float]") -> "EdgeTreatment":
+        """Return a rounding treatment of radius *size*.
+
+        Args:
+            size: The rounding radius, or one radius per corner.
+
+        Returns:
+            An :class:`EdgeTreatment`.
+
+        Examples:
+            >>> from pybosl2 import EdgeTreatment
+            >>> EdgeTreatment.rounding(4).as_kwargs()
+            {'rounding': 4.0}
+
+        """
+        return cls(kind=EdgeTreatmentKind.ROUNDING, size=size if isinstance(size, Sequence) else float(size))
+
+    @classmethod
+    def chamfer(cls, size: "float | Sequence[float]") -> "EdgeTreatment":
+        """Return a chamfer treatment of inset *size*.
+
+        Args:
+            size: The chamfer size, inset from the sides, or one per corner.
+
+        Returns:
+            An :class:`EdgeTreatment`.
+
+        Examples:
+            >>> from pybosl2 import EdgeTreatment
+            >>> EdgeTreatment.chamfer(2).as_kwargs()
+            {'chamfer': 2.0}
+
+        """
+        return cls(kind=EdgeTreatmentKind.CHAMFER, size=size if isinstance(size, Sequence) else float(size))
+
+    @classmethod
+    def none(cls) -> "EdgeTreatment":
+        """Return the treatment that leaves edges sharp.
+
+        Returns:
+            An :class:`EdgeTreatment` that contributes no arguments.
+
+        """
+        return cls()
+
+    def as_kwargs(self) -> dict[str, Any]:
+        """Return the treatment as the keyword argument a constructor declares.
+
+        Returns:
+            ``{"rounding": size}``, ``{"chamfer": size}``, or ``{}`` for no treatment -- so it can
+            be splatted into a constructor that names the two separately.
+
+        """
+        if self.kind is EdgeTreatmentKind.ROUNDING:
+            return {"rounding": self.size}
+        if self.kind is EdgeTreatmentKind.CHAMFER:
+            return {"chamfer": self.size}
+        return {}
+
+
+def refuse_rounding_and_chamfer(
+    rounding: "float | Sequence[float] | None",
+    chamfer: "float | Sequence[float] | None",
+    function: str,
+) -> None:
+    """Refuse a call that asks for a rounding and a chamfer on the same edge.
+
+    One rule, one place (SPEC G-5). It was written six times with six wordings -- "Cannot set both
+    rounding and chamfer at the same time.", "Cannot specify nonzero value for both chamfer and
+    rounding", and four more -- and not one of them said what to do instead, which is what E-4 asks
+    of a refusal.
+
+    Args:
+        rounding: The rounding as passed, or ``None``.
+        chamfer: The chamfer as passed, or ``None``.
+        function: Name of the calling function, for the message.
+
+    Raises:
+        Bosl2ValueError: if both are given and neither is zero.
+
+    """
+    if rounding and chamfer:
+        raise Bosl2ValueError(
+            f"{function}(): given rounding={rounding} and chamfer={chamfer}. An edge is rounded "
+            f"or chamfered, never both -- pass one of them, or "
+            f"treatment=EdgeTreatment.rounding({rounding}) / EdgeTreatment.chamfer({chamfer}) to "
+            f"say which."
+        )
+
+
+def resolve_edge_treatment(
+    treatment: "EdgeTreatment | None",
+    rounding: _RoundingT,
+    chamfer: _ChamferT,
+    function: str,
+    *,
+    per_corner: bool = True,
+) -> tuple[_RoundingT, _ChamferT]:
+    """Resolve an edge-treatment group against the loose ``rounding``/``chamfer``.
+
+    Args:
+        treatment: The group, or ``None``.
+        rounding: The loose ``rounding`` as passed.
+        chamfer: The loose ``chamfer`` as passed.
+        function: Name of the calling function, for the error message.
+        per_corner: Whether this constructor takes a size per corner. A 3-D primitive takes one
+            size for the whole solid, so a per-corner group handed to it is refused here rather
+            than left to fail as a ``TypeError`` from inside the backend (SPEC E-1, E-4).
+
+    Returns:
+        The ``rounding`` and ``chamfer`` to use, at most one of them set. Where a group decides
+        the answer, the other comes back as ``0`` -- "off" -- rather than ``None``, because ``None``
+        means "decide for me" and the group has just decided (SPEC D-4).
+
+    Raises:
+        Bosl2ValueError: if the group is given beside either loose member (SPEC G-3), if both
+            loose members are given (the rule above), or if a per-corner group is given to a
+            constructor that takes one size.
+
+    """
+    if treatment is None:
+        refuse_rounding_and_chamfer(rounding, chamfer, function)
+        return rounding, chamfer
+    given = [name for name, value in (("rounding", rounding), ("chamfer", chamfer)) if value]
+    if given:
+        raise Bosl2ValueError(
+            f"{function}(): given both treatment= and {', '.join(given)}=. An EdgeTreatment "
+            f"already says which treatment and what size, so passing one beside it cannot mean "
+            f"two things -- drop treatment=, or drop the loose argument."
+        )
+    if not per_corner and isinstance(treatment.size, Sequence):
+        raise Bosl2ValueError(
+            f"{function}(): the treatment gives a size per corner ({list(treatment.size)}), but "
+            f"{function}() applies one size to the whole shape. Pass a single number -- "
+            f"EdgeTreatment.{treatment.kind.value}({treatment.size[0]}) -- or use a 2-D "
+            f"constructor, which does take one size per corner."
+        )
+    resolved = treatment.as_kwargs()
+    # The group's size is whatever `EdgeTreatment.rounding()` was handed, and the caller built it
+    # for the constructor it is passing it to, so it matches that constructor's own spelling of
+    # the parameter. The one case the checker cannot see is a *per-corner* group given to a
+    # constructor that takes a scalar; that reaches the backend and is refused there, where the
+    # loose spelling would have been refused statically -- so `per_corner=False` catches it above.
+    return (
+        cast("_RoundingT", resolved.get("rounding", 0)),
+        cast("_ChamferT", resolved.get("chamfer", 0)),
+    )

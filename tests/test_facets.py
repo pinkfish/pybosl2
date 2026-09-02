@@ -61,6 +61,13 @@ PLACEMENT_ONLY: frozenset[str] = frozenset(
 #: facet count itself.
 DESCRIPTORS: frozenset[str] = frozenset(
     {
+        # The argument resolvers: they read a rounding or a chamfer to decide which the caller
+        # asked for, and return the numbers unchanged. Nothing they return is tessellated, and
+        # whichever constructor consumes them owns the facet count -- SPEC R-1a's deciding
+        # question is whether a caller could observe a facet count in the output, and here there
+        # is no output to observe one in. The scan matches them on the parameter names alone.
+        "groups.py::refuse_rounding_and_chamfer",
+        "groups.py::resolve_edge_treatment",
         "beziers.py::Bezier.begin",
         "beziers.py::Bezier.end",
         "beziers.py::Bezier.joint",

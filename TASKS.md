@@ -432,7 +432,34 @@ Two things fell out of the wiring:
 
 **Still open**, and why:
 
-* **`EdgeTreatment` and `Texturing` are unbuilt.**
+**`EdgeTreatment` (third pass).** Built and wired into the 13 façade constructors taking both
+`rounding` and `chamfer`. Three things the measurement changed about the plan:
+
+* **The family is two groups, not one.** The plan named
+  `EdgeTreatment(rounding, chamfer, edges, except_edges)`. In fact `rounding`+`chamfer` travels on
+  38 callables and `edges`+`except_edges` on 9, and only 5 take all four — so the group as planned
+  would have lumped two families that mostly appear apart. `EdgeTreatment` is the treatment;
+  the edge *selection* is a separate group and still unbuilt.
+* **The win is G-7, not the reuse.** Rounding and chamfer are mutually exclusive, and the library
+  checked that in **six** places with six wordings — "Cannot set both rounding and chamfer at the
+  same time.", "Cannot specify nonzero value for both chamfer and rounding", and four more — not
+  one of which said what to do instead. One kind with one size leaves nothing to disagree, and the
+  loose spellings' check is now written once, with a message that names the fix.
+* **It found a live E-1 defect.** A per-corner treatment (`EdgeTreatment.rounding([1, 2, 3, 4])`,
+  legal on `rect`) handed to a scalar constructor reached the backend and surfaced as
+  `TypeError: '>' not supported between instances of 'list' and 'int'` — not a `Bosl2Error`, not
+  naming a parameter. The resolver is told whether its constructor takes a size per corner, read
+  from the annotation rather than guessed, and refuses with the fix.
+
+**And the length metric was still wrong in the same way.** Adding two dispatch lines pushed
+`prismoid` over its S-2 budget — a function whose 51 lines were thirty-odd of *signature* around a
+body of twenty. Counting the signature makes S-2 report B-3's duplication: splitting the body could
+not have helped, because the body was never the problem. The metric now measures the body alone,
+and the honest backlog is **84 functions across 37 files** — not the 131 reported after the
+docstring fix, and not the 243 originally. Docstrings accounted for 112 of that first figure and
+signatures for another 47.
+
+* **`Texturing`, the edge-selection group, and the per-end variants are unbuilt.**
 * **The façade's parameter duplication (B-3) is untouched.** A group removes three parameters from
   a signature that has forty; T31 is still the task that addresses the rest.
 

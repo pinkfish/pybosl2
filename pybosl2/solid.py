@@ -40,7 +40,7 @@ from pybosl2._backend import (
 )
 from pybosl2._edges_lang import Anchor
 from pybosl2.exceptions import Bosl2ValueError, CrossBackendError, UnsupportedByBackendError
-from pybosl2.groups import Placement, resolve_placement
+from pybosl2.groups import EdgeTreatment, Placement, resolve_edge_treatment, resolve_placement
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
 _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
@@ -121,6 +121,7 @@ def cube(
     size: float | Sequence[float] | None = 1,
     *,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     rounding: float | None = None,
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
@@ -146,6 +147,9 @@ def cube(
     Args:
         size: Size of the cube, a number or length-3 vector.
         chamfer: Chamfer size along all edges (default none)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         rounding: Rounding radius along all edges (default none)
         anchor: Anchor point (default Anchor.CENTER)
         center: If given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
@@ -196,6 +200,7 @@ def cube(
             cube(size=20, rounding=3).show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cube", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cube")
     return get_backend().construct(
         "cube",
@@ -225,6 +230,7 @@ def cuboid(
     size: float | Sequence[float] | None = (1, 1, 1),
     *,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     rounding: float | None = None,
     edges: EdgeAtom | list[EdgeAtom] | None = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
@@ -251,6 +257,9 @@ def cuboid(
     Args:
         size: Size of the cuboid, a number or length-3 vector.
         chamfer: Chamfer size, inset from sides (default: no chamfer)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         rounding: Edge rounding radius (default: no rounding)
         edges: Edges to mask (default ``"ALL"``)
         except_edges: Edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)
@@ -292,6 +301,7 @@ def cuboid(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cuboid", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cuboid")
     return get_backend().construct(
         "cuboid",
@@ -330,6 +340,7 @@ def cyl(
     diameter1: float | None = None,
     diameter2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     rounding: float | None = None,
@@ -381,6 +392,9 @@ def cyl(
         diameter1: Diameter of the negative end of the cylinder.
         diameter2: Diameter of the positive end of the cylinder.
         chamfer: Chamfer size on the end rims (overall/negative/positive)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on the end rims (overall/negative/positive)
         chamfer2: Chamfer size on the end rims (overall/negative/positive)
         rounding: Rounding radius on the end rims (overall/negative/positive)
@@ -449,6 +463,7 @@ def cyl(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cyl", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cyl")
     return get_backend().construct(
         "cyl",
@@ -505,6 +520,7 @@ def cylinder(
     radius: float | None = None,
     *,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     rounding: float | None = None,
@@ -556,6 +572,9 @@ def cylinder(
         height: Length of the cylinder along its axis (default 1)
         radius: Radius of the cylinder (default 1)
         chamfer: Chamfer size on the end rims (overall/negative/positive)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on the end rims (overall/negative/positive)
         chamfer2: Chamfer size on the end rims (overall/negative/positive)
         rounding: Rounding radius on the end rims (overall/negative/positive)
@@ -631,6 +650,7 @@ def cylinder(
             cylinder(height=30, radius=12, rounding=2).show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cylinder", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cylinder")
     return get_backend().construct(
         "cylinder",
@@ -905,6 +925,7 @@ def prismoid(
     rounding1: float | Sequence[float] | None = None,
     rounding2: float | Sequence[float] | None = None,
     chamfer: float | Sequence[float] | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | Sequence[float] | None = None,
     chamfer2: float | Sequence[float] | None = None,
     anchor: Anchor | Sequence[float] | None = Anchor.BOTTOM,
@@ -936,6 +957,9 @@ def prismoid(
         rounding1: Vertical edge rounding at the bottom end (CSG backend).
         rounding2: Vertical edge rounding at the top end (CSG backend).
         chamfer: Size of the vertical edge chamfer, or one size per edge (CSG backend).
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Vertical edge chamfer at the bottom end (CSG backend).
         chamfer2: Vertical edge chamfer at the top end (CSG backend).
         anchor: Anchor point (default BOTTOM)
@@ -966,6 +990,7 @@ def prismoid(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "prismoid")
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "prismoid")
     return get_backend().construct(
         "prismoid",
@@ -1010,6 +1035,7 @@ def rect_tube(
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     inner_chamfer: float | None = None,
@@ -1051,6 +1077,9 @@ def rect_tube(
         placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
             of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer: outer edge chamfer size (overall/bottom/top) (CSG backend).
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: outer edge chamfer size (overall/bottom/top) (CSG backend).
         chamfer2: outer edge chamfer size (overall/bottom/top) (CSG backend).
         inner_chamfer: inner edge chamfer size (default: same as chamfer) (CSG backend).
@@ -1086,6 +1115,7 @@ def rect_tube(
             rect_tube(size=30, wall=3, height=20).show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "rect_tube")
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "rect_tube")
     return get_backend().construct(
         "rect_tube",
@@ -1144,6 +1174,7 @@ def regular_prism(
     rounding1: float | None = None,
     rounding2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     realign: bool | None = False,
@@ -1182,6 +1213,9 @@ def regular_prism(
         rounding1: End rounding radius (overall/bottom/top)
         rounding2: End rounding radius (overall/bottom/top)
         chamfer: End chamfer size (overall/bottom/top)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: End chamfer size (overall/bottom/top)
         chamfer2: End chamfer size (overall/bottom/top)
         realign: Rotate by half a facet so a face, not a vertex, faces +X (default False)
@@ -1220,6 +1254,7 @@ def regular_prism(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "regular_prism", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "regular_prism")
     return get_backend().construct(
         "regular_prism",
@@ -1614,6 +1649,7 @@ def tube(
     rounding1: float | None = None,
     rounding2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
@@ -1654,6 +1690,9 @@ def tube(
         rounding1: Rounding radius on end rims (overall/bottom/top)
         rounding2: Rounding radius on end rims (overall/bottom/top)
         chamfer: Chamfer size on end rims (overall/bottom/top)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on end rims (overall/bottom/top)
         chamfer2: Chamfer size on end rims (overall/bottom/top)
         anchor: Anchor point (default CENTER)
@@ -1702,6 +1741,7 @@ def tube(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "tube", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "tube")
     return get_backend().construct(
         "tube",
@@ -1799,6 +1839,7 @@ def xcyl(
     diameter1: float | None = None,
     diameter2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     rounding: float | None = None,
@@ -1850,6 +1891,9 @@ def xcyl(
         diameter1: Diameter of the negative end of the cylinder.
         diameter2: Diameter of the positive end of the cylinder.
         chamfer: Chamfer size on the end rims (overall/negative/positive)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on the end rims (overall/negative/positive)
         chamfer2: Chamfer size on the end rims (overall/negative/positive)
         rounding: Rounding radius on the end rims (overall/negative/positive)
@@ -1902,6 +1946,7 @@ def xcyl(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "xcyl", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "xcyl")
     return get_backend().construct(
         "xcyl",
@@ -1964,6 +2009,7 @@ def ycyl(
     diameter1: float | None = None,
     diameter2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     rounding: float | None = None,
@@ -2015,6 +2061,9 @@ def ycyl(
         diameter1: Diameter of the negative end of the cylinder.
         diameter2: Diameter of the positive end of the cylinder.
         chamfer: Chamfer size on the end rims (overall/negative/positive)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on the end rims (overall/negative/positive)
         chamfer2: Chamfer size on the end rims (overall/negative/positive)
         rounding: Rounding radius on the end rims (overall/negative/positive)
@@ -2067,6 +2116,7 @@ def ycyl(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "ycyl", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "ycyl")
     return get_backend().construct(
         "ycyl",
@@ -2129,6 +2179,7 @@ def zcyl(
     diameter1: float | None = None,
     diameter2: float | None = None,
     chamfer: float | None = None,
+    treatment: EdgeTreatment | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     rounding: float | None = None,
@@ -2180,6 +2231,9 @@ def zcyl(
         diameter1: Diameter of the negative end of the cylinder.
         diameter2: Diameter of the positive end of the cylinder.
         chamfer: Chamfer size on the end rims (overall/negative/positive)
+        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,
+            never both, so this makes the pair unrepresentable rather than checked; giving it beside
+            rounding= or chamfer= raises (SPEC G-3).
         chamfer1: Chamfer size on the end rims (overall/negative/positive)
         chamfer2: Chamfer size on the end rims (overall/negative/positive)
         rounding: Rounding radius on the end rims (overall/negative/positive)
@@ -2232,6 +2286,7 @@ def zcyl(
             shape.show()
 
     """
+    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "zcyl", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "zcyl")
     return get_backend().construct(
         "zcyl",

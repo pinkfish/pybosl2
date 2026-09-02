@@ -33,6 +33,18 @@ class AttachTag(StrEnum):
     INTERSECT = "intersect"
 
 
+class EdgeTreatmentKind(StrEnum):
+    """What an edge treatment does to an edge: round it, chamfer it, or leave it sharp.
+
+    The two are mutually exclusive on one edge, which is why they are members of one enum rather
+    than two independent sizes (SPEC G-1, G-7).
+    """
+
+    NONE = "none"
+    ROUNDING = "rounding"
+    CHAMFER = "chamfer"
+
+
 class RoundingMethod(StrEnum):
     """Corner-rounding strategy for :func:`round_corners` and :func:`smooth_path`."""
 

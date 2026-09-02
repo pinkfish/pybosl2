@@ -2071,6 +2071,21 @@ enforced_by = [
 status = "enforced"
 
 [[requirement]]
+id = "SPEC-G-7"
+aliases = ["G-7"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "A group makes a conflict unrepresentable, not merely checked."
+keyword = "SHOULD"
+statement = '''
+Where a family's members are mutually exclusive, the group SHOULD model the exclusion in its shape rather than validate it. `rounding` and `chamfer` are one edge treatment, not two independent sizes — an edge is rounded or chamfered, never both — and the library checked that in **six** places with six different wordings, not one of which said what to do instead. `EdgeTreatment` carries one kind and one size, so there is nothing left to disagree; the loose spellings keep the check (G-3), and it is now written once (G-5).
+'''
+enforced_by = [
+    "tests/test_groups.py::TestEdgeTreatment::test_the_conflict_is_unrepresentable_in_the_group",
+]
+status = "enforced"
+
+[[requirement]]
 id = "SPEC-G-2"
 aliases = ["G-2"]
 layer = "contract"
