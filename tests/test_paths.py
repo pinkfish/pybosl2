@@ -475,7 +475,7 @@ def test_merge_collinear_drops_midpoints() -> None:
 def test_deduplicated() -> None:
     p = Path2D([[0, 0], [0, 0], [1, 0], [1, 1]])
     assert len(p) == 4
-    result = p.deduplicated()
+    result = p.deduplicate()
     assert len(result) == 3
     assert list(result[0]) == [0.0, 0.0]
     assert list(result[1]) == [1.0, 0.0]
@@ -501,14 +501,14 @@ def test_close_and_cleanup() -> None:
 
 
 def test_subdivide_adds_points() -> None:
-    out = Path2D(SQUARE, closed=True).subdivide(num_copies=8)
+    out = Path2D(SQUARE, closed=True).subdivide_path(points=8)
     assert len(out) == 8
     assert out.closed
     assert isinstance(out, Path2D)
 
 
 def test_resample_to_n_points() -> None:
-    out = Path2D(SQUARE, closed=True).resample(num_copies=12)
+    out = Path2D(SQUARE, closed=True).resample_path(num_copies=12)
     assert len(out) == 12
     assert out.closed
     assert isinstance(out, Path2D)

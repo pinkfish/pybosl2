@@ -478,16 +478,18 @@ title = "One operation, one name."
 statement = '''
 A shape operation has exactly one public spelling. Synonym pairs — `move`/`translate`, `rot`/`rotate`, `fwd`/`forward`, `bounding_box`/`bounds`, `nominal_size`/`size` — double the surface a reader has to learn and halve the chance two call sites are written the same way, and each one is a second thing to keep in step. Where BOSL2's name and Python's differ, keep BOSL2's (B2-3) and drop the other. This is deliberately narrower than D-5: two spellings of a *dimension* (`radius`/`diameter`) are a convenience the caller chooses between, whereas two spellings of an *operation* are the same call twice.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_shape_contract.py::test_no_public_class_carries_both_spellings_of_one_operation",
+]
 candidates = [
     "tests/test_backend_parity.py::test_every_directional_move_stays_in_the_field",
     "tests/test_bounds_contract.py::test_a_shape_has_one_public_name_for_its_nominal_box",
     "tests/test_shape_contract.py::test_a_removed_synonym_does_not_come_back",
     "tests/test_shapes3d.py::test_rotate_has_one_spelling",
 ]
-status = "unenforced"
+status = "enforced"
 note = '''
-Guarded on the shape surface only. The path types carry three synonym pairs -- deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. T32.
+Closed on the shape surface in T17 and open everywhere the test did not look: Path2D and Path3D each carried three synonym pairs until T32 — deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. The check now walks every public class reachable from the top level, not one class family.
 '''
 
 [[requirement]]
@@ -3647,10 +3649,12 @@ section = "8. Style"
 statement = '''
 Functions stay short and cohesive — under 50 lines. A longer one is split, not commented into sections.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_function_length.py::test_no_file_exceeds_its_budget",
+]
+status = "enforced"
 note = '''
-243 functions exceed 50 lines, the longest at 237. Either ratchet it per module or retire the number. T32.
+243 functions exceeded 50 lines when this was first measured, the longest at 237. Retiring the rule was the alternative and was rejected: the rule is right, the code had simply never been held to it. It is now a per-file budget that only shrinks, per file rather than one total so a failure names the file you are in.
 '''
 
 [[requirement]]

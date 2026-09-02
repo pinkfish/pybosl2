@@ -321,7 +321,7 @@ class Extrudable:
         is_closed = self.closed if closed is None else closed  # type: ignore[attr-defined]
         if caps and is_closed:
             raise Bosl2ValueError("path_extrude2d(): cannot cap a closed extrusion.")
-        pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]  # type: ignore[attr-defined]
+        pts = [[float(p[0]), float(p[1])] for p in self.deduplicate()]  # type: ignore[attr-defined]
         sides = len(pts)
         if not (sides >= 2):
             raise Bosl2ValueError("path_extrude2d(): need at least two points.")

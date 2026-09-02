@@ -142,7 +142,7 @@ def test_reverse_close_cleanup_dedup() -> None:
     closed = p.close()
     np.testing.assert_allclose(closed[-1], [0, 0, 0], atol=1e-9)  # start point appended
     assert len(closed.cleanup()) == 3  # duplicate closing point dropped
-    dd = Path3D([[0, 0, 0], [0, 0, 0], [1, 0, 0]], closed=False).deduplicated()
+    dd = Path3D([[0, 0, 0], [0, 0, 0], [1, 0, 0]], closed=False).deduplicate()
     assert len(dd) == 2
     assert len(p.reverse()) == 3
     np.testing.assert_allclose(p.reverse()[-1], [0, 0, 0], atol=1e-9)
@@ -155,11 +155,11 @@ def test_reverse_close_cleanup_dedup() -> None:
 
 def test_resample_and_subdivide_keep_3d() -> None:
     p = Path3D([[0, 0, 0], [0, 0, 30]], closed=False)
-    radius = p.resample(num_copies=7)
+    radius = p.resample_path(num_copies=7)
     assert isinstance(radius, Path3D)
     assert len(radius) == 7
     assert radius.array.shape[1] == 3
-    s = p.subdivide(num_copies=4)
+    s = p.subdivide_path(points=4)
     assert isinstance(s, Path3D)
     assert s.array.shape[1] == 3
     np.testing.assert_allclose(

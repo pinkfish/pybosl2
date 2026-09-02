@@ -830,8 +830,39 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         exact: bool = True,
         closed: bool | None = None,
         method: SubdivideMethod = SubdivideMethod.LENGTH,
+        refine: float | None = None,
     ) -> "Path2D":
-        """Subdivide the path into more points."""
+        """Insert points along the path.
+
+        Give one of *points*, *refine* or *maxlen*.
+
+        Args:
+            points: Target total number of points.
+            points_per_segment: Points to add per segment; needs ``method=SubdivideMethod.SEGMENT``.
+            maxlen: Cap on the spacing between points.
+            exact: Hit the target count exactly rather than approximately.
+            closed: Override the instance's closed flag.
+            method: How to distribute the new points.
+            refine: Multiply the current point count by this, instead of giving *points*.
+
+        Returns:
+            A new :class:`Path2D` with additional interpolated points.
+
+        Raises:
+            Bosl2ValueError: if *points_per_segment* is given without the segment method.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
+                result = pts.subdivide_path(points=24)
+                result.stroke(width=1).linear_extrude(height=4).show()
+
+        """
+        if points is None and refine is not None:
+            points = int(len(self._points) * refine)
         if closed is None:
             closed = self.closed
         if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
@@ -895,7 +926,28 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> "Path2D":
-        """Resample the path with evenly spaced points."""
+        """Resample to evenly spaced points.
+
+        Give exactly one of *num_copies* or *spacing*.
+
+        Args:
+            num_copies: Target number of points.
+            spacing: Approximate spacing between points.
+            closed: Override the instance's closed flag.
+
+        Returns:
+            A new :class:`Path2D` with uniformly resampled points.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
+                sampled = pts.resample_path(num_copies=20)
+                sampled.stroke(width=1).linear_extrude(height=2).show()
+
+        """
         if closed is None:
             closed = self.closed
         ls = self._shapely
@@ -1166,88 +1218,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
-
-    def deduplicated(self) -> "Path2D":
-        """Drop consecutive repeated points (:meth:`_deduplicate`).
-
-        Examples:
-            .. pythonscad-example::
-
-                from pybosl2 import Path2D
-
-                pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
-                result = pts.deduplicated()
-                result.stroke(width=2).linear_extrude(height=4).show()
-
-        """
-        return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
-
-    def subdivide(
-        self,
-        num_copies: int | None = None,
-        refine: float | None = None,
-        maxlen: float | None = None,
-        exact: bool = True,
-        closed: bool | None = None,
-    ) -> "Path2D":
-        """Insert points along the path.
-
-        Give exactly one of *num_copies*, *refine* or *maxlen*.
-
-        Args:
-            num_copies: Target total number of points.
-            refine: Multiply the current point count by this.
-            maxlen: Cap on the spacing between points.
-            exact: Hit the target count exactly rather than approximately.
-            closed: Override the instance's closed flag.
-
-        Returns:
-            A new :class:`Path2D` with additional interpolated points.
-
-        Examples:
-            .. pythonscad-example::
-
-                from pybosl2 import Path2D
-
-                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
-                result = pts.subdivide(num_copies=24)
-                result.stroke(width=1).linear_extrude(height=4).show()
-
-        """
-        points = num_copies if num_copies is not None else None
-        if points is None and refine is not None:
-            points = int(len(self._points) * refine)
-        return self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed)
-
-    def resample(
-        self,
-        num_copies: int | None = None,
-        spacing: float | None = None,
-        closed: bool | None = None,
-    ) -> "Path2D":
-        """Resample to evenly spaced points.
-
-        Give exactly one of *num_copies* or *spacing*.
-
-        Args:
-            num_copies: Target number of points.
-            spacing: Approximate spacing between points.
-            closed: Override the instance's closed flag.
-
-        Returns:
-            A new :class:`Path2D` with uniformly resampled points.
-
-        Examples:
-            .. pythonscad-example::
-
-                from pybosl2 import Path2D
-
-                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
-                sampled = pts.resample(num_copies=20)
-                sampled.stroke(width=1).linear_extrude(height=2).show()
-
-        """
-        return self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed)
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list[Path2D]:
         """Split this 2-D path into subpaths wherever it crosses itself.
@@ -2183,6 +2153,15 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` with duplicate points removed.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
+                result = pts.deduplicate()
+                result.stroke(width=2).linear_extrude(height=4).show()
 
         """
         if closed is None:
