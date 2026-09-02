@@ -510,6 +510,21 @@ candidates = [
 status = "untriaged"
 
 [[requirement]]
+id = "SPEC-C-23"
+aliases = ["C-23"]
+layer = "contract"
+section = "5.1 Shapes"
+title = "A contract member is typed, or it is on a shrinking list."
+keyword = "MUST"
+statement = '''
+C-20 requires the contract to cover the whole object; this requires the cover to mean something. A member declared `(*args: Any, **kwargs: Any)` is present by name and checked not at all — the method is found and every argument is accepted, including the wrong ones, which is worse than a missing member because it reads as a promise. Where the two backends' concrete signatures genuinely differ in a way no checker can reconcile, the protocol MAY declare the caller's view with `Any` (PLAN T-6c); that is a bounded list that only shrinks, not a default. What is *not* that case, and MUST be written out rather than listed, is a member whose implementations already agree — which was 23 of the first 48, the whole distribution and attachment families. Note what does **not** justify a loose declaration: an implementation that is itself loose. A CSG-only feature refused on the SDF backend by a `(*_args: Any, **_kwargs: Any)` stub (PAR-3) satisfies *any* protocol signature, so the contract is free to declare the real one; the loose stub is a fact about the refusal, not a constraint on the contract. Reading it as a constraint is what left the attachment family unchecked.
+'''
+enforced_by = [
+    "tests/test_contract_typing.py::test_no_new_loosely_typed_member",
+]
+status = "enforced"
+
+[[requirement]]
 id = "SPEC-C-1"
 aliases = ["C-1"]
 layer = "contract"

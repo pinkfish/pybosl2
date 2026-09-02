@@ -293,6 +293,11 @@ class SdfShape2D(Colorable, Distributable):
             ),
         )
 
+    # These take `*_args` deliberately. A refusal must fire however it is called, and
+    # copying the CSG signature verbatim made `sdf_shape.attach()` raise TypeError about
+    # missing arguments instead of the error that teaches (SPEC E-2). The loose form costs
+    # the contract nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature,
+    # so `Shape` declares the real one and callers are checked against that (SPEC C-23).
     def attach(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
         self._refuse_csg_only("attach")
