@@ -40,7 +40,14 @@ from pybosl2._backend import (
 )
 from pybosl2._edges_lang import Anchor
 from pybosl2.exceptions import Bosl2ValueError, CrossBackendError, UnsupportedByBackendError
-from pybosl2.groups import EdgeTreatment, Placement, resolve_edge_treatment, resolve_placement
+from pybosl2.groups import (
+    EdgeSelection,
+    EdgeTreatment,
+    Placement,
+    resolve_edge_selection,
+    resolve_edge_treatment,
+    resolve_placement,
+)
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
 _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
@@ -130,6 +137,7 @@ def cube(
     placement: Placement | None = None,
     edges: Sequence[float] | None = None,
     except_edges: Sequence[float] | None = None,
+    selection: EdgeSelection | None = None,
     teardrop: bool | None = None,
     trimcorners: bool | None = None,
     fn: int | None = None,
@@ -159,6 +167,8 @@ def cube(
             of those three raises, since the call cannot mean both (SPEC G-3).
         edges: edge specifier — "ALL", "NONE", "X", "Y", "Z", or list of direction vectors (CSG backend).
         except_edges: edges to exclude from chamfer/rounding (CSG backend).
+        selection: Which edges to treat and which to spare, as one value (SPEC G-1). Giving it beside
+            edges= or except_edges= raises (SPEC G-3).
         teardrop: limit the overhang angle for FDM printing (default False) (CSG backend).
         trimcorners: trim corners where 3+ edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
@@ -200,6 +210,7 @@ def cube(
             cube(size=20, rounding=3).show()
 
     """
+    edges, except_edges = resolve_edge_selection(selection, edges, except_edges, "cube")
     rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cube", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cube")
     return get_backend().construct(
@@ -234,6 +245,7 @@ def cuboid(
     rounding: float | None = None,
     edges: EdgeAtom | list[EdgeAtom] | None = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
+    selection: EdgeSelection | None = None,
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
@@ -263,6 +275,8 @@ def cuboid(
         rounding: Edge rounding radius (default: no rounding)
         edges: Edges to mask (default ``"ALL"``)
         except_edges: Edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)
+        selection: Which edges to treat and which to spare, as one value (SPEC G-1). Giving it beside
+            edges= or except_edges= raises (SPEC G-3).
         anchor: Anchor point (default Anchor.CENTER)
         spin: Z-axis rotation in degrees (default 0)
         orient: Direction to rotate the top towards (default Anchor.TOP)
@@ -301,6 +315,7 @@ def cuboid(
             shape.show()
 
     """
+    edges, except_edges = resolve_edge_selection(selection, edges, except_edges, "cuboid")
     rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cuboid", per_corner=False)
     anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cuboid")
     return get_backend().construct(

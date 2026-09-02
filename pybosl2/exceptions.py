@@ -16,7 +16,13 @@
 
 from __future__ import annotations
 
-__all__ = ["Bosl2Error", "Bosl2ValueError", "UnsupportedByBackendError", "CrossBackendError"]
+__all__ = [
+    "Bosl2Error",
+    "Bosl2ValueError",
+    "Bosl2NotImplementedError",
+    "UnsupportedByBackendError",
+    "CrossBackendError",
+]
 
 
 class Bosl2Error(Exception):
@@ -50,6 +56,19 @@ class Bosl2ValueError(Bosl2Error, ValueError):
             except Bosl2Error as err:
                 print(err)  # give radius or diameter, not both (radius=5, diameter=10)
 
+    """
+
+
+class Bosl2NotImplementedError(Bosl2Error, NotImplementedError):
+    """A capability this port advertises but does not yet build: a ``NotImplementedError`` *and* a :class:`Bosl2Error`.
+
+    The same reasoning as :class:`Bosl2ValueError`, for the same reason. Four public callables
+    raised a bare ``NotImplementedError`` -- ``cyl(texture=...)``, ``cuboid(teardrop=...)``,
+    ``CapType.CIRCLE`` and ``VNF.from_field`` with a range -- so ``except Bosl2Error`` missed
+    them, and none named an alternative, which SPEC E-2 asks of every refusal.
+
+    A parameter that raises this is one the signature advertises and the port does not honour. It
+    is a gap, not a design decision, and the message says what to do meanwhile.
     """
 
 

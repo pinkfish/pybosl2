@@ -64,7 +64,7 @@ else:
 
 from pybosl2._edges_lang import EDGE_OFFSETS, EDGES_ALL
 from pybosl2._edges_lang import edges as resolve_edges
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 from pybosl2.shapes3d.cylinder import cyl_profile
 
 
@@ -423,7 +423,10 @@ def cuboid(
 
     """
     if teardrop:
-        raise NotImplementedError("cuboid(): teardrop= is not supported by this pure-Python port.")
+        raise Bosl2NotImplementedError(
+            "cuboid(): teardrop= is not built in this port yet. Round the edges with rounding= and "
+            "cut the overhang yourself, or build the teardrop profile as a Mask2D and sweep it."
+        )
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     if p1 is not None:
         if p2 is not None:

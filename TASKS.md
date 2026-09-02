@@ -58,6 +58,7 @@ spec renumbers as items close, and all but S-46a have.
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) | M |
 | 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
+| 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
@@ -459,7 +460,27 @@ and the honest backlog is **84 functions across 37 files** — not the 131 repor
 docstring fix, and not the 243 originally. Docstrings accounted for 112 of that first figure and
 signatures for another 47.
 
-* **`Texturing`, the edge-selection group, and the per-end variants are unbuilt.**
+**`EdgeSelection` (fourth pass).** `edges` + `except_edges`, 15 callables, wired into the two
+façade constructors that take the pair. Unlike a treatment its members *compose* — the second
+narrows the first — so G-7 does not apply and there is no conflict to model away.
+
+**`Texturing` was not built, and finding out why was the more useful result.** Its five parameters
+travel together on 11 callables, which is the cleanest group of the four by that measure. They are
+also **advertised on 13 public constructors and every one of them refuses**: `cyl(texture=...)`
+raises. Grouping five parameters no call can honour would be polish on a promise nothing keeps.
+
+Pulling that thread found four such promises, each refusing in a way `except Bosl2Error` could not
+catch: `texture=`, `cuboid(teardrop=...)`, `CapType.CIRCLE`, and `VNF.from_field` with a range —
+all bare `NotImplementedError`, so not a `Bosl2Error` (E-1), and none naming an alternative (E-2).
+**G-8** is the new rule, `Bosl2NotImplementedError` the new type (both bases, exactly as
+`Bosl2ValueError` is), and `tests/test_unimplemented.py` the ratchet.
+
+`texture=` is the substantial one: S-34 and S-35 specify textures as a working subsystem and the
+*registry* is built — `texture("diamonds")` returns its tile — so what is missing is the
+application, not the vocabulary. T37.
+
+* **The per-end variants are unbuilt** (`rounding1`, `chamfer_angle`, …), which is B-3's
+  duplication rather than a missing group — T31.
 * **The façade's parameter duplication (B-3) is untouched.** A group removes three parameters from
   a signature that has forty; T31 is still the task that addresses the rest.
 
@@ -718,6 +739,35 @@ mean what it means everywhere else. That is a design decision, which is why this
 
 **Done when:** `text()` takes the anchor language like every other constructor, `placement=` is
 wired into all nine, and the typographic vocabulary has a home of its own.
+
+---
+
+## T37 — Build `texture=`, or stop advertising it
+
+**Closes:** §12.2 item 7c · **Implements:** SPEC S-34, S-35, G-8 · **Size:** L
+
+Thirteen public constructors declare `texture`, `tex_size`, `tex_reps`, `tex_depth` and
+`tex_inset`. Every call that sets them refuses. S-34 and S-35 do not describe an aspiration — they
+say named textures come from one registry and that *anything that can be textured* accepts them —
+so the spec and the signatures agree with each other and disagree with the code.
+
+The registry half is built: `texture("diamonds")` returns its tile, and `textured_tile()` exists.
+What is missing is applying a tile to a curved surface, which is BOSL2's `vnf_vertex_array` path.
+
+1. Apply a height-field or VNF tile to a cylinder's side, which is what all five cylinder
+   constructors want.
+2. Then the rest of the thirteen, or narrow the signatures to the ones that work.
+3. `Texturing` (G-1) lands with it: the five parameters travel together on all 11 callables that
+   take more than one, which is the cleanest group in the library — once there is something to
+   group.
+4. Remove the row from `tests/test_unimplemented.py::KNOWN_GAPS`.
+
+**The alternative is honest too:** withdraw the parameters from the signatures and say in S-34/S-35
+that this port ships the registry and not the application. What is not tenable is the present
+state, where a signature promises something no call delivers.
+
+**Done when:** either `cyl(texture="diamonds")` builds a textured cylinder, or the parameter is
+gone and the spec says so.
 
 ---
 

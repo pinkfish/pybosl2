@@ -34,7 +34,7 @@ import numpy as np
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.enums import SamplingType, SkinMethod, VNFStyle
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 
 if TYPE_CHECKING:
     import os
@@ -1434,7 +1434,7 @@ class VNF:
             A :class:`VNF`.
 
         Raises:
-            NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are supported.
+            Bosl2NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are built.
 
         Examples:
         .. pythonscad-example::
@@ -1508,9 +1508,10 @@ class VNF:
             f = _wrapped
 
         if isinstance(isovalue, tuple):
-            raise NotImplementedError(
-                "from_field(): tuple (lo, hi) isovalue ranges are not yet implemented. "
-                "Use a single float isovalue instead."
+            raise Bosl2NotImplementedError(
+                "from_field(): tuple (lo, hi) isovalue ranges are not built in this port yet. "
+                "Use a single float isovalue, or mesh each threshold and subtract the inner "
+                "surface from the outer one."
             )
         iso = float(isovalue)
 
