@@ -2227,6 +2227,18 @@
         <span class="o">...</span></div>
 
 
+<div class="viewcode-block" id="Flat.fill">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.fill">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return this outline with its interior holes closed.</span>
+
+<span class="sd">        Declared because both 2-D implementations have it (SPEC C-20). Note that `fill` is listed</span>
+<span class="sd">        in ``CSG_ONLY_FEATURES`` while the SDF implementation meshes the field, crosses to CSG and</span>
+<span class="sd">        comes back — a refusal that never fires (SPEC §12.2, PLAN B-P4).</span>
+<span class="sd">        """</span>
+        <span class="o">...</span></div>
+
+
     <span class="c1"># In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put</span>
     <span class="c1"># these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is</span>
     <span class="c1"># the C-21 synonym work (SPEC §12.2).</span>

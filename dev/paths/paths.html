@@ -3636,16 +3636,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#raises" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Raises</span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#return-type" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -9441,16 +9431,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#raises" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Raises</span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#return-type" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -13416,21 +13396,18 @@ operations (union, intersection, difference) on polygons.</p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py">
 <span class="sig-name descname"><span class="pre">polygon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/path2d.html#Path2D.polygon"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Return this path as 2-D geometry (crosses the FFI as plain floats).</p>
+<dd><p>Return this path as 2-D geometry, on whichever backend is active.</p>
+<p>Builds through the backend-neutral façade (SPEC A-10), so the same call produces a CSG
+outline by default and an SDF one inside <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>. It used to reach the CSG
+module directly and hand back a <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code> whichever backend was selected, which is
+the silent cross-backend result SPEC A-6 exists to prevent.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="returns">Returns<span class="colon">:</span><a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, so the result chains straight into the 2-D
-operators (<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>, <code class="docutils literal notranslate"><span class="pre">.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">.offset()</span></code>) and the extruders
-(<code class="docutils literal notranslate"><span class="pre">.linear_extrude(...)</span></code>).</p>
+<dd class="field-odd"><p>A <a class="reference internal" href="../foundational/flat.html#pybosl2.flat.Flat" title="pybosl2.flat.Flat (Python class) — Bases: Shape, Protocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flat</span></code></a>, so the result chains straight into the 2-D operators
+(<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>, <code class="docutils literal notranslate"><span class="pre">.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">.offset()</span></code>) and the extruders (<code class="docutils literal notranslate"><span class="pre">.linear_extrude(...)</span></code>).</p>
 </dd>
-<dt class="field-even" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="../foundational/solid.html#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.solid.UnsupportedByBackendError (Python exception) — Bases: Bosl2Error, AttributeError"><strong>UnsupportedByBackendError</strong></a> – under <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>.</p></li>
-<li><p><strong>Use linear_extrude</strong><strong>(</strong><strong>) </strong><strong>instead; it works on both backends.</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-odd" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Shape2D</p>
+<dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="../foundational/flat.html#pybosl2.flat.Flat" title="pybosl2.flat.Flat (Python class) — Bases: Shape, Protocol">Flat</a></p>
 </dd>
 </dl>
 <p class="example rubric">Examples</p>
@@ -13451,7 +13428,7 @@ operators (<code class="docutils literal notranslate"><span class="pre">.fill()<
 Region can ask for geometry without checking which it got.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Shape2D</p>
+<dd class="field-odd"><p><a class="reference internal" href="../foundational/flat.html#pybosl2.flat.Flat" title="pybosl2.flat.Flat (Python class) — Bases: Shape, Protocol">Flat</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -13464,10 +13441,10 @@ Region can ask for geometry without checking which it got.</p>
 loops that <code class="docutils literal notranslate"><span class="pre">polygon()</span></code> would leave as holes.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="returns">Returns<span class="colon">:</span><a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code> (csg backend only).</p>
+<dd class="field-odd"><p>A <a class="reference internal" href="../foundational/flat.html#pybosl2.flat.Flat" title="pybosl2.flat.Flat (Python class) — Bases: Shape, Protocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">Flat</span></code></a> with its holes closed.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Shape2D</p>
+<dd class="field-even"><p><a class="reference internal" href="../foundational/flat.html#pybosl2.flat.Flat" title="pybosl2.flat.Flat (Python class) — Bases: Shape, Protocol">Flat</a></p>
 </dd>
 </dl>
 </dd></dl>
