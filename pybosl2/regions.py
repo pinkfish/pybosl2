@@ -369,9 +369,12 @@ class Region:
 
         Args:
             file: Path to the SVG.
-            fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count).
-            fa: Minimum angle in degrees (accepted for API parity).
-            fs: Minimum fragment size in SVG user units (default ``2.0``).
+            fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count). Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum angle in degrees (accepted for API parity). Omitted, the ambient ``use_defaults(fa=...)``
+                value applies.
+            fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
             flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
             color: When set, overrides every shape's fill colour with this hex string.
                 Pass ``None`` (the default) to use the SVG's own colours.
@@ -590,9 +593,12 @@ class Region:
             radius: The corner-rounding radius for the offset.
             delta: The absolute offset distance.
             chamfer: Whether to chamfer corners instead of rounding them.
-            fn: Fixed number of fragments for the rounded corners; ambient default when omitted.
-            fa: Minimum fragment angle for the rounded corners.
-            fs: Minimum fragment size for the rounded corners.
+            fn: Fixed number of fragments for the rounded corners; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             A new :class:`Region` with every path offset by the given parameters.
@@ -629,9 +635,10 @@ class Region:
             width: Width for rounding.
             curvature: Curvature value for rounding.
             closed: Override whether paths are treated as closed.
-            fn: Fixed number of fragments per full circle; ambient default when omitted.
-            fa: Minimum fragment angle in degrees.
-            fs: Minimum fragment size in millimetres.
+            fn: Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A new :class:`Region` with rounded corners on every path.
@@ -863,9 +870,12 @@ class Region:
             twist: Twist angle in degrees over the full height (default 0).
             scale: Scale factor for the top cross-section (default 1.0).
             slices: Number of intermediate layers for twist/scale (auto if None).
-            fn: Smoothness override for the angular resolution.
-            fa: Smoothness override for the minimum angle.
-            fs: Smoothness override for the minimum segment length.
+            fn: Smoothness override for the angular resolution. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Smoothness override for the minimum angle. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Smoothness override for the minimum segment length. Omitted, the ambient ``use_defaults(fs=...)``
+                value applies.
             color_heights: Optional dict mapping colour names (``"#ff0000"``, ``"red"``, or
                 :class:`~pybosl2.color.Color` objects) to a specific extrusion height.  Coloured
                 pieces that match a key are extruded by that height; pieces whose colour is not
@@ -970,9 +980,10 @@ class Region:
 
         Args:
             angle: The rotation angle in degrees.
-            fn: Number of polygon segments for curved geometry.
-            fa: Minimum angle for polygon segments.
-            fs: Minimum size for polygon segments.
+            fn: Number of polygon segments for curved geometry. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum angle for polygon segments. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum size for polygon segments. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A :class:`~pybosl2._backend.Solid` from the active backend (SPEC A-10). Revolving is

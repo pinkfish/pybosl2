@@ -472,9 +472,10 @@ def partition_path(
         altpath:  optional base path the pattern is redirected along
         seglen:   default length for named sections (default 25)
         segwidth: default width for named sections (default 25)
-        fn:       number of fragments for circle resolution.
-        fa:       minimum fragment angle for circle resolution.
-        fs:       minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` (closed when *y* is given).
@@ -621,9 +622,10 @@ def partition_mask(
         cutpath_centered: keep the pattern centered (default True)
         inverse: build the mating (inverted) mask
         slop: shrink the mask by this much for a printer-fit clearance
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         A jigsaw-pattern mask for a 100×100×10 mm part:

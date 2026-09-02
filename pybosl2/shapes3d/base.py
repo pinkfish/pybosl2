@@ -923,9 +923,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             r:            rounding radius alias
             d:            rounding diameter alias
             tag:          override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
-            fn:           fixed fragment count for the default roundover mask; ambient default when omitted
-            fa:           minimum fragment angle for the default roundover mask
-            fs:           minimum fragment size for the default roundover mask
+            fn: fixed fragment count for the default roundover mask; ambient default when omitted. Omitted, the
+                ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: minimum fragment angle for the default roundover mask. Omitted, the ambient ``use_defaults(fa=...)``
+                value applies.
+            fs: minimum fragment size for the default roundover mask. Omitted, the ambient ``use_defaults(fs=...)``
+                value applies.
 
         """
         from pybosl2 import masking
@@ -1004,9 +1007,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             except_edges: Edges to leave alone.
             bbox: Override bounding box (see :meth:`_resolve_bounds`).
             tag: Override tag for attachment (default: ``AttachTag.REMOVE``).
-            fn: Arc smoothness override -- fixed fragment count.
-            fa: Arc smoothness override -- minimum fragment angle.
-            fs: Arc smoothness override -- minimum fragment size.
+            fn: Arc smoothness override -- fixed fragment count. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Arc smoothness override -- minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Arc smoothness override -- minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             A new solid with the treatment attached, ready to realize.
@@ -1104,9 +1110,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             except_edges: Edges to leave alone.
             bbox: Override bounding box (see :meth:`_resolve_bounds`).
             tag: Override tag for attachment (default: ``AttachTag.REMOVE``).
-            fn: Arc smoothness override -- fixed fragment count.
-            fa: Arc smoothness override -- minimum fragment angle.
-            fs: Arc smoothness override -- minimum fragment size.
+            fn: Arc smoothness override -- fixed fragment count. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Arc smoothness override -- minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Arc smoothness override -- minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             A new solid with the treatment attached, ready to realize.
@@ -1192,9 +1201,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             diameter:       rounding diameter
             mask:           the 2-D mask cross-section, as a Path2D or a point list
             convexity:      accepted for compatibility; unused
-            fn:       arc smoothness overrides
-            fa:       arc smoothness overrides
-            fs:       arc smoothness overrides
+            fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
             bbox:           override bounding box (see :meth:`_resolve_bounds`)
             r:              rounding radius alias
             d:              rounding diameter alias
@@ -1327,9 +1337,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             radius: Distance to expand by; negative contracts.
             size: Size of the enclosing cube used for the negative case.
             convexity: Accepted for signature compatibility; unused.
-            fn: Facet count for the minkowski sphere; ambient default when omitted.
-            fa: Minimum fragment angle for that sphere.
-            fs: Minimum fragment size for that sphere.
+            fn: Facet count for the minkowski sphere; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for that sphere. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size for that sphere. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             The offset solid.
@@ -1370,9 +1381,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             outer_radius: Rounding radius for convex corners only.
             inner_radius: Rounding radius for concave corners only.
             size: Size of the enclosing cube used by :meth:`offset3d`.
-            fn: Facet count for the rounding spheres; ambient default when omitted.
-            fa: Minimum fragment angle for those spheres.
-            fs: Minimum fragment size for those spheres.
+            fn: Facet count for the rounding spheres; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for those spheres. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size for those spheres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             The rounded solid.

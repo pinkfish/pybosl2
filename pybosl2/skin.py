@@ -362,9 +362,10 @@ class Sweepable:
             diameter2: Diameter at the end.
             center: Centre the coil on the origin.
             style: Quad-subdivision style for the mesh.
-            fn: Fixed fragment count per turn; ambient default when omitted.
-            fa: Minimum fragment angle per turn.
-            fs: Minimum fragment size per turn.
+            fn: Fixed fragment count per turn; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle per turn. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size per turn. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             The swept coil.

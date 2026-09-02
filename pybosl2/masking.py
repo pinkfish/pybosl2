@@ -95,9 +95,10 @@ def rounding_edge_mask(
         diameter1: Rounding diameter at the first end.
         diameter2: Rounding diameter at the second end.
         excess: Amount the flat sides extend past the origin (default 0.1).
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
@@ -433,9 +434,10 @@ def corner_profile(
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
 
     """
@@ -489,9 +491,10 @@ def face_profile(
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
 
     """
@@ -580,9 +583,10 @@ class Mask2D:
             inset: Scalar or ``(x, y)`` inset of the rounding center from the corner (default 0).
             excess: Amount the flat sides extend past the origin, for a clean boolean cut (default 0.01).
             diameter: Rounding diameter (alternative to *radius*).
-            fn: Arc smoothness overrides.
-            fa: Arc smoothness overrides.
-            fs: Arc smoothness overrides.
+            fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
@@ -669,9 +673,10 @@ class Mask2D:
         Args:
             radius: Cove radius.
             excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-            fn: Arc smoothness overrides.
-            fa: Arc smoothness overrides.
-            fs: Arc smoothness overrides.
+            fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         """
         from pybosl2.path2d import Path2D
@@ -707,9 +712,10 @@ class Mask2D:
         Args:
             r: Radius of the teardrop circle.
             maxgap: Maximum gap height (unused, kept for compatibility).
-            fn: Arc smoothness overrides.
-            fa: Arc smoothness overrides.
-            fs: Arc smoothness overrides.
+            fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         """
         from pybosl2.path2d import Path2D
@@ -810,9 +816,12 @@ class Mask2D:
             chamfer: Groove chamfer offset (unused, kept for compatibility).
             round_radius: Groove corner rounding radius (unused, kept for compatibility).
             excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-            fn: Arc smoothness override -- fixed fragment count.
-            fa: Arc smoothness override -- minimum fragment angle.
-            fs: Arc smoothness override -- minimum fragment size.
+            fn: Arc smoothness override -- fixed fragment count. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Arc smoothness override -- minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Arc smoothness override -- minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
@@ -890,9 +899,12 @@ class Mask3D:
                 *parent*, not the treatment.
             diameter: Rounding diameter (alternative to *radius*; giving both is an error).
             corners: Corners to select.
-            fn: Arc smoothness override -- fixed fragment count.
-            fa: Arc smoothness override -- minimum fragment angle.
-            fs: Arc smoothness override -- minimum fragment size.
+            fn: Arc smoothness override -- fixed fragment count. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Arc smoothness override -- minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Arc smoothness override -- minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             The cutter solid; subtract it from the box to round it.

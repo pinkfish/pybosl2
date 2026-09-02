@@ -307,9 +307,10 @@ def interior_fillet(
         anchor:  anchor point (default FRONT+LEFT)
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
-        fn:      Fixed fragment count for the fillet arc; ambient default when omitted.
-        fa:      Minimum fragment angle for the fillet arc.
-        fs:      Minimum fragment size for the fillet arc.
+        fn: Fixed fragment count for the fillet arc; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle for the fillet arc. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size for the fillet arc. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     from pybosl2._native import native
@@ -848,7 +849,8 @@ def textured_tile(
         style:     vnf_vertex_array quad-subdivision style (height-field textures only)
         sides: number of sides for named texture geometry.
         border: border width for named textures.
-        fn: number of fragments for circle resolution in named textures.
+        fn: number of fragments for circle resolution in named textures. Omitted, the ambient ``use_defaults(fn=...)``
+            value applies; ``fn=0`` opts back out to fa/fs.
         gap: spacing between texture elements for named textures.
         roughness: roughness parameter for named textures.
 
@@ -963,9 +965,10 @@ def ruler(
         anchor:    anchor point (default LEFT+BACK+TOP)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     from pybosl2._native import native

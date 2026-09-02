@@ -190,7 +190,7 @@ def skin_sdf(
     Args:
         shapes:  list of PyShape2D cross-sections, bottom to top
         z:       z-coordinates for each cross-section (must be strictly increasing)
-        res:     meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     if not (len(shapes) >= 2):

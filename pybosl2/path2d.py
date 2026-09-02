@@ -1121,9 +1121,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             radius: Offset distance with rounded joins (positive grows, negative shrinks).
             delta: Offset distance with sharp/chamfered joins (mutually exclusive with radius).
             chamfer: If True, use chamfered rather than sharp joins when delta is given.
-            fn: Number of facets for rounded sections (overrides fa/fs).
-            fa: Minimum angle in degrees for circle fragments.
-            fs: Minimum size for circle fragments.
+            fn: Number of facets for rounded sections (overrides fa/fs). Omitted, the ambient ``use_defaults(fn=...)``
+                value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum angle in degrees for circle fragments. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Minimum size for circle fragments. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
             same_length: Return one point per input point (``delta`` offsets only), for callers
                 like :meth:`~pybosl2.skin.Sweepable.path_sweep2d` that need the two paths to
                 correspond point-for-point (BOSL2 ``offset(..., same_length=true)``). Since
@@ -1545,9 +1547,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             single_sided: If ``True``, dilate on one side of the outline only.
             quad_segs: Segments per quadrant for round joins; resolved from the radius and the
                 ambient facet controls when omitted.
-            fn: Fixed fragment count for the round joins; ambient default when omitted.
-            fa: Minimum fragment angle for the round joins.
-            fs: Minimum fragment size for the round joins.
+            fn: Fixed fragment count for the round joins; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for the round joins. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Minimum fragment size for the round joins. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
 
         Returns:
             A new closed :class:`Path2D`.
@@ -1630,7 +1635,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Args:
             radius: Circle radius.
-            fn: Number of polygon segments.
+            fn: Number of polygon segments. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
 
         Returns:
             A closed :class:`Path2D`.
@@ -1650,7 +1656,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             rx: Semi‑axis in the X direction.
             ry: Semi‑axis in the Y direction.
-            fn: Number of polygon segments.
+            fn: Number of polygon segments. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
 
         Returns:
             A closed :class:`Path2D`.
@@ -1847,10 +1854,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             convexity: Rendering hint for self-overlapping cross-sections (CSG only).
             rounding_top: Rim roundover at the top (SDF only).
             rounding_bottom: Rim roundover at the bottom (SDF only).
-            res: Field resolution (SDF only).
-            fn: Arc smoothness override (CSG only).
-            fa: Arc smoothness override (CSG only).
-            fs: Arc smoothness override (CSG only).
+            res: Field resolution (SDF only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
+            fn: Arc smoothness override (CSG only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+                ``fn=0`` opts back out to fa/fs.
+            fa: Arc smoothness override (CSG only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness override (CSG only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Examples:
             .. pythonscad-example::
@@ -1898,9 +1906,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             angle: The sweep angle in degrees (default 360 for a full revolution).
             convexity: Rendering hint for self-overlapping cross-sections.
-            fn: Arc smoothness override.
-            fa: Arc smoothness override.
-            fs: Arc smoothness override.
+            fn: Arc smoothness override. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness override. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness override. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -3045,8 +3054,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 ``[d, k]`` for asymmetrical, or per-corner list).  ``None`` or ``False``
                 leaves a corner sharp.
             closed: Override the path's closed flag.
-            fn: Number of facets per bezier corner (0 = auto from *fs*).
-            fs: Maximum facet size.
+            fn: Number of facets per bezier corner (0 = auto from *fs*). Omitted, the ambient ``use_defaults(fn=...)``
+                value applies; ``fn=0`` opts back out to fa/fs.
+            fs: Maximum facet size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A new :class:`Path2D` with bezier-rounded corners.

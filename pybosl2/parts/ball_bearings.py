@@ -907,9 +907,12 @@ class BallBearings:
             width: Axial width in mm. Required if trade_size is not given.
             shield: Model sealed/shielded cartridge (True) or open bearing with balls (False). Defaults to True.
             color: Color name to apply to the bearing model. Defaults to "silver".
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A ball-bearing cartridge as a :class:`~pybosl2.shapes3d."Solid"`.

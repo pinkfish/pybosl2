@@ -191,13 +191,15 @@ def resolve_facets(
         of an ambient ``fn``, and :func:`~pybosl2._helpers.frag_count` reads any ``fn`` below 3 as
         "use fa/fs" (SPEC R-5).
 
+    Note:
+        The rule itself lives in :meth:`~pybosl2.groups.Facets.resolved`, which this and
+        :func:`resolve_res` both call. They were two implementations of one rule (SPEC R-1).
+
     """
-    active = current_defaults()
-    return (
-        fn if fn is not None else active.fn,
-        fa if fa is not None else active.fa,
-        fs if fs is not None else active.fs,
-    )
+    from pybosl2.groups import Facets  # local: groups reads the ambient defaults from here
+
+    resolved = Facets.resolved(fn=fn, fa=fa, fs=fs)
+    return resolved.fn, resolved.fa, resolved.fs
 
 
 def resolve_res(res: int | None = None) -> int | None:
@@ -210,7 +212,9 @@ def resolve_res(res: int | None = None) -> int | None:
         The resolution to use, or ``None`` when nothing is set anywhere.
 
     """
-    return res if res is not None else current_defaults().res
+    from pybosl2.groups import Facets  # local: groups reads the ambient defaults from here
+
+    return Facets.resolved(res=res).res
 
 
 def _merge(

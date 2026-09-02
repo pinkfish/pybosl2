@@ -360,9 +360,12 @@ class BottleCaps:
         """Return a PCO-1810 threaded beverage-bottle neck.
 
         Args:
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A PCO-1810 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
@@ -393,9 +396,12 @@ class BottleCaps:
         Args:
             wall: Cap wall thickness in mm. Defaults to 2.
             texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A PCO-1810 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
@@ -416,9 +422,12 @@ class BottleCaps:
         """Return a PCO-1881 threaded beverage-bottle neck.
 
         Args:
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A PCO-1881 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
@@ -449,9 +458,12 @@ class BottleCaps:
         Args:
             wall: Cap wall thickness in mm. Defaults to 2.
             texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A PCO-1881 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.

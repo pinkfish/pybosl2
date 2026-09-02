@@ -171,9 +171,10 @@ def round2d(
         outer_radius: radius to round only convex (outside) corners to (BOSL2 `or`)
         inner_radius: radius to round only concave (inside) corners to
         children:     the 2-D solid(s) to round
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
@@ -208,9 +209,10 @@ def shell2d(
         inner_radius: rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]
                       pair rounds those corner types separately (default 0)
         children:     the 2-D solid(s) to shell
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     if thickness is None:
@@ -344,9 +346,10 @@ def text(
         script:    script the text is in (default "latin")
         anchor:    vertical alignment fallback used when valign isn't given (default "baseline")
         spin:      Z-axis rotation in degrees (default 0)
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     h = halign if halign is not None else "center"

@@ -82,6 +82,8 @@ from pybosl2.flat import square as square
 from pybosl2.flat import star as star
 from pybosl2.flat import text as text
 from pybosl2.flat import trapezoid as trapezoid
+from pybosl2.groups import Facets as Facets
+from pybosl2.groups import Placement as Placement
 from pybosl2.isosurface import Metaball as Metaball
 from pybosl2.isosurface import MetaballSpec as MetaballSpec
 from pybosl2.isosurface import mb_capsule as mb_capsule
@@ -229,13 +231,14 @@ __all__: list[str] = [
     "EdgePlane",
     "FORWARD",
     "FRONT",
+    "Facets",
     "Flat",
     "IDENT",
     "INCH",
     "LEFT",
+    "LINE",
     "Mask2D",
     "Mask3D",
-    "LINE",
     "Metaball",
     "MetaballSpec",
     "MinkowskiJoin",
@@ -243,9 +246,10 @@ __all__: list[str] = [
     "NurbsPatch",
     "NurbsType",
     "Path",
-    "PathLike",
     "Path2D",
     "Path3D",
+    "PathLike",
+    "Placement",
     "Point",
     "RAY",
     "RIGHT",
@@ -276,8 +280,8 @@ __all__: list[str] = [
     "cylinder",
     "cylindrical_extrude",
     "cylindrical_heightfield",
-    "difference",
     "diff",
+    "difference",
     "effective_defaults",
     "egg",
     "ellipse",
@@ -368,9 +372,9 @@ __all__: list[str] = [
     "version",
     "wedge",
     "xcyl",
-    "ycyl",
-    "zcyl",
     "xdistribute",
+    "ycyl",
     "ydistribute",
+    "zcyl",
     "zdistribute",
 ]

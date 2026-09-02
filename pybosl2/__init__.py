@@ -32,6 +32,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "known_backends": ("pybosl2._backend", "known_backends"),
     # ambient resolution defaults
     "Resolution": ("pybosl2.defaults", "Resolution"),
+    # argument groups (SPEC G-1)
+    "Placement": ("pybosl2.groups", "Placement"),
+    "Facets": ("pybosl2.groups", "Facets"),
     "current_defaults": ("pybosl2.defaults", "current_defaults"),
     "use_defaults": ("pybosl2.defaults", "use_defaults"),
     "set_defaults": ("pybosl2.defaults", "set_defaults"),

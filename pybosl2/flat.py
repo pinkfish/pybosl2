@@ -125,10 +125,12 @@ def circle(
         corner: Three 2-D points defining a path the circle should be tangent to.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
-        fn: Arc smoothness overrides (CSG backend only).
-        fa: Arc smoothness overrides (CSG backend only).
-        fs: Arc smoothness overrides (CSG backend only).
-        res: SDF backend's resolution (SDF backend only).
+        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         A 2-D flat shape representing a circle.
@@ -187,10 +189,12 @@ def square(
         chamfer: Corner chamfer distance.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
-        fn: Arc smoothness overrides (CSG backend only).
-        fa: Arc smoothness overrides (CSG backend only).
-        fs: Arc smoothness overrides (CSG backend only).
-        res: SDF backend's resolution (SDF backend only).
+        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         A 2-D flat shape representing a square.
@@ -251,10 +255,12 @@ def rect(
         chamfer: Corner chamfer distance.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
-        fn: Arc smoothness overrides (CSG backend only).
-        fa: Arc smoothness overrides (CSG backend only).
-        fs: Arc smoothness overrides (CSG backend only).
-        res: SDF backend's resolution (SDF backend only).
+        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         A 2-D flat shape representing a rectangle.
@@ -316,7 +322,8 @@ def polygon(
         points: The outline, as a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
-        res: SDF backend's resolution (SDF backend only).
+        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         A 2-D flat shape representing a polygon.
@@ -383,9 +390,10 @@ def text(
         script: Script code.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
-        fn: Arc smoothness overrides (CSG backend only).
-        fa: Arc smoothness overrides (CSG backend only).
-        fs: Arc smoothness overrides (CSG backend only).
+        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A 2-D flat shape representing text.
@@ -447,10 +455,11 @@ def ellipse(
         realign: Rotate by half a segment so a flat faces +X (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
-        fn: Arc smoothness override (CSG backend only).
-        fa: Arc smoothness override (CSG backend only).
-        fs: Arc smoothness override (CSG backend only).
-        res: Sampling resolution (SDF backend only).
+        fn: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
         A 2-D shape on whichever backend is active.
@@ -500,7 +509,7 @@ def star(
         realign: Rotate by half a point (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
-        res: Sampling resolution (SDF backend only).
+        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
         A 2-D shape on whichever backend is active.
@@ -573,10 +582,13 @@ def regular_ngon(
         realign: Rotate by half a side (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
-        fn: Fragment count for the rounded corners; ambient default when omitted.
-        fa: Minimum fragment angle for the rounded corners.
-        fs: Minimum fragment size for the rounded corners.
-        res: Sampling resolution (SDF backend only).
+        fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+            applies.
+        fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+            applies.
+        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
         A 2-D shape on whichever backend is active.
@@ -658,7 +670,7 @@ def trapezoid(
         shift: Shift of the top edge along X.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
-        res: Sampling resolution (SDF backend only).
+        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
         A 2-D shape on whichever backend is active.

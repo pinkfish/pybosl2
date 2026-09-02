@@ -188,9 +188,12 @@ class LinearBearings:
             wall: Wall thickness around the bearing in mm. Defaults to 3.
             tabwall: Extra wall thickness for the clamp tabs in mm. Defaults to 5.
             screwsize: Clamp screw diameter in mm. Defaults to 3.
-            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
-            fa: Minimum fragment angle. Passed to the geometry primitives.
-            fs: Minimum fragment size. Passed to the geometry primitives.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A pillow-block housing as a :class:`~pybosl2.shapes3d."Solid"`.

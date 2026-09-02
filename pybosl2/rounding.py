@@ -522,9 +522,10 @@ class Roundable:
                 controls when omitted.
             caps: End caps for the extrusion.
             style: Quad-subdivision style for the mesh.
-            fn: Fixed fragment count for the rim arcs; ambient default when omitted.
-            fa: Minimum fragment angle for the rim arcs.
-            fs: Minimum fragment size for the rim arcs.
+            fn: Fixed fragment count for the rim arcs; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for the rim arcs. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size for the rim arcs. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             The extruded solid.
@@ -677,9 +678,10 @@ class Roundable:
                 controls when omitted.
             caps: End caps for the prism.
             style: Quad-subdivision style for the mesh.
-            fn: Fixed fragment count for the arcs; ambient default when omitted.
-            fa: Minimum fragment angle for the arcs.
-            fs: Minimum fragment size for the arcs.
+            fn: Fixed fragment count for the arcs; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle for the arcs. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size for the arcs. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             The prism solid.

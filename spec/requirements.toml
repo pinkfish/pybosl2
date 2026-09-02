@@ -2041,6 +2041,81 @@ candidates = [
 status = "untriaged"
 
 [[requirement]]
+id = "SPEC-G-1"
+aliases = ["G-1"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "A parameter family that travels together is a group."
+keyword = "MUST"
+statement = '''
+A parameter family that appears on more than three public callables and is always passed as a unit MUST be available as a frozen group object, so it can be built once and reused. `Placement(anchor, spin, orient)` is the case that motivated this: 50 callables take all three, another 31 take two of them, and every one of those restates the same defaults. `CapSpec` (S-24) is the pattern already in the library. A group is a *value*, not a namespace: it is frozen, it composes (`with_`), and it carries its own defaults.
+'''
+enforced_by = [
+    "tests/test_groups.py::TestPlacement::test_one_placement_serves_several_shapes",
+]
+status = "enforced"
+
+[[requirement]]
+id = "SPEC-G-2"
+aliases = ["G-2"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "A group composes and inherits."
+keyword = "SHOULD"
+statement = '''
+A group SHOULD offer `with_()` to derive a variant without mutating the original, and where the family has ambient defaults (§8.3) a way to read them. `None` in a member still means "not given, decide for me" (D-4), never "off".
+'''
+enforced_by = [
+    "tests/test_groups.py::TestPlacement::test_with_returns_a_new_placement",
+]
+status = "enforced"
+
+[[requirement]]
+id = "SPEC-G-3"
+aliases = ["G-3"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "The loose spellings survive, and conflicting with the group is an error."
+keyword = "MUST"
+statement = '''
+Introducing a group MUST NOT withdraw the loose parameters. `cuboid([60, 40, 12], anchor=Anchor.BOTTOM)` is the common case and reads better than wrapping one value in a group; BOSL2's names are also kept for exactly this reason (B2-3). Supplying a group *and* one of its members MUST raise, naming both — the same rule and the same reasoning as a radius given beside its own diameter (D-5): the call cannot mean two things at once, and silently preferring one of them turns a typo into wrong geometry.
+'''
+enforced_by = [
+    "tests/test_groups.py::TestPlacement::test_a_group_and_its_own_member_together_are_refused",
+]
+status = "enforced"
+
+[[requirement]]
+id = "SPEC-G-4"
+aliases = ["G-4"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "Resolution's public answer is the ambient default, not a group."
+keyword = "SHOULD"
+statement = '''
+`Facets(fn, fa, fs, res)` exists, but as **plumbing**: it carries the four values down a call chain as one, which is what R-1 asks for and what a forwarding function most often gets wrong. It is not the spelling a caller should reach for, because resolution already has a better public answer — `use_defaults(fn=64)` sets it for a whole block without threading anything through any call (R-4), and a group passed to every call would be strictly worse. Every public callable taking `fn`/`fa`/`fs`/`res` SHOULD say so in its `Args:`, so a reader meets the ambient mechanism at the parameter rather than having to find `pybosl2.defaults`.
+'''
+enforced_by = [
+    "tests/test_ambient_docs.py::test_every_facet_parameter_documents_the_ambient_default",
+]
+status = "enforced"
+
+[[requirement]]
+id = "SPEC-G-5"
+aliases = ["G-5"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "One resolution rule, in one place."
+keyword = "MUST"
+statement = '''
+"An explicit value beats the ambient one" (R-5) MUST be implemented once. `resolve_facets` and `resolve_res` were two implementations of it — one for the CSG facet controls and one for the SDF resolution — which is two things to keep in step for no reason. Both now go through `Facets.resolved()`.
+'''
+enforced_by = [
+    "tests/test_groups.py::TestFacets::test_both_resolvers_go_through_the_one_rule",
+]
+status = "enforced"
+
+[[requirement]]
 id = "SPEC-R-1"
 aliases = ["R-1"]
 layer = "contract"

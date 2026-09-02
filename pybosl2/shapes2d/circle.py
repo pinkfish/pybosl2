@@ -115,9 +115,10 @@ def circle(
         corner:   three 2-D points defining a path the circle should be tangent to
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -197,9 +198,10 @@ def arc(
         clockwise:        for the two-point form, take the long way / a given handedness
         counterclockwise: for the two-point form, take the long way / a given handedness
         endpoint:   include the final point (default True)
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
@@ -377,9 +379,10 @@ def ellipse(
         uniform:  use equal-length approximating segments (not implemented; evenly spaced by angle)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -438,9 +441,10 @@ def keyhole(
         shoulder_radius: fillet radius where the shoulders meet the circles (default 0)
         anchor: standard BOSL2 2-D anchor / spin
         spin:   standard BOSL2 2-D anchor / spin
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -529,9 +533,10 @@ def ring(
         angle:    sweep angle in degrees (only the full-annulus form is ported; angle must be None)
         anchor: standard BOSL2 2-D anchor / spin
         spin:   standard BOSL2 2-D anchor / spin
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -583,9 +588,10 @@ def glued_circles(
         diameter: diameter of the end circles (alternative to radius)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -661,9 +667,10 @@ def reuleaux_polygon(
         diameter: scale the shape to fit in a circle of this diameter
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::

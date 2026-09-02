@@ -24,7 +24,7 @@
 # Bottom to top. A module may import anything at its own level or below.
 L0_foundations = [
     "exceptions", "enums", "constants", "math", "version", "_mctable",
-    "points", "vectors", "_edges_lang", "defaults",
+    "points", "vectors", "_edges_lang", "defaults", "groups",
 ]
 L1_contract = ["_backend"]
 L2_geometry = [
