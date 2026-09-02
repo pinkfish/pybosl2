@@ -57,7 +57,7 @@ spec renumbers as items close, and all but S-46a have.
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
-| 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) | S |
+| 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
@@ -401,19 +401,34 @@ unless `None` genuinely means "decide for me" (T-9b).
 
 ---
 
-## T32 — Close the two rules that only half-closed
+## T32 — Close the two rules that only half-closed ✅
 
 **Closes:** §12.2 item 6 · **Size:** S
 
-1. **C-21 on the geometry types.** `deduplicate`/`deduplicated`, `subdivide`/`subdivide_path`,
-   `resample`/`resample_path` on both `Path2D` and `Path3D`: keep the BOSL2 spelling (B2-3), drop
-   the other. The existing shape-surface test generalises to walk every public class.
-2. **PLAN S-2.** 243 functions exceed 50 lines. Either ratchet it per module — a budget that only
-   shrinks, like the facet list — or retire the number and keep "one job per function". Decide and
-   record it; a rule with 243 violations and no test is teaching that the document is optional.
+**Landed.** Both rules were true of the surface a test walked and false everywhere else.
 
-**Done when:** one synonym-pair test covers every public class, and S-2 is either measured or
-rewritten.
+**C-21 on the geometry types.** `Path2D` and `Path3D` each carried three synonym pairs. BOSL2's
+spelling survives in each (B2-3): `deduplicate`, `subdivide_path`, `resample_path`. Two details
+that a blind delete would have got wrong — `subdivide` was not a pure duplicate, it carried a
+`refine=` parameter that BOSL2's own `subdivide_path` has and this port had dropped, so `refine`
+moved onto the survivor rather than disappearing with the wrapper; and the *fuller* docstrings,
+with the `Args:` sections and the rendering examples, were on the spellings being removed, so they
+moved across too. Deleting a synonym is not the same as deleting the code behind it.
+
+`tests/test_shape_contract.py::test_no_public_class_carries_both_spellings_of_one_operation` now
+walks **every public class reachable from the top level**, not one class family, which is what let
+this sit closed and untrue.
+
+**PLAN S-2.** 243 functions over 50 lines, the longest at 237, across 57 files. Retiring the rule
+was the alternative and it is the wrong one: the rule is right, the code has simply never been held
+to it, and a rule with 243 violations and no test teaches contributors that the document is
+optional. So it becomes what every other backlog here already is — a per-file budget that can only
+shrink, in `tests/test_function_length.py`. Per file rather than one total, because locality is
+what makes it actionable: the failure names the file you are in, not a global counter you have no
+way to move. A file with no row may not grow a long function at all.
+
+Both guards were checked against negative controls rather than assumed: restoring one synonym fails
+the first, and adding a 61-line function to a file with no budget row fails the second.
 
 ---
 

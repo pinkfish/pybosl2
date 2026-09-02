@@ -84,7 +84,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             from pybosl2.path3d import Path3D
 
-            coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)
+            coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
             coil.stroke(width=4).show()
 
     """
@@ -627,6 +627,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         exact: bool = True,
         closed: bool | None = None,
         method: SubdivideMethod = SubdivideMethod.LENGTH,
+        refine: float | None = None,
     ) -> "Path3D":
         """Subdivide the path into evenly spaced points.
 
@@ -637,6 +638,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             exact: If False, favor uniform sampling — point count may differ.
             closed: Override the instance's closed flag.
             method: ``LENGTH`` (uniform) or ``SEGMENT`` (per segment).
+            refine: Multiply the current point count by this, instead of giving *points*.
 
         Returns:
             A new :class:`Path3D` with the subdivided points.
@@ -656,6 +658,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 coil.stroke(width=4).show()
 
         """
+        if points is None and refine is not None:
+            points = int(len(self._points) * refine)
         if closed is None:
             closed = self.closed
         if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
@@ -998,86 +1002,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         pts = Path2D._deduplicate(self._points, closed=closed, eps=eps)
         return self.__class__(pts, closed=self.closed)
-
-    def deduplicated(self) -> "Path3D":
-        """Drop consecutive repeated points.
-
-        Returns:
-            A new :class:`Path3D` with duplicate points removed.
-
-        """
-        return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
-
-    def subdivide(
-        self,
-        num_copies: int | None = None,
-        refine: float | None = None,
-        maxlen: float | None = None,
-        exact: bool = True,
-        closed: bool | None = None,
-    ) -> "Path3D":
-        """Insert points along the path.
-
-        Give exactly one of *num_copies*, *refine* or *maxlen*.
-
-        Args:
-            num_copies: Target total number of points.
-            refine: Multiply the current point count by this.
-            maxlen: Cap on the spacing between points.
-            exact: Hit the target count exactly rather than approximately.
-            closed: Override the instance's closed flag.
-
-        Returns:
-            A new :class:`Path3D` with additional interpolated points.
-
-        Examples:
-            Subdividing a 3-D path using the num_copies parameter:
-
-            .. pythonscad-example::
-
-                from pybosl2 import Path3D
-
-                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
-                result = path3d.subdivide(num_copies=100)
-                result.stroke(width=1).show()
-
-        """
-        points = num_copies if num_copies is not None else None
-        if points is None and refine is not None:
-            points = int(len(self._points) * refine)
-        return self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed)
-
-    def resample(
-        self,
-        num_copies: int | None = None,
-        spacing: float | None = None,
-        closed: bool | None = None,
-    ) -> "Path3D":
-        """Resample to evenly spaced points.
-
-        Give exactly one of *num_copies* or *spacing*.
-
-        Args:
-            num_copies: Target number of points.
-            spacing: Approximate spacing between points.
-            closed: Override the instance's closed flag.
-
-        Returns:
-            A new :class:`Path3D` with uniformly resampled points.
-
-        Examples:
-            Resampling a 3-D path to 50 evenly spaced points:
-
-            .. pythonscad-example::
-
-                from pybosl2 import Path3D
-
-                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
-                result = path3d.resample(num_copies=50)
-                result.stroke(width=1).show()
-
-        """
-        return self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed)
 
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros).

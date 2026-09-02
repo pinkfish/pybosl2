@@ -200,3 +200,58 @@ def test_the_surviving_spellings_all_work() -> None:
     path = Path2D([[0, 0], [3, 0]])
     assert list(path.rotate(90)[1]) == pytest.approx([0.0, 3.0], abs=1e-9)
     assert list(path.translate([1, 1])[0]) == pytest.approx([1.0, 1.0])
+
+
+# ---------------------------------------------------------------------------
+# C-21 beyond the shape surface
+# ---------------------------------------------------------------------------
+
+#: Operation-name pairs that mean the same thing, and must never both exist on one public class
+#: (SPEC C-21). BOSL2's spelling is the survivor (B2-3); the other is the one to delete.
+#:
+#: C-21 was closed for the shape protocols in T17 and stayed open everywhere the test did not
+#: look: `Path2D` and `Path3D` each carried three of these until T32. A rule enforced on one class
+#: family is a rule enforced nowhere else.
+SYNONYM_PAIRS: tuple[tuple[str, str], ...] = (
+    ("move", "translate"),
+    ("rot", "rotate"),
+    ("fwd", "forward"),
+    ("bounding_box", "bounds"),
+    ("nominal_size", "size"),
+    ("deduplicated", "deduplicate"),
+    ("subdivide", "subdivide_path"),
+    ("resample", "resample_path"),
+)
+
+
+def _public_classes() -> list[type]:
+    """Every public class reachable from the top-level package, without importing a backend."""
+    import pybosl2
+
+    found: dict[str, type] = {}
+    for name in pybosl2.__all__:
+        try:
+            value = getattr(pybosl2, name)
+        except Exception:  # pragma: no cover - a name whose backend is absent here
+            continue
+        if isinstance(value, type):
+            found[f"{value.__module__}.{value.__qualname__}"] = value
+    return list(found.values())
+
+
+@pytest.mark.parametrize("cls", _public_classes(), ids=lambda c: c.__name__)
+def test_no_public_class_carries_both_spellings_of_one_operation(cls: type) -> None:
+    """SPEC C-21: one operation, one public name -- on every public class, not just the shapes."""
+    both = [(dropped, kept) for dropped, kept in SYNONYM_PAIRS if hasattr(cls, dropped) and hasattr(cls, kept)]
+    assert not both, (
+        f"{cls.__name__} has both spellings of {both}: two names for one operation double what a "
+        f"reader must learn and halve the chance two call sites are written alike (SPEC C-21). "
+        f"Keep BOSL2's name (B2-3) and delete the other."
+    )
+
+
+def test_the_pair_list_names_operations_that_still_exist() -> None:
+    """A pair whose surviving name is gone everywhere would make the check vacuous."""
+    classes = _public_classes()
+    for _, kept in SYNONYM_PAIRS:
+        assert any(hasattr(cls, kept) for cls in classes), f"no public class has {kept!r} any more"

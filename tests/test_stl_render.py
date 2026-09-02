@@ -730,7 +730,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=150)\n"
+    setup = "coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
