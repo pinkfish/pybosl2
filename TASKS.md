@@ -57,7 +57,7 @@ spec renumbers as items close, and all but S-46a have.
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) 🔶 | M |
-| 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
+| 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) ✅ | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
@@ -645,28 +645,34 @@ The same collision as the bare requirement ids, in a third place.
 
 ---
 
-## T36 — Give `text()` the anchor language
+## T36 — Give `text()` the anchor language ✅
 
-**Closes:** §12.2 item 7b · **Implements:** PLAN O-6b · **Size:** S
+**Closes:** §12.2 item 7b · **Implements:** PLAN O-6b, SPEC C-10 · **Size:** S
 
-`flat.text()` declares `anchor: str = "baseline"`. O-6b requires a parameter meaning "which face,
-edge or corner" to be `Anchor | Sequence[float]` and resolved through `resolve_anchor()`, and the
-other eight 2-D façade constructors do exactly that. This one is a parallel vocabulary the reader
-has to learn twice — the defect O-6b exists to prevent.
+**Landed, and it was smaller than it looked.** The task was written expecting a design decision —
+a text-specific enum, or folding the typographic spellings into `halign`/`valign` — because
+`anchor="baseline"` seemed to mean something the anchor language has no member for.
 
-Found because it is the one 2-D constructor `placement=` could not be wired into (T30): a
-`Placement` carries an `Anchor`, and this does not.
+**Reading the body settled it in one line.** `text()` computed
+`v = valign if valign is not None else anchor`, so its `anchor` was never an anchor at all: it was
+a **second spelling of `valign`** with a different default. Not a parallel vocabulary standing in
+for a missing concept, just a duplicate of the parameter next to it — which is C-21's defect as
+well as O-6b's, in the one place neither rule was looking.
 
-**Retyping it is not the fix.** The typographic anchors — `"baseline"`, and the `halign`/`valign`
-vocabulary beside it — mean things `Anchor` has no member for, and a baseline is genuinely not a
-bounding-box anchor. So the options are a text-specific enum (O-6) alongside the ordinary `anchor`,
-or folding the typographic ones into `halign`/`valign` where they belong and leaving `anchor` to
-mean what it means everywhere else. That is a design decision, which is why this is its own task.
+So: `valign` carries the `"baseline"` default it always really owned, and `anchor` is
+`Anchor | Sequence[float] | None` like everywhere else, applied to the finished text's bounding box
+after the typographic alignment has placed it. `None` means "leave it where halign/valign put it",
+which is the usual answer for text and what every existing call already gets — and no caller in the
+package or the tests passed `anchor=` to `text()`, so nothing had to change. All nine 2-D façade
+constructors take `placement=` now.
 
-**Done when:** `text()` takes the anchor language like every other constructor, `placement=` is
-wired into all nine, and the typographic vocabulary has a home of its own.
+**One near-miss worth recording.** The test that documented this as an exception sat above two
+other classes, and deleting it by "from here to the next `class TestFacets`" took
+`TestEdgeTreatment` and `TestEdgeSelection` with it. Nothing in the suite noticed — the tests were
+simply gone — but `test_every_enforced_by_target_exists` failed, because G-7 names one of the
+deleted tests as what enforces it. **The registry caught a deletion the test suite could not**,
+which is an argument for `enforced_by` that had not occurred to me when writing it.
 
----
 
 ## T37 — Build `texture=`, or stop advertising it
 

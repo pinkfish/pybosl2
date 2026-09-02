@@ -104,17 +104,31 @@ class TestPlacementInThePlane:
         """With no group, the loose arguments come back unchanged."""
         assert resolve_placement_2d(None, Anchor.TOP, 30, "f") == (Anchor.TOP, 30)
 
-    def test_text_keeps_its_own_anchor_vocabulary(self) -> None:
-        """`text()` anchors on a typographic baseline string, not the anchor language.
+    def test_text_takes_the_anchor_language_like_every_other_constructor(self) -> None:
+        """`text()` was the ninth 2-D constructor and the one `placement=` could not reach.
 
-        That is an O-6b defect in its own right, and it is why `text()` is the one 2-D façade
-        constructor without `placement=`: a placement carries an `Anchor`, and this does not.
+        Its `anchor` was typed `str` and defaulted to `"baseline"` -- a typographic vocabulary, not
+        the anchor language O-6b requires. It was never an anchor at all: the body read
+        `valign if valign is not None else anchor`, so it was a second spelling of `valign` with a
+        different default. `valign` owns the baseline now and `anchor` means what it means
+        everywhere else (T36).
         """
-        import inspect
-
         from pybosl2.flat import text
 
-        assert "placement" not in inspect.signature(text).parameters
+        typographic = text(text="BOSL2", size=10)
+        assert typographic.bounds().min[0] < 0, "the default is still typographic placement"
+
+        anchored = text(text="BOSL2", size=10, anchor=Anchor.LEFT)
+        assert anchored.bounds().min[0] == pytest.approx(0.0)
+
+        grouped = text(text="BOSL2", size=10, placement=Placement(anchor=Anchor.LEFT))
+        assert grouped.bounds().min == pytest.approx(anchored.bounds().min)
+
+    def test_the_typographic_vocabulary_still_works(self) -> None:
+        """Folding it into `valign` must not lose it (SPEC B2-3)."""
+        from pybosl2.flat import text
+
+        assert text(text="BOSL2", size=10, valign="top").bounds().max[1] == pytest.approx(0.0, abs=0.01)
 
 
 class TestEdgeTreatment:

@@ -395,8 +395,9 @@ def text(
     direction: str = "ltr",
     language: str = "en",
     script: str = "latin",
-    anchor: str = "baseline",
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -410,13 +411,17 @@ def text(
         size: Text height.
         font: Font family name.
         halign: Horizontal alignment.
-        valign: Vertical alignment.
+        valign: Vertical alignment: "top", "center", "baseline" or "bottom" (default "baseline").
         spacing: Character spacing factor.
         direction: Text direction.
         language: Language code.
         script: Script code.
-        anchor: Anchor point.
+        anchor: Where the finished text's box lands, in the anchor language (SPEC C-10). ``None``
+            leaves it where *halign*/*valign* put it, which is the typographic placement and the
+            usual answer for text.
         spin: Z-axis rotation in degrees after anchor.
+        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
+            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
         fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
         fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
@@ -432,6 +437,7 @@ def text(
             text(text="BOSL2", size=10).linear_extrude(height=3).show()
 
     """
+    anchor, spin = resolve_placement_2d(placement, anchor, spin, "text")
     if current_backend() == "sdf":
         raise UnsupportedByBackendError(
             "text",
