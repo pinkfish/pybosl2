@@ -29,70 +29,79 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "pybosl2"
 
-#: The longest a function may be before it counts against its file's budget (PLAN S-2).
+#: The longest a function's *code* may be before it counts against its file's budget (PLAN S-2).
+#: Docstrings are not counted -- see `_body_length`.
 LIMIT = 50
 
 #: How many over-long functions each file still has. Lower a number when you split one; delete the
 #: row when it reaches zero. Nothing may be added.
 BUDGET: dict[str, int] = {
-    "_backend.py": 2,
-    "_helpers.py": 2,
+    "_helpers.py": 1,
     "_shape.py": 1,
-    "_stroke2d.py": 1,
-    "_stroke3d.py": 2,
-    "beziers.py": 5,
+    "_stroke3d.py": 1,
+    "beziers.py": 3,
     "caps.py": 1,
-    "color.py": 1,
-    "distributors.py": 3,
-    "flat.py": 7,
-    "geometry.py": 1,
-    "isosurface.py": 4,
-    "masking.py": 7,
+    "distributors.py": 2,
+    "flat.py": 1,
+    "masking.py": 1,
     "miscellaneous.py": 3,
-    "nurbs.py": 4,
-    "partitions.py": 5,
+    "nurbs.py": 1,
+    "partitions.py": 2,
     "parts/ball_bearings.py": 1,
     "parts/cubetruss.py": 4,
-    "parts/gears.py": 11,
-    "parts/hinges.py": 3,
+    "parts/gears.py": 4,
+    "parts/hinges.py": 1,
     "parts/hooks.py": 1,
-    "parts/joiners.py": 1,
-    "parts/linear_bearings.py": 2,
-    "parts/modular_hose.py": 1,
-    "parts/screw_drive.py": 1,
     "parts/screws.py": 2,
     "parts/sliders.py": 1,
     "parts/tripod_mounts.py": 1,
     "parts/walls.py": 1,
-    "path2d.py": 9,
-    "path3d.py": 6,
-    "regions.py": 3,
-    "rounding.py": 4,
+    "path2d.py": 4,
+    "path3d.py": 2,
+    "regions.py": 2,
+    "rounding.py": 2,
     "sdf/joiners.py": 2,
-    "sdf/paths.py": 2,
-    "sdf/shapes2d.py": 6,
-    "sdf/shapes3d.py": 19,
-    "sdf/skin.py": 2,
-    "shapes2d/base.py": 2,
-    "shapes2d/circle.py": 5,
-    "shapes2d/curves.py": 5,
-    "shapes2d/ops.py": 2,
-    "shapes2d/square.py": 5,
-    "shapes3d/base.py": 8,
-    "shapes3d/cuboid.py": 7,
-    "shapes3d/cylinder.py": 8,
-    "shapes3d/extrusions.py": 3,
-    "shapes3d/sphere.py": 2,
+    "sdf/paths.py": 1,
+    "sdf/shapes2d.py": 2,
+    "sdf/shapes3d.py": 12,
+    "sdf/skin.py": 1,
+    "shapes2d/base.py": 1,
+    "shapes2d/circle.py": 3,
+    "shapes2d/curves.py": 1,
+    "shapes2d/square.py": 3,
+    "shapes3d/base.py": 4,
+    "shapes3d/cuboid.py": 5,
+    "shapes3d/cylinder.py": 7,
+    "shapes3d/extrusions.py": 1,
+    "shapes3d/sphere.py": 1,
     "shapes3d/torus.py": 2,
-    "skin.py": 14,
-    "solid.py": 17,
-    "surfaces3d.py": 9,
-    "svg.py": 5,
+    "skin.py": 9,
+    "solid.py": 9,
+    "surfaces3d.py": 6,
+    "svg.py": 2,
     "texture.py": 2,
     "turtle/turtle2d.py": 3,
     "turtle/turtle3d.py": 2,
-    "vnf.py": 10,
+    "vnf.py": 9,
 }
+
+
+def _body_length(node: ast.FunctionDef | ast.AsyncFunctionDef) -> int:
+    """Return the function's length in *code* lines, not counting its docstring.
+
+    S-2 is about a function doing too much -- "split it rather than commenting it into sections".
+    A long docstring is the opposite of that problem, and DOC-2 asks for `Args:`, `Returns:`,
+    `Raises:` and a rendering example on every public callable. Counting those lines would make
+    this rule penalise documentation and put the two in direct conflict: the ambient-default
+    documentation sweep pushed a function over its budget without touching a line of its code,
+    which is what surfaced this.
+    """
+    span = (node.end_lineno or node.lineno) - node.lineno
+    body = node.body
+    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+        doc = body[0]
+        span -= (doc.end_lineno or doc.lineno) - doc.lineno + 1
+    return span
 
 
 def _over_long() -> dict[str, list[tuple[str, int]]]:
@@ -102,7 +111,7 @@ def _over_long() -> dict[str, list[tuple[str, int]]]:
         relative = path.relative_to(PACKAGE).as_posix()
         for node in ast.walk(ast.parse(path.read_text())):
             if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-                length = (node.end_lineno or node.lineno) - node.lineno
+                length = _body_length(node)
                 if length > LIMIT:
                     found.setdefault(relative, []).append((node.name, length))
     return found

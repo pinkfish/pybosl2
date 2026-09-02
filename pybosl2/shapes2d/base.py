@@ -578,9 +578,10 @@ class CsgShape2D(BaseShape):
             scale:     scale factor of the top face, a scalar or [x, y] (default 1)
             slices:    number of intermediate layers (default: from the twist)
             convexity: rendering hint for self-overlapping cross-sections
-            fn:        arc smoothness override
-            fa:        arc smoothness override
-            fs:        arc smoothness override
+            fn: arc smoothness override. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: arc smoothness override. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: arc smoothness override. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.

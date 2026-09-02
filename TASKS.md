@@ -55,7 +55,8 @@ spec renumbers as items close, and all but S-46a have.
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
-| 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) | L |
+| 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
+| 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) | M |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
@@ -358,26 +359,81 @@ the way they cover the solids.
 
 ---
 
-## T30 — Group the arguments that travel together
+## T30 — Group the arguments that travel together 🔶
 
-**Closes:** §12.2 item 7 (first half) · **Implements:** G-1 … G-5 (new) · **Size:** L
-**Risk:** high — public signatures change across the façade, both backends and the parts library
+**Closes:** §12.2 item 7 (in part) · **Implements:** G-1 … G-5 (new) · **Size:** L
 
-`cyl()` takes about 40 keywords in one flat namespace. The same four facet controls are
-re-declared at every level of every call chain, which is why R-1 is the rule most often broken.
+**Landed: `Placement`, the ambient-default documentation, and one resolution rule.**
 
-1. **G-1 … G-5** (new, §8) land in the registry first, per T26's rules.
-2. `Facets(fn, fa, fs, res)` first: frozen, with `Facets.ambient()` resolving the block defaults
-   (R-4) once. It is the least visible group and the one that fixes the most R-1 plumbing.
-3. Then `Placement(anchor, spin, orient)`, then `EdgeTreatment` and `Texturing`.
-4. One shared resolver accepts either the group or its loose members and raises when given both,
-   mirroring D-5's conflict rule — so `cuboid([60, 40, 12], rounding=4)` keeps working, because it
-   is the getting-started promise and P-1 itself.
-5. Each group is one value through the façade → backend boundary (G-4).
+`pybosl2/groups.py` holds the frozen groups. `Placement(anchor, spin, orient)` is wired into all 19
+façade solid constructors: build it once, pass it to everything, and `with_()` derives a variant
+without mutating the original. Giving it beside one of its own members raises, naming both — the
+same rule and the same reasoning as a radius given beside its own diameter (D-5).
 
-**Done when:** a test asserts a group and its loose members together raise, naming both; ambient
-resolution reaches a leaf constructor through one `Facets` rather than four parameters; the facet
-backlog in `tests/test_facets.py` has not grown.
+**Resolution went the other way, and that is G-4.** `Facets` exists but as *plumbing*, not as a
+spelling a caller reaches for: `use_defaults(fn=64)` already sets resolution for a whole block
+without threading anything through any call (R-4), so a group passed to every call would be
+strictly worse than what the library already has. Keeping `use_defaults` as the public answer was
+the maintainer's call and it is the right one.
+
+What `Facets` does buy is **G-5**: "an explicit value beats the ambient one" was implemented twice —
+once in `resolve_facets` for the CSG controls, once in `resolve_res` for the SDF one — and two
+implementations of one rule is two things to keep in step. Both go through `Facets.resolved()` now,
+and a test asserts they agree.
+
+**The documentation sweep.** 209 public callables take `fn`/`fa`/`fs`/`res`; **38 said where the
+default came from.** The façade had it everywhere (T0e), and nothing else did — so a reader met
+`fn` at a signature with no hint that `use_defaults` existed. 171 parameter entries gained the
+clause, and `tests/test_ambient_docs.py` keeps it true.
+
+**The sweep broke the tree first, and the recovery is the part worth recording.** The script
+collected its edits with `ast.walk`, which is breadth-first, then applied them with `reversed()` —
+so the edits were not in source order, a low-line edit shifted every index after it, and later
+edits landed on the wrong lines and **overwrote other parameters' documentation**. 36 lines of
+unrelated `Args:` entries were destroyed. Nothing in the tree was committed, so recovery meant
+separating 23 files where the sweep was the only change (revert from HEAD) from 6 that also carried
+T29/T32/T33 work, and repairing those by hand. Three lessons, and only the first was about the bug:
+sort edits by position before applying them; **verify a mechanical rewrite is lossless before
+writing it** — the second attempt asserts the set of documented parameter names is unchanged and
+refuses to write otherwise, which is the same guard T27's frame migration had and this script
+lacked; and commit before a scripted sweep, because the cost of a mistake is set by what you have
+to untangle it from.
+
+**One rule turned out to be measuring the wrong thing.** The docstring expansion pushed a function
+over its PLAN S-2 budget without touching a line of its code, because T32's metric counted
+docstring lines. S-2 is about a function doing too much — "split it rather than commenting it into
+sections" — and DOC-2 asks for `Args:`, `Returns:` and an example on everything public, so counting
+those lines put the two rules in direct conflict and made S-2 penalise documentation. The metric
+counts code lines now, and **the honest backlog is 131 functions across 47 files, not 243 across
+57**: 112 of the original "violations" were documentation.
+
+**Still open**, and why:
+
+* **`flat.py` has no `placement=`.** Its constructors take `anchor` and `spin` but not `orient`, so
+  `Placement` does not fit them as it stands. Either 2-D gets its own group or `Placement` grows a
+  2-D reading; that is a design question, not a wiring job.
+* **`EdgeTreatment` and `Texturing` are unbuilt.**
+* **The façade's parameter duplication (B-3) is untouched.** A group removes three parameters from
+  a signature that has forty; T31 is still the task that addresses the rest.
+
+---
+
+## T35 — Give every public callable an `Args:` section
+
+**Closes:** §12.2 item 7a · **Implements:** PLAN D-P4, DOC-2 · **Size:** M
+
+57 public callables document no arguments at all. Found by T30's sweep: 97 facet parameters could
+not be documented because their callable has no `Args:` section to put them in, and adding a partial
+one listing only `fn`/`fa`/`fs` would read as though the others are not parameters.
+
+D-P4 has asked for complete `Args:` since it was written and nothing has ever checked, which is the
+same story as A-1, C-21 and S-2 before them.
+
+1. The list is in `tests/test_ambient_docs.py::KNOWN_GAPS`, 97 rows across 57 callables.
+2. Write the sections. The facet clause then lands with the rest, and the rows come off the list.
+3. Generalise the check: every public callable's `Args:` covers every parameter it declares.
+
+**Done when:** `KNOWN_GAPS` is empty and the general D-P4 check replaces it.
 
 ---
 

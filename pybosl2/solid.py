@@ -40,6 +40,7 @@ from pybosl2._backend import (
 )
 from pybosl2._edges_lang import Anchor
 from pybosl2.exceptions import Bosl2ValueError, CrossBackendError, UnsupportedByBackendError
+from pybosl2.groups import Placement, resolve_placement
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
 _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
@@ -125,6 +126,7 @@ def cube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     edges: Sequence[float] | None = None,
     except_edges: Sequence[float] | None = None,
     teardrop: bool | None = None,
@@ -149,15 +151,21 @@ def cube(
         center: If given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default Anchor.TOP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         edges: edge specifier — "ALL", "NONE", "X", "Y", "Z", or list of direction vectors (CSG backend).
         except_edges: edges to exclude from chamfer/rounding (CSG backend).
         teardrop: limit the overhang angle for FDM printing (default False) (CSG backend).
         trimcorners: trim corners where 3+ edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -188,6 +196,7 @@ def cube(
             cube(size=20, rounding=3).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cube")
     return get_backend().construct(
         "cube",
         given_arguments(
@@ -222,6 +231,7 @@ def cuboid(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     p1: Sequence[float] | None = None,
     p2: Sequence[float] | None = None,
     teardrop: bool | None = None,
@@ -247,15 +257,21 @@ def cuboid(
         anchor: Anchor point (default Anchor.CENTER)
         spin: Z-axis rotation in degrees (default 0)
         orient: Direction to rotate the top towards (default Anchor.TOP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         p1: align the cuboid's corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT) (CSG backend).
         p2: if given with p1, defines the cuboid's opposing cornerpoint (CSG backend).
         teardrop: enable teardrop rounding (not supported by this pure-Python port) (CSG backend).
         trimcorners: round/chamfer corners where three treated edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -276,6 +292,7 @@ def cuboid(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cuboid")
     return get_backend().construct(
         "cuboid",
         given_arguments(
@@ -322,6 +339,7 @@ def cyl(
     anchor: Anchor | Sequence[float] | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
@@ -372,6 +390,8 @@ def cyl(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
         chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
         chamfer_angle2: Chamfer angle at the top end (CSG backend).
@@ -391,10 +411,14 @@ def cyl(
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -425,6 +449,7 @@ def cyl(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cyl")
     return get_backend().construct(
         "cyl",
         given_arguments(
@@ -495,6 +520,7 @@ def cylinder(
     anchor: Anchor | Sequence[float] | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
@@ -545,6 +571,8 @@ def cylinder(
         anchor: Anchor point (default BOTTOM if center=False, otherwise CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
         chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
         chamfer_angle2: Chamfer angle at the top end (CSG backend).
@@ -565,10 +593,14 @@ def cylinder(
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -599,6 +631,7 @@ def cylinder(
             cylinder(height=30, radius=12, rounding=2).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cylinder")
     return get_backend().construct(
         "cylinder",
         given_arguments(
@@ -655,6 +688,7 @@ def octahedron(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     res: int | None = None,
 ) -> Solid:
     """Return a octahedron on the active backend.
@@ -669,7 +703,10 @@ def octahedron(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -682,6 +719,7 @@ def octahedron(
             octahedron(size=20).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "octahedron")
     return get_backend().construct(
         "octahedron", given_arguments({"size": size, "anchor": anchor, "spin": spin, "orient": orient, "res": res})
     )
@@ -696,6 +734,7 @@ def onion(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -717,12 +756,18 @@ def onion(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         circumscribe: circumscribe rather than inscribe the given radius/diameter (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -735,6 +780,7 @@ def onion(
             onion(radius=15).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "onion")
     return get_backend().construct(
         "onion",
         given_arguments(
@@ -771,6 +817,7 @@ def pie_slice(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -797,11 +844,17 @@ def pie_slice(
         center: If given, overrides anchor.
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -814,6 +867,7 @@ def pie_slice(
             pie_slice(radius=20, angle=120, height=5).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "pie_slice")
     return get_backend().construct(
         "pie_slice",
         given_arguments(
@@ -857,6 +911,7 @@ def prismoid(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -887,11 +942,17 @@ def prismoid(
         center: If given, overrides anchor.
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -905,6 +966,7 @@ def prismoid(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "prismoid")
     return get_backend().construct(
         "prismoid",
         given_arguments(
@@ -946,6 +1008,7 @@ def rect_tube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
@@ -985,6 +1048,8 @@ def rect_tube(
         center: If given, overrides anchor.
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer: outer edge chamfer size (overall/bottom/top) (CSG backend).
         chamfer1: outer edge chamfer size (overall/bottom/top) (CSG backend).
         chamfer2: outer edge chamfer size (overall/bottom/top) (CSG backend).
@@ -1001,10 +1066,14 @@ def rect_tube(
         size1: outer [X,Y] size at the bottom/top (CSG backend).
         size2: outer [X,Y] size at the bottom/top (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1017,6 +1086,7 @@ def rect_tube(
             rect_tube(size=30, wall=3, height=20).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "rect_tube")
     return get_backend().construct(
         "rect_tube",
         given_arguments(
@@ -1081,6 +1151,7 @@ def regular_prism(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1118,11 +1189,17 @@ def regular_prism(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1143,6 +1220,7 @@ def regular_prism(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "regular_prism")
     return get_backend().construct(
         "regular_prism",
         given_arguments(
@@ -1186,6 +1264,7 @@ def sphere(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -1205,12 +1284,18 @@ def sphere(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         circumscribe: circumscribe rather than inscribe the sphere (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1224,6 +1309,7 @@ def sphere(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "sphere")
     return get_backend().construct(
         "sphere",
         given_arguments(
@@ -1250,6 +1336,7 @@ def spheroid(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -1269,12 +1356,18 @@ def spheroid(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         circumscribe: circumscribe rather than inscribe the spheroid (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1287,6 +1380,7 @@ def spheroid(
             spheroid(radius=15).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "spheroid")
     return get_backend().construct(
         "spheroid",
         given_arguments(
@@ -1320,6 +1414,7 @@ def teardrop(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     cap_h1: float | None = None,
     cap_h2: float | None = None,
     chamfer: float | None = None,
@@ -1352,6 +1447,8 @@ def teardrop(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         cap_h1: truncation height on the front side (CSG backend).
         cap_h2: truncation height on the back side (CSG backend).
         chamfer: chamfer size along the bottom/top faces (overall) (default 0) (CSG backend).
@@ -1360,10 +1457,14 @@ def teardrop(
         circumscribe: produce a circumscribing teardrop shape (default False) (CSG backend).
         realign: shift face alignment, passed to teardrop2d (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1377,6 +1478,7 @@ def teardrop(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "teardrop")
     return get_backend().construct(
         "teardrop",
         given_arguments(
@@ -1423,6 +1525,7 @@ def torus(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1448,11 +1551,17 @@ def torus(
         center: If given, overrides anchor (True -> CENTER, False -> DOWN)
         spin: Z-axis rotation in degrees (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1466,6 +1575,7 @@ def torus(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "torus")
     return get_backend().construct(
         "torus",
         given_arguments(
@@ -1510,6 +1620,7 @@ def tube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     inner_diameter1: float | None = None,
     inner_diameter2: float | None = None,
     inner_radius1: float | None = None,
@@ -1549,6 +1660,8 @@ def tube(
         center: If given, overrides anchor (True -> CENTER, False -> DOWN)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         inner_diameter1: inner diameter of the bottom/top (CSG backend).
         inner_diameter2: inner diameter of the bottom/top (CSG backend).
         inner_radius1: inner radius of the bottom/top (CSG backend).
@@ -1559,10 +1672,14 @@ def tube(
         outer_radius2: outer radius of the bottom/top (CSG backend).
         realign: rotate by half the angle of one face (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1585,6 +1702,7 @@ def tube(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "tube")
     return get_backend().construct(
         "tube",
         given_arguments(
@@ -1631,6 +1749,7 @@ def wedge(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     res: int | None = None,
 ) -> Solid:
     """Return a wedge on the active backend.
@@ -1646,7 +1765,10 @@ def wedge(
         center: If given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1659,6 +1781,7 @@ def wedge(
             wedge([30, 20, 15]).show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "wedge")
     return get_backend().construct(
         "wedge",
         given_arguments({"size": size, "anchor": anchor, "center": center, "spin": spin, "orient": orient, "res": res}),
@@ -1685,6 +1808,7 @@ def xcyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
@@ -1735,6 +1859,8 @@ def xcyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
         chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
         chamfer_angle2: Chamfer angle at the top end (CSG backend).
@@ -1755,10 +1881,14 @@ def xcyl(
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1772,6 +1902,7 @@ def xcyl(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "xcyl")
     return get_backend().construct(
         "xcyl",
         given_arguments(
@@ -1842,6 +1973,7 @@ def ycyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
@@ -1892,6 +2024,8 @@ def ycyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
         chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
         chamfer_angle2: Chamfer angle at the top end (CSG backend).
@@ -1912,10 +2046,14 @@ def ycyl(
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -1929,6 +2067,7 @@ def ycyl(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "ycyl")
     return get_backend().construct(
         "ycyl",
         given_arguments(
@@ -1999,6 +2138,7 @@ def zcyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    placement: Placement | None = None,
     chamfer_angle: float | None = None,
     chamfer_angle1: float | None = None,
     chamfer_angle2: float | None = None,
@@ -2049,6 +2189,8 @@ def zcyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
+            of those three raises, since the call cannot mean both (SPEC G-3).
         chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
         chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
         chamfer_angle2: Chamfer angle at the top end (CSG backend).
@@ -2069,10 +2211,14 @@ def zcyl(
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
-            fa/fs" (CSG backend).
-        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
-        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend).
-        res: Sampling resolution; ambient default when omitted (SDF backend).
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
 
     Returns:
         The solid, built by whichever backend is active.
@@ -2086,6 +2232,7 @@ def zcyl(
             shape.show()
 
     """
+    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "zcyl")
     return get_backend().construct(
         "zcyl",
         given_arguments(

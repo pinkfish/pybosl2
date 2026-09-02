@@ -151,9 +151,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             diameter: Diameter for a constant-radius helix.
             diameter1: Bottom diameter.
             diameter2: Top diameter.
-            fn: Fixed fragment count per turn; ambient default when omitted.
-            fa: Minimum fragment angle per turn.
-            fs: Minimum fragment size per turn.
+            fn: Fixed fragment count per turn; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle per turn. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size per turn. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Examples:
             A 2.5-turn helix drawn as a tube:

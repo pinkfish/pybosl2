@@ -116,13 +116,16 @@ def test_a_status_is_backed_by_what_it_claims(entry: dict[str, Any]) -> None:
 def test_every_enforced_by_target_exists(entry: dict[str, Any]) -> None:
     """A rule cannot claim a guard that was deleted or renamed."""
     for node in entry["enforced_by"]:
-        path, _, function = node.partition("::")
+        path, *qualifiers = node.split("::")
         target = ROOT / path
         assert target.exists(), f"{entry['id']}: {path} does not exist"
-        if function:
-            source = target.read_text()
-            assert re.search(rf"^\s*def {re.escape(function)}\b", source, re.M), (
-                f"{entry['id']}: {path} has no test named {function}"
+        source = target.read_text()
+        # A node id may name a class as well as a function (`file.py::Class::test_x`), so check
+        # each part against the definition it should name.
+        for qualifier in qualifiers:
+            keyword = "class" if qualifier[:1].isupper() else "def"
+            assert re.search(rf"^\s*{keyword} {re.escape(qualifier)}\b", source, re.M), (
+                f"{entry['id']}: {path} has no {keyword} named {qualifier}"
             )
 
 

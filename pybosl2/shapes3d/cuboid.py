@@ -305,9 +305,10 @@ def cube(
         anchor:        anchor point (default Anchor.CENTER)
         spin:          Z-axis rotation in degrees after anchor (default 0)
         orient:        direction to rotate the top towards, after spin (default Anchor.TOP)
-        fn:      arc smoothness overrides
-        fa:      arc smoothness overrides
-        fs:      arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         Basic cube:
@@ -398,9 +399,12 @@ def cuboid(
         anchor:       anchor point (default Anchor.CENTER)
         spin:         Z-axis rotation in degrees (default 0)
         orient:       direction to rotate the top towards (default Anchor.TOP)
-        fn:  arc smoothness overrides for rounded edges/corners
-        fa:  arc smoothness overrides for rounded edges/corners
-        fs:  arc smoothness overrides for rounded edges/corners
+        fn: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fn=...)`` value
+            applies; ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+            applies.
+        fs: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+            applies.
 
     Examples:
         .. pythonscad-example::
@@ -536,9 +540,10 @@ def prismoid(
         anchor:    anchor point (default BOTTOM)
         spin:      Z-axis rotation in degrees after anchor (default 0)
         orient:    direction to rotate the top towards, after spin (default UP)
-        fn: arc smoothness overrides for rounded corners
-        fa: arc smoothness overrides for rounded corners
-        fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -733,9 +738,12 @@ def rect_tube(
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
-        fn:         arc smoothness override for the rounded corners, passed to both prismoids
-        fa:         arc smoothness override for the rounded corners, passed to both prismoids
-        fs:         arc smoothness override for the rounded corners, passed to both prismoids
+        fn: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
 
     Raises:
         ValueError: If neither an outer size nor an inner size with a wall is given, or the bore
@@ -944,9 +952,10 @@ def regular_prism(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         orient:   direction to rotate the top towards, after spin (default UP)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::

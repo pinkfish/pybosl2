@@ -495,6 +495,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     # missing arguments instead of the error that teaches (SPEC E-2). The loose form costs
     # the contract nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature,
     # so `Shape` declares the real one and callers are checked against that (SPEC C-23).
+    # These take `*_args` deliberately. A refusal must fire however it is called, and copying
+    # the CSG signature verbatim made `sdf_shape.attach()` raise TypeError about missing
+    # arguments instead of the error that teaches (SPEC E-2). The loose form costs the contract
+    # nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature, so `Shape`
+    # declares the real one and callers are checked against that (SPEC C-23).
     def attach(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
         self._refuse("attach")
@@ -1505,7 +1510,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         Args:
             radius: Radius of the cylinder to wrap around.
-            fn: Smoothness override for the mesh.
+            fn: Smoothness override for the mesh. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+                ``fn=0`` opts back out to fa/fs.
 
         Returns:
             A new :class:`PyShape` wrapped around the cylinder.
@@ -1570,9 +1576,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             cutpath_centered: Whether the cut-path is centered on the split plane.
             spin: Spin angle for the cut-path.
             slop: Extra slop for 3-D printed fits.
-            fn: Smoothness override.
-            fa: Minimum angle for smoothness.
-            fs: Minimum segment length for smoothness.
+            fn: Smoothness override. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+                out to fa/fs.
+            fa: Minimum angle for smoothness. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum segment length for smoothness. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A ``(left, right)`` tuple of :class:`PyShape` solids.
@@ -1764,7 +1771,8 @@ def cuboid(
                       TOP+LEFT), a list of edge vectors, or a raw 3x4 edge array (default "ALL")
         except_edges: edges to explicitly exclude from `edges` (BOSL2's `except=` synonym;
                       `except` is a Python keyword)
-        res:          libfive meshing resolution passed to frep() (default 10; higher = finer mesh)
+        res: libfive meshing resolution passed to frep() (default 10; higher = finer mesh). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
         anchor:       anchor point (default CENTER)
 
     Examples:
@@ -1947,7 +1955,8 @@ def rotate_extrude(
     Args:
         paths: The profile outline as a `Path2D`, or several disjoint ones (SPEC C-7a).
         angle: Sweep in degrees (default 360, a full revolution).
-        res: libfive meshing resolution passed to frep().
+        res: libfive meshing resolution passed to frep(). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         The revolved solid.
@@ -2020,7 +2029,8 @@ def tapered_polygon_prism(
         height: Extrusion height along +Z.
         scale_bottom: Cross-section scale at z=0.
         scale_top: Cross-section scale at z=height.
-        res: libfive meshing resolution passed to frep().
+        res: libfive meshing resolution passed to frep(). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         The tapered prism.
@@ -2093,7 +2103,8 @@ def spiral_sweep(
         radius: Helix radius.
         turns: Number of revolutions. Negative sweeps the other way (a left-hand thread).
         center: Centre the coil on the origin, as the meshed sweep does by default.
-        res: libfive meshing resolution passed to frep().
+        res: libfive meshing resolution passed to frep(). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         The swept coil.
@@ -2188,7 +2199,8 @@ def wedge(
     Args:
         size:   [width, thickness, height]
         anchor: anchor point (default FRONT+LEFT+BOTTOM, matching pybosl2.shapes3d.wedge())
-        res: libfive meshing resolution passed to frep() (default 10)
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
+            value applies.
 
     """
     if size is None:
@@ -2844,7 +2856,8 @@ def prismoid(
         length:    height of the prism
         shift:  [X,Y] shift of the top center relative to the bottom center
         anchor: anchor point (default BOTTOM)
-        res:    libfive meshing resolution passed to frep() (default 10)
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
+            value applies.
 
     """
     if shift is None:
@@ -2903,7 +2916,8 @@ def rect_tube(
         rounding:  outer vertical-edge rounding radius (default: no rounding)
         inner_rounding: inner vertical-edge rounding radius (default: same as `rounding`)
         anchor:    anchor point (default BOTTOM)
-        res:       libfive meshing resolution passed to frep() (default 10)
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
+            value applies.
 
     """
     length = height if height is not None else (length if length is not None else 1)
@@ -3098,7 +3112,8 @@ def polygon_prism(
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         chamfer_top:     top-rim chamfer size (default 0)
         chamfer_bottom:  bottom-rim chamfer size (default 0)
-        res:             libfive meshing resolution passed to frep() (default 10)
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
+            value applies.
 
     """
     if not (len(paths) >= 1):
@@ -3328,7 +3343,8 @@ def heightfield(
         size:   [X,Y] size of the surface (default [100,100])
         bottom: Z coordinate for the bottom of the object (default -20)
         maxz:   maximum height to model, taller values are clamped (default 99)
-        res:    libfive meshing resolution passed to frep() (default 10)
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
+            value applies.
 
     """
     if size is None:
@@ -3398,7 +3414,7 @@ def regular_prism(
         side:                         length of each side
         realign:                      rotate so a face centre (not vertex) faces +X (default False)
         anchor:                       anchor point (default CENTER)
-        res:                          meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     import math as _m

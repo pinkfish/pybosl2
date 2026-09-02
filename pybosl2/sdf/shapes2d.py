@@ -298,6 +298,11 @@ class SdfShape2D(Colorable, Distributable):
     # missing arguments instead of the error that teaches (SPEC E-2). The loose form costs
     # the contract nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature,
     # so `Shape` declares the real one and callers are checked against that (SPEC C-23).
+    # These take `*_args` deliberately. A refusal must fire however it is called, and copying
+    # the CSG signature verbatim made `sdf_shape.attach()` raise TypeError about missing
+    # arguments instead of the error that teaches (SPEC E-2). The loose form costs the contract
+    # nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature, so `Shape`
+    # declares the real one and callers are checked against that (SPEC C-23).
     def attach(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
         self._refuse_csg_only("attach")
@@ -728,7 +733,8 @@ class SdfShape2D(Colorable, Distributable):
             rounding_top: Rim roundover at the top face.
             rounding_bottom: Rim roundover at the bottom face.
             center: Centre the result on z=0 rather than basing it there.
-            res: Sampling resolution; the ambient default applies when omitted.
+            res: Sampling resolution; the ambient default applies when omitted. Omitted, the ambient
+                ``use_defaults(res=...)`` value applies.
 
         Returns:
             The extruded :class:`PyShape`.
@@ -842,10 +848,12 @@ class SdfShape2D(Colorable, Distributable):
             angle: sweep angle in degrees (default: a full revolution).
             convexity: accepted for signature parity with the CSG spelling; a field has no
                 facet count to hint at.
-            fn: accepted and ignored -- tessellation is `res` on this backend (SPEC B-9).
-            fa: accepted and ignored, as *fn*.
-            fs: accepted and ignored, as *fn*.
-            res: sampling resolution; the ambient default applies when omitted.
+            fn: accepted and ignored -- tessellation is `res` on this backend (SPEC B-9). Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: accepted and ignored, as *fn*. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: accepted and ignored, as *fn*. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+            res: sampling resolution; the ambient default applies when omitted. Omitted, the ambient
+                ``use_defaults(res=...)`` value applies.
 
         Returns:
             The revolved :class:`PyShape`.
@@ -1029,7 +1037,8 @@ def polygon2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
 
     Args:
         paths: one outline as a `Path2D`, or several disjoint ones (SPEC C-7a).
-        res: libfive meshing resolution passed to frep().
+        res: libfive meshing resolution passed to frep(). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         The polygon as a 2-D SDF shape.
@@ -1269,7 +1278,7 @@ def regular_ngon2d(
         inner_diameter:   inner radius/diameter (apothem to face centres)
         side:    length of each side
         realign: rotate so a face centre faces +X (default: vertex at +X)
-        res:     meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     import math as _m
@@ -1331,7 +1340,7 @@ def star2d(
         inner_diameter:      diameter to the inner corners
         step:    compute inner radius by drawing a line ``step`` tips around
         realign: put edge midpoint on +X instead of tip (default False)
-        res:     meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     import math as _m
@@ -1378,7 +1387,7 @@ def trapezoid2d(
         angle:  if given in place of height/width1/width2, the missing value is derived
         shift: X-axis shift of the back (default 0)
         anchor: anchor point (default CENTER)
-        res:  meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     import math as _m
@@ -1470,7 +1479,7 @@ def keyhole_outline(
         shoulder_radius: concave fillet radius at the two shoulders; 0 leaves them sharp
         diameter1:  diameter form of *radius1*
         diameter2:  diameter form of *radius2*
-        res:        point density (default 10)
+        res: point density (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     Returns:
         The outline points, counter-clockwise, without a repeated closing point.
@@ -1549,7 +1558,7 @@ def keyhole2d(
         shoulder_radius: concave fillet radius at the two shoulders; 0 leaves them sharp
         diameter1:  diameter form of *radius1*
         diameter2:  diameter form of *radius2*
-        res:        meshing resolution (default 10)
+        res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     pts = keyhole_outline(

@@ -113,9 +113,10 @@ def square(
         chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides for rounded corners
-        fa: arc smoothness overrides for rounded corners
-        fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -164,9 +165,10 @@ def rect(
         chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides for rounded corners
-        fa: arc smoothness overrides for rounded corners
-        fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     """
     rl = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
@@ -212,9 +214,10 @@ def rect_path(
         rounding: corner radius; a single value or per-corner list. Negative = concave.
         chamfer:  corner chamfer; a single value or per-corner list
         anchor:   BOSL2 anchor the path is translated onto (default CENTER)
-        fn: number of fragments for circle resolution.
-        fa: minimum fragment angle for circle resolution.
-        fs: minimum fragment size for circle resolution.
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Note:
         For small radii this can emit one more point per corner than the real BOSL2 does
@@ -356,9 +359,10 @@ def regular_ngon(
         align_side:     rotate so the normal of side 0 points in this 2-D direction (applied before spin)
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides for rounded tips
-        fa: arc smoothness overrides for rounded tips
-        fs: arc smoothness overrides for rounded tips
+        fn: arc smoothness overrides for rounded tips. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded tips. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded tips. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -561,9 +565,10 @@ def right_triangle(
         chamfer:  corner chamfer size (default 0)
         anchor:   anchor point (default: [-1,-1], the right-angle corner)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides for rounded corners
-        fa: arc smoothness overrides for rounded corners
-        fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -702,9 +707,10 @@ def trapezoid(
         flip:     point negative roundings/chamfers forward/back instead of left/right (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides for rounded corners
-        fa: arc smoothness overrides for rounded corners
-        fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::

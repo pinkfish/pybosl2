@@ -93,9 +93,10 @@ def pie_slice(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -178,9 +179,10 @@ def torus(
         anchor: anchor point (default CENTER)
         spin: Z-axis rotation in degrees (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::

@@ -646,9 +646,10 @@ def iso_threaded_rod(
         pitch: Thread pitch in mm.
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedRod` with an ISO/UTS thread profile.
@@ -681,9 +682,10 @@ def iso_threaded_nut(
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
         slop: Extra clearance added to the thread diameter.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedNut` with an ISO/UTS thread profile.
@@ -727,9 +729,10 @@ def trapezoidal_threaded_rod(
         thread_depth: Thread depth in mm, or None for pitch/2.
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedRod` with a trapezoidal thread profile.
@@ -776,9 +779,10 @@ def trapezoidal_threaded_nut(
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
         slop: Extra clearance added to the thread diameter.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedNut` with a trapezoidal thread profile.
@@ -820,9 +824,10 @@ def acme_threaded_rod(
         thread_depth: Thread depth in mm, or None for pitch/2.
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedRod` with a 29-degree ACME thread profile.
@@ -868,9 +873,10 @@ def acme_threaded_nut(
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
         slop: Extra clearance added to the thread diameter.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedNut` with an ACME thread profile.
@@ -911,9 +917,10 @@ def square_threaded_rod(
         pitch: Thread pitch in mm.
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedRod` with a square thread profile.
@@ -946,9 +953,10 @@ def square_threaded_nut(
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
         slop: Extra clearance added to the thread diameter.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedNut` with a square thread profile.
@@ -988,9 +996,10 @@ def buttress_threaded_rod(
         pitch: Thread pitch in mm.
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedRod` with a buttress thread profile.
@@ -1023,9 +1032,10 @@ def buttress_threaded_nut(
         starts: Number of thread starts.
         left_handed: True for left-handed threads.
         slop: Extra clearance added to the thread diameter.
-        fn: Number of fragments (circle resolution).
-        fa: Minimum fragment angle.
-        fs: Minimum fragment size.
+        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
         A :class:`ThreadedNut` with a buttress thread profile.

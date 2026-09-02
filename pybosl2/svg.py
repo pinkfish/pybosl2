@@ -83,12 +83,13 @@ def svg_outlines(
 
     Args:
         file: Path to the SVG.
-        fn: Minimum fragment count per curved segment.  When set (``>= 3``) it gives an
-            absolute point count; otherwise points are derived from *fs*.
-        fa: Minimum angle in degrees between fragments (accepted for API parity; only
-            relevant for circular arcs).
-        fs: Minimum fragment size in SVG user units.  Each curved segment gets
-            ``max(3, ceil(length / fs))`` points.
+        fn: Minimum fragment count per curved segment.  When set (``>= 3``) it gives an absolute point count;
+            otherwise points are derived from *fs*. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum angle in degrees between fragments (accepted for API parity; only relevant for circular arcs).
+            Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in SVG user units.  Each curved segment gets ``max(3, ceil(length / fs))`` points.
+            Omitted, the ambient ``use_defaults(fs=...)`` value applies.
         flip_y: Negate Y. SVG's Y axis points DOWN and OpenSCAD's points UP, so without this
             every imported drawing comes out mirrored.
 
@@ -159,9 +160,12 @@ def region_from_svg(
 
     Args:
         file: Path to the SVG.
-        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count).
-        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).
-        fs: Minimum fragment size in SVG user units (default ``2.0``).
+        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count). Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``
+            value applies.
         flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
         color: When set, overrides every shape's fill colour with this hex string
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.
@@ -474,9 +478,12 @@ def svg_element_groups(
 
     Args:
         file: Path to the SVG.
-        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count).
-        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).
-        fs: Minimum fragment size in SVG user units (default ``2.0``).
+        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count). Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``
+            value applies.
         flip_y: Negate Y so the drawing is not mirrored.
         color: When set, every returned ring gets this colour instead of the SVG's
             own fill colours.  Pass ``None`` (the default) to use the colours from the SVG.
@@ -702,9 +709,12 @@ def regions_from_svg(
 
     Args:
         file: Path to the SVG.
-        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count).
-        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).
-        fs: Minimum fragment size in SVG user units (default ``2.0``).
+        fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count). Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``
+            value applies.
         flip_y: Negate Y so the drawing is not mirrored.
         color: When set, overrides every shape's fill colour with this hex string
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.

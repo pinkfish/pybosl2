@@ -184,9 +184,10 @@ def teardrop2d(
         realign:    flip whether the bottom is a point or a flat (default False)
         anchor:     anchor point (default CENTER)
         spin:       Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -254,9 +255,10 @@ def egg(
         arc_diameter: diameter of the joining arcs (alternative to arc_radius)
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees after anchor (default 0)
-        fn: arc smoothness overrides
-        fa: arc smoothness overrides
-        fs: arc smoothness overrides
+        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
@@ -484,9 +486,10 @@ def squircle(
         style:      only "fg" is supported
         anchor:     standard BOSL2 2-D anchor
         spin:       standard BOSL2 2-D spin
-        fn: smoothness overrides
-        fa: smoothness overrides
-        fs: smoothness overrides
+        fn: smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Examples:
         .. pythonscad-example::
