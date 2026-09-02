@@ -58,7 +58,7 @@ spec renumbers as items close, and all but S-46a have.
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
-| 8 | C-23 / C-20 | [T33](#t33--type-the-contract) | M |
+| 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -324,6 +324,151 @@ which §12.1 already records under PAR-3; the test outlived the belief. It now a
 backends build, with the bounds to prove it. Writing it also produced a small demonstration of why
 X-8 asks for content assertions: my first version asserted 20×20 for a fixture that is 20×12, and
 the test failed on my mistake rather than the code's.
+
+---
+
+## T34 — Decide what `fill` means on a distance field
+
+**Closes:** §12.2 item 9 · **Implements:** PAR-3, B-5, PLAN B-P4 · **Size:** S
+**This one needs a decision before any code moves.**
+
+`fill` is in `CSG_ONLY_FEATURES` and `PyShape2D.fill()` works anyway, by extruding the field,
+meshing it, crossing to CSG, projecting, and rebuilding a polygon. Two records disagree:
+
+* **PAR-3 / B-P4** say an exclusive feature is *declared and refuses*, and name this exact case as
+  the one that must never happen.
+* **B-5** says a lossy backend conversion is never implicit, and a mesh round trip is one.
+* **`tests/test_sdf_shapes2d.py::TestFill`** asserts the meshing margin, so the behaviour is
+  deliberate and someone wanted it.
+
+Either answer closes it, and they are genuinely different products:
+
+1. **`fill` refuses on SDF**, naming `.to_csg()`, as `projection` does after T4. Consistent with
+   PAR-3 and B-5; costs the SDF backend a working operation.
+2. **`fill` leaves `CSG_ONLY_FEATURES`**, and the round trip is documented as what it is. Honest
+   about what the code does; needs B-5 to say that an *explicit, documented* round trip inside one
+   named operation is not the implicit conversion it forbids.
+
+**Whichever is chosen, the general finding stands and is worth more than either:** the backend
+parity tests walk the solid classes and not the 2-D ones, so nothing was ever going to catch this.
+That gap is the first thing to close.
+
+**Done when:** the lists and the code agree, and the parity tests cover `CsgShape2D`/`PyShape2D`
+the way they cover the solids.
+
+---
+
+## T30 — Group the arguments that travel together
+
+**Closes:** §12.2 item 7 (first half) · **Implements:** G-1 … G-5 (new) · **Size:** L
+**Risk:** high — public signatures change across the façade, both backends and the parts library
+
+`cyl()` takes about 40 keywords in one flat namespace. The same four facet controls are
+re-declared at every level of every call chain, which is why R-1 is the rule most often broken.
+
+1. **G-1 … G-5** (new, §8) land in the registry first, per T26's rules.
+2. `Facets(fn, fa, fs, res)` first: frozen, with `Facets.ambient()` resolving the block defaults
+   (R-4) once. It is the least visible group and the one that fixes the most R-1 plumbing.
+3. Then `Placement(anchor, spin, orient)`, then `EdgeTreatment` and `Texturing`.
+4. One shared resolver accepts either the group or its loose members and raises when given both,
+   mirroring D-5's conflict rule — so `cuboid([60, 40, 12], rounding=4)` keeps working, because it
+   is the getting-started promise and P-1 itself.
+5. Each group is one value through the façade → backend boundary (G-4).
+
+**Done when:** a test asserts a group and its loose members together raise, naming both; ambient
+resolution reaches a leaf constructor through one `Facets` rather than four parameters; the facet
+backlog in `tests/test_facets.py` has not grown.
+
+---
+
+## T31 — Slim the façade
+
+**Closes:** §12.2 item 7 (second half) · **Needs:** T30 · **Size:** M
+**Risk:** medium
+
+Three filters stack where B-3 describes one, and F-P1's "the façade owns the real default" is
+already untrue: `cuboid(anchor=Anchor.CENTER)` beside `cyl(anchor=None)`.
+
+1. One filter path: the façade forwards everything it declares, groups whole, and the backend
+   filters by what it declares (F-P2). `given_arguments`'s None-dropping goes.
+2. Sweep the façade for defaults that are `None` where the backend has a real one, which is what
+   `effective_defaults()` already knows and can be asserted against.
+3. A test asserts every façade constructor's shared defaults match the backends' agreed value —
+   the existing `test_backends_agree_on_the_defaults_they_share` extended to the façade itself.
+
+**Done when:** one forwarding path remains; no shared argument defaults to `None` at the façade
+unless `None` genuinely means "decide for me" (T-9b).
+
+---
+
+## T32 — Close the two rules that only half-closed ✅
+
+**Closes:** §12.2 item 6 · **Size:** S
+
+**Landed.** Both rules were true of the surface a test walked and false everywhere else.
+
+**C-21 on the geometry types.** `Path2D` and `Path3D` each carried three synonym pairs. BOSL2's
+spelling survives in each (B2-3): `deduplicate`, `subdivide_path`, `resample_path`. Two details
+that a blind delete would have got wrong — `subdivide` was not a pure duplicate, it carried a
+`refine=` parameter that BOSL2's own `subdivide_path` has and this port had dropped, so `refine`
+moved onto the survivor rather than disappearing with the wrapper; and the *fuller* docstrings,
+with the `Args:` sections and the rendering examples, were on the spellings being removed, so they
+moved across too. Deleting a synonym is not the same as deleting the code behind it.
+
+`tests/test_shape_contract.py::test_no_public_class_carries_both_spellings_of_one_operation` now
+walks **every public class reachable from the top level**, not one class family, which is what let
+this sit closed and untrue.
+
+**PLAN S-2.** 243 functions over 50 lines, the longest at 237, across 57 files. Retiring the rule
+was the alternative and it is the wrong one: the rule is right, the code has simply never been held
+to it, and a rule with 243 violations and no test teaches contributors that the document is
+optional. So it becomes what every other backlog here already is — a per-file budget that can only
+shrink, in `tests/test_function_length.py`. Per file rather than one total, because locality is
+what makes it actionable: the failure names the file you are in, not a global counter you have no
+way to move. A file with no row may not grow a long function at all.
+
+Both guards were checked against negative controls rather than assumed: restoring one synonym fails
+the first, and adding a 61-line function to a file with no budget row fails the second.
+
+---
+
+## T33 — Type the contract ✅
+
+**Closes:** §12.2 item 8 · **Implements:** C-23 (new) · **Size:** M
+
+**Landed.** 42 of 90 protocol members were typed; 63 are now, and the rest are a list that only
+shrinks (`tests/test_contract_typing.py`).
+
+C-20 required the contract to cover the whole object and said nothing about the cover meaning
+anything, so 48 members arrived as `(*args: Any, **kwargs: Any)` — present by name, checked not at
+all. That is worse than a missing member, because it reads as a promise: the method is found and
+every argument is accepted, including the wrong ones.
+
+**Both families were loose for the same reason, though one of them took a wrong turn to find out.**
+
+* **The distribution family (16 members).** All four implementations inherit one `Distributable`
+  mixin, so they agree exactly and there was nothing to bridge. Pure transcription.
+* **The attachment family (7 members).** This looked like the harder case: PAR-3 asks a CSG-only
+  feature to be *declared and refuse* on the SDF backend, those refusals are written
+  `(*_args: Any, **_kwargs: Any) -> NoReturn`, and a loose implementation appears to force a loose
+  contract. **I acted on that reading and it was wrong.** I gave all fourteen refusal stubs the
+  real CSG signatures — which broke them, because a refusal must fire *however* it is called and
+  `sdf_shape.attach()` then raised `TypeError` about missing arguments instead of the error that
+  teaches (E-2); eight tests said so. Defaulting every parameter fixed that and drew 42 ARG002
+  warnings for arguments a refusal never reads. Only then did I check the premise: `(*args: Any,
+  **kwargs: Any)` **satisfies any protocol signature**, so the contract was always free to declare
+  the real one. The stubs are back to the loose form, unchanged from before this task, and the
+  protocol carries the types. The loose stub was a fact about the refusal, never a constraint on
+  the contract — and reading it as one is what left the family unchecked.
+
+The check that matters: `def with_boss(base: Solid) -> Solid: return base.attach(Anchor.TOP, boss)`
+compiles, and the same call with `"top"` in place of the anchor is now a checker error where it
+used to pass silently. That is C-20's own worked example, finally checked rather than merely
+permitted.
+
+The scan behind the ratchet is keyed by `Protocol.member`, not by member name — `rotate` is loose
+on `Shape` and typed on `Flat`, and the first version keyed by name let one answer for the other.
+The same collision as the bare requirement ids, in a third place.
 
 ---
 

@@ -29,6 +29,7 @@ import inspect
 import numbers
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, Self, TypeVar, cast, runtime_checkable
 
+from pybosl2.enums import AttachTag
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
 
 _F = TypeVar("_F", bound=Callable[..., Any])
@@ -38,9 +39,13 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path as FilePath
 
+    from pybosl2._edges_lang import Anchor
     from pybosl2.bounds import Bounds2D, Bounds3D
     from pybosl2.caps import CapSpec
+    from pybosl2.enums import StaggerMode
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import Path
+    from pybosl2.points import Point
     from pybosl2.vnf import VNF
 
 
@@ -621,13 +626,47 @@ class Shape(Protocol):
     # who needs to know *before* calling asks the backend, not the shape: the authority is
     # `pybosl2.sdf.CSG_ONLY_FEATURES` (PAR-3), not a structural check that would pass on the very
     # methods whose job is to refuse.
-    def attach(self, *args: Any, **kwargs: Any) -> Self: ...
-    def position(self, *args: Any, **kwargs: Any) -> Self: ...
-    def align(self, *args: Any, **kwargs: Any) -> Self: ...
-    def tag(self, *args: Any, **kwargs: Any) -> Self: ...
-    def tag_this(self, *args: Any, **kwargs: Any) -> Self: ...
-    def diff(self, *args: Any, **kwargs: Any) -> Self: ...
-    def intersect(self, *args: Any, **kwargs: Any) -> Self: ...
+    # Typed, not `Any`. These are CSG-only and the SDF backend refuses them (PAR-3) with a loose
+    # `(*_args, **_kwargs)` stub -- which is fine, because that form satisfies any protocol
+    # signature. Nothing ever required the contract to be as loose as its loosest implementation;
+    # the signature had simply never been written. Now `base.attach(Anchor.TOP, boss)` -- C-20's
+    # own worked example -- is checked rather than merely permitted (SPEC C-23).
+    def attach(
+        self,
+        parent_anchor: "Anchor",
+        child: object,
+        child_anchor: "Anchor | None" = None,
+        overlap: float = 0.0,
+        spin: float = 0.0,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+    ) -> Self: ...
+    def position(
+        self,
+        anchor: "Anchor",
+        child: object,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+    ) -> Self: ...
+    def align(
+        self,
+        anchor: "Anchor",
+        child: object,
+        align: "Anchor | None" = None,
+        inside: bool = False,
+        overlap: float = 0.0,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+    ) -> Self: ...
+    def tag(self, name: "AttachTag | str") -> Self: ...
+    def tag_this(self, name: "AttachTag | str") -> Self: ...
+    def diff(
+        self,
+        remove: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.REMOVE,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+    ) -> Self: ...
+    def intersect(
+        self,
+        intersect: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.INTERSECT,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+    ) -> Self: ...
 
     def realize(self) -> Self:
         """Resolve this shape's attached children into one shape (SPEC C-12).
@@ -642,22 +681,130 @@ class Shape(Protocol):
     # Distribution: an operation on "any shape", not on solids specifically (SPEC C-19, S-31).
     # These return a *list* of copies, not one shape -- `xcopies(3)` is three shapes, and the
     # caller unions them or distributes them further.
-    def line_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def xcopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def ycopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def zcopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def grid_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def rot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def xrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def yrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def zrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def arc_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def sphere_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def path_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def mirror_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def xflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def yflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
-    def zflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    # The distribution family carries its real signatures. Every implementation inherits one
+    # `Distributable` mixin, so all four agree exactly and there is nothing to bridge -- these were
+    # `*args: Any` only because nobody had written them out (SPEC C-23).
+    def line_copies(
+        self,
+        spacing: float | None = None,
+        length: float | None = None,
+        p1: "Point | None" = None,
+        p2: "Point | None" = None,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def xcopies(
+        self,
+        spacing: float | None = None,
+        length: float | None = None,
+        start_pos: "float | Point | None" = None,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def ycopies(
+        self,
+        spacing: float | None = None,
+        length: float | None = None,
+        start_pos: "float | Point | None" = None,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def zcopies(
+        self,
+        spacing: float | None = None,
+        length: float | None = None,
+        start_pos: "float | Point | None" = None,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def grid_copies(
+        self,
+        spacing: "float | Sequence[float] | Any | None" = None,
+        size: "float | Sequence[float] | Any | None" = None,
+        stagger: "bool | StaggerMode" = False,
+        inside: "Sequence[Sequence[float]] | Any | None" = None,
+        nonzero: bool | None = None,
+        axes: str = "xy",
+        num_copies: "int | Sequence[int] | Any | None" = None,
+    ) -> list[Self]: ...
+    def rot_copies(
+        self,
+        rots: "Sequence[float] | None" = None,
+        v: "Point | None" = None,
+        center: "bool | Sequence[float]" = (0, 0, 0),
+        sa: float = 0,
+        offset: float = 0,
+        delta: "Sequence[float]" = (0, 0, 0),
+        subrot: bool = True,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def xrot_copies(
+        self,
+        rots: "Sequence[float] | None" = None,
+        center: "bool | Sequence[float]" = (0, 0, 0),
+        sa: float = 0,
+        radius: float | None = None,
+        diameter: float | None = None,
+        subrot: bool = True,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def yrot_copies(
+        self,
+        rots: "Sequence[float] | None" = None,
+        center: "bool | Sequence[float]" = (0, 0, 0),
+        sa: float = 0,
+        radius: float | None = None,
+        diameter: float | None = None,
+        subrot: bool = True,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def zrot_copies(
+        self,
+        rots: "Sequence[float] | None" = None,
+        center: "bool | Sequence[float]" = (0, 0, 0),
+        sa: float = 0,
+        radius: float | None = None,
+        diameter: float | None = None,
+        subrot: bool = True,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def arc_copies(
+        self,
+        radius: float | None = None,
+        radius_x: float | None = None,
+        radius_y: float | None = None,
+        diameter: float | None = None,
+        diameter_x: float | None = None,
+        diameter_y: float | None = None,
+        sa: float = 0,
+        ea: float = 360,
+        rot: bool = True,
+        num_copies: int = 6,
+    ) -> list[Self]: ...
+    def sphere_copies(
+        self,
+        num_copies: int = 100,
+        radius: float | None = None,
+        diameter: float | None = None,
+        cone_ang: float = 90,
+        scale: "Sequence[float]" = (1, 1, 1),
+        perp: bool = True,
+    ) -> list[Self]: ...
+    def path_copies(
+        self,
+        path: "Path",
+        spacing: float | None = None,
+        start_pos: float | None = None,
+        dist: "Sequence[float] | None" = None,
+        rotate_children: bool = True,
+        closed: bool | None = None,
+        num_copies: int | None = None,
+    ) -> list[Self]: ...
+    def mirror_copy(
+        self,
+        v: "Sequence[float]" = (0, 0, 1),
+        offset: float = 0,
+        center: "bool | list[float] | None" = None,
+    ) -> list[Self]: ...
+    def xflip_copy(self, offset: float = 0, x: float = 0) -> list[Self]: ...
+    def yflip_copy(self, offset: float = 0, y: float = 0) -> list[Self]: ...
+    def zflip_copy(self, offset: float = 0, z: float = 0) -> list[Self]: ...
     # `distribute_on_path` places copies and unions them, so it is one shape, not a list.
     def distribute_on_path(self, *args: Any, **kwargs: Any) -> Self: ...
 
