@@ -67,6 +67,9 @@ jobs:
       - name: Verify the docstring-example gate can run
         run: python -m mypy --version
 
+      - name: The generated documents are current
+        run: python docs/_reqgen.py --check
+
       - name: Build spec sheets (required by test_docs_links)
         run: |
           cd docs

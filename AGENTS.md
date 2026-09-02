@@ -8,8 +8,15 @@ have been merged into two documents, so there is one place for each kind of deci
 | **[SPEC.md](SPEC.md)** | *What the system is and does* — purpose, the BOSL2 relationship (feature parity, not API parity), the API-ergonomics principles, architecture and layering, the shape/geometry/backend contracts, the defaults and curve-resolution model, the error contract. High level; no Python mechanics. |
 | **[PLAN.md](PLAN.md)** | *How that is written in Python* — the language baseline, typing rules, class-oriented design, resolution plumbing, docstring and file-header rules, module/import layout, error mechanics, style, tests, commands, and the review checklist. |
 
-**Read SPEC.md first, then PLAN.md.** Both are normative. Requirements are numbered (`P-1`, `D-3`,
-`R-1`, `T-2`, `O-2`, …); cite them in reviews and commit bodies.
+**Read SPEC.md first, then PLAN.md.** Both are normative, and both are **generated** from
+[spec/requirements.toml](spec/requirements.toml) by `docs/_reqgen.py` — edit the registry for a
+requirement, or the frames in `spec/` for prose, and run the generator; editing the documents
+directly fails the build.
+
+Requirements are numbered and the numbers are permanent. Cite them **with their document**
+(`SPEC-D-3`, `PLAN-T-2`): five prefixes — `S`, `T`, `L`, `O`, `Q` — mean different things in the
+two documents, so a bare `S-2` is ambiguous between "every shape reports its bounds" and
+"functions stay under 50 lines".
 
 ## The short version
 
@@ -38,5 +45,5 @@ ruff check . --fix && ruff format .
 ```
 
 The full checklist is [PLAN.md §11](PLAN.md#11-review-checklist); open debt is tracked in
-[SPEC.md §12](SPEC.md#12-conformance-status), and [TASKS.md](TASKS.md) is the ordered queue for
-closing it.
+[SPEC.md §12.2](SPEC.md#122-open), [TASKS.md](TASKS.md) is the ordered queue for closing it, and
+what has already closed is in [CONFORMANCE.md](CONFORMANCE.md).

@@ -13,6 +13,11 @@
 
 from enum import StrEnum
 
+# Gender lives in the foundations layer: the SDF backend's joiners need it, and an L3
+# module may not import L5 (SPEC A-1). Re-exported here because this is where every caller
+# looks for a parts vocabulary.
+from pybosl2.enums import Gender as Gender
+
 
 class ScrewHeadType(StrEnum):
     """Screw-head style for :func:`screw` and :func:`screw_hole`."""
@@ -40,13 +45,6 @@ class NutShape(StrEnum):
 
     HEX = "hex"
     SQUARE = "square"
-
-
-class Gender(StrEnum):
-    """Part gender for dovetail joints."""
-
-    MALE = "male"
-    FEMALE = "female"
 
 
 class ThreadPitchClass(StrEnum):

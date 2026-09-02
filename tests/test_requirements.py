@@ -136,8 +136,10 @@ def _ids_in(document: str) -> set[str]:
 def test_the_registry_and_the_prose_agree(document: str, layer: str) -> None:
     """Neither document nor registry may carry a requirement the other has never heard of.
 
-    This is the drift guard until the prose is generated from the registry (T27), at which point
-    it becomes the equality check `_covgen.py` uses for the coverage page (SPEC DOC-1a).
+    Since T27 the documents are generated from the registry, so this cannot fail on its own --
+    `tests/test_reqgen.py` is the equality check that does the real work. It stays because it
+    fails *legibly*: "the registry has an id SPEC.md lacks" names the missing placeholder, where
+    a whole-file diff would only say the file is stale.
     """
     prose = _ids_in(document)
     registry = {alias for entry in REQUIREMENTS if entry["layer"] == layer for alias in entry["aliases"]}
