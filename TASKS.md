@@ -56,7 +56,7 @@ spec renumbers as items close, and all but S-46a have.
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
-| 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) | M |
+| 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) 🔶 | M |
 | 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
@@ -486,22 +486,52 @@ application, not the vocabulary. T37.
 
 ---
 
-## T35 — Give every public callable an `Args:` section
+## T35 — Give every public callable an `Args:` section 🔶
 
-**Closes:** §12.2 item 7a · **Implements:** PLAN D-P4, DOC-2 · **Size:** M
+**Closes:** §12.2 item 7a (in part) · **Implements:** PLAN D-P4, DOC-2 · **Size:** M
 
-57 public callables document no arguments at all. Found by T30's sweep: 97 facet parameters could
-not be documented because their callable has no `Args:` section to put them in, and adding a partial
-one listing only `fn`/`fa`/`fs` would read as though the others are not parameters.
+**Landed: the 57 that blocked the ambient-resolution documentation.** `KNOWN_GAPS` in
+`tests/test_ambient_docs.py` is empty, so all **498** facet parameters in the library now say that
+omitting them inherits `use_defaults` — which was the point of G-4 and could not be finished while
+97 of them had no `Args:` section to put the clause in.
 
-D-P4 has asked for complete `Args:` since it was written and nothing has ever checked, which is the
-same story as A-1, C-21 and S-2 before them.
+**The measured debt is larger than the task assumed.** T35 was written as "57 callables"; those
+were only the ones that also take a facet control. D-P4 has asked for a complete `Args:` since it
+was written and nothing had ever checked, and the real figure is **313 public callables taking
+1307 parameters and documenting none of them**. 256 across 38 files remain, as a per-file budget in
+`tests/test_documented_arguments.py` that only shrinks.
 
-1. The list is in `tests/test_ambient_docs.py::KNOWN_GAPS`, 97 rows across 57 callables.
-2. Write the sections. The facet clause then lands with the rest, and the rows come off the list.
-3. Generalise the check: every public callable's `Args:` covers every parameter it declares.
+**How they were written is the part worth keeping**, because the same job remains for the other
+256. The first attempt harvested, for each parameter name, the most common description of it
+elsewhere in the library. That is unsound and the output proved it immediately: it put a
+polyhedron's insphere radius on `cylindrical_extrude`'s `inner_radius` and a cube-truss size on its
+`size`, and it truncated every description that wrapped onto a second line. **A confidently wrong
+docstring is worse than a missing one**, so that attempt was reverted whole.
 
-**Done when:** `KNOWN_GAPS` is empty and the general D-P4 check replaces it.
+What is sound is a *specific* counterpart rather than a popular one:
+
+* **the same-named function elsewhere.** The SDF backend deliberately mirrors the CSG API (PAR-1),
+  so `sdf.tube`'s parameters mean what `shapes3d.tube`'s do and its wording is the right wording.
+* **the function a wrapper delegates to.** `pentagon` forwards to `regular_ngon`, so that is where
+  its seventeen parameters are already described.
+* **a small hand-written set for the genuinely universal names** — `fn`, `fa`, `fs`, `res`,
+  `anchor`, `spin`, `orient`, `center`, `convexity` — which do mean one thing everywhere. Written
+  out rather than harvested, because a name being *common* does not make its meaning uniform, and
+  that is exactly the assumption that failed.
+
+Those three covered 416 of 586 parameters. **The remaining 170, across 30 callables, were written
+by hand after reading each function** — the hinges' `seg_ratio` and `clear_top`, the rabbit clip's
+`compression` and `lock_clearance`, the SDF tube's eight per-end radius spellings, the
+superformula's `m1`/`n1`/`n2`/`n3`. One of them, `knuckle_hinge(fill=)`, turned out to be accepted
+and ignored (`_ = fill` in the body), which the docstring now says.
+
+Two smaller things the generator had to be taught, each caught by verifying before writing rather
+than by reading the result: a one-line docstring has nowhere to insert a section and has to be
+reopened as a multi-line one, and `Args:` belongs *before* `Returns:`/`Examples:`, not appended at
+the end.
+
+**Still open:** the 256, and the `PARTIAL` list for sections that name only some parameters — empty
+today, and the second check keeps it that way.
 
 ---
 

@@ -229,10 +229,14 @@ class Facets:
         :func:`~pybosl2._helpers.frag_count` reads any ``fn`` below 3 as "use fa/fs" (SPEC R-5).
 
         Args:
-            fn: Caller-supplied fragment count, or ``None``.
-            fa: Caller-supplied fragment angle, or ``None``.
-            fs: Caller-supplied fragment size, or ``None``.
-            res: Caller-supplied SDF resolution, or ``None``.
+            fn: Caller-supplied fragment count, or ``None``. Omitted, the ambient ``use_defaults(fn=...)`` value
+                applies; ``fn=0`` opts back out to fa/fs.
+            fa: Caller-supplied fragment angle, or ``None``. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Caller-supplied fragment size, or ``None``. Omitted, the ambient ``use_defaults(fs=...)`` value
+                applies.
+            res: Caller-supplied SDF resolution, or ``None``. Omitted, the ambient ``use_defaults(res=...)`` value
+                applies.
 
         Returns:
             A :class:`Facets` with each member filled from the ambient default where the caller

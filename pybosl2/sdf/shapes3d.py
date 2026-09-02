@@ -1224,6 +1224,12 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Return the convex hull of this shape, optionally together with *others*.
 
         See pybosl2.shapes3d.hull() for the equivalent BOSL2 hull().
+
+        Args:
+            directions: How many sample directions the hull is built from; more is smoother and slower.
+            res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value
+                applies.
+
         """
         args = list(self) + list(others) if isinstance(self, (list, tuple)) else [self] + list(others)
 
@@ -1850,7 +1856,14 @@ def cuboid(
 
 
 def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
-    """Return a cube, as a plain (unrounded) libfive SDF. See cuboid() for rounding/chamfering."""
+    """Return a cube, as a plain (unrounded) libfive SDF. See cuboid() for rounding/chamfering.
+
+    Args:
+        size: size of the cube, a number or length-3 vector.
+        anchor: anchor point (default Anchor.CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     return cuboid(size=size, anchor=anchor, res=res)
 
 
@@ -1860,7 +1873,14 @@ def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res:
 
 
 def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
-    """Return an octahedron with axis-aligned points (`|x|+|y|+|z| <= size/2`), as a libfive SDF."""
+    """Return an octahedron with axis-aligned points (`|x|+|y|+|z| <= size/2`), as a libfive SDF.
+
+    Args:
+        size: A scalar (circumscribed cube edge) or ``(dx, dy, dz)`` tuple.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     s = size / 2
     sdf_fn = lambda x, y, z: lv.abs(x) + lv.abs(y) + lv.abs(z) - s  # noqa: E731
     shape = PyShape(sdf_fn, [-s, -s, -s], [s, s, s], res)
@@ -2169,6 +2189,11 @@ def convex_polyhedron(points: "Path3D", res: int = 10) -> PyShape:
     all points on one side is a supporting plane (deduplicated). That's O(n^4) in the point
     count -- entirely fine for the tens-of-vertices solids this is for, and it happens once in
     Python at construction time, not per SDF evaluation.
+
+    Args:
+        points: The points to hull. They must describe a convex solid.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     coords = np.asarray(require_path(points, "points", "convex_polyhedron", Path3D), dtype=float)
     pts = [[float(v) for v in p] for p in coords]
@@ -2242,6 +2267,12 @@ def sphere(
 ) -> PyShape:
     """Return a sphere, as a libfive SDF (`length(p) - r`).
 
+    Args:
+        radius: Sphere radius (mutually exclusive with *diameter*).
+        diameter: Sphere diameter.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
     Examples:
         .. pythonscad-example::
 
@@ -2269,6 +2300,14 @@ def spheroid(
 
     This pure-libfive port just builds a plain sphere() (matching pybosl2.shapes3d.spheroid()'s
     own choice to ignore style/dual for its pure-Python port).
+
+    Args:
+        radius: radius of the spheroid.
+        diameter: diameter of the spheroid.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+
     """
     return sphere(radius=radius, diameter=diameter, anchor=anchor, res=res)
 
@@ -2293,6 +2332,18 @@ def torus(
     keyword `or`; it is exposed here as `outer_radius` instead. See pybosl2.shapes3d.torus() for
     the full parameter set this mirrors.
 
+    Args:
+        major_radius: Distance from the origin to the tube centre.
+        minor_radius: Tube radius.
+        major_diameter: Overrides *major_radius*.
+        minor_diameter: Overrides *minor_radius*.
+        outer_radius: outer radius of the torus (BOSL2 `or`) (use with inner_radius or inner_diameter)
+        inner_radius: inside radius of the torus (use with outer_radius or outer_diameter)
+        outer_diameter: outer diameter of the torus (use with inner_radius or inner_diameter)
+        inner_diameter: inside diameter of the torus (use with outer_radius or outer_diameter)
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
     Examples:
         .. pythonscad-example::
 
@@ -2423,7 +2474,22 @@ def cylinder(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering."""
+    """Return a cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering.
+
+    Args:
+        height: length of the cylinder along its axis (default 1)
+        radius1: radius of the negative end of the cylinder.
+        radius2: radius of the positive end of the cylinder.
+        center: if given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        length: length of the cylinder along its axis (default 1)
+        radius: radius of the cylinder (default 1)
+        diameter: diameter of the cylinder.
+        diameter1: diameter of the negative end of the cylinder.
+        diameter2: diameter of the positive end of the cylinder.
+        anchor: anchor point (default BOTTOM if center=False, otherwise CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
@@ -2468,6 +2534,26 @@ def cyl(
     `rounding`/`chamfer` (and their `1`/`2` bottom/top variants) are mutually exclusive, same
     as pybosl2.shapes3d.cyl().
 
+    Args:
+        height: length of the cylinder along its axis (default 1)
+        radius: radius of the cylinder (default 1)
+        center: if given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        length: length of the cylinder along its axis (default 1)
+        radius1: radius of the negative end of the cylinder.
+        radius2: radius of the positive end of the cylinder.
+        diameter: diameter of the cylinder.
+        diameter1: diameter of the negative end of the cylinder.
+        diameter2: diameter of the positive end of the cylinder.
+        chamfer: chamfer size on the end rims (overall/negative/positive)
+        chamfer1: chamfer size on the end rims (overall/negative/positive)
+        chamfer2: chamfer size on the end rims (overall/negative/positive)
+        rounding: rounding radius on the end rims (overall/negative/positive)
+        rounding1: rounding radius on the end rims (overall/negative/positive)
+        rounding2: rounding radius on the end rims (overall/negative/positive)
+        shift: X/Y offset for the positive end (shear) (default [0,0])
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
     Examples:
         .. pythonscad-example::
 
@@ -2579,7 +2665,27 @@ def xcyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder oriented along the X axis. See cyl() for argument details."""
+    """Return a cylinder oriented along the X axis. See cyl() for argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        diameter: Diameter of the cylinder.
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        length: Length of the cylinder along its axis (default 1)
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        anchor: Anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     return _cyl_axis(
         0,
         height,
@@ -2619,7 +2725,27 @@ def ycyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder oriented along the Y axis. See cyl() for argument details."""
+    """Return a cylinder oriented along the Y axis. See cyl() for argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        diameter: Diameter of the cylinder.
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        length: Length of the cylinder along its axis (default 1)
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        anchor: Anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     return _cyl_axis(
         1,
         height,
@@ -2659,7 +2785,27 @@ def zcyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details."""
+    """Return a cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        diameter: Diameter of the cylinder.
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        length: Length of the cylinder along its axis (default 1)
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        anchor: Anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+    """
     return _cyl_axis(
         2,
         height,
@@ -2710,6 +2856,33 @@ def tube(
 
     Note: BOSL2's outer-radius parameters are named `or`/`or1`/`or2`; exposed here as
     `outer_radius`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
+
+    Args:
+        height: height of the tube (default 1)
+        outer_radius: outer radius of the tube (BOSL2 ``or``) (default 1)
+        inner_radius: inner radius of the tube.
+        outer_diameter: outer diameter of the tube.
+        inner_diameter: inner diameter of the tube.
+        wall: horizontal wall thickness (default 1)
+        outer_r1: Outer radius at the bottom (BOSL2's ``or1``).
+        outer_r2: Outer radius at the top (BOSL2's ``or2``).
+        od1: Outer diameter at the bottom.
+        od2: Outer diameter at the top.
+        ir1: Inner radius at the bottom.
+        ir2: Inner radius at the top.
+        id1: Inner diameter at the bottom.
+        id2: Inner diameter at the top.
+        rounding: rounding radius on end rims (overall/bottom/top)
+        rounding1: rounding radius on end rims (overall/bottom/top)
+        rounding2: rounding radius on end rims (overall/bottom/top)
+        chamfer: chamfer size on end rims (overall/bottom/top)
+        chamfer1: chamfer size on end rims (overall/bottom/top)
+        chamfer2: chamfer size on end rims (overall/bottom/top)
+        length: height of the tube (default 1)
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+
     """
     length = length if length is not None else (height if height is not None else 1)
     orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, radius=outer_radius, diameter=outer_diameter, dflt=None)
@@ -2794,6 +2967,21 @@ def pie_slice(
     plain Python float fixed at construction time, so choosing intersection vs union of the two
     half-planes based on `angle <= 180` is an ordinary Python conditional, not a per-point SDF
     branch).
+
+    Args:
+        height: height of the pie slice.
+        radius: radius of the pie slice.
+        angle: pie slice angle in degrees (default 30)
+        radius1: bottom radius of the pie slice.
+        radius2: top radius of the pie slice.
+        diameter: diameter of the pie slice.
+        diameter1: diameter of the bottom.
+        diameter2: diameter of the top.
+        length: height of the pie slice.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
@@ -2970,6 +3158,15 @@ def interior_fillet(
     SDF union is already watertight without one) and no independent anchor-face alignment;
     the wedge's first face lies along the local +X/Z=0 half-plane. See
     pybosl2.shapes3d.interior_fillet() for the exact BOSL2-compatible anchor/orientation.
+
+    Args:
+        length: length of the edge to fillet (default 1.0)
+        radius: radius of the fillet.
+        angle: Angle in degrees between the two faces the fillet sits in.
+        diameter: diameter of the fillet.
+        anchor: anchor point (default FRONT+LEFT)
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     half = math.radians(angle / 2)
@@ -3018,6 +3215,15 @@ def rounding_edge_mask(
 
     CAVEAT: simplified relative to pybosl2.masking.rounding_edge_mask() -- one radius for the
     whole length (no radius1/radius2 taper).
+
+    Args:
+        length: Length of the cutter along its axis (default 1).
+        height: Length of the cutter along its axis (default 1).
+        radius: Rounding radius (both ends).
+        diameter: Rounding diameter (both ends).
+        excess: Extra length added at each end, so the cutter reaches past the solid it trims.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     length = length if length is not None else (height if height is not None else 1)
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
@@ -3047,6 +3253,12 @@ def polygon_extrude(pts: "Path2D", length: float, res: int = 10) -> PyShape:
 
     CAVEAT: `pts` must describe a CONVEX polygon. A concave vertex's half-plane doesn't bound
     the shape there, so both the sign and the surface would come out wrong.
+
+    Args:
+        pts: The convex outline to extrude.
+        length: Height to extrude to.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     coords = as_points(require_path(pts, "pts", "polygon_extrude", Path2D))
     area2 = sum(
@@ -3231,6 +3443,19 @@ def teardrop(
     `realign=` support. `cap_height` (truncation height) is supported since it's a plain top-slab
     intersection.
 
+    Args:
+        height: thickness of the teardrop (default 1)
+        radius: radius of the circular part (default 1)
+        angle: angle of the hat walls from the Z axis in degrees (default 45)
+        cap_height: height above center to truncate the shape (default: no truncation)
+        radius1: radius of the circular portion of the front end.
+        radius2: radius of the circular portion of the back end.
+        diameter: diameter of the circular portion.
+        diameter1: diameter of the front end.
+        diameter2: diameter of the back end.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
     Examples:
         .. pythonscad-example::
 
@@ -3293,6 +3518,16 @@ def onion(
     sphere and a cone tangent to it, revolved around Z.
 
     CAVEAT: simplified relative to pybosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
+
+    Args:
+        radius: radius of the spherical portion of the bottom (default 1)
+        angle: angle of the cone from vertical in degrees (default 45)
+        cap_height: height above the sphere center to truncate the shape (default: no truncation)
+        diameter: diameter of the spherical portion of the bottom.
+        anchor: anchor point (default CENTER)
+        res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     ang_rad = math.radians(angle)
@@ -3415,6 +3650,14 @@ def regular_prism(
         realign:                      rotate so a face centre (not vertex) faces +X (default False)
         anchor:                       anchor point (default CENTER)
         res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        radius1: Bottom circumradius, for a tapered prism.
+        radius2: Top circumradius, for a tapered prism.
+        rounding: End rounding radius, applied to both ends.
+        rounding1: End rounding radius at the bottom, instead of *rounding*.
+        rounding2: End rounding radius at the top, instead of *rounding*.
+        chamfer: End chamfer size, applied to both ends.
+        chamfer1: End chamfer size at the bottom, instead of *chamfer*.
+        chamfer2: End chamfer size at the top, instead of *chamfer*.
 
     """
     import math as _m
@@ -3554,6 +3797,13 @@ def path_sweep(profile: "Path2D", path: "Path2D | Path3D", res: int = 12, twist:
     :func:`_polygon_sdf_xy`'s convex-deficiency decomposition, the same one :func:`polygon_prism`
     uses over the convex-only :func:`polygon_extrude`). `twist` is a total rotation of the profile
     (in degrees) applied evenly along the path.
+
+    Args:
+        profile: The cross-section to sweep, as ``[u, v]`` points.
+        path: The path to sweep it along.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        twist: Total twist in degrees applied along the sweep.
+
     """
     prof = as_points(require_path(profile, "profile", "path_sweep", Path2D))
     if not (len(prof) >= 3):
@@ -3655,6 +3905,14 @@ def bezier_sweep(
         from pybosl2.sdf.shapes3d import bezier_sweep
         circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
         tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
+
+    Args:
+        profile: The cross-section to sweep.
+        control_points: Control points of the bezier the profile follows.
+        splinesteps: How many segments the bezier is flattened into.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        twist: Total twist in degrees applied along the sweep.
+
     """
     from pybosl2.beziers import Bezier
 

@@ -3454,8 +3454,13 @@ title = "`Raises:` is complete."
 statement = '''
 Every exception raised in the body appears there, including the `ValueError`s from argument validation.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_documented_arguments.py::test_no_file_exceeds_its_undocumented_budget",
+]
+status = "enforced"
+note = '''
+Never checked until T35, and the reason to check it was measured rather than assumed: 313 public callables taking 1307 parameters documented none of them. 57 are written (the ones blocking SPEC G-4's ambient-resolution documentation) and 256 remain as a per-file budget that only shrinks. A second, unratcheted check catches a *partial* Args: section, which is a different defect from a missing one.
+'''
 
 [[requirement]]
 id = "PLAN-D-P4a"

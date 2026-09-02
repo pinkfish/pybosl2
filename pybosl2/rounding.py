@@ -381,6 +381,20 @@ class Roundable:
         or *width* (chamfer only) -- each a scalar or a per-corner list. *curvature* (smooth only, 0..1)
         tunes how tight the curvature match is. Works on 2-D and 3-D paths.
 
+        Args:
+            radius: The rounding radius. A single float applies to all corners; a list applies per-corner radii.
+            method: The rounding method (``"circle"``, ``"smooth"``, etc.).
+            cut: Cut depth for chamfers.
+            joint: Joint distance for rounding.
+            width: Width for rounding.
+            curvature: Curvature value for rounding.
+            closed: Override whether paths are treated as closed.
+            fn: Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+            k: Smoothing parameter for continuous-curvature rounding, from 0 (sharp) to 1.
+
         Returns:
             A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
 
@@ -736,7 +750,24 @@ class Roundable:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Self:
-        """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
+        """Join multiple paths to this path end-to-end (see :func:`path_join`).
+
+        Args:
+            other_paths: The further paths to join onto this one, in order.
+            radius: Rounding radius at each join, one value or one per join.
+            cut: Rounding size given as the cut distance from the corner instead of a radius.
+            joint: Rounding size given as the joint distance along each leg instead of a radius.
+            curvature: Continuous-curvature smoothness at each join, from 0 (sharp) to 1.
+            relocate: Move each path so its start meets the previous path's end, rather than requiring them to already
+                touch.
+            closed: Join the last path back to the first. Defaults to this path's own flag.
+            k: Smoothing parameter for the continuous-curvature joins, one value or one per join.
+            fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+                ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
+        """
         return cast(
             "Self",
             _path_join(

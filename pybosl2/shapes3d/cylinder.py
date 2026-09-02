@@ -531,7 +531,28 @@ def cyl_profile(
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
 ) -> list[list[float]]:
-    """Generate a 2D cylinder profile with optional rounding and chamfering."""
+    """Generate a 2D cylinder profile with optional rounding and chamfering.
+
+    Args:
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        length: Length of the cylinder along its axis.
+        rounding1: Rounding radius at the bottom end; negative rounds outward.
+        rounding2: Rounding radius at the top end; negative rounds outward.
+        chamfer1: Chamfer size at the bottom end.
+        chamfer2: Chamfer size at the top end.
+        chamfer_angle1: Angle of the bottom chamfer in degrees, measured from the end face.
+        chamfer_angle2: Angle of the top chamfer in degrees, measured from the end face.
+        from_end1: Measure the bottom chamfer along the end face rather than up the side.
+        from_end2: Measure the top chamfer along the end face rather than up the side.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        teardrop: Make the top a printable teardrop, optionally giving the angle.
+        clip_angle: Angle at which a teardrop profile is clipped flat, for printability.
+
+    """
     from pybosl2._helpers import arc_points as _arc_points
 
     eff_clip = float(clip_angle)
@@ -630,6 +651,52 @@ def xcyl(
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
     """Return a cylinder oriented along the X axis. See cyl() for argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        length: Length of the cylinder along its axis (default 1)
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter: Diameter of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees after anchor (default 0)
+        orient: Direction to rotate the top towards, after spin (default UP)
+        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
 
     Examples:
         .. pythonscad-example::
@@ -737,6 +804,52 @@ def ycyl(
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
     """Return a cylinder oriented along the Y axis. See cyl() for argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        length: Length of the cylinder along its axis (default 1)
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter: Diameter of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees after anchor (default 0)
+        orient: Direction to rotate the top towards, after spin (default UP)
+        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
 
     Examples:
         .. pythonscad-example::
@@ -846,6 +959,52 @@ def zcyl(
     """Return a cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for.
 
     argument details.
+
+    Args:
+        height: Length of the cylinder along its axis (default 1)
+        radius: Radius of the cylinder (default 1)
+        center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        length: Length of the cylinder along its axis (default 1)
+        radius1: Radius of the negative end of the cylinder.
+        radius2: Radius of the positive end of the cylinder.
+        diameter: Diameter of the cylinder.
+        diameter1: Diameter of the negative end of the cylinder.
+        diameter2: Diameter of the positive end of the cylinder.
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees after anchor (default 0)
+        orient: Direction to rotate the top towards, after spin (default UP)
+        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
+            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
+            to fa/fs.
+        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
 
     Examples:
         .. pythonscad-example::

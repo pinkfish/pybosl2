@@ -769,6 +769,15 @@ class SdfShape2D(Colorable, Distributable):
 
         The optional rim treatments follow polygon_prism()'s convention (positive roundover,
         negative flare) and reuse the same construction, over this shape's own SDF.
+
+        Args:
+            height: Height to extrude to.
+            rounding_top: Rounding radius applied to the top edge.
+            rounding_bottom: Rounding radius applied to the bottom edge.
+            center: Centre the result on z=0 rather than standing it on the plane.
+            res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value
+                applies.
+
         """
         if not (height > 0):
             raise Bosl2ValueError(f"extrude() needs height > 0, got {height}")
@@ -822,7 +831,12 @@ class SdfShape2D(Colorable, Distributable):
         return extruded
 
     def revolve_sdf(self, angle: float = 360.0, res: int = 10) -> PyShape:
-        """Revolve this 2-D profile around the Z axis, returning a 3-D PyShape."""
+        """Revolve this 2-D profile around the Z axis, returning a 3-D PyShape.
+
+        Args:
+            angle: degrees to revolve (default 360 for full solid of revolution)
+            res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        """
         from pybosl2.sdf.skin import _revolve_sdf
 
         return _revolve_sdf(self, angle=angle, res=res)
@@ -935,7 +949,18 @@ class SdfShape2D(Colorable, Distributable):
         slices: int | None = None,
         res: int = 10,
     ) -> PyShape:
-        """Extrude this 2-D SDF shape vertically with optional twist, scale, and XY shift."""
+        """Extrude this 2-D SDF shape vertically with optional twist, scale, and XY shift.
+
+        Args:
+            height: extrusion height (default 1)
+            twist: total degrees of twist over *height* (default 0)
+            scale: final scale factor or ``[sx, sy]`` at the top (default 1)
+            shift: XY displacement of the top relative to the bottom (default [0, 0])
+            center: centre the extrusion on Z (default: sits on z=0..height)
+            slices: ignored -- the field is continuous, so there is nothing to subdivide (accepted so the signature
+                matches the CSG sweep)
+            res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        """
         from pybosl2.sdf.skin import _linear_sweep_sdf
 
         return _linear_sweep_sdf(
@@ -958,7 +983,13 @@ class SdfShape2D(Colorable, Distributable):
 
 
 def circle2d(radius: float | None = None, diameter: float | None = None, res: int = 10) -> PyShape2D:
-    """Return a circle at the origin -- the exact SDF `length(p) - radius`."""
+    """Return a circle at the origin -- the exact SDF `length(p) - radius`.
+
+    Args:
+        radius: Radius of the circle.
+        diameter: Diameter, instead of *radius*.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+    """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
 
@@ -975,6 +1006,14 @@ def rect2d(  # type: ignore[no-untyped-def]
     for all four corners, or a per-corner list in BOSL2 rect() order ([X+Y+, X-Y+, X-Y-, X+Y-],
     counterclockwise from the +x+y corner), reusing the same per-corner quadrant SDF the 3-D
     cuboid edge machinery is built on. `anchor` uses the usual direction-vector convention.
+
+    Args:
+        size: Rectangle size, a scalar or ``[width, height]``.
+        rounding: Corner rounding radius: one value, or one per corner.
+        chamfer: Corner chamfer size: one value, or one per corner.
+        anchor: Anchor as a direction vector, e.g. ``[-1, 0]`` for the left edge.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     hx, hy = sz[0] / 2, sz[1] / 2
@@ -1019,6 +1058,22 @@ def supershape2d(
     """Return a superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same.
 
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d().
+
+    Args:
+        step: Angular step in degrees between sampled points.
+        n: Number of points to sample, instead of *step*.
+        m1: Superformula rotational symmetry of the first term.
+        m2: Superformula rotational symmetry of the second term; defaults to *m1*.
+        n1: Superformula exponent controlling overall roundness.
+        n2: Superformula exponent on the first term; defaults to *n1*.
+        n3: Superformula exponent on the second term; defaults to *n1*.
+        a: Superformula scale of the first term.
+        b: Superformula scale of the second term; defaults to *a*.
+        radius: Radius the outline is scaled to.
+        diameter: Diameter, instead of *radius*.
+        res: libfive meshing resolution passed to frep(). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
+
     """
     return polygon2d(
         Path2D(
@@ -1075,6 +1130,11 @@ def region2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
     on pysolidfive: nesting depths are worked out once in Python (ray-casting a vertex of each
     outline against the others), holes subtract from their direct parents, and islands rejoin
     the union.
+
+    Args:
+        paths: The outlines making up the region, nested even-odd so inner rings are holes.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     cleaned = as_path_list(paths, "paths", "region2d")
     for p in cleaned:
@@ -1126,6 +1186,13 @@ def stroke2d(
     """Return a path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as.
 
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
+
+    Args:
+        path: The path to draw.
+        width: Width of the drawn line.
+        closed: Join the last point back to the first before drawing.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     path = cast("Path2D", require_path(path, "path", "stroke2d", Path2D))
     pts = as_points(path)
@@ -1165,6 +1232,11 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-
     corners a plain half-plane max would give); for mixed radii it conservatively uses the
     largest radius for the hull body unioned with each disc exactly, which matches the visual
     silhouette whenever the smaller discs sit inside the hull of the larger ones.
+
+    Args:
+        discs: The discs to hull, each ``(x, y, radius)``.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     ds = [(float(c[0]), float(c[1]), float(c[2])) for c in discs]
     if not (ds):
@@ -1216,7 +1288,13 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-
 
 
 def square2d(size: float | Sequence[float] = 10, anchor: Sequence[float] = CENTER, res: int = 10) -> PyShape2D:
-    """Return a square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d()."""
+    """Return a square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d().
+
+    Args:
+        size: Square size, a scalar or ``[width, height]``.
+        anchor: Anchor as a direction vector, e.g. ``[-1, 0]`` for the left edge.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+    """
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else list(size)
     return rect2d(sz, anchor=anchor, res=res)
 
@@ -1230,6 +1308,12 @@ def ellipse2d(
 
     Built by non-uniformly scaling a unit circle SDF, which gives an exact algebraic distance
     whose zero-isosurface is the desired ellipse.
+
+    Args:
+        radius: Semi-axes as ``[rx, ry]``, or one value for a circle.
+        diameter: Full diameters as ``[dx, dy]``, instead of *radius*.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     if radius is not None:
         rx, ry = (

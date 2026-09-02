@@ -174,6 +174,21 @@ def cylindrical_extrude(
     Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
     onto a curved wall. The profile's X spans one revolution by default (override with *size*).
 
+    Args:
+        profile: The 2-D shape to wrap around the cylinder.
+        inner_radius: Radius the wrapped profile starts at.
+        outer_radius: Radius the wrapped profile reaches.
+        outer_diameter: Outer diameter, instead of *outer_radius*.
+        inner_diameter: Inner diameter, instead of *inner_radius*.
+        size: Size of the flat region the profile is drawn in before wrapping.
+        spin: Z-axis rotation in degrees after anchor.
+        orient: Direction to rotate the top towards, after spin.
+        convexity: Convexity hint for the renderer; higher for more self-overlapping profiles.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
     Examples:
         .. pythonscad-example::
 

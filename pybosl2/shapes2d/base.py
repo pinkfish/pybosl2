@@ -503,6 +503,16 @@ class CsgShape2D(BaseShape):
         *radius* rounds the joins it creates, *delta* keeps them sharp (or bevels them with
         ``chamfer=True``) -- BOSL2's spelling of OpenSCAD's ``r=``/``delta=``. Give exactly one.
 
+        Args:
+            radius: Offset distance with rounded joins (positive grows, negative shrinks).
+            delta: Offset distance with sharp/chamfered joins (mutually exclusive with radius).
+            chamfer: If True, use chamfered rather than sharp joins when delta is given.
+            fn: Number of facets for rounded sections (overrides fa/fs). Omitted, the ambient ``use_defaults(fn=...)``
+                value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum angle in degrees for circle fragments. Omitted, the ambient ``use_defaults(fa=...)`` value
+                applies.
+            fs: Minimum size for circle fragments. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
         Examples:
             .. pythonscad-example::
 
@@ -628,6 +638,14 @@ class CsgShape2D(BaseShape):
 
         The shape must lie entirely on one side of the axis. *angle* sweeps less than a full
         revolution.
+
+        Args:
+            angle: The sweep angle in degrees (default 360 for a full revolution).
+            convexity: Rendering hint for self-overlapping cross-sections.
+            fn: Arc smoothness override. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness override. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness override. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.

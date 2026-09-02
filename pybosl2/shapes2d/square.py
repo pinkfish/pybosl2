@@ -435,7 +435,31 @@ def pentagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a regular pentagon. See regular_ngon() for argument details."""
+    """Return a regular pentagon. See regular_ngon() for argument details.
+
+    Args:
+        radius: Radius to a vertex.
+        diameter: Diameter to a vertex, instead of *radius*.
+        outer_radius: Radius of the circumscribed circle.
+        outer_diameter: Diameter of the circumscribed circle.
+        inner_radius: inside radius, at the center of the sides.
+        inner_diameter: inside diameter, at the center of the sides.
+        side: length of each side.
+        rounding: Corner rounding radius (CSG backend only).
+        chamfer: chamfer size for the tips of the polygon (default 0)
+        realign: Rotate by half a side (CSG backend only).
+        align_tip: rotate so the first vertex points in this 2-D direction (applied before spin)
+        align_side: rotate so the normal of side 0 points in this 2-D direction (applied before spin)
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+            applies.
+        fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+            applies.
+
+    """
     return regular_ngon(
         sides=5,
         radius=radius,
@@ -478,7 +502,31 @@ def hexagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a regular hexagon. See regular_ngon() for argument details."""
+    """Return a regular hexagon. See regular_ngon() for argument details.
+
+    Args:
+        radius: Radius to a vertex.
+        diameter: Diameter to a vertex, instead of *radius*.
+        outer_radius: Radius of the circumscribed circle.
+        outer_diameter: Diameter of the circumscribed circle.
+        inner_radius: inside radius, at the center of the sides.
+        inner_diameter: inside diameter, at the center of the sides.
+        side: length of each side.
+        rounding: Corner rounding radius (CSG backend only).
+        chamfer: chamfer size for the tips of the polygon (default 0)
+        realign: Rotate by half a side (CSG backend only).
+        align_tip: rotate so the first vertex points in this 2-D direction (applied before spin)
+        align_side: rotate so the normal of side 0 points in this 2-D direction (applied before spin)
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+            applies.
+        fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+            applies.
+
+    """
     return regular_ngon(
         sides=6,
         radius=radius,
@@ -521,7 +569,31 @@ def octagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a regular octagon. See regular_ngon() for argument details."""
+    """Return a regular octagon. See regular_ngon() for argument details.
+
+    Args:
+        radius: Radius to a vertex.
+        diameter: Diameter to a vertex, instead of *radius*.
+        outer_radius: Radius of the circumscribed circle.
+        outer_diameter: Diameter of the circumscribed circle.
+        inner_radius: inside radius, at the center of the sides.
+        inner_diameter: inside diameter, at the center of the sides.
+        side: length of each side.
+        rounding: Corner rounding radius (CSG backend only).
+        chamfer: chamfer size for the tips of the polygon (default 0)
+        realign: Rotate by half a side (CSG backend only).
+        align_tip: rotate so the first vertex points in this 2-D direction (applied before spin)
+        align_side: rotate so the normal of side 0 points in this 2-D direction (applied before spin)
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value
+            applies.
+        fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value
+            applies.
+
+    """
     return regular_ngon(
         sides=8,
         radius=radius,
