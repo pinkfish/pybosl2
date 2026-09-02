@@ -3018,8 +3018,39 @@
         <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SubdivideMethod</span> <span class="o">=</span> <span class="n">SubdivideMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">,</span>
+        <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Subdivide the path into more points."""</span>
+<span class="w">        </span><span class="sd">"""Insert points along the path.</span>
+
+<span class="sd">        Give one of *points*, *refine* or *maxlen*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: Target total number of points.</span>
+<span class="sd">            points_per_segment: Points to add per segment; needs ``method=SubdivideMethod.SEGMENT``.</span>
+<span class="sd">            maxlen: Cap on the spacing between points.</span>
+<span class="sd">            exact: Hit the target count exactly rather than approximately.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
+<span class="sd">            method: How to distribute the new points.</span>
+<span class="sd">            refine: Multiply the current point count by this, instead of giving *points*.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new :class:`Path2D` with additional interpolated points.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: if *points_per_segment* is given without the segment method.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
+<span class="sd">                result = pts.subdivide_path(points=24)</span>
+<span class="sd">                result.stroke(width=1).linear_extrude(height=4).show()</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">refine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">refine</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">points_per_segment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SubdivideMethod</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">):</span>
@@ -3086,7 +3117,28 @@
         <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Resample the path with evenly spaced points."""</span>
+<span class="w">        </span><span class="sd">"""Resample to evenly spaced points.</span>
+
+<span class="sd">        Give exactly one of *num_copies* or *spacing*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            num_copies: Target number of points.</span>
+<span class="sd">            spacing: Approximate spacing between points.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new :class:`Path2D` with uniformly resampled points.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
+<span class="sd">                sampled = pts.resample_path(num_copies=20)</span>
+<span class="sd">                sampled.stroke(width=1).linear_extrude(height=2).show()</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
         <span class="n">ls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shapely</span>
@@ -3390,97 +3442,6 @@
 
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Path2D.deduplicated">
-<a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.deduplicated">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">deduplicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Drop consecutive repeated points (:meth:`_deduplicate`).</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            .. pythonscad-example::</span>
-
-<span class="sd">                from pybosl2 import Path2D</span>
-
-<span class="sd">                pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])</span>
-<span class="sd">                result = pts.deduplicated()</span>
-<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="Path2D.subdivide">
-<a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.subdivide">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">subdivide</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">maxlen</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Insert points along the path.</span>
-
-<span class="sd">        Give exactly one of *num_copies*, *refine* or *maxlen*.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            num_copies: Target total number of points.</span>
-<span class="sd">            refine: Multiply the current point count by this.</span>
-<span class="sd">            maxlen: Cap on the spacing between points.</span>
-<span class="sd">            exact: Hit the target count exactly rather than approximately.</span>
-<span class="sd">            closed: Override the instance's closed flag.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new :class:`Path2D` with additional interpolated points.</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            .. pythonscad-example::</span>
-
-<span class="sd">                from pybosl2 import Path2D</span>
-
-<span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
-<span class="sd">                result = pts.subdivide(num_copies=24)</span>
-<span class="sd">                result.stroke(width=1).linear_extrude(height=4).show()</span>
-
-<span class="sd">        """</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">num_copies</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">refine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">refine</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maxlen</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Path2D.resample">
-<a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.resample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Resample to evenly spaced points.</span>
-
-<span class="sd">        Give exactly one of *num_copies* or *spacing*.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            num_copies: Target number of points.</span>
-<span class="sd">            spacing: Approximate spacing between points.</span>
-<span class="sd">            closed: Override the instance's closed flag.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new :class:`Path2D` with uniformly resampled points.</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            .. pythonscad-example::</span>
-
-<span class="sd">                from pybosl2 import Path2D</span>
-
-<span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
-<span class="sd">                sampled = pts.resample(num_copies=20)</span>
-<span class="sd">                sampled.stroke(width=1).linear_extrude(height=2).show()</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_path</span><span class="p">(</span><span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.split_at_self_crossings">
@@ -4512,6 +4473,15 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path2D` with duplicate points removed.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])</span>
+<span class="sd">                result = pts.deduplicate()</span>
+<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
