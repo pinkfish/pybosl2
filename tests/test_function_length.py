@@ -66,6 +66,14 @@ BUDGET: dict[str, int] = {
     "shapes3d/cuboid.py": 3,
     "shapes3d/cylinder.py": 3,
     "shapes3d/extrusions.py": 1,
+    # The five cylinder constructors, each 55 lines of which 44 is the forwarding dict -- one
+    # line per parameter, which is B-3's duplication and not "this function does too much". They
+    # crossed when `texturing=` was added in T37. Collapsing the three group-resolution calls into
+    # one took `cube` and `cuboid` from 53 lines to 28, and these are what is left: a signature and
+    # a dict listing the same 44 names. Raised deliberately rather than by redefining the metric a
+    # third time -- the docstring and the signature already do not count, and a rule that keeps
+    # shrinking to fit stops measuring anything. It comes back to 0 with the façade duplication.
+    "solid.py": 5,
     "skin.py": 8,
     "surfaces3d.py": 6,
     "svg.py": 2,

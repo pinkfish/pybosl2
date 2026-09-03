@@ -435,14 +435,19 @@ def test_cyl_accepts_the_texture_arguments_it_cannot_yet_apply() -> None:
 @pytest.mark.parametrize(
     ("name", "call"),
     [
-        ("cyl_enum", lambda: cyl(radius=10, height=20, texture=TextureType.RIBS)),
-        ("xcyl_string", lambda: xcyl(radius=10, height=20, texture="ribs")),
+        ("cyl_enum", lambda: cyl(radius=10, height=20, texture=TextureType.RIBS, tex_reps=[12, 1], tex_depth=1)),
+        ("xcyl_string", lambda: xcyl(radius=10, height=20, texture="ribs", tex_reps=[12, 1], tex_depth=1)),
     ],
     ids=["cyl_enum", "xcyl_string"],
 )
-def test_a_real_texture_on_a_cylinder_is_refused_for_now(name: str, call: object) -> None:  # noqa: ARG001 - shared table
-    with pytest.raises(NotImplementedError):
-        call()  # type: ignore[operator]
+def test_a_real_texture_on_a_cylinder_builds(name: str, call: object) -> None:  # noqa: ARG001 - shared table
+    """`texture=` used to raise for every call that set it; it builds now (T37, SPEC S-34/S-35).
+
+    Both spellings of the texture reach the same registry: the enum member and the plain name.
+    """
+    shape = call()  # type: ignore[operator]
+    assert shape.vnf().is_watertight()
+    assert max(shape.bounds().size) == pytest.approx(22.0, abs=0.1), "12 ribs standing 1mm proud on r=10"
 
 
 @pytest.mark.parametrize(

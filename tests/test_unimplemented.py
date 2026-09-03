@@ -11,10 +11,10 @@ A parameter in a public signature is a promise. Four of them were not kept -- `c
 bare `NotImplementedError`, which is neither a `Bosl2Error` (so `except Bosl2Error` missed it) nor
 a refusal that names an alternative (E-2).
 
-`texture=` is the one that matters most: SPEC S-34 and S-35 specify textures as a working
-subsystem, the registry *is* built (`texture("diamonds")` returns its tile), and thirteen public
-constructors take the five texture parameters. It was found while trying to build a `Texturing`
-argument group for those five (T30) -- there is no point grouping parameters no call can honour.
+`texture=` was the one that mattered most, and it is **built** now (T37): SPEC S-34 and S-35
+specify textures as a working subsystem, and the cylinder family honours the five parameters
+rather than refusing them. It was found while trying to build a `Texturing` argument group for
+those five (T30) -- there is no point grouping parameters no call can honour.
 
 So the gaps are named here, and the list only shrinks.
 """
@@ -37,7 +37,6 @@ KNOWN_GAPS: frozenset[str] = frozenset(
     {
         "caps.py::endcap_polys",  # CapType.CIRCLE
         "shapes3d/cuboid.py::cuboid",  # teardrop=
-        "shapes3d/cylinder.py::cyl",  # texture= and its four companions (SPEC S-34, S-35)
         "vnf.py::from_field",  # tuple (lo, hi) isovalue ranges
     }
 )
@@ -105,18 +104,26 @@ def test_the_gap_list_is_not_stale() -> None:
 
 def test_the_refusal_is_both_bases_and_names_a_way_forward() -> None:
     """SPEC E-1 and E-2, exercised rather than read off the class statement."""
-    from pybosl2 import cyl
+    from pybosl2 import cuboid
 
     with pytest.raises(Bosl2NotImplementedError) as caught:
-        cyl(height=20, radius=10, texture="diamonds")
+        cuboid([20, 20, 20], rounding=3, teardrop=True)
     error = caught.value
     assert isinstance(error, Bosl2Error), "except Bosl2Error must catch it (E-1)"
     assert isinstance(error, NotImplementedError), "callers catching the stdlib type still work"
-    assert "texture(" in str(error), "the refusal must name what does work (E-2)"
+    assert "rounding=" in str(error), "the refusal must name what does work (E-2)"
 
 
-def test_the_texture_registry_works_even_though_the_parameter_does_not() -> None:
-    """The half that is built, so the refusal's advice is not a dead end (SPEC S-34)."""
-    from pybosl2 import texture
+def test_the_texture_parameter_is_built_now() -> None:
+    """`texture=` was the largest of these gaps and is closed (T37, SPEC S-34/S-35).
+
+    The registry was always built; what was missing was applying a tile to a surface. A textured
+    cylinder is a real, watertight solid that differs from the plain one.
+    """
+    from pybosl2 import cyl, texture
 
     assert texture("diamonds"), "the named-texture registry should return a tile"
+    plain = cyl(height=20, radius=10, tex_depth=0)
+    ribbed = cyl(height=20, radius=10, texture="ribs", tex_reps=[12, 1], tex_depth=1.5)
+    assert ribbed.vnf().is_watertight()
+    assert ribbed.vnf().volume() > plain.vnf().volume()

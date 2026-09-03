@@ -51,10 +51,12 @@ __all__ = [
     "Facets",
     "EdgeTreatment",
     "EdgeSelection",
+    "Texturing",
     "resolve_placement",
     "resolve_placement_2d",
     "resolve_edge_treatment",
     "resolve_edge_selection",
+    "resolve_texturing",
 ]
 
 #: What an unset member looks like, so "not given" is distinguishable from "given the default".
@@ -667,3 +669,120 @@ def resolve_edge_selection(
         )
     resolved = selection.as_kwargs()
     return resolved["edges"], resolved.get("except_edges")
+
+
+@dataclass(frozen=True, slots=True)
+class Texturing:
+    """A surface texture and how it is applied: the five parameters that always travel together.
+
+    They travel together on all 11 callables that take more than one of them, which is the
+    cleanest group in the library by that measure. It could not be built until there was something
+    to group -- every one of those parameters refused until T37 built the application half of the
+    texture subsystem (SPEC S-34, S-35).
+
+    *size* and *reps* are alternatives, and the group holds at most one, so the pair cannot
+    disagree (SPEC G-7): give the tile's size in millimetres, or how many times it repeats.
+
+    Attributes:
+        texture: The texture, by name or already built.
+        size: Size of one tile as ``[around, along]`` in millimetres.
+        reps: Repeat counts as ``[around, along]``, instead of *size*.
+        depth: How far the texture displaces the surface. Negative sinks it in.
+        inset: How far the surface is sunk before the texture is added. ``True`` means one depth.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2 import Texturing, cyl
+
+            cyl(height=30, radius=12, texturing=Texturing("ribs", reps=[16, 1], depth=1.5)).show()
+
+    """
+
+    texture: Any = None
+    size: "float | Sequence[float] | None" = None
+    reps: "int | Sequence[int] | None" = None
+    depth: float = 1.0
+    inset: float | bool = False
+
+    def __post_init__(self) -> None:
+        """Refuse a tile that is both sized and counted (SPEC G-7).
+
+        Raises:
+            Bosl2ValueError: if *size* and *reps* are both given.
+
+        """
+        if self.size is not None and self.reps is not None:
+            raise Bosl2ValueError(
+                f"Texturing(): given size={self.size!r} and reps={self.reps!r}. A tile is sized "
+                f"or counted, not both -- size says how big one tile is in millimetres, reps says "
+                f"how many of them there are."
+            )
+
+    def as_kwargs(self) -> dict[str, Any]:
+        """Return the group as the keyword arguments a constructor declares.
+
+        Returns:
+            A mapping with ``texture``, ``tex_depth`` and ``tex_inset``, plus whichever of
+            ``tex_size``/``tex_reps`` is set.
+
+        """
+        out: dict[str, Any] = {
+            "texture": self.texture,
+            "tex_depth": self.depth,
+            "tex_inset": self.inset,
+        }
+        if self.size is not None:
+            out["tex_size"] = self.size
+        if self.reps is not None:
+            out["tex_reps"] = self.reps
+        return out
+
+
+def resolve_texturing(
+    texturing: "Texturing | None",
+    texture: Any,
+    tex_size: "float | Sequence[float] | None",
+    tex_reps: "int | Sequence[int] | None",
+    tex_depth: float | None,
+    tex_inset: float | bool | None,
+    function: str,
+) -> "tuple[Any, float | Sequence[float] | None, int | Sequence[int] | None, float | None, float | bool | None]":
+    """Resolve a texturing group against the loose ``tex_*`` arguments.
+
+    Args:
+        texturing: The group, or ``None``.
+        texture: The loose ``texture`` as passed.
+        tex_size: The loose ``tex_size`` as passed.
+        tex_reps: The loose ``tex_reps`` as passed.
+        tex_depth: The loose ``tex_depth`` as passed.
+        tex_inset: The loose ``tex_inset`` as passed.
+        function: Name of the calling function, for the error message.
+
+    Returns:
+        The ``(texture, tex_size, tex_reps, tex_depth, tex_inset)`` to use.
+
+    Raises:
+        Bosl2ValueError: if the group is given beside any loose member (SPEC G-3).
+
+    """
+    if texturing is None:
+        return texture, tex_size, tex_reps, tex_depth, tex_inset
+    given = [
+        name
+        for name, value, default in (
+            ("texture", texture, None),
+            ("tex_size", tex_size, None),
+            ("tex_reps", tex_reps, None),
+            ("tex_depth", tex_depth, 1.0),
+            ("tex_inset", tex_inset, False),
+        )
+        if value is not None and value != default
+    ]
+    if given:
+        raise Bosl2ValueError(
+            f"{function}(): given both texturing= and {', '.join(given)}=. A Texturing already "
+            f"says which texture and how it is applied, so passing one beside it cannot mean two "
+            f"things -- drop texturing=, or drop the loose argument."
+        )
+    return texturing.texture, texturing.size, texturing.reps, texturing.depth, texturing.inset

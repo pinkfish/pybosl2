@@ -88,6 +88,7 @@ from pybosl2.groups import EdgeSelection as EdgeSelection
 from pybosl2.groups import EdgeTreatment as EdgeTreatment
 from pybosl2.groups import Facets as Facets
 from pybosl2.groups import Placement as Placement
+from pybosl2.groups import Texturing as Texturing
 from pybosl2.isosurface import Metaball as Metaball
 from pybosl2.isosurface import MetaballSpec as MetaballSpec
 from pybosl2.isosurface import mb_capsule as mb_capsule
@@ -267,6 +268,7 @@ __all__: list[str] = [
     "Shape",
     "Solid",
     "TOP",
+    "Texturing",
     "UP",
     "UnsupportedByBackendError",
     "VNF",

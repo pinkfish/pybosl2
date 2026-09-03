@@ -37,6 +37,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "Facets": ("pybosl2.groups", "Facets"),
     "EdgeTreatment": ("pybosl2.groups", "EdgeTreatment"),
     "EdgeSelection": ("pybosl2.groups", "EdgeSelection"),
+    "Texturing": ("pybosl2.groups", "Texturing"),
     "EdgeTreatmentKind": ("pybosl2.enums", "EdgeTreatmentKind"),
     "current_defaults": ("pybosl2.defaults", "current_defaults"),
     "use_defaults": ("pybosl2.defaults", "use_defaults"),
