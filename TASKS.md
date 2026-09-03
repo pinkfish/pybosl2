@@ -52,6 +52,8 @@ spec renumbers as items close, and all but S-46a have.
 | 9 | DOC-5 / DOC-6 / Q-6 | [T23](docs/tasks-archive.md#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
 | 3 | spec maintainability | [T26](#t26--make-the-requirements-measurable) ✅ | M |
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) ✅ | M |
+| 3 | spec maintainability | [T38](#t38--triage-every-requirement) ✅ | L |
+| 3a | 19 unchecked rules | [T39](#t39--close-the-nineteen) | M |
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
@@ -720,6 +722,73 @@ stops measuring anything. It returns to 0 when the façade duplication does.
 **Still open:** the other twelve constructors that declare the texture parameters — the bottle caps
 and `textured_tile` — and the three remaining gaps in `tests/test_unimplemented.py`.
 
+
+## T38 — Triage every requirement ✅
+
+**Closes:** §12.2 item 3 (the last third) · **Needs:** T26 · **Size:** L
+
+**All 275 requirements are triaged.** This is the number the registry was built to produce, and
+until now it was 250 unknowns and a promise to look.
+
+| | |
+|---|---|
+| **enforced** | 208 — a named test that walks the package and fails when the rule is broken |
+| **reviewed** | 47 — judgements no test can make, each saying why |
+| **unenforced** | 19 — mechanically checkable and simply unchecked, each naming its missing guard |
+| **withdrawn** | 1 — S-26d, keeping its id per §13 rule 5 |
+
+**The method mattered, because the obvious one is wrong.** A test that *mentions* a requirement is
+not a test that *guards* it — that is exactly what T26 refused to infer, and doing the triage
+confirmed the refusal was right. Three passes of evidence, each narrower than the last:
+
+1. **A test whose own docstring cites the requirement.** 73 of the 250 — a deliberate claim, not
+   proximity.
+2. **…and which walks the package.** 39 of those 73. The other 34 cite the rule and exercise *one
+   case*: `test_size_only_rect_tube_gets_a_wall` is a real test of P-3 at one call site, and P-3 is
+   a rule about every call site. Those became `reviewed` or `unenforced` with the spot check named.
+3. **Reading the remainder.** For the subsystem series a mechanical check did the work honestly:
+   extract the symbols each requirement names, confirm they exist, and confirm tests exercise them
+   — deleting the feature then fails the suite, which is what "enforced" has to mean. 46 of 63 came
+   out fully covered; `S-22` came out one symbol short, and that symbol (`text3d`) is now a
+   recorded gap.
+
+**Even the citation evidence needed correcting by hand.** Of the 39 that passed both filters, about
+a quarter were mis-assigned: `Q-6` ("every docstring example type-checks") pointed at a test that
+checks CI *configuration*, and `B2-2` and `D-2` at scans covering one module of the surface they
+claim. Twelve of the tests I named while correcting them **did not exist** — wrong file, wrong name,
+or in one case a guard PLAN X-4 has always claimed and that has never been written
+(`test_no_public_return_type_is_a_flag_selected_union`, now recorded as T-6d's gap). The validation
+pass caught all twelve before anything was written, which is the only reason to run one.
+
+**Two ratchets replace the one.** `UNTRIAGED_BUDGET` is 0 and stays as a gate: a new requirement
+arrives untriaged and has to say what checks it before it can land. `UNENFORCED_BUDGET` is 19 and
+only shrinks — the work list is §12.2 item 3a, and T39 is closing it.
+
+---
+
+## T39 — Close the nineteen
+
+**Closes:** §12.2 item 3a · **Needs:** T38 · **Size:** M
+
+The 19 rules nothing checks, each already carrying a note that says what the guard would do. They
+group into three jobs rather than nineteen:
+
+1. **One signature scan** closes P-5, D-1 and T-9a (keyword-only past the subject argument), D-2
+   (required-argument count, checked for the masks only), R-P1 (the facet parameters' spelling) and
+   O-6b (an `anchor` not typed in the anchor language — how `text()` kept a `str` anchor until T36).
+2. **Four AST ratchets**, of exactly the kind already used for asserts and bare `ValueError`s:
+   `TODO` comments and stubbed bodies (S-3), `typing.Union`/`Optional` (L-2 — ruff's `UP` rules may
+   do it outright), dynamic-global registration (T-9), and flag-selected return unions (T-6d, which
+   PLAN X-4 has always claimed exists).
+3. **Five coverage gaps**: `text3d` (S-22), textures beyond the cylinders (S-35, and T37's own
+   remainder), parity per option rather than per shape (PAR-4), `bounds()` on every type S-2 names,
+   frozen spec objects (O-5), the passthrough allowlist naming real attributes (C-6), and the
+   dependency list against pyproject (L-4).
+
+**Done when:** `UNENFORCED_BUDGET` is 0, or a rule that cannot be checked has moved to `reviewed`
+with the argument for why written down.
+
+---
 
 ## Keeping this file honest
 

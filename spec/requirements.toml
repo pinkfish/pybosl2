@@ -58,7 +58,10 @@ enforced_by = []
 candidates = [
     "tests/test_mask_contract.py::test_no_public_masking_signature_mentions_a_native_type",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+The masking signatures are scanned for native types (tests/test_mask_contract.py), which is one module and one symptom. 'Do not copy OpenSCAD's calling conventions' is a design judgement across the whole API, and a reviewer is what applies it.
+'''
 
 [[requirement]]
 id = "SPEC-B2-3"
@@ -73,7 +76,10 @@ enforced_by = []
 candidates = [
     "tests/test_shape_contract.py::test_a_removed_synonym_does_not_come_back",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+test_a_removed_synonym_does_not_come_back guards C-21, which is adjacent: whether BOSL2's name is the one kept is a judgement about each name, not a property a test can check.
+'''
 
 [[requirement]]
 id = "SPEC-B2-4"
@@ -85,7 +91,10 @@ statement = '''
 Where behaviour deliberately differs, the docstring says so.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A docstring rule: where behaviour differs from BOSL2, say so. Nothing reads docstrings for departures.
+'''
 
 [[requirement]]
 id = "SPEC-P-1"
@@ -97,14 +106,16 @@ keyword = "MUST NOT"
 statement = '''
 A constructor SHOULD be usable with one required argument — the thing being made — and MUST NOT require more than two (D-2). Everything else has a default.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
+]
 candidates = [
     "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
     "tests/test_defaults.py::test_facade_never_defaults_an_argument_its_backend_requires",
     "tests/test_defaults.py::test_parts_build_from_their_catalogue_name_alone",
     "tests/test_part_show.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-P-2"
@@ -119,7 +130,10 @@ enforced_by = []
 candidates = [
     "tests/test_defaults.py::test_ambient_res_reaches_the_sdf_backend",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a default is 'the common case' rather than the neutral one is a judgement about what callers want. The named ones are asserted individually.
+'''
 
 [[requirement]]
 id = "SPEC-P-3"
@@ -137,7 +151,10 @@ candidates = [
     "tests/test_mask_contract.py::test_a_groove_derives_its_depth_and_length",
     "tests/test_masking_primitives.py::test_mask2d_step_is_square_unless_told_otherwise",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Spot-checked at rect_tube (test_defaults.py::test_size_only_rect_tube_gets_a_wall). Whether a given value *could* have been derived is a judgement about the domain, not a property of a signature.
+'''
 
 [[requirement]]
 id = "SPEC-P-4"
@@ -152,7 +169,10 @@ enforced_by = []
 candidates = [
     "tests/test_defaults.py::test_parts_build_from_their_catalogue_name_alone",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Spot-checked by test_parts_build_from_their_catalogue_name_alone, which covers the parts. Naming the thing rather than its measurements is a design judgement elsewhere.
+'''
 
 [[requirement]]
 id = "SPEC-P-5"
@@ -164,7 +184,10 @@ statement = '''
 Positional arguments are for the one or two things everyone supplies; everything else is keyword-only.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing checks that everything past the subject argument is keyword-only; PLAN T-9a is the same rule in Python spelling and equally unchecked. A signature scan covers both.
+'''
 
 [[requirement]]
 id = "SPEC-P-6"
@@ -176,7 +199,10 @@ statement = '''
 No behaviour is reachable only through a default.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+R-5 gives the ambient defaults their opt-out and that is tested. Whether some *other* behaviour is reachable only through a default is a question about behaviour that does not exist yet.
+'''
 
 [[requirement]]
 id = "SPEC-P-7"
@@ -188,8 +214,13 @@ keyword = "MUST"
 statement = '''
 A rejected call MUST say what was wrong *and* what to do instead (§9).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_validation_messages.py",
+]
+status = "enforced"
+note = '''
+Every rejection path is exercised and its message asserted, which is the rule's second half.
+'''
 
 [[requirement]]
 id = "SPEC-P-8"
@@ -206,7 +237,10 @@ candidates = [
     "tests/test_partitions.py::test_bosl2_solid_gets_its_cuts_from_the_partitions_mixin",
     "tests/turtle/test_turtle_methods.py",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Spot-checked where it was broken (the partitions mixin, test_partitions.py). 'A family of free functions should be a class' is a judgement no scan can make -- prefix-sharing functions are not always a family.
+'''
 
 [[requirement]]
 id = "SPEC-A-1"
@@ -252,12 +286,14 @@ keyword = "MUST"
 statement = '''
 L0 MUST remain usable and tested with no CAD runtime installed.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
+]
 candidates = [
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
     "tests/test_no_mesher.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-A-3"
@@ -268,7 +304,10 @@ statement = '''
 New geometry algorithms belong in L0, with native call sites isolated in L2.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Where a *new* algorithm belongs is a review question. A-1's layer test catches it only once it has imported upwards.
+'''
 
 [[requirement]]
 id = "SPEC-A-4"
@@ -279,12 +318,14 @@ keyword = "MUST"
 statement = '''
 `import pybosl2` MUST stay cheap: top-level names resolve lazily, and every lazily exported name MUST still be statically declared so editors and type checkers see the full API.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_init_stub.py::test_stub_exists",
+]
 candidates = [
     "tests/test_docs_links.py::test_import_pybosl2_needs_no_optional_dependency",
     "tests/test_init_stub.py::test_stub_exists",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-A-5"
@@ -296,7 +337,10 @@ statement = '''
 `square`/`circle`/`cube`/`text` intentionally shadow the OpenSCAD builtins with the anchor-aware versions, so the package MUST NOT be wildcard re-exported.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing asserts the package has no `__all__`-driven wildcard story or that the shadowing names are documented as deliberate. The shadowing itself is intentional and tested; the 'do not wildcard re-export' half is not.
+'''
 
 [[requirement]]
 id = "SPEC-A-6"
@@ -327,11 +371,13 @@ keyword = "MUST"
 statement = '''
 A name in a module's `__all__` MUST resolve. An `__all__` entry with no matching attribute breaks `import *` and every tool that walks the export list.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_all_entry_resolves",
+]
 candidates = [
     "tests/test_exports.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-A-8"
@@ -343,12 +389,14 @@ keyword = "MUST"
 statement = '''
 Where the top level exports part of a named family, it exports all of it: five `mask2d_*` without `mask2d_roundover`, or the sweep enums without `SweepMethod`, is drift rather than a decision, and it costs the caller an import hunt at exactly the moment the design was meant to be paying off. The families that MUST be reachable from `pybosl2` are the ones the spec names as the way to do something: the sweeps (S-19), their enums and the `os_*` end treatments (S-20, S-21), the masks (S-26), the turtles (S-10), `Quaternion` (S-5), and the corner-treatment entry points (S-8). Checked by a test, not by review.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_the_named_families_are_exported_whole",
+]
 candidates = [
     "tests/test_exports.py::test_polyline_ratchet_would_catch_a_raw_nesting",
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-A-9"
@@ -360,12 +408,14 @@ keyword = "MUST NOT"
 statement = '''
 An internal helper — argument forwarding, signature filtering, registry access — MUST NOT appear in a public `__all__`. `given_arguments` is such a helper.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_no_public_all_advertises_internal_plumbing",
+]
 candidates = [
     "tests/test_exports.py::test_no_public_all_advertises_internal_plumbing",
     "tests/test_exports.py::test_polyline_ratchet_would_catch_a_raw_nesting",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-15"
@@ -377,12 +427,14 @@ keyword = "MUST"
 statement = '''
 `Shape` declares everything true of every shape on every backend: the `backend` tag, the boolean operators, the transforms, `bounds()`, and `show()` (§6.16). `Flat` and `Solid` extend it and add **only** what is genuinely dimensional. A member that both would declare identically MUST live on `Shape` instead — that duplication is how `Flat` came to be missing `bounds()` (S-2) and to be typed `Any` long after `Solid` was not.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
     "tests/test_sdf_flat_parity.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-16"
@@ -394,11 +446,13 @@ keyword = "MUST"
 statement = '''
 Every operation on a shape returns *the same kind of shape*, and an operand of a boolean MUST be the same kind: `flat | flat` and `solid | solid` are the only spellings, and `flat | solid` is a static error, not a runtime surprise. This is C-4 enforced by the contract rather than by convention.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
+]
 candidates = [
     "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-17"
@@ -409,12 +463,14 @@ title = "Crossing dimensions is explicit and named."
 statement = '''
 `Flat` → `Solid` happens only through an extrusion or sweep; `Solid` → `Flat` only through `projection`. Each direction is a method a reader can see at the call site; neither happens implicitly.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
     "tests/test_sdf_flat_parity.py::test_minkowski_refuses_and_names_the_thing_that_does_work",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-18"
@@ -425,11 +481,13 @@ title = "One declaration site, one name each."
 statement = '''
 All three protocols are declared together in the backend-contract layer (L1), so a change to the shared surface cannot land on one dimension and miss the other. `Shape`, `Flat` and `Solid` are the only names for them — no aliases: a second spelling of a contract is a second thing to keep in step, and `Shape2D` was exactly that.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-19"
@@ -441,7 +499,9 @@ keyword = "SHOULD"
 statement = '''
 Both are operations on "any shape", not on solids specifically, so they SHOULD be members of `Shape` (S-37, S-31). They are universal now: the SDF backend's solids carry colour as field metadata, and its 2-D shapes gained the same shared mixins the solids had (`Colorable`, `Anchorable`, `Distributable`). The gap was never a limit of distance fields — colour is metadata, distribution is matrices, and anchoring needs only a bounding box, which an SDF carries exactly. It was the 2-D shape having inherited none of it.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_colour_and_modifiers_are_recorded_on_the_field",
+]
 candidates = [
     "tests/test_backend_parity.py::test_colour_and_modifiers_are_recorded_on_the_field",
     "tests/test_regions.py::test_geometry_preserves_color",
@@ -449,7 +509,7 @@ candidates = [
     "tests/test_sdf_flat_parity.py::test_the_sdf_flat_shape_satisfies_the_contract",
     "tests/test_shape_contract.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-20"
@@ -507,7 +567,10 @@ candidates = [
     "tests/test_sdf_flat_parity.py::test_distribute_on_path_unions_the_copies_into_one_shape",
     "tests/test_shape_contract.py::test_the_contract_is_the_whole_object",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+The contract test walks what each protocol declares, but nothing asks whether a member landing on `Flat` alone is *genuinely dimensional* -- that is a judgement about the operation, which is why xflip/yflip sat on Flat alone for so long.
+'''
 
 [[requirement]]
 id = "SPEC-C-23"
@@ -532,14 +595,16 @@ section = "5.1 Shapes"
 statement = '''
 Every shape carries a `backend` tag naming the backend that **produced** it. It is a property of the object, never a reading of the ambient backend at construction time — a CSG shape built inside a `use_backend("sdf")` block is still a CSG shape, and must say so. Booleans and transforms return a shape on the same backend; mixing raises `CrossBackendError` naming the conversion that fixes it. A tag that reports the ambient backend defeats that guard entirely and turns a clear error into an internal one.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py::test_a_csg_shape_built_inside_an_sdf_block_still_says_csg",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_2d_shape_constructors_refuse_on_another_backend",
     "tests/test_backend_matrix.py::test_a_csg_shape_built_inside_an_sdf_block_still_says_csg",
     "tests/test_backend_parity.py::test_every_directional_move_stays_in_the_field",
     "tests/test_backend_parity.py::test_sdf_shapes_keep_their_backend_through_moves_and_colour",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-2"
@@ -549,8 +614,13 @@ section = "5.1 Shapes"
 statement = '''
 Operators are the primary spelling: `|` union, `&` intersection, `-` difference.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_shapes3d.py",
+]
+status = "enforced"
+note = '''
+The operators are exercised across the shape surface; a shape without them fails immediately.
+'''
 
 [[requirement]]
 id = "SPEC-C-3"
@@ -561,7 +631,10 @@ statement = '''
 Shapes are immutable by convention: every operation returns a new shape, so calls chain. `attach()` and `tag()` copy rather than mutate; the `attachments` / `tag_name` setters exist for those copies to use and are not part of the public contract.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Immutability is 'by convention' in the rule's own words. Individual operations are checked to return new objects; nothing walks the surface asserting no method mutates self.
+'''
 
 [[requirement]]
 id = "SPEC-C-4"
@@ -571,11 +644,13 @@ section = "5.1 Shapes"
 statement = '''
 2-D and 3-D never mix implicitly; a flat shape reaches 3-D only through an explicit extrude or sweep, and the contract itself enforces it (C-16, C-17).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
+]
 candidates = [
     "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-5"
@@ -585,8 +660,13 @@ section = "5.1 Shapes"
 statement = '''
 Shared behaviour (transforms, directional moves, CSG, colour, tags, distribution) lives once in the common base, not duplicated per dimension.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_shape_contract.py::test_the_contract_is_the_whole_object",
+]
+status = "enforced"
+note = '''
+A member duplicated per dimension shows up as a contract mismatch, which is how O-1c's duplicate mixin was found.
+'''
 
 [[requirement]]
 id = "SPEC-C-6"
@@ -598,7 +678,10 @@ statement = '''
 Forwarding to a native object is limited to an explicit allowlist, and every forwarded name MUST exist on the wrapped object and be statically declared.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+The `_NATIVE_PASSTHROUGH` allowlist exists, but nothing checks that every forwarded name exists on the wrapped object -- which is the half of the rule that catches a typo'd passthrough.
+'''
 
 [[requirement]]
 id = "SPEC-C-7"
@@ -609,13 +692,15 @@ keyword = "MUST"
 statement = '''
 `Path` is abstract; `Path2D`/`Path3D` are selected by point dimension. Any API taking a polyline MUST accept a `Path` — and MUST say so in its signature, not merely tolerate one at runtime: a caller feeding one function's result to the next is the normal way to use the library, and it must type-check ([PLAN T-4](PLAN.md#2-typing)).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_polyline_parameter_accepts_a_path",
+]
 candidates = [
     "tests/test_exports.py::test_every_polyline_parameter_accepts_a_path",
     "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
     "tests/test_polyline_parameters.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-7a"
@@ -650,11 +735,13 @@ keyword = "MUST"
 statement = '''
 Where only one width will do, the check MUST be for the *concrete* type, not for `Path`. `Path2D` and `Path3D` are siblings, so a guard that asks only "is this a `Path`?" lets a `Path3D` satisfy a `Path2D` parameter and reach a formula that reads columns 0 and 1 and drops z — a wrong answer rather than a refusal, which is worse than the bare sequence this requirement set out to remove, because it is silent. `require_path(..., expect=Path2D)` performs it, and says how to convert.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_a_path_annotation_is_backed_by_a_guard",
+]
 candidates = [
     "tests/test_polyline_parameters.py::test_polygon_area_is_planar_and_says_so",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-7b"
@@ -665,14 +752,16 @@ keyword = "MUST"
 statement = '''
 The refusal MUST name the wrapper to apply. Raw points are what a newcomer has — literals, a CSV, another library's output — so `polygon([[0,0],[1,0],[1,1]])` is the natural first attempt, and the error it produces is the library's chance to teach the type rather than merely reject the call (E-4).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_the_refusal_names_the_wrapper_to_apply",
+]
 candidates = [
     "tests/test_polyline_parameters.py::test_the_refusal_names_the_wrapper_to_apply",
     "tests/test_polyline_parameters.py::test_the_sdf_2d_entry_points_refuse_raw_points",
     "tests/test_polyline_parameters.py::test_the_sdf_path_utilities_refuse_raw_points",
     "tests/test_validation_messages.py::test_polygon_prism_names_the_wrapper_for_a_non_path",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-7c"
@@ -682,11 +771,16 @@ section = "5.2 Geometry objects"
 statement = '''
 `PathLike` remains, but is **internal**: it types the normalisation step inside a function body, never a public parameter. Its docstring said it was "anything an API that wants a polyline accepts", which made the permissive form look like the intended contract at every call site that imported it.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_no_new_parameter_takes_raw_points",
+]
 candidates = [
     "tests/test_polyline_parameters.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+PathLike in a public signature is what the ratchet counts.
+'''
 
 [[requirement]]
 id = "SPEC-C-8"
@@ -697,13 +791,18 @@ keyword = "SHOULD"
 statement = '''
 `Region` is outlines-with-holes; `VNF` is the vertex/face mesh interchange type. Anything that can produce a mesh SHOULD be able to produce a `VNF`, so it can be inspected and measured with no CAD runtime present.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_vnf.py",
+]
 candidates = [
     "tests/test_sweep_contract.py::test_every_sweep_keeps_its_mesh_reachable",
     "tests/test_texture.py::test_the_tile_functions_trade_in_meshes_not_halves",
     "tests/test_vnf.py::test_is_watertight_on_a_closed_and_an_open_mesh",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+VNF is the interchange type and is exercised as one; `.vnf()` on the sweeps is separately checked.
+'''
 
 [[requirement]]
 id = "SPEC-C-9"
@@ -714,7 +813,10 @@ statement = '''
 Geometry objects own their operations as methods and return new objects (C-3).
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+True of the geometry types today and tested per type, but nothing requires a *new* method to return a new object rather than mutate.
+'''
 
 [[requirement]]
 id = "SPEC-C-10"
@@ -725,11 +827,16 @@ keyword = "MUST NOT"
 statement = '''
 One enum (`Anchor`) covers faces, edges, corners, and axis presets, each member carrying its own vector. Any "which face/edge/corner" parameter MUST accept it; new APIs MUST NOT invent a parallel string or integer vocabulary.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_anchor.py",
+]
 candidates = [
     "tests/test_sdf_flat_parity.py::test_distribute_on_path_unions_the_copies_into_one_shape",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The anchor language is exercised across faces, edges, corners and axis presets.
+'''
 
 [[requirement]]
 id = "SPEC-C-11"
@@ -739,8 +846,13 @@ section = "5.3 The anchor language"
 statement = '''
 The `constants.py` names (`TOP`, `LEFT`, `CENTER`, …) are aliases kept for BOSL2 familiarity; `Anchor.TOP` is preferred in new code and examples.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_constants.py",
+]
+status = "enforced"
+note = '''
+The constants are asserted to be the Anchor members they alias.
+'''
 
 [[requirement]]
 id = "SPEC-C-12"
@@ -750,8 +862,13 @@ section = "5.4 Attachment"
 statement = '''
 A solid can carry attached children, positioned by anchor (`attach`, `position`, `align`, `reorient`, `orient`), tagged for boolean resolution (`AttachTag.KEEP` / `REMOVE` / `INTERSECT`), and resolved with `diff()` / `intersect()` at realize time.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_attachments.py",
+]
+status = "enforced"
+note = '''
+Attachment, tagging and the boolean resolution are exercised end to end.
+'''
 
 [[requirement]]
 id = "SPEC-C-13"
@@ -761,11 +878,13 @@ section = "5.4 Attachment"
 statement = '''
 Attachment is a CSG-backend feature; the SDF backend refuses it explicitly (§7.1).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+]
 candidates = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-14"
@@ -775,14 +894,16 @@ section = "5.5 Parts"
 statement = '''
 Every part is a class (P-8) that resolves its inputs into a frozen **spec object**, exposes derived dimensions as read-only properties, builds geometry lazily under a `shape` **property** (`Screw("M6", length=20).shape`, not `.shape()`), and offers `show()`. Callers can therefore *measure* a part without building it.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
+]
 candidates = [
     "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
     "tests/test_parts_are_lazy.py::test_a_lazy_part_answers_its_catalogue_without_building",
     "tests/test_parts_are_lazy.py::test_no_part_becomes_eager",
     "tests/test_parts_are_lazy.py::test_reading_a_derived_property_never_triggers_a_build",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-C-14a"
@@ -794,7 +915,10 @@ statement = '''
 Note the deliberate difference in what `.shape` means either side of the FFI boundary: on a part it is the finished `Solid`/`Flat`; on a backend wrapper (`CsgSolid.shape`) it is the raw native handle being wrapped. Docstrings MUST say which one they mean.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A docstring rule: that each `.shape` says which side of the FFI it means. Nothing reads docstrings for it.
+'''
 
 [[requirement]]
 id = "SPEC-S-1"
@@ -804,8 +928,10 @@ section = "6.1 Maths, points and vectors"
 statement = '''
 Scalar and vector helpers (`slerp`, `modang`, `quant`, `constrain`, `mean`, `EPSILON`) mirror BOSL2's maths, implemented on Python/NumPy primitives rather than re-derived.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_math.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-2"
@@ -850,7 +976,9 @@ keyword = "MUST NOT"
 statement = '''
 A shape's `size` is its **nominal anchor box**, and is not required to equal its bounding box. `anchor=` is measured against the box the shape is *designed* around — a gear's pitch circle, a regular polyhedron's circumsphere, the plate a snap fitting mounts on — so real geometry may sit inside it (a polyhedron inside its circumsphere) or stand outside it (gear teeth past the pitch circle, a truss clip's hooks past the cell it grips). `bounds()` reports the geometry and MUST prefer the native bounding box; it falls back to `size` only where no native box is available. A part whose `size` differs from its `bounds()` MUST say at the declaration which box it is naming and why. Tests MUST NOT assert that the two agree.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_dimension_validation.py",
+]
 candidates = [
     "tests/test_anchoring_parity.py::test_reanchor_records_the_anchor_where_a_nominal_box_exists",
     "tests/test_bounds_contract.py::test_bounds_tracks_the_geometry_through_a_boolean",
@@ -862,7 +990,7 @@ candidates = [
     "tests/test_sdf_flat_parity.py::test_distribute_on_path_unions_the_copies_into_one_shape",
     "tests/test_sdf_flat_parity.py::test_the_nominal_box_is_carried_and_is_not_the_measurement",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-3"
@@ -872,8 +1000,10 @@ section = "6.1 Maths, points and vectors"
 statement = '''
 Line/plane/polygon predicates and intersections (`geometry`) operate on `Point`s and `Path`s, and honour the `SEGMENT`/`RAY`/`LINE` specifiers.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_paths.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-4"
@@ -883,8 +1013,10 @@ section = "6.2 Transforms and rotations"
 statement = '''
 Affine transforms are 4×4 matrices; the library provides construction (`axis_angle_matrix`, `rot_from_to`, `rot_about_axis`), inversion, decoding, and application (`apply`, `reorient`).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_transforms.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-5"
@@ -894,11 +1026,13 @@ section = "6.2 Transforms and rotations"
 statement = '''
 `Quaternion` is a class with the full rotation algebra (multiply, slerp, to-matrix, to-axis, rotate-point), and is the preferred spelling for interpolated rotation.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-6"
@@ -908,8 +1042,10 @@ section = "6.2 Transforms and rotations"
 statement = '''
 Shapes expose the common transforms as chainable methods — `translate`, `rotate`, `scale`, `mirror`, `multmatrix`, and the directional moves `up`/`down`/`left`/`right`/ `forward`/`back`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_parity.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-7"
@@ -919,8 +1055,10 @@ section = "6.3 Paths and curves"
 statement = '''
 A `Path` is an ordered point list with an open/closed flag, and owns its measurement (length, perimeter, tangents, normals, curvature, torsion), its sampling (`subdivide_path`, `resample_path`, `select`, `cut`, `closest_point`), and its cleanup (`deduplicate`, `merge_collinear`).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_paths.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-8"
@@ -931,8 +1069,10 @@ keyword = "MUST"
 statement = '''
 Corner treatment (`round_corners`, `smooth_path`) MUST support BOSL2's rounding methods (circle / smooth / chamfer) and size measures (radius / cut / joint / width) as enums.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_rounding.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-9"
@@ -942,8 +1082,10 @@ section = "6.3 Paths and curves"
 statement = '''
 Bezier curves and patches (`Bezier`, `BezierPatch`) and NURBS curves and patches (`NurbsCurve`, `NurbsPatch`) are classes that evaluate, subdivide, and convert to `Path`s or `VNF`s, so they interoperate with everything else.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_validation_messages.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-10"
@@ -953,11 +1095,13 @@ section = "6.3 Paths and curves"
 statement = '''
 Turtle graphics (`turtle2d`, `turtle3d`) build paths from a command list, and their output is an ordinary `Path`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_documented_arguments.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-11"
@@ -968,8 +1112,13 @@ keyword = "MUST"
 statement = '''
 A path MUST be able to become geometry: polygon/region fill, extrusion, sweep, or stroke (§6.7). "Become geometry" means it returns a **shape** — the caller asked for a solid and must get one, not a mesh plus an incantation (S-19a).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_paths.py",
+]
+status = "enforced"
+note = '''
+The path-to-geometry bridge is exercised for polygon, region, extrusion and stroke; T29 also made it return the contract type.
+'''
 
 [[requirement]]
 id = "SPEC-S-12"
@@ -979,8 +1128,10 @@ section = "6.4 Regions"
 statement = '''
 A `Region` is a set of outlines with holes, supporting boolean union/difference/ intersection, offset, and decomposition back into `Path2D`s.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_rounding.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-13"
@@ -991,8 +1142,13 @@ keyword = "MUST"
 statement = '''
 Region booleans MUST be exact and independent of any CAD runtime.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_regions.py",
+]
+status = "enforced"
+note = '''
+Region booleans are tested with no CAD runtime, which is both halves of the rule.
+'''
 
 [[requirement]]
 id = "SPEC-S-14"
@@ -1003,8 +1159,10 @@ keyword = "MUST"
 statement = '''
 A `Region` MUST be able to render as a 2-D shape or extrude to a solid, and to carry colour through that conversion (§6.12).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_rounding.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-15"
@@ -1014,8 +1172,10 @@ section = "6.5 Meshes and surfaces"
 statement = '''
 `VNF` (vertices + faces) is the mesh interchange type: constructed from grids (`vertex_array`, `tri_array`), from fields (`from_field`), from metaballs (`from_metaballs`), or from skinned profiles (`from_skin`); combined (`union`, `join`); cut (`halfspace`, `slice`); measured (`bounds`, `volume`); and realized (`polyhedron`).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_vnf.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-16"
@@ -1025,8 +1185,10 @@ section = "6.5 Meshes and surfaces"
 statement = '''
 Height fields and function plots (`heightfield`, `cylindrical_heightfield`, `plot3d`, `plot_revolution`) produce meshes from data or a callable, with an explicit sampling range.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_validation_messages.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-17"
@@ -1037,8 +1199,10 @@ keyword = "MUST"
 statement = '''
 Implicit surfaces — metaballs (`mb_sphere`, `mb_cuboid`, `mb_torus`, `mb_capsule`, `mb_disk`, `mb_octahedron`, `mb_connector`), `metaballs2d`, and `contour` — take an isovalue and a bounding box, and MUST expose their sampling resolution as an ordinary resolution argument (§8).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_isosurface.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-18"
@@ -1048,8 +1212,10 @@ section = "6.5 Meshes and surfaces"
 statement = '''
 Fillets and textured tiles (`fillet`, `interior_fillet`, `textured_tile`) and the `ruler` annotation are part of the surface toolkit.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_validation_messages.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-19"
@@ -1060,8 +1226,10 @@ keyword = "MUST"
 statement = '''
 The sweep family MUST cover BOSL2's: `path_sweep`, `path_sweep2d`, `linear_sweep`, `rotate_sweep`, `spiral_sweep`, `offset_sweep`, generic `sweep`, and `skin` across profiles.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_skin.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-19a"
@@ -1073,7 +1241,9 @@ keyword = "MUST NOT"
 statement = '''
 Every member of the sweep family returns a `Solid`, so its result composes with `-`/`|`/`&` and the transforms like any other shape. A caller writing `path.path_sweep(profile) - hole` MUST NOT have to know that a mesh was the intermediate, and MUST NOT have to append `.polyhedron()` to a call that already said "sweep this into a solid". The mesh stays reachable — `.vnf()` on the result, for measuring, joining or exporting without a CAD runtime (C-8) — but it is the detail, not the return value.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
 candidates = [
     "tests/test_beziers.py::test_bezier_sweep_valid",
     "tests/test_beziers.py::test_sweep_valid",
@@ -1082,7 +1252,7 @@ candidates = [
     "tests/test_sweep_contract.py::test_every_sweep_keeps_its_mesh_reachable",
     "tests/test_sweep_contract.py::test_every_sweep_returns_a_solid",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-19b"
@@ -1094,12 +1264,14 @@ keyword = "MAY"
 statement = '''
 No public callable MAY return a union whose arm is selected by one of its own boolean parameters. `path_sweep(..., transforms=True)` returning a list of matrices instead of geometry is the pattern this forbids: it makes the union unavoidable, so every caller of the *ordinary* case pays for the flag with a narrowing they cannot skip, and the documented one-liner stops type-checking. A flag that changes the return type is a second function — name it (`path_sweep_transforms()`), and let each return one thing.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
 candidates = [
     "tests/test_sweep_contract.py::test_no_sweep_signature_carries_a_union_return",
     "tests/test_sweep_contract.py::test_the_transforms_flag_is_its_own_function",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-19c"
@@ -1110,11 +1282,13 @@ title = "Sweeps agree on winding."
 statement = '''
 Every mesh the sweep family produces has outward-facing normals and therefore positive `volume()`. Two members of one family disagreeing on winding is not a stylistic difference: a mesh handed to `polyhedron()` inside-out exports fine on its own and then *adds* material where it was meant to cut. Whatever guards this for one member guards it for all of them.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
 candidates = [
     "tests/test_sweep_contract.py::test_every_sweep_winds_outward",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-20"
@@ -1124,11 +1298,13 @@ section = "6.6 Sweeps, skins and extrusions"
 statement = '''
 Sweeps take their cross-section orientation method, sampling type, and skin vertex-matching method as enums (`SweepMethod`, `SamplingType`, `SkinMethod`), never as strings.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-21"
@@ -1138,11 +1314,13 @@ section = "6.6 Sweeps, skins and extrusions"
 statement = '''
 Offset-sweep end treatments are objects (`os_circle`, `os_smooth`, `os_teardrop`, `os_chamfer`, `os_flat`, `os_profile`), so a rim treatment is passed as one value rather than several loose parameters.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-22"
@@ -1153,7 +1331,10 @@ statement = '''
 Other extrusions — `extrude_from_to`, `cylindrical_extrude`, `text3d`, `path_text`, `chain_hull`, `minkowski_difference` — are part of the specified surface.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Every extrusion the rule names is exercised except `text3d`, which nothing tests. One symbol, and the gap is the test.
+'''
 
 [[requirement]]
 id = "SPEC-S-23"
@@ -1164,8 +1345,10 @@ keyword = "MUST"
 statement = '''
 Any path MUST be strokeable: `stroke(width, closed, endcaps, endcap1, endcap2, joints)` yields a filled outline in 2-D and a solid tube in 3-D, and `dashed_stroke` yields the dashed form. Both are also part of the backend contract, so a stroke works on either backend.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_regions.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-23a"
@@ -1176,13 +1359,15 @@ title = "One family, one kind of answer."
 statement = '''
 A stroke is the **area the pen covers**, so in 2-D it is a `Region` — outlines-with-holes, which is what a dashed stroke needs and what a stroked region already returned — and in 3-D a `Solid`. `Path2D.stroke()` returning a `Path2D` described the *boundary* rather than the mark, and left one member of a four-member family answering a different kind of thing from the other three (`Path2D.dashed_stroke`, `Region.stroke`, `Region.dashed_stroke` all return `Region`; `Path3D.stroke` returns `Solid`). The underlying outline stays reachable through the region's `paths`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_rounding.py",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_stroke_of_a_2d_path_is_a_backend_free_outline",
     "tests/test_drawing.py::test_stroke_2d_builds",
     "tests/turtle/test_turtle2d.py::test_turtle_stroke",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-24"
@@ -1193,8 +1378,10 @@ keyword = "MUST"
 statement = '''
 End caps and joints are described by one type — `CapType` for the named styles (butt, round, sphere, circle, arrow variants, diamond, dot, tail, custom) and `CapSpec` for a parameterised or custom-path cap. A cap MUST be expressible as a single value passed to `endcap1=`/`endcap2=`/`joints=`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_drawing.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-25"
@@ -1206,7 +1393,10 @@ statement = '''
 Stroke width, cap geometry and joint geometry MUST scale together, and a decorative cap MUST trim the body so the finished stroke keeps the requested end position.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+That a decorative cap trims the body so the stroke keeps its requested end position is checked by eye in the render tests; nothing asserts the end position numerically.
+'''
 
 [[requirement]]
 id = "SPEC-S-26"
@@ -1216,11 +1406,13 @@ section = "6.8 Masks, profiles and edge treatments"
 statement = '''
 2-D mask profiles (`mask2d_roundover`, `mask2d_chamfer`, `mask2d_cove`, `mask2d_tear`, `mask2d_step`, `mask2d_groove`, …) and 3-D masks (`mask3d_roundover`, `mask3d_chamfer`, `mask3d_groove`) are first-class shapes, usable on their own or through a solid's `edge_mask`/`edge_profile`/`edge_profile_asym`/`corner_profile`/`face_profile`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_contract_typing.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-27"
@@ -1231,8 +1423,13 @@ keyword = "MUST"
 statement = '''
 Which edges or corners a treatment applies to MUST be expressed in the anchor language (C-10), including the `edges=`/`except_edges=` selectors and the axis presets.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_masking.py",
+]
+status = "enforced"
+note = '''
+Edge and corner selection goes through the anchor language, exercised across the mask surface.
+'''
 
 [[requirement]]
 id = "SPEC-S-26a"
@@ -1244,12 +1441,14 @@ keyword = "MUST"
 statement = '''
 A 3-D mask cuts a solid, and the solid already knows its own box, so `size=` MUST be optional and derived from the parent when the mask is applied through `edge_mask`/`edge_profile`/`corner_profile`/`face_profile` (P-3, D-6). `mask3d_roundover(r, size)` demanding two positional arguments — one of which is the parent's dimensions — is P-1 inverted on the treatment users reach for most.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_mask_contract.py",
+]
 candidates = [
     "tests/test_mask_contract.py::test_a_groove_derives_its_depth_and_length",
     "tests/test_mask_contract.py::test_a_named_treatment_needs_only_the_treatment",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-26b"
@@ -1260,12 +1459,14 @@ title = "Masks are applied by name, not by children."
 statement = '''
 The edge treatments take the *treatment*, not a native handle: `solid.round_edges(Anchor.TOP, radius=3)` and `solid.chamfer_edges(edges, chamfer=2)` are the spellings a caller should reach for, with `edge_mask(edges, mask)` remaining for a custom `Mask3D`. A parameter named `children` typed as a raw native object is OpenSCAD's module-with-children vocabulary surviving into a Python API, which B2-2 exists to replace, and it leaks an L2 type through an L3 signature (A-1).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_mask_contract.py",
+]
 candidates = [
     "tests/test_mask_contract.py::test_a_named_treatment_needs_only_the_treatment",
     "tests/test_mask_contract.py::test_no_mask_factory_has_more_than_one_required_argument",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-26c"
@@ -1276,13 +1477,15 @@ title = "Mask parameters follow the same rules as everything else."
 statement = '''
 A mask names its size measure the way the rest of the library does — `radius=`/`diameter=` through `pick_radius()` (D-5), not `r`; `width`/`depth`/`length` rather than `x`/`y` — and takes at most one required argument (D-2). `mask3d_groove(width, depth, length)` with three required positionals is the case D-2 says is never acceptable.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_mask_contract.py",
+]
 candidates = [
     "tests/test_mask_contract.py::test_a_mask_names_its_size_measure_the_way_everything_else_does",
     "tests/test_mask_contract.py::test_no_public_masking_signature_mentions_a_native_type",
     "tests/test_mask_contract.py::test_the_chamfer_profile_names_what_it_measures",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-26d"
@@ -1309,7 +1512,10 @@ statement = '''
 Rounding and chamfering MUST be available both as constructor parameters (`rounding=`, `chamfer=`, and their per-end variants) and as masks, and the two MUST agree geometrically.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Both spellings exist and are tested separately; that they *agree geometrically* is asserted nowhere. Comparing a rounded constructor against the equivalent mask is the missing test.
+'''
 
 [[requirement]]
 id = "SPEC-S-29"
@@ -1320,8 +1526,10 @@ keyword = "MUST"
 statement = '''
 A solid MUST be splittable for printing: `partition`, `partition_mask`, `partition_cut_mask`, `partition_path`, and the half-cuts (`half_of`, `left_half`, `top_half`, …).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_partitions.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-30"
@@ -1331,11 +1539,13 @@ section = "6.9 Partitions and joinery"
 statement = '''
 The cut profile is an enum (`PartitionCutType`: flat, sawtooth, sinewave, comb, finger, dovetail, hammerhead, jigsaw, square, triangle, halfsine, semicircle), with spread, gap and slop as defaulted parameters.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-31"
@@ -1346,11 +1556,13 @@ keyword = "MUST"
 statement = '''
 Copying is available in two forms that MUST stay in step: methods on a shape (`Distributable`: `line_copies`, `xcopies`/`ycopies`/`zcopies`, `grid_copies`, `rot_copies` and its axis variants, `arc_copies`, `sphere_copies`, `path_copies`, `mirror_copy`, flips) and the matrix-producing form (`DistributableMatrix`) for callers that want the transforms themselves.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_distributors.py",
+]
 candidates = [
     "tests/test_sdf_flat_parity.py::test_colour_does_not_leak_between_copies",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-32"
@@ -1360,8 +1572,10 @@ section = "6.10 Distribution and copies"
 statement = '''
 `xdistribute`/`ydistribute`/`zdistribute` spread a set of shapes along an axis by their own sizes; `distribute_on_path` places copies along a path with correct orientation.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_distributors.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-33"
@@ -1372,8 +1586,13 @@ keyword = "MUST"
 statement = '''
 Distribution MUST work on paths and 2-D shapes as well as solids.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_distributors.py",
+]
+status = "enforced"
+note = '''
+Distribution is exercised on paths and 2-D shapes as well as solids.
+'''
 
 [[requirement]]
 id = "SPEC-S-34"
@@ -1383,11 +1602,13 @@ section = "6.11 Textures"
 statement = '''
 Named textures (`texture("diamonds")`, ribs, bricks, pyramids, hills, rough, …) come from one registry, and each is either a height field or a VNF tile — the caller does not need to know which.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_documented_arguments.py",
+]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-35"
@@ -1399,7 +1620,10 @@ statement = '''
 Anything that can be textured MUST accept the texture by name or object plus the same set of controls: tile size or repeat count, depth, inset, rotation, and per-texture options.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Only the cylinder family accepts a texture at all (T37); the other twelve constructors declaring the parameters still refuse, so 'anything that can be textured' is not yet true, let alone checked.
+'''
 
 [[requirement]]
 id = "SPEC-S-36"
@@ -1409,8 +1633,10 @@ section = "6.12 Colour and display modifiers"
 statement = '''
 `Color` normalises every input form — CSS name, `#rrggbb`, RGB/RGBA sequences in 0–1 or 0–255 — into one RGBA value, and exposes `rgb`, `rgba`, `alpha`, `hex`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_color.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-37"
@@ -1420,11 +1646,13 @@ section = "6.12 Colour and display modifiers"
 statement = '''
 Colour is applied through chainable methods on anything drawable: `color`, `recolor` (recursive), `color_this` (this shape only), plus `hsl`/`hsv` construction. Opacity travels with the colour.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sdf_flat_parity.py",
+]
 candidates = [
     "tests/test_sdf_flat_parity.py::test_the_sdf_flat_shape_satisfies_the_contract",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-38"
@@ -1434,8 +1662,10 @@ section = "6.12 Colour and display modifiers"
 statement = '''
 The preview modifiers `highlight` (`#`) and `ghost` (`%`) are methods on the same contract, so a debugging aid is a chained call rather than a different API.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_parity.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-39"
@@ -1445,8 +1675,10 @@ section = "6.12 Colour and display modifiers"
 statement = '''
 `rainbow` / `rainbow_colors` colour a sequence of objects around the hue wheel.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_color.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-40"
@@ -1457,12 +1689,17 @@ keyword = "MUST"
 statement = '''
 Colour MUST be available on paths and regions as well as solids, and MUST survive the conversions between them where the target can carry it.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_color.py",
+]
 candidates = [
     "tests/test_sdf_flat_parity.py::test_colour_survives_the_extrusion_into_three_dimensions",
     "tests/test_sdf_flat_parity.py::test_the_sdf_flat_shape_satisfies_the_contract",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+Colour on paths and regions, and its survival through the conversions, are both exercised.
+'''
 
 [[requirement]]
 id = "SPEC-S-41"
@@ -1472,8 +1709,10 @@ section = "6.13 Import, export and interchange"
 statement = '''
 SVG import produces ordinary geometry: outlines (`svg_outlines`), a `Region` (`region_from_svg`), grouped elements (`svg_element_groups`), and colour-carrying rings (`svg_rings_with_colors`) — with curve flattening controlled by the ordinary resolution arguments (§8).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_svg.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-42"
@@ -1483,8 +1722,10 @@ section = "6.13 Import, export and interchange"
 statement = '''
 Mesh import (`osimport`, 2-D and 3-D) returns a wrapped shape that joins the fluent API, not a raw native handle.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_shapes2d_object.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-43"
@@ -1494,8 +1735,10 @@ section = "6.13 Import, export and interchange"
 statement = '''
 `polyhedron()` and `VNF.polyhedron()` are the mesh-to-solid boundary; `VNF` is the interchange type for anything that wants to inspect or measure geometry without a CAD runtime.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-53"
@@ -1507,12 +1750,14 @@ keyword = "MUST"
 statement = '''
 A caller who has built something MUST be able to write it to a file: `shape.export(path)` on any shape, `VNF.export(path)` on any mesh, with the format taken from the suffix and overridable. This section is titled "import, export and interchange" and specified only import; a modelling toolkit whose output can be *displayed* but not *saved* is not finished, and "drive the app yourself" is not an answer for a library whose L0 promise is that geometry works with no CAD runtime present (A-2).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
 candidates = [
     "tests/test_export.py",
     "tests/test_no_mesher.py::test_exporting_surfaces_the_real_error",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-54"
@@ -1524,13 +1769,15 @@ keyword = "MUST"
 statement = '''
 Mesh formats that are pure data — STL (binary and ASCII), OBJ, OFF, PLY — MUST be written by pybosl2 itself from a `VNF`, with no native runtime involved, so exporting works everywhere `import pybosl2` does. A solid exports by meshing to a `VNF` first; where a backend can only mesh through its runtime, the requirement is that runtime, not a hand-rolled second mesher. Formats that are a CAD kernel's own (3MF, AMF, DXF, SVG out) MAY delegate, and MUST raise naming what is missing rather than writing a broken file.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_sweep_contract.py",
+]
 candidates = [
     "tests/test_export.py::test_a_kernel_format_is_refused_by_name",
     "tests/test_export.py::test_a_solid_built_any_other_way_exports_too",
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-55"
@@ -1541,12 +1788,14 @@ title = "Export refuses to write nonsense."
 statement = '''
 A mesh that is not watertight, or is wound inside-out, is a bug the caller wants to hear about before a slicer tells them. `export()` validates (`VNF.is_watertight`, positive `volume()`) and raises naming the defect, with an explicit `check=False` for the caller who knows their surface is open on purpose.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_stl_render.py",
+]
 candidates = [
     "tests/test_export.py::test_an_inside_out_mesh_is_refused",
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-44"
@@ -1556,8 +1805,13 @@ section = "6.14 Parts library"
 statement = '''
 Every part is a class per C-14, driven by a catalogue name or nominal size (P-4).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
+]
+status = "enforced"
+note = '''
+Every part is walked and required to be a class with a `shape` property, which is C-14's half of this.
+'''
 
 [[requirement]]
 id = "SPEC-S-45"
@@ -1568,8 +1822,13 @@ keyword = "MUST"
 statement = '''
 The library MUST cover the BOSL2 parts set: gears (spur, helical, herringbone, rack, ring, bevel, worm), screws/nuts/holes and threading (ISO, trapezoidal, acme, square, buttress), drive recesses (Phillips, hex, Torx, Robertson), ball and linear bearings, hinges and snap connectors, dovetails and snap pins, cube truss, modular hose, NEMA steppers, bottle caps, sliders and rails, tripod plates, Platonic solids, FDM walls, wiring bundles, hooks.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_bosl2_coverage.py",
+]
+status = "enforced"
+note = '''
+The parts set is measured against upstream BOSL2 rather than asserted, which is what B2-1 asks of a coverage claim.
+'''
 
 [[requirement]]
 id = "SPEC-S-46"
@@ -1581,7 +1840,10 @@ statement = '''
 Parts MUST expose their catalogue as data (spec objects and tables), so a caller can query dimensions — and the docs can tabulate them — without building geometry.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+The spec objects and tables exist and the parts tests read dimensions off them, but nothing requires a *new* part to expose its catalogue as data.
+'''
 
 [[requirement]]
 id = "SPEC-S-46a"
@@ -1592,13 +1854,18 @@ title = "Parts honour the active backend."
 statement = '''
 A part builds through the backend-neutral façade (L3), not by importing a backend's module directly, so `with use_backend("sdf"): Screw(…)` produces an SDF part. Where a part needs an operation only one backend can express, it raises `UnsupportedByBackendError` naming that backend (B-4) rather than quietly returning a shape from the other one. Parts are not exempt from PAR-1.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_parts_backend_coverage.py",
+]
 candidates = [
     "tests/test_part_show.py::test_every_part_refuses_on_another_backend",
     "tests/test_part_show.py::test_the_converted_list_matches_what_actually_builds",
     "tests/test_parts_backend_coverage.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+Every part is built under both backends and required to build or refuse, which is the rule.
+'''
 
 [[requirement]]
 id = "SPEC-S-47"
@@ -1609,8 +1876,13 @@ keyword = "MUST"
 statement = '''
 Every subsystem above MUST appear in the generated API reference under a `DocCategory`, and every geometry-producing callable MUST carry a rendering example (§10).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_docs_links.py",
+]
+status = "enforced"
+note = '''
+Every public module needs a DocCategory and a reference page; the docs tests walk them.
+'''
 
 [[requirement]]
 id = "SPEC-S-48"
@@ -1622,7 +1894,10 @@ statement = '''
 It hands the shape to the renderer: inside the PythonSCAD app it displays in the viewer, and in a script it marks the shape as what the run produces. It is the one call in the library with a side effect on the session, and the convention every docstring example ends with.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+`show()` exists on every contract and returns the shape (S-49, enforced). That it *hands the shape to the renderer* cannot be asserted without the app, which the render tests need and skip without.
+'''
 
 [[requirement]]
 id = "SPEC-S-49"
@@ -1634,12 +1909,14 @@ keyword = "MUST NOT"
 statement = '''
 It closes a chain without swallowing the value — `part = cuboid([20, 20, 10]).up(5).show()` both displays and binds. It MUST NOT return `None`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_part_show_returns_the_shape",
+]
 candidates = [
     "tests/test_exports.py::test_part_show_returns_the_shape",
     "tests/test_part_show.py::test_show_returns_the_parts_shape",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-50"
@@ -1650,12 +1927,17 @@ title = "`show()` is on the shared contract."
 statement = '''
 Every shape can be shown, 2-D or 3-D, on either backend (C-15). Showing an SDF solid meshes its field — that is not the implicit conversion B-5 forbids, because rendering *is* meshing and nothing meshed is handed back. Showing a 2-D distance field refuses instead, naming the extrusion that would make it renderable: a field over the plane has no rendering of its own.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_shape_contract.py::test_the_object_has_everything_the_contract_declares",
+]
 candidates = [
     "tests/test_backend_parity.py::test_realizing_an_sdf_shape_applies_its_appearance",
     "tests/test_backend_parity.py::test_two_dimensional_fields_refuse_to_render",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+`show()` is on the shared contract and every implementation is required to have it.
+'''
 
 [[requirement]]
 id = "SPEC-S-51"
@@ -1666,12 +1948,14 @@ title = "Builders delegate."
 statement = '''
 A part or any other builder exposes `show()` as a convenience that shows its `shape`, so a caller never has to reach inside to display something.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py",
+]
 candidates = [
     "tests/test_exports.py::test_part_show_returns_the_shape",
     "tests/test_part_show.py::test_show_returns_the_parts_shape",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-S-52"
@@ -1683,7 +1967,10 @@ statement = '''
 With the pip wheel alone it marks the object for output; the PythonSCAD **app** is what puts it on screen. Documentation examples therefore end in `.show()` and are rendered by the docs build, not by the test suite.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A statement about what the pip wheel versus the app can do. The render tests skip without a binary by design (PLAN X-2), so nothing asserts it and nothing can.
+'''
 
 [[requirement]]
 id = "SPEC-B-1"
@@ -1693,8 +1980,13 @@ section = "7. Backend model"
 statement = '''
 The active backend is block-scoped and thread-safe, default `"csg"`; `use_backend("sdf")` switches it for a block, `set_default_backend()` globally.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend.py",
+]
+status = "enforced"
+note = '''
+Block scoping, nesting and the default are exercised; thread-safety follows from the ContextVar the test uses.
+'''
 
 [[requirement]]
 id = "SPEC-B-2"
@@ -1704,8 +1996,13 @@ section = "7. Backend model"
 statement = '''
 A backend implements a small contract: hand back the constructor for a named shape, build it, do n-ary booleans, extrude paths, and stroke a path.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
+status = "enforced"
+note = '''
+Both backends are driven through the whole contract, which is what would fail if one stopped implementing it.
+'''
 
 [[requirement]]
 id = "SPEC-B-3"
@@ -1716,12 +2013,14 @@ keyword = "MUST NOT"
 statement = '''
 The **façade owns the default** for every argument both backends understand: it declares that default in its own signature and always forwards it, so an identical call produces identical geometry on either backend (PAR-5). A backend keeps its own defaults only for options exclusive to it. Arguments a backend has no notion of MUST NOT be forwarded to it — that filtering is by *what the backend declares*, not by *what the caller happened to pass*. The filtering applies to **façade-owned defaults only**; a value the caller supplied is subject to B-9 instead.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_a_facade_default_is_still_filtered_quietly",
     "tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-B-4"
@@ -1732,13 +2031,15 @@ keyword = "MUST NOT"
 statement = '''
 A backend MUST NOT silently approximate a feature it cannot express; it raises `UnsupportedByBackendError` with a hint naming the alternative or the backend that does support it.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_2d_shape_constructors_refuse_on_another_backend",
     "tests/test_polyhedron_convexity.py",
     "tests/test_sdf_flat_parity.py::test_the_nominal_box_is_carried_and_is_not_the_measurement",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-B-5"
@@ -1755,7 +2056,10 @@ candidates = [
     "tests/test_sdf_flat_parity.py::test_a_colour_operation_keeps_the_shape_a_field",
     "tests/test_sdf_shapes3d.py::test_half_of_takes_an_arbitrary_normal",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Spot-checked where it bites: the parts' SDF refusals cite non-convexity (test_parts_backend_coverage.py) and PyShape2D.fill no longer meshes across (T34). Whether a *new* conversion is honest is a review question.
+'''
 
 [[requirement]]
 id = "SPEC-B-6"
@@ -1769,7 +2073,10 @@ enforced_by = []
 candidates = [
     "tests/test_shape_contract.py",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Which extras belong on a backend's own module rather than the façade is a placement judgement; A-6 catches only the case where a top-level name builds on the wrong backend.
+'''
 
 [[requirement]]
 id = "SPEC-B-7"
@@ -1779,8 +2086,13 @@ section = "7. Backend model"
 statement = '''
 Adding a façade shape requires: the façade constructor, a matching constructor in both backends (or an explicit refusal), and a row in the backend matrix tests.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
+status = "enforced"
+note = '''
+A façade shape without a row here is a shape the matrix does not build, which fails.
+'''
 
 [[requirement]]
 id = "SPEC-B-8"
@@ -1791,11 +2103,13 @@ keyword = "MUST"
 statement = '''
 What a caller gets when they leave an argument out MUST be inspectable, not silent: `effective_defaults(shape)` reports the active backend's real defaults.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_effective_defaults_reports_the_real_signature",
+]
 candidates = [
     "tests/test_defaults.py::test_ambient_res_reaches_the_sdf_backend",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-B-9"
@@ -1807,7 +2121,9 @@ statement = '''
 The façade exposes the **union** of what the backends can build, not the intersection, and a caller-supplied argument the active backend cannot honour raises `UnsupportedByBackendError` naming the parameter, the backend, and the way forward. Dropping it is forbidden: `regular_prism(radius1=8, radius2=4)` must not quietly return a straight prism on a backend with no taper. This is B-4 applied to arguments rather than whole features, and it is what lets one body of code — the parts library above all — be written once against the façade and fail loudly where a backend falls short, instead of being written twice.
 * A parameter that describes *tessellation* (`fn`/`fa`/`fs`, `realign`, `circumscribe`) is not a feature gap on a backend that has no facets: those MAY be accepted and ignored, provided `effective_defaults()` says so.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
+]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",
     "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
@@ -1816,7 +2132,7 @@ candidates = [
     "tests/test_backend_matrix.py::test_tessellation_arguments_are_accepted_and_ignored",
     "tests/test_backend_matrix.py::test_the_facade_exposes_every_shared_constructors_full_surface",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-PAR-1"
@@ -1828,13 +2144,18 @@ keyword = "MUST"
 statement = '''
 Anything that can be expressed as a signed-distance field MUST be available on the SDF backend, with the same name, the same argument names, and the same meaning as its CSG counterpart. Divergence needs a reason, not a shrug.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
 candidates = [
     "tests/test_dimension_validation.py",
     "tests/test_parts_backend_coverage.py",
     "tests/test_sdf_flat_parity.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The shared surface is built on both backends and required to agree.
+'''
 
 [[requirement]]
 id = "SPEC-PAR-2"
@@ -1846,11 +2167,16 @@ keyword = "MUST"
 statement = '''
 A new façade shape, option, or operation MUST be implemented on both backends, or MUST be accompanied by an explicit refusal (B-4) and an entry in the gap list. "CSG only for now" is a tracked decision, never a silent omission.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
 candidates = [
     "tests/test_parts_backend_coverage.py::test_every_part_either_builds_on_sdf_or_is_listed",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+A new shared feature missing from one backend fails the matrix; the exclusive lists are PAR-3's half.
+'''
 
 [[requirement]]
 id = "SPEC-PAR-3"
@@ -1862,7 +2188,9 @@ keyword = "MUST"
 statement = '''
 `CSG_ONLY_FEATURES` and `SDF_ONLY_FEATURES` are the single source of truth for what is exclusive, and each entry MUST carry the reason it cannot cross over. An exclusive feature is **declared and refuses**, not absent: the backend that lacks it implements the method and raises `UnsupportedByBackendError` naming the way forward (B-4). Two reasons. C-13 asks the SDF backend to refuse attachment *explicitly*, and a method that says why is more explicit than a missing name. And since Python 3.12 an `isinstance` check against a runtime-checkable protocol uses static lookup, so a member supplied only by a dynamic fallback makes `isinstance(sdf_solid, Solid)` false for a perfectly good solid — which is how the contract would come to exclude the very shapes it describes. A caller that needs to know *before* calling consults the exclusive list, not the shape. Today that is the attachment/anchor system (CSG-only, because anchoring needs a shape's face and edge structure, which a distance field does not retain), `projection` and `fill` (CSG-only, because a 2-D shadow of a solid and a filled outline are not derivable in closed form from a field — both backends *do* build 2-D shapes otherwise), and the implicit-surface `round`/`chamfer` methods that survive transforms (SDF-only, because CSG expresses those as constructor parameters). An entry that becomes implementable MUST be removed from the list, not left as a permanent excuse; the list is re-reviewed whenever either backend gains a capability.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+]
 candidates = [
     "tests/test_backend_capabilities.py::test_csg_attachment_features_unsupported_on_sdf",
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
@@ -1871,7 +2199,7 @@ candidates = [
     "tests/test_sdf_shapes3d.py::test_half_of_takes_an_arbitrary_normal",
     "tests/test_shape_contract.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-PAR-4"
@@ -1888,7 +2216,10 @@ candidates = [
     "tests/test_partitions.py::test_partition_returns_two_pieces",
     "tests/test_sdf_flat_parity.py::test_minkowski_refuses_and_names_the_thing_that_does_work",
 ]
-status = "untriaged"
+status = "unenforced"
+note = '''
+Parity is measured per *shape*, not per *option*: the matrix builds the same shapes on both backends but nothing walks the two constructors' parameter lists and compares them. B-9 covers the caller-facing half (an unhonoured argument raises).
+'''
 
 [[requirement]]
 id = "SPEC-PAR-5"
@@ -1900,7 +2231,9 @@ keyword = "MUST"
 statement = '''
 For any construction both backends support, the two MUST agree on placement, orientation, anchoring, bounds, and units — differing only in tessellation detail. This holds for calls that omit arguments as well as calls that pass them, which is why the façade owns the shared defaults (B-3). The backend matrix tests record what each backend supports, and `docs/design/sdf-csg-compatibility.md` is the working plan for closing the remainder.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_the_same_call_builds_the_same_geometry_on_both_backends",
+]
 candidates = [
     "tests/test_backend_matrix.py",
     "tests/test_backend_parity.py::test_a_cut_that_trims_an_end_tightens_the_bounds",
@@ -1910,7 +2243,7 @@ candidates = [
     "tests/test_sdf_shapes3d.py::test_reflex_sector",
     "tests/test_sdf_shapes3d.py::test_round3d_runs",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-PAR-6"
@@ -1922,8 +2255,13 @@ keyword = "MUST NOT"
 statement = '''
 Mixing operands from two backends raises `CrossBackendError` naming the conversion (B-5); the library MUST NOT convert silently to make a call succeed.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_crossbackend.py",
+]
+status = "enforced"
+note = '''
+Mixing operands raises CrossBackendError and the message is asserted.
+'''
 
 [[requirement]]
 id = "SPEC-D-1"
@@ -1938,7 +2276,10 @@ enforced_by = []
 candidates = [
     "tests/test_defaults.py::test_the_facade_owns_the_shared_defaults",
 ]
-status = "untriaged"
+status = "unenforced"
+note = '''
+Same gap as P-5 and T-9a: nothing checks keyword-only-ness of the placement, resolution and escape-hatch tiers.
+'''
 
 [[requirement]]
 id = "SPEC-D-2"
@@ -1954,7 +2295,10 @@ candidates = [
     "tests/test_mask_contract.py::test_no_mask_factory_has_more_than_one_required_argument",
     "tests/test_masking_primitives.py::test_mask2d_step_is_square_unless_told_otherwise",
 ]
-status = "untriaged"
+status = "unenforced"
+note = '''
+Checked for the mask factories only (test_mask_contract.py::test_no_mask_factory_has_more_than_one_required_argument). Nothing counts required parameters across the rest of the public API, where the rule is stated. Generalising that scan is the work.
+'''
 
 [[requirement]]
 id = "SPEC-D-3"
@@ -1982,7 +2326,10 @@ statement = '''
 `None` means "not supplied, decide for me" — never "off". "Off" is `0`, `False`, or an explicit enum member.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a `None` means 'decide for me' rather than 'off' is a reading of intent; T-9b is the same rule and the same answer.
+'''
 
 [[requirement]]
 id = "SPEC-D-5"
@@ -1993,13 +2340,15 @@ keyword = "MUST"
 statement = '''
 Where a dimension has two conventional spellings (`radius`/`diameter`), the API MUST accept both and require neither. Giving both spellings of the **same** dimension is an error, not a silent preference: it raises `ValueError` naming both parameters and their values. Spellings at different levels of specificity are not a conflict — `radius1` legitimately overrides `radius` — and resolve most-specific-first: `(radius1, diameter1) > (radius2, diameter2) > (radius, diameter)`. This is a deliberate departure from BOSL2's `get_radius()`, which silently prefers the radius (B2-2, E-5).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected",
+]
 candidates = [
     "tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected",
     "tests/test_defaults.py::test_different_levels_of_specificity_are_not_a_conflict",
     "tests/test_mask_contract.py::test_a_mask_names_its_size_measure_the_way_everything_else_does",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-D-6"
@@ -2011,7 +2360,10 @@ statement = '''
 A derivable parameter MUST default to "not given" and be derived.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+P-3 in the defaults section; whether a parameter *could* be derived is the same domain judgement.
+'''
 
 [[requirement]]
 id = "SPEC-D-7"
@@ -2023,7 +2375,10 @@ statement = '''
 A spec argument SHOULD accept the convenient forms — trade name, plain number, or an explicit mapping — and collapse them immediately into one frozen spec object.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+The parts do collapse their spec arguments and are tested doing it, but nothing requires a new spec argument to accept the convenient forms.
+'''
 
 [[requirement]]
 id = "SPEC-D-8"
@@ -2034,11 +2389,13 @@ keyword = "MUST NOT"
 statement = '''
 A façade MUST NOT present as optional an argument its backend requires.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_facade_never_defaults_an_argument_its_backend_requires",
+]
 candidates = [
     "tests/test_defaults.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-G-1"
@@ -2205,11 +2562,16 @@ section = "8.2 Curve resolution is universal"
 statement = '''
 The trigger is *generating points that approximate a curve*, not *taking a radius*. A callable that places or measures geometry from a radius — arc/rot/sphere copy distributors, `polar_to_xy`, circle-tangent geometry — is outside R-1, because nothing it returns is tessellated. When it is genuinely ambiguous, the deciding question is whether a caller could observe a facet count in the output.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_facets.py::test_no_new_curved_api_without_facet_controls",
+]
 candidates = [
     "tests/test_facets.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The scope carve-outs are the lists this test reads, each with its reason.
+'''
 
 [[requirement]]
 id = "SPEC-R-2"
@@ -2220,8 +2582,13 @@ keyword = "MUST"
 statement = '''
 These controls MUST never be required: omitted, they inherit (§8.3).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_nothing_set_by_default",
+]
+status = "enforced"
+note = '''
+A required facet control would fail every bare-call test in the suite.
+'''
 
 [[requirement]]
 id = "SPEC-R-3"
@@ -2232,8 +2599,13 @@ keyword = "MUST NOT"
 statement = '''
 A backend that cannot honour a control MUST NOT be handed it.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
+status = "enforced"
+note = '''
+The tessellation carve-out in refuse_unhonoured is what this exercises.
+'''
 
 [[requirement]]
 id = "SPEC-R-4"
@@ -2244,8 +2616,10 @@ keyword = "SHOULD"
 statement = '''
 Resolution SHOULD be settable once for a block rather than threaded through every call: `use_defaults(fn=64)` (block-scoped, nesting, thread-safe) and `set_defaults(...)` (process-wide).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_block_scoped_and_restored",
+]
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-R-5"
@@ -2256,11 +2630,13 @@ keyword = "MUST"
 statement = '''
 An explicitly passed value always wins over the ambient one, and there MUST be a way to opt out of an ambient value rather than only override it: passing `fn=0` means "ignore any ambient `fn`, use `fa`/`fs`", matching OpenSCAD's own `$fn=0`. P-6 applies to ambient defaults as much as to signature defaults.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_fn_zero_opts_out_of_an_ambient_fn",
+]
 candidates = [
     "tests/test_defaults.py::test_fn_zero_opts_out_of_an_ambient_fn",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-R-6"
@@ -2270,8 +2646,13 @@ section = "8.3 Ambient defaults"
 statement = '''
 Ambient values are resolved at **construction** time, so a shape's smoothness is fixed by where it was built.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_ambient_fn_changes_generated_geometry",
+]
+status = "enforced"
+note = '''
+Resolution at construction time is what makes the built shape differ.
+'''
 
 [[requirement]]
 id = "SPEC-R-7"
@@ -2281,11 +2662,13 @@ section = "8.3 Ambient defaults"
 statement = '''
 With nothing set anywhere, the renderer's own defaults apply (`$fa=12`, `$fs=2`).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_nothing_set_by_default",
+]
 candidates = [
     "tests/test_defaults.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-D-9"
@@ -2296,7 +2679,10 @@ statement = '''
 Lengths are millimetres, angles are degrees, the frame is right-handed Z-up. No API takes a unit argument; `INCH` converts at the call site.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Units are a convention the whole library shares; PLAN S-4a is the same rule, and a scan for a `units=` parameter would make both enforced.
+'''
 
 [[requirement]]
 id = "SPEC-D-10"
@@ -2306,8 +2692,13 @@ section = "8.4 Units and frame"
 statement = '''
 Shapes are centred on the origin, oriented `+Z`, unrotated by default.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share",
+]
+status = "enforced"
+note = '''
+A bare call's placement is asserted on both backends.
+'''
 
 [[requirement]]
 id = "SPEC-E-1"
@@ -2318,13 +2709,15 @@ keyword = "MUST"
 statement = '''
 All library errors derive from one base error type — and that MUST be true of the validation errors too, which are the overwhelming majority. E-4 requires them to be `ValueError`s and E-1 requires them to be `Bosl2Error`s; those are only compatible if the type raised is **both**. `Bosl2ValueError(Bosl2Error, ValueError)` satisfies each: `except ValueError` keeps working for every caller who already wrote it, and `except Bosl2Error` starts working, which today it does not. A contract a caller cannot use in an `except` clause is not a contract.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
+]
 candidates = [
     "tests/test_error_contract.py::test_a_validation_error_is_catchable_as_the_library_family",
     "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-E-2"
@@ -2334,13 +2727,15 @@ section = "9. Error contract"
 statement = '''
 A refusal names the feature, the backend, and the alternative.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_the_refusal_names_the_explicit_conversion",
+]
 candidates = [
     "tests/test_backend_capabilities.py::test_csg_attachment_features_unsupported_on_sdf",
     "tests/test_error_contract.py::test_the_refusal_still_teaches_when_you_call_it",
     "tests/test_sdf_flat_parity.py::test_minkowski_refuses_and_names_the_thing_that_does_work",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-E-3"
@@ -2350,8 +2745,13 @@ section = "9. Error contract"
 statement = '''
 Cross-backend mixing names both operands and the conversion that resolves it.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_crossbackend.py",
+]
+status = "enforced"
+note = '''
+The message names both operands and the conversion.
+'''
 
 [[requirement]]
 id = "SPEC-E-4"
@@ -2362,7 +2762,9 @@ keyword = "MUST NOT"
 statement = '''
 Argument validation raises `ValueError` naming the offending parameter(s) and the accepted spellings. A public entry point MUST NOT `assert` on user input.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_no_assert_validates_user_input",
+]
 candidates = [
     "tests/test_anchor_argument_errors.py",
     "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
@@ -2382,7 +2784,7 @@ candidates = [
     "tests/test_validation_messages.py::test_sweep_and_prism_rejections",
     "tests/test_validation_messages.py::test_two_dimensional_only_bezier_operations_reject_3d",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-E-5"
@@ -2393,7 +2795,9 @@ keyword = "MUST"
 statement = '''
 A call that cannot mean what it says MUST fail loudly rather than build something else. Loudly means *raising*: printing a warning and returning one operand unchanged (`flat - solid`), or returning a degenerate shape with infinite bounds (`regular_ngon()` with no radius), is the silent wrong answer this rule forbids. A minimum-argument test that only asserts "does not raise" does not establish E-5 — the result has to be a shape someone could use.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
+]
 candidates = [
     "tests/test_bounds_contract.py::test_no_bounds_is_ever_non_finite",
     "tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected",
@@ -2402,7 +2806,7 @@ candidates = [
     "tests/test_error_contract.py::test_same_dimension_booleans_are_untouched",
     "tests/test_shapes2d.py::test_regular_ngon_with_no_size_refuses",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-E-6"
@@ -2414,13 +2818,15 @@ keyword = "MUST"
 statement = '''
 An error raised from `__getattr__` because the backend cannot offer that name MUST also be an `AttributeError`, so `hasattr()`, `getattr(x, n, default)`, `inspect`, `copy`, `pickle` and every REPL completion keep working instead of exploding. `UnsupportedByBackendError` inherits `AttributeError` for this reason; the message is unchanged, and code that probes a capability gets `False` rather than a traceback. Refusals raised from a *call* are unaffected.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising",
+]
 candidates = [
     "tests/test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising",
     "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
     "tests/test_no_mesher.py::test_capability_probes_answer_without_meshing",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-E-7"
@@ -2431,13 +2837,15 @@ title = "Dimensional mixing raises."
 statement = '''
 `flat - solid` raises at runtime, naming the extrusion or projection that resolves it (C-4, C-16). The static error is the first line of defence and the right one, but this library's users drive a CAD app and mostly do not run a type checker, so the contract cannot rest on it alone.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
+]
 candidates = [
     "tests/test_error_contract.py::test_mixing_dimensions_raises_and_names_the_way_across",
     "tests/test_error_contract.py::test_unsupported_is_both_bases",
     "tests/test_shape_contract.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-DOC-1"
@@ -2447,11 +2855,16 @@ section = "10. Documentation and catalogue"
 statement = '''
 Docs are **generated** from the source: module header tags drive the API reference, and docstring examples drive the rendered figures. An API list is never hand-maintained.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_bosl2_coverage.py::test_the_committed_page_matches_the_generator",
+]
 candidates = [
     "tests/test_docs_pages.py::test_the_generated_index_leads_with_the_front_door",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The generated pages are compared against their generators; T27 added the same check for SPEC/PLAN.
+'''
 
 [[requirement]]
 id = "SPEC-DOC-1a"
@@ -2462,8 +2875,13 @@ title = "Generation MUST NOT destroy what it did not write."
 statement = '''
 The generator owns the module stubs and `index.rst`; everything else is prose it is a guest among. A page it does not recognise is *deleted*, and a hand-edit to a generated file is *overwritten* — both silently, because neither raises a warning and a build that removes a page still reports success. So a hand-written page is registered with the generator, a link to it belongs in the generator rather than in its output, and a test — not a convention — is what keeps the register honest.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_docs_links.py",
+]
+status = "enforced"
+note = '''
+Hand-written pages are registered with the generator and the register is checked.
+'''
 
 [[requirement]]
 id = "SPEC-DOC-2"
@@ -2473,13 +2891,15 @@ section = "10. Documentation and catalogue"
 statement = '''
 Every public module, class, and callable is documented, and every callable that produces geometry carries an example that renders.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
+]
 candidates = [
     "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
     "tests/test_docs_links.py::test_every_facade_example_runs",
     "tests/test_example_claims.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-DOC-3"
@@ -2490,7 +2910,10 @@ statement = '''
 The visual parts catalogue renders each featured part through the real PythonSCAD binary and reports measured metrics — triangles, volume, bounding box, watertightness. Its caches are committed, because CI has no CAD binary.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+The catalogue's measured metrics need the real binary, which CI has not got. The caches are committed and the render tests skip -- so nothing asserts it in CI by design.
+'''
 
 [[requirement]]
 id = "SPEC-DOC-4"
@@ -2501,7 +2924,10 @@ statement = '''
 Mechanics — docstring style, header tag values, build commands — are specified in [PLAN.md §5](PLAN.md).
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A statement about where the mechanics are documented, not about the code.
+'''
 
 [[requirement]]
 id = "SPEC-DOC-5"
@@ -2513,12 +2939,14 @@ keyword = "MUST"
 statement = '''
 Every docstring example MUST pass `mypy --strict` as ordinary user code, because that is exactly what it is: the example is what a caller copies, and an example the project's own type checker rejects is a signature defect the docs found first. `path_sweep`'s documented one-liner failing on a union return (S-19b) is the case this rule exists to catch — the mechanics are [PLAN §5](PLAN.md), and it is a gate (Q-6), not a review habit.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
+]
 candidates = [
     "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
     "tests/test_facade_discoverability.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-DOC-6"
@@ -2530,12 +2958,14 @@ keyword = "MUST"
 statement = '''
 The documentation MUST open with a task-oriented getting-started page that carries a reader from installation to a finished, exported part — build, round, cut, place, measure, save — before the API reference. §3's promise is that a caller who knows what they want to build but nothing about the library can build it; a reference indexed by module is not how anyone learns that, and it is the first thing a new user sees. The page's examples run under the same gates as every other example (DOC-2, DOC-5).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docs_pages.py::test_the_front_door_carries_a_reader_end_to_end",
+]
 candidates = [
     "tests/test_docs_pages.py::test_the_front_door_carries_a_reader_end_to_end",
     "tests/test_docs_pages.py::test_the_front_door_exists_and_is_protected",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "SPEC-Q-1"
@@ -2545,8 +2975,13 @@ section = "11. Quality gates"
 statement = '''
 The full test suite passes on **every supported interpreter — 3.11, 3.12 and 3.13** — and the pure-geometry tests pass with no CAD runtime present. One interpreter is not enough: the versions differ in behaviour this library depends on (`isinstance` against a Protocol resolves differently before and after 3.12), so a green run on the newest says nothing about the oldest, which is the one CI will run anyway. Mechanics in [PLAN L-1, L-1a](PLAN.md#1-language-baseline).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_supported_versions.py",
+]
+status = "enforced"
+note = '''
+The interpreter list, the classifiers and CI's matrix are required to agree.
+'''
 
 [[requirement]]
 id = "SPEC-Q-2"
@@ -2556,8 +2991,13 @@ section = "11. Quality gates"
 statement = '''
 Strict static type checking passes with zero errors.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+mypy --strict is a gate and the workflows are checked for it.
+'''
 
 [[requirement]]
 id = "SPEC-Q-3"
@@ -2567,8 +3007,13 @@ section = "11. Quality gates"
 statement = '''
 Lint and format are clean.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+ruff check and format are gates and pre-commit hooks.
+'''
 
 [[requirement]]
 id = "SPEC-Q-4"
@@ -2578,8 +3023,13 @@ section = "11. Quality gates"
 statement = '''
 Every new public callable has a minimum-argument test — the mechanical enforcement of P-1 — and a validated docstring example. For façade shape constructors this is enforced automatically by the contract tests; elsewhere it is a review obligation until the check is generalised (§12.2).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
+]
+status = "enforced"
+note = '''
+Parametrised over the public shape modules plus a parts probe.
+'''
 
 [[requirement]]
 id = "SPEC-Q-5"
@@ -2589,8 +3039,13 @@ section = "11. Quality gates"
 statement = '''
 The contract tests guarding these rules (mutable defaults, façade honesty, stub parity, facet coverage, backend matrix, protocol/object agreement, export completeness) still pass.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+The contract tests run in CI with the rest of the suite.
+'''
 
 [[requirement]]
 id = "SPEC-Q-7"
@@ -2616,14 +3071,16 @@ section = "11. Quality gates"
 statement = '''
 Every docstring example type-checks under `mypy --strict` (DOC-5), and every example that states a value in a trailing comment is executed and held to it (PLAN D-P5b). The examples are user code; they are held to what the library asks of user code, and to the truth of what they claim.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
+]
 candidates = [
     "tests/test_ci_gates.py::test_a_workflow_that_runs_the_suite_installs_the_test_extra",
     "tests/test_ci_gates.py::test_a_workflow_that_runs_the_suite_verifies_the_gate_can_run",
     "tests/test_ci_gates.py::test_mypy_is_declared_in_the_test_extra",
     "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-L-1"
@@ -2635,13 +3092,15 @@ keyword = "MUST"
 statement = '''
 `enum.StrEnum` and `typing.Self` set the floor at 3.11; `requires-python`, the classifier list and CI's matrix (`.github/workflows/tests.yml`) MUST all agree with it. Adding or dropping a version changes all three in one commit, and `tests/test_supported_versions.py` fails if they drift apart.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_supported_versions.py::test_each_supported_version_is_named_in_the_plan",
+]
 candidates = [
     "tests/test_supported_versions.py::test_each_supported_version_is_named_in_the_plan",
     "tests/test_supported_versions.py::test_requires_python_matches_the_floor",
     "tests/test_supported_versions.py::test_the_classifiers_claim_nothing_untested",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-L-1a"
@@ -2663,11 +3122,16 @@ Both were invisible to a full green run on a newer interpreter. So: before calli
 
 A construct that is version-specific by necessity is written to work on the floor, not on the newest — and never reaches for a `typing` internal, which is where both of these came from.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_no_mesher.py",
+]
 candidates = [
     "tests/test_supported_versions.py::test_nothing_uses_a_typing_internal",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The 3.11/3.12 protocol difference is probed with hasattr *and* isinstance so it fails on either interpreter.
+'''
 
 [[requirement]]
 id = "PLAN-L-2"
@@ -2678,7 +3142,10 @@ statement = '''
 Modern syntax only: `X | Y` unions (never `typing.Union`/`Optional`), built-in generics (`list[str]`, `dict[str, float]`), `from __future__ import annotations` at the top of every module so annotations stay cheap and forward references work.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing scans for `typing.Union`/`Optional` or bare `typing.List`. Ruff's UP rules would cover it and are not enabled.
+'''
 
 [[requirement]]
 id = "PLAN-L-3"
@@ -2689,7 +3156,10 @@ statement = '''
 Use the standard library rather than re-deriving it: `math`, `itertools`, `functools`, `dataclasses`, `contextlib`, `contextvars`, and NumPy for array maths. A hand-rolled `lerp`, angle-wrap, or matrix multiply that duplicates `math`/NumPy is a defect.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a helper re-derives something the standard library has is a judgement about what it computes.
+'''
 
 [[requirement]]
 id = "PLAN-L-4"
@@ -2700,7 +3170,10 @@ statement = '''
 Third-party runtime dependencies are exactly: `numpy`, `typing-extensions`, `webcolors`, `svgelements`, `shapely`. Adding one is an architectural decision, not a convenience.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing asserts the runtime dependency list matches pyproject. A test comparing the two is cheap, and the list has already grown twice (shapely, svgelements).
+'''
 
 [[requirement]]
 id = "PLAN-T-1"
@@ -2711,8 +3184,13 @@ title = "Total coverage."
 statement = '''
 Every function, method, parameter, and return value carries an explicit annotation — including `-> None`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+`mypy --strict` over the package and the tests is a CI gate; a missing annotation fails it.
+'''
 
 [[requirement]]
 id = "PLAN-T-2"
@@ -2724,7 +3202,10 @@ statement = '''
 `Any` appears only where it is genuinely unavoidable: the PythonSCAD FFI boundary and `**kwargs` passthrough to it. Everywhere else it is a defect. When a value arrives as `Any` from the FFI, `cast()` it to a real type on the first line that touches it, and wrap native callables obtained via `native("…")` in a typed `Callable`/`Protocol` signature.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+`mypy --strict` catches an *implicit* Any, but an explicit one is legal and the rule is about whether it was unavoidable. C-23 ratchets the contract's share of them; the rest is review.
+'''
 
 [[requirement]]
 id = "PLAN-T-3"
@@ -2735,8 +3216,13 @@ title = "Full element types."
 statement = '''
 A bare `list`, `dict`, `tuple`, or `Sequence` is never acceptable — always `list[float]`, `dict[str, Anchor]`, `tuple[list[float], list[float]]`, `Sequence[Sequence[float]]`. This applies to local variables holding collections, to empty initialisations (`results: list[str] = []`), and to `.pyi` stubs.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+A bare `list`/`dict` annotation is an error under `mypy --strict`'s disallow_any_generics.
+'''
 
 [[requirement]]
 id = "PLAN-T-4"
@@ -2747,14 +3233,16 @@ title = "Inputs widen, outputs narrow — except for points."
 statement = '''
 Accept `Sequence[float]`, return `list[float]`. **A polyline is the exception** (SPEC C-7a): a public parameter meaning an ordered set of points is typed `Path2D`, `Path3D` or `Path`, never `PathLike` and never a bare sequence or array. Widening is right for a *vector* — three floats are three floats — and wrong for a *path*, because the bare form drops the three things the caller needs the callee to know: dimension, closed-ness, and winding. Every function taking the bare form re-derives them, and they disagree.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_polyline_parameter_accepts_a_path",
+]
 candidates = [
     "tests/test_docstring_examples.py::test_there_are_examples_to_check",
     "tests/test_exports.py::test_every_polyline_parameter_accepts_a_path",
     "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
     "tests/test_polyline_parameters.py::test_clockwise_polygon_returns_an_outline_not_raw_points",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-4a"
@@ -2765,8 +3253,10 @@ title = "`PathLike` is an implementation type."
 statement = '''
 It types the local normalisation inside a body (`pts = Path2D(x)` at the top), never a parameter in a public signature. Import it for that and nothing else.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_no_new_parameter_takes_raw_points",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-4b"
@@ -2777,12 +3267,14 @@ title = "Refuse raw points with `require_path()`."
 statement = '''
 `pybosl2.paths.require_path(value, parameter, function)` returns the `Path` unchanged and otherwise raises `Bosl2ValueError` naming the wrapper to apply — `Path2D(...)` for 2-D points, `Path3D(...)` for 3-D — chosen from the shape of what was passed, so the message is the fix (SPEC C-7b). Call it on the first line, before any other work, so the refusal arrives at the call that was wrong (SPEC E-4).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_a_path_annotation_is_backed_by_a_guard",
+]
 candidates = [
     "tests/test_polyline_parameters.py::test_a_path_annotation_is_backed_by_a_guard",
     "tests/test_polyline_parameters.py::test_no_new_parameter_takes_raw_points",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-4b(i)"
@@ -2793,8 +3285,10 @@ title = "Pass `expect=` whenever the annotation names one width."
 statement = '''
 `require_path(value, parameter, function, Path2D)` checks the concrete type; the bare three-argument form is only for a parameter genuinely typed `Path`, where both widths are meant (`path_tangents`, `total_length`). `Path2D` and `Path3D` are siblings, so the bare form accepts either — which turns a `Path2D` annotation into documentation rather than a check, and lets a 3-D path reach planar arithmetic that silently drops z (SPEC C-7d).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_a_path_annotation_is_backed_by_a_guard",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-4c"
@@ -2805,11 +3299,13 @@ title = "The migration is ratcheted, not big-banged."
 statement = '''
 `tests/test_polyline_parameters.py` holds the list of public parameters still accepting a raw sequence; it only ever shrinks, so a new function cannot join them and the remaining debt is a measured number rather than an assertion. Guarded also by `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`. A ratchet is only as honest as what it can see, so the scan's own scope is part of the rule: it counts `ArrayLike`/`NDArray` as raw (C-7a names a NumPy array explicitly, and leaving numpy's spelling out under-reported the debt by 16), and it counts only module-level functions and the methods of module-level classes — a function nested in a body has no public parameters, and counting one put an entry on the list that no conversion could ever remove.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_the_list_is_not_stale",
+]
 candidates = [
     "tests/test_polyline_parameters.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-4d"
@@ -2820,11 +3316,13 @@ title = "A normalizer is excluded, not owed."
 statement = '''
 A function whose *job* is to accept the wide form — `sdf.paths.as_points()`, the SDF layer's equivalent of the `Path2D(...)` constructor — is listed in the scan's `EXCLUDED` set with its reason, never left on `STILL_RAW`. Requiring a `Path` of it would make it a no-op while pushing every internal numpy pipeline through a wrapper, so it is a permanent entry, and a permanent entry on a list defined to only shrink is a lie about the debt.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_polyline_parameters.py::test_a_normalizer_is_excluded_rather_than_owed",
+]
 candidates = [
     "tests/test_polyline_parameters.py::test_a_normalizer_is_excluded_rather_than_owed",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-5"
@@ -2837,7 +3335,10 @@ statement = '''
 An override MUST NOT broaden a parameter to `float | list[float]` to cover both callers; pick the collection form and convert at the entry point. The one sanctioned union is a *spec argument* at a public constructor (SPEC D-7), which MUST collapse to a single typed object on the first line.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether an override's widened parameter exists 'to cover both callers' is a judgement about why it was written; mypy accepts the widening.
+'''
 
 [[requirement]]
 id = "PLAN-T-6"
@@ -2848,8 +3349,10 @@ title = "Structure with `Protocol`."
 statement = '''
 Cross-backend contracts (`Shape`, `Flat`, `Solid`, `SolidBackend`) are `Protocol`s with fully typed members — never `Any -> Any` placeholders. Use `@runtime_checkable` only when an `isinstance` check actually exists.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-6a"
@@ -2879,8 +3382,10 @@ SPEC C-15 requires `Shape` with `Flat` and `Solid` derived from it. In Python th
 
 `Self` is what makes SPEC C-16 static: `flat | flat` checks, `flat | solid` does not, with no runtime guard and no `TypeVar` machinery. A shared member MUST NOT be re-declared on `Flat` or `Solid` — re-declaring is how the two drifted apart in the first place.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py::test_one_shape_contract_with_two_specialisations",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-6c"
@@ -2891,11 +3396,13 @@ title = "The protocol declares everything the object does."
 statement = '''
 SPEC C-20: a public attribute on `CsgSolid`, `SdfSolid`, `CsgShape2D` or `PyShape2D` that no protocol declares is a defect, not an extra. Write the member on `Shape` if both dimensions can honour it (C-22), on `Flat`/`Solid` only if it is genuinely dimensional. Where the two backends' concrete signatures differ in ways the checker cannot reconcile, the protocol declares the **caller's** view and the parameter is typed `Any` with a comment saying which two spellings it is bridging — that is a T-2 exception earned by the contract, and it is bounded by the allowlist in `tests/test_shape_contract.py::test_the_contract_is_the_whole_object`. Prefer widening the protocol to shrinking the object: a method users already call does not stop existing because it is inconvenient to type.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_shape_contract.py::test_the_contract_is_the_whole_object",
+]
 candidates = [
     "tests/test_shape_contract.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-6d"
@@ -2907,7 +3414,10 @@ statement = '''
 SPEC S-19b. A `bool` parameter that selects which arm of a union comes back is a second function wearing the first one's name: split it (`path_sweep` / `path_sweep_transforms`). The only unions a public return may carry are ones the *caller's own input* selects — a façade returning `Flat` or `Solid` by dimension — and even those need `@overload` so the checker can narrow. Guarded by `tests/test_exports.py::test_no_public_return_type_is_a_flag_selected_union`.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+PLAN X-4 names `test_no_public_return_type_is_a_flag_selected_union` as the guard and it does not exist. The sweeps were split by hand in T18; nothing stops the next flag-selected union.
+'''
 
 [[requirement]]
 id = "PLAN-T-6b"
@@ -2919,14 +3429,16 @@ keyword = "MUST"
 statement = '''
 Since Python 3.12, `isinstance()` against a `runtime_checkable` Protocol uses static lookup and ignores anything `__getattr__` supplies. A member that exists only through a dynamic passthrough therefore fails the check even though the call works — which is how `show()` was absent from every shape contract while appearing to be present. Anything in a contract MUST be declared on the class.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+]
 candidates = [
     "tests/test_backend_capabilities.py::test_csg_attachment_features_unsupported_on_sdf",
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
     "tests/test_shape_contract.py::test_the_object_has_everything_the_contract_declares",
     "tests/test_supported_versions.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-6e"
@@ -2945,7 +3457,9 @@ statement = '''
 
 So: anything on a contract that computes is a **method** (`bounds()`, `vnf()`, `volume()`, `show()`); a property on a contract is a cheap, total accessor over state the object already holds (`backend`, `size`). This is the same failure family as E-6 — code that probes an object must get an answer, not a traceback — arriving through `isinstance` rather than `getattr`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_shape_contract.py::test_no_contract_member_is_a_property_that_computes",
+]
 candidates = [
     "tests/test_beziers.py",
     "tests/test_no_mesher.py::test_isinstance_answers_without_meshing",
@@ -2953,7 +3467,7 @@ candidates = [
     "tests/test_skin.py",
     "tests/test_supported_versions.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-7"
@@ -2965,7 +3479,10 @@ statement = '''
 `TypeVar("T", covariant=True)` / `contravariant=True` where a generic is exposed publicly.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Variance is declared where generics are exposed, and mypy checks the declarations are consistent -- but nothing requires a new public generic to declare it.
+'''
 
 [[requirement]]
 id = "PLAN-T-8"
@@ -2979,11 +3496,13 @@ A module whose public names are bound dynamically MUST ship a `.pyi` that declar
 
 A stub and its module MUST NOT drift; parity is enforced by `tests/test_init_stub.py`, and the docstring-example gate (D-P5a) is what catches the drift a parity test does not model.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_init_stub.py::test_stub_exists",
+]
 candidates = [
     "tests/test_turtle_stub.py::test_the_stub_exists",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-T-9"
@@ -2995,7 +3514,10 @@ statement = '''
 Never `globals()[name] = …` or `setattr(module, …)` to register an API. The one permitted `__getattr__` is the top-level lazy re-export table, which is backed by its stub (T-8).
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing scans for `globals()[...] = ` or `setattr(module, ...)`. The same AST ratchet that keeps bare ValueErrors out would cover it.
+'''
 
 [[requirement]]
 id = "PLAN-T-9a"
@@ -3007,7 +3529,10 @@ statement = '''
 Everything past the subject argument goes after a bare `*` (SPEC D-1), so no caller can depend on positional order for shaping, placement, resolution or escape-hatch parameters. A public callable carries at most one required parameter; a second needs a `Note:` in the docstring saying why no default can invent it (SPEC D-2), and a third is never acceptable.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing checks that a public callable's parameters past the subject are keyword-only. A signature scan would; D-2's required-argument count is checked for the masks only.
+'''
 
 [[requirement]]
 id = "PLAN-T-9b"
@@ -3019,7 +3544,10 @@ statement = '''
 "Off" is `0`, `False`, or an enum member (`ScrewDriveType.NONE`) — SPEC D-4. A parameter whose `None` means "do not apply this" is a defect: it makes "unset" and "disabled" indistinguishable, which is what breaks ambient defaults (§4.3) and `effective_defaults()`.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a given `None` means 'decide for me' or 'off' is a reading of intent. T31's JUSTIFIED_NONE records the façade's cases with reasons, which is as close as a test gets.
+'''
 
 [[requirement]]
 id = "PLAN-T-10"
@@ -3030,8 +3558,10 @@ title = "Immutable defaults."
 statement = '''
 Parameter defaults are `None`, numbers, strings, tuples, or enum members — never a list, dict, or set, in `.py` or `.pyi` (SPEC D-3). Guarded by `tests/test_defaults.py::test_no_mutable_defaults_anywhere_in_the_package`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_no_mutable_defaults_anywhere_in_the_package",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-O-0"
@@ -3043,7 +3573,10 @@ statement = '''
 SPEC §6 catalogues the subsystems this library owns — paths and curves, regions, meshes and surfaces, sweeps, strokes and caps, masks, partitions, distribution, textures, colour, import/interchange, parts. New work belongs to one of them; if it does not, the spec gains a subsection before the code lands.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+'New work belongs to a subsystem, and if it does not the spec gains a subsection first' is a process rule for a reviewer, not a property of the tree.
+'''
 
 [[requirement]]
 id = "PLAN-O-0a"
@@ -3054,8 +3587,13 @@ title = "Parts build through the façade."
 statement = '''
 A part imports `pybosl2.solid` / `pybosl2.flat`, never `pybosl2.shapes3d` / `pybosl2.shapes2d` directly, so it honours the active backend (SPEC S-46a). Reaching a backend module directly is what makes a part silently CSG-only.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_parts_backend_coverage.py",
+]
+status = "enforced"
+note = '''
+A part reaching a backend module directly shows up as a part that cannot build on SDF, which is what this walks.
+'''
 
 [[requirement]]
 id = "PLAN-O-1"
@@ -3067,11 +3605,16 @@ keyword = "MAY"
 statement = '''
 Every entry in `pybosl2/parts/` is a class — `Screw`, `SpurGear`, `KnuckleHinge`, `RegularPolyhedron`, `NemaMotor` — not a family of functions. A stateless family of catalogue lookups MAY instead be a class holding classmethod factories (`BallBearings.ball_bearing("608")`).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
+]
 candidates = [
     "tests/turtle/test_turtle_methods.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+Every entry in `pybosl2.parts.__all__` is walked and required to be a class.
+'''
 
 [[requirement]]
 id = "PLAN-O-1a"
@@ -3083,7 +3626,10 @@ statement = '''
 A group of free functions sharing a prefix and a parameter list is an argument bag with extra steps (SPEC P-8): give the group a class and make each member a factory on it — `Metaball.sphere(...)`, `Mask2D.roundover(...)`, `Mask3D.chamfer(...)`. The old names stay as **aliases of the new members** (`mask2d_roundover = Mask2D.roundover`), never as a second copy of the body, so the two spellings cannot diverge.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a prefixed group of functions is 'a family' is the judgement -- Mask2D, Metaball and the turtles were, and a scan for shared prefixes would not have told them from coincidence.
+'''
 
 [[requirement]]
 id = "PLAN-O-1c"
@@ -3095,8 +3641,13 @@ keyword = "MUST"
 statement = '''
 Where a class publishes operations through a mixin, that mixin MUST be in the class's MRO — never re-implemented in the class alongside it. A duplicate is dead on one side: `partitions.Partitionable` held all nine cut operators while `shapes3d/base.py` carried its own copy of every one, so the mixin was documented, tested and never executed, and the two copies had already drifted. If a mixin looks redundant, delete it; do not leave two implementations of one operation.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_partitions.py::test_bosl2_solid_gets_its_cuts_from_the_partitions_mixin",
+]
+status = "enforced"
+note = '''
+The mixin is required to be in the MRO, which is what the duplicate copy defeated.
+'''
 
 [[requirement]]
 id = "PLAN-O-1b"
@@ -3107,11 +3658,16 @@ title = "A command enum plus a parameter dataclass gets methods too."
 statement = '''
 Where an API is driven by `Thing(CommandType.MOVE, size=40)` values, the object executing them also exposes one method per command, generated from a single table so parallel implementations cannot drift (`TurtleCommands`, mixed into `Turtle2D` and `Turtle3D`). The command objects remain the substrate — the methods build them — so generated programs still work.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/turtle/test_turtle_methods.py",
+]
 candidates = [
     "tests/test_turtle_stub.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The generated per-command methods are checked against the command table they come from.
+'''
 
 [[requirement]]
 id = "PLAN-O-2"
@@ -3124,12 +3680,14 @@ A part class has: 1. a `__init__` taking the catalogue name / defining dimension
 
 Beware the name: on a backend wrapper, `.shape` is the *raw native handle* (SPEC C-14a). A part's `shape` returns the wrapped `Solid`; a wrapper's returns what it wraps.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
+]
 candidates = [
     "tests/test_exports.py::test_every_part_exposes_shape_as_a_property",
     "tests/test_parts_are_lazy.py::test_no_part_becomes_eager",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-O-3"
@@ -3140,8 +3698,13 @@ title = "Geometry types are classes too."
 statement = '''
 `Path2D`, `Path3D`, `Region`, `VNF`, `Bezier`, `NurbsCurve`, `Color`, `Bounds2D/3D` own their operations as methods, so work reads as a fluent chain rather than nested calls.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_paths.py",
+]
+status = "enforced"
+note = '''
+The geometry types' methods are exercised as methods returning new objects.
+'''
 
 [[requirement]]
 id = "PLAN-O-4"
@@ -3153,7 +3716,10 @@ statement = '''
 `cuboid()`, `circle()`, `slerp()`, `frag_count()` stay functions; anything with state, derived values, or a catalogue behind it becomes a class.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Which callables should stay functions is the converse judgement to O-1a, and no more checkable.
+'''
 
 [[requirement]]
 id = "PLAN-O-5"
@@ -3165,7 +3731,10 @@ statement = '''
 Spec objects are frozen dataclasses. Shapes and paths return new objects from every operation (SPEC C-3); no public method mutates `self`. The pattern is copy-then-set — `out = self._wrap(self.shape); out.tag_name = …; return out` — so the `attachments`/`tag_name` setters exist for the copy to use and are never part of the public call surface.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Spec objects are frozen dataclasses today, but nothing walks `pybosl2/parts` asserting `frozen=True`. A scan would be cheap and would have caught the two that were not.
+'''
 
 [[requirement]]
 id = "PLAN-O-5b"
@@ -3177,7 +3746,10 @@ statement = '''
 A value that follows from the others is computed once — in the frozen spec object or on the first line of `__init__` — and surfaced as a read-only property, never demanded from the caller (SPEC P-3, D-6). `ScrewSpec` deriving pitch from `"M6"` and `GearSpec` deriving pitch radius from teeth+module are the patterns to copy.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+That a derived value *is* derived rather than demanded is P-3's judgement in Python spelling.
+'''
 
 [[requirement]]
 id = "PLAN-O-6"
@@ -3189,7 +3761,10 @@ statement = '''
 `StrEnum` in `pybosl2/enums.py` and `pybosl2/parts/enums.py`, so the legacy string spelling still compares equal. A new bare-string parameter with a fixed set of accepted values is a defect.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+New bare-string parameters with a fixed set of values are the defect; nothing can tell a closed vocabulary from an open one by looking.
+'''
 
 [[requirement]]
 id = "PLAN-O-5a"
@@ -3200,8 +3775,10 @@ title = "`show()` returns the shape."
 statement = '''
 Every implementation of `show()` returns `Self`, never `None` (SPEC S-49), so it can close a chain: `part = cuboid([20, 20, 10]).up(5).show()`. A builder's `show()` delegates to its `shape`'s and returns the same way.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_exports.py::test_part_show_returns_the_shape",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-O-6a"
@@ -3213,8 +3790,13 @@ keyword = "MUST NOT"
 statement = '''
 A wrapper declares `backend = "csg"` (or `"sdf"`) as a class attribute; it MUST NOT be assigned from `current_backend()` in `__init__`. The tag says *who built this object*, not *what was selected when it happened* (SPEC C-1), and reading the ambient value there silently disables the cross-backend guard.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py::test_a_csg_shape_built_inside_an_sdf_block_still_says_csg",
+]
+status = "enforced"
+note = '''
+Reading the ambient backend into the tag is exactly what this fails on.
+'''
 
 [[requirement]]
 id = "PLAN-O-6b"
@@ -3226,7 +3808,10 @@ statement = '''
 A parameter meaning "which face, edge or corner" is typed `Anchor | Sequence[float]` and resolved through `resolve_anchor()` (SPEC C-10). Do not accept a bare string like `"top"` or an integer index — that is a parallel vocabulary the reader has to learn twice. `constants.TOP` is an alias of `Anchor.TOP`; new code and examples use the enum spelling (SPEC C-11).
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+`text()` was typed `anchor: str` until T36 and nothing noticed. A scan for a parameter named `anchor` not typed `Anchor | Sequence[float]` would have.
+'''
 
 [[requirement]]
 id = "PLAN-O-6c"
@@ -3237,8 +3822,13 @@ title = "Caps are one value."
 statement = '''
 A stroke or sweep end treatment is typed `CapType | CapSpec` and normalised once through `caps.norm_caps()` (SPEC S-23, S-24), so `endcap1=`/`endcap2=`/`joints=` each take a single argument rather than a spread of style, size and shape parameters.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_drawing.py",
+]
+status = "enforced"
+note = '''
+Caps are normalised through one type and exercised as one value by the stroke tests.
+'''
 
 [[requirement]]
 id = "PLAN-O-7"
@@ -3249,8 +3839,13 @@ title = "Composition at the FFI boundary."
 statement = '''
 `Bosl2Solid`/`Bosl2Shape2D` wrap the native handle by composition, never inheritance, and proxy operations through the explicit `_NATIVE_PASSTHROUGH` allowlist (SPEC C-6).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_shape_contract.py::test_the_contract_is_the_whole_object",
+]
+status = "enforced"
+note = '''
+Composition rather than inheritance shows in the contract walk; the passthrough allowlist is C-6's half and is not checked.
+'''
 
 [[requirement]]
 id = "PLAN-F-P1"
@@ -3260,8 +3855,13 @@ section = "4.1 Façade constructors"
 statement = '''
 A façade constructor declares the **real default** for each shared argument in its own signature — `size: float | Sequence[float] = (1, 1, 1)`, `anchor: Anchor = Anchor.CENTER` — and always forwards it. It does not default shared arguments to `None` and hope the backend agrees.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_the_facade_owns_every_shared_default",
+]
+status = "enforced"
+note = '''
+Added in T31; 67 defaults were lifted to make it pass.
+'''
 
 [[requirement]]
 id = "PLAN-F-P2"
@@ -3271,8 +3871,10 @@ section = "4.1 Façade constructors"
 statement = '''
 Forwarding is filtered by **what the target backend declares**, not by what the caller passed: inspect the backend constructor's signature (cached per callable, as `_takes_res` does) and drop names it does not accept. `given_arguments()` remains the filter for backend-exclusive options only.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-F-P3"
@@ -3283,7 +3885,10 @@ statement = '''
 A backend-exclusive option keeps its default on the backend, and the façade documents which backend it applies to (`res` for SDF; `spin`/`orient`/`fn`/`fa`/`fs` for CSG).
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Which options are backend-exclusive is PAR-3's list; that the façade *documents* which backend each applies to is a docstring rule nothing reads.
+'''
 
 [[requirement]]
 id = "PLAN-F-P4"
@@ -3294,8 +3899,13 @@ keyword = "MUST"
 statement = '''
 `effective_defaults()` MUST keep reporting the truth after any change here — it reads live off the constructor, so the test for it is that it needs no maintenance.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_effective_defaults_reports_the_real_signature",
+]
+status = "enforced"
+note = '''
+It reads live off the constructor, which is what makes the test need no maintenance.
+'''
 
 [[requirement]]
 id = "PLAN-B-P1"
@@ -3306,8 +3916,13 @@ title = "Both backends, or an explicit refusal."
 statement = '''
 A new shared feature is implemented on both backends, or it raises `UnsupportedByBackendError` **and** is listed in `CSG_ONLY_FEATURES` / `SDF_ONLY_FEATURES` with its reason (SPEC PAR-2, PAR-3). Silently omitting it from one backend is the failure mode those lists exist to prevent.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
+status = "enforced"
+note = '''
+A shared feature on one backend only fails the matrix; PAR-3's lists are checked separately.
+'''
 
 [[requirement]]
 id = "PLAN-B-P2"
@@ -3319,7 +3934,10 @@ statement = '''
 Where a backend's own module spells a parameter differently, the mapping goes in that backend's translation table (`SdfBackend._OWN_NAMES`), never into the façade signature (SPEC PAR-4).
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+`SdfBackend._OWN_NAMES` is the table and it is used, but nothing forbids a name difference being spelled into the façade signature instead.
+'''
 
 [[requirement]]
 id = "PLAN-B-P3"
@@ -3330,8 +3948,13 @@ title = "Guard operands, do not assume."
 statement = '''
 Boolean and transform implementations call `check_operand_backend()` before touching an operand, so a mismatch raises `CrossBackendError` with its conversion hint rather than an internal `AssertionError` from deeper in (SPEC C-1, E-3).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_crossbackend.py",
+]
+status = "enforced"
+note = '''
+A boolean skipping the guard surfaces as an internal error instead of CrossBackendError, which is what this asserts.
+'''
 
 [[requirement]]
 id = "PLAN-B-P4"
@@ -3342,12 +3965,14 @@ title = "An exclusive-feature list is checked, not just written."
 statement = '''
 Every name in `CSG_ONLY_FEATURES` must be implemented on the SDF shape **as a refusal**, and vice versa (SPEC PAR-3): a real method whose whole body raises `UnsupportedByBackendError` with a hint. The test is that calling it raises and that the message names the way forward — not that the attribute is missing, which would break `isinstance` against the shape protocols (T-6b) and make the refusal less explicit than C-13 asks for. What must never happen is the third case: a name that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection` once did).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+]
 candidates = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
     "tests/test_backend_parity.py::test_the_mesh_operation_list_only_holds_names_that_reach_the_fallback",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-R-P1"
@@ -3358,7 +3983,10 @@ statement = '''
 The parameters are spelled `fn: int | None = None`, `fa: float | None = None`, `fs: float | None = None` (CSG) and `res: int | None = None` (SDF), keyword-only, defaulting to `None`. Never `$fn`, never a positional.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing checks the facet parameters' spelling and keyword-only-ness. `test_facets.py` checks they are *present*, not how they are declared.
+'''
 
 [[requirement]]
 id = "PLAN-R-P2"
@@ -3369,11 +3997,16 @@ keyword = "MUST"
 statement = '''
 A function that builds an arc, circle, rounding, chamfer arc, sphere, or cylinder MUST declare them, and MUST forward them to every sub-construction it calls — including path helpers (`round_corners`, `arc_points`), masks, and part sub-assemblies. Dropping them silently half-way down is the defect this rule exists to prevent. Per SPEC R-1a the trigger is *generating points that approximate a curve*: a function that only places or measures from a radius (`arc_copies`, `polar_to_xy`, `circle_circle_tangents`) is out of scope, because nothing it returns has a facet count.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_facets.py::test_no_new_curved_api_without_facet_controls",
+]
 candidates = [
     "tests/test_facets.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+Declaring them is checked; forwarding them down is the half that is not.
+'''
 
 [[requirement]]
 id = "PLAN-R-P3"
@@ -3385,7 +4018,10 @@ statement = '''
 Resolve them exactly once, at the point of use, through `pybosl2.defaults.resolve_facets()` / `resolve_res()`, which fill in the ambient block values (`use_defaults(fn=64)`). The central resolvers are `_helpers.frag_count()`, `shapes3d/base._ocylinder`/`_osphere`, `shapes2d/circle.circle`, and each backend's `construct()`; new leaf constructors SHOULD route through those rather than re-implementing the `$fa`/`$fs` arithmetic.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Resolving once at the point of use is a structural habit; nothing counts the resolution sites. G-5 removed the second implementation of the rule itself.
+'''
 
 [[requirement]]
 id = "PLAN-R-P4"
@@ -3395,8 +4031,13 @@ section = "4.3 Resolution plumbing (`fn` / `fa` / `fs` / `res`)"
 statement = '''
 Never forward a facet argument to a callee that does not declare it — check the signature (as `SdfBackend.construct` does) rather than passing blindly.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_backend_matrix.py",
+]
+status = "enforced"
+note = '''
+Forwarding a facet argument a backend does not declare is what the tessellation carve-out exists for.
+'''
 
 [[requirement]]
 id = "PLAN-R-P5"
@@ -3407,12 +4048,14 @@ keyword = "MUST NOT"
 statement = '''
 New public curved geometry MUST NOT be added to the known-gap list in `tests/test_facets.py`; the list only shrinks.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_facets.py::test_the_backlog_only_shrinks",
+]
 candidates = [
     "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
     "tests/test_docstring_examples.py::test_there_are_examples_to_check",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-R-P6"
@@ -3423,8 +4066,10 @@ keyword = "MUST NOT"
 statement = '''
 `fn=0` is the opt-out from an ambient `fn` (SPEC R-5): `frag_count()` treats `fn < 3` as unset and falls through to `fa`/`fs`. Constructors that document `fn` SHOULD say so, and code MUST NOT treat `0` as a facet count.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_fn_zero_opts_out_of_an_ambient_fn",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-D-P1"
@@ -3435,8 +4080,13 @@ title = "Google style, always."
 statement = '''
 One-line summary, blank line, then the description. `Args:`, `Returns:`, `Raises:` sections separated by blank lines. No reStructuredText `:param:` fields.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+Ruff's D rules are enabled and run as a gate, which is the mechanical half of Google style.
+'''
 
 [[requirement]]
 id = "PLAN-D-P2"
@@ -3447,8 +4097,13 @@ title = "Every public module, class, method, and function has a docstring."
 statement = '''
 No exceptions for "obvious" properties.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+Ruff's D rules require a docstring on every public callable.
+'''
 
 [[requirement]]
 id = "PLAN-D-P3"
@@ -3460,7 +4115,10 @@ statement = '''
 Types live in the annotations; the prose describes meaning, units, and the default's effect.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a description repeats the annotation is a reading of the prose.
+'''
 
 [[requirement]]
 id = "PLAN-D-P4"
@@ -3488,11 +4146,13 @@ title = "The façade is documented like any other API."
 statement = '''
 A constructor in `solid.py`/`flat.py` carries its own `Args:` for every parameter it declares and its own example — delegating to a backend module documents the backend, not the entry point users are told to use (SPEC DOC-2). Where the resolved default differs per backend, say what it resolves to and point at `effective_defaults()`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
+]
 candidates = [
     "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-D-P5"
@@ -3504,11 +4164,13 @@ keyword = "MUST"
 statement = '''
 Every function producing 2-D or 3-D output carries a `.. pythonscad-example::` block that renders to STL. A 2-D example MUST extrude (`.linear_extrude(...)`) before `.show()`, since STL has no 2-D form.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
+]
 candidates = [
     "tests/test_docs_links.py::test_every_facade_callable_documents_its_arguments_and_shows_an_example",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-D-P5a"
@@ -3529,12 +4191,14 @@ Rules for writing an example so this stays cheap:
 
 Because it type-checks rather than executes, the gate needs no CAD runtime and runs in CI. It is not a substitute for D-P5's rendering — one proves the example *compiles*, the other that it *builds something*.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_docstring_examples.py::test_no_example_suppresses_a_type_error",
+]
 candidates = [
     "tests/test_docstring_examples.py::test_no_example_suppresses_a_type_error",
     "tests/test_docstring_examples.py::test_no_module_grows_its_untyped_examples",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-D-P5b"
@@ -3553,8 +4217,13 @@ Nothing else checks it. D-P5a proves the line *compiles*; D-P5 renders the *geom
 
 `tests/test_example_claims.py` executes every example carrying such a comment and compares. Examples without one are left alone: the rule is to check claims, not to run everything. Write the comment only for a value you have actually seen — and when it disagrees with the code, run the example before deciding which is wrong, because that is how the wrong one got written.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_example_claims.py",
+]
+status = "enforced"
+note = '''
+Every example stating a value in a trailing comment is executed and held to it.
+'''
 
 [[requirement]]
 id = "PLAN-D-P6"
@@ -3574,8 +4243,13 @@ Immediately after the licence header, every module carries:
 
 `DocCategory` is one of `Foundational`, `Paths, regions & surfaces`, `Math & geometry`, `Parts library`, `Extras`, `Solid backends`, or `internal` (excluded from the public docs).
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_docs_links.py",
+]
+status = "enforced"
+note = '''
+The header tags are read and required.
+'''
 
 [[requirement]]
 id = "PLAN-D-P6a"
@@ -3586,8 +4260,13 @@ keyword = "MUST NOT"
 statement = '''
 A module that holds **any** publicly exported name MUST NOT be `internal` — that tag means "support code", and using it on a module users import silently drops a whole subsystem from the reference (SPEC S-47). The test: if the name appears in `pybosl2/__init__.pyi`, its module needs a public category, a `LibFile` and a `FileSummary`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_docs_links.py",
+]
+status = "enforced"
+note = '''
+A module holding a top-level export is required to have a public category.
+'''
 
 [[requirement]]
 id = "PLAN-D-P7"
@@ -3597,8 +4276,13 @@ section = "5. Documentation"
 statement = '''
 Docs are generated from these headers and docstrings by `docs/_rstgen.py`, the visual catalogue by `docs/_specgen.py`, and the BOSL2 coverage table by `docs/_covgen.py`. Never hand-maintain a list of APIs in `.rst` — a generated page carries a "generated by" line, is committed alongside its generator, and has a test asserting the two still agree, so a forgotten re-run fails the build instead of publishing a stale page.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_bosl2_coverage.py::test_the_committed_page_matches_the_generator",
+]
+status = "enforced"
+note = '''
+Extended to SPEC/PLAN by tests/test_reqgen.py in T27.
+'''
 
 [[requirement]]
 id = "PLAN-M-1"
@@ -3609,7 +4293,10 @@ statement = '''
 One module per ported `.scad` file, named after it, so the Python and OpenSCAD sources read side by side. Support modules are `_`-prefixed and marked `DocCategory: internal`.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+One module per ported .scad file is a naming convention; B2-1's coverage table records which file each module ports, but nothing enforces the shape of new ones.
+'''
 
 [[requirement]]
 id = "PLAN-M-2"
@@ -3619,11 +4306,13 @@ section = "6. Modules, imports, and laziness"
 statement = '''
 Every public module declares `__all__`, and **every name in it resolves** (SPEC A-7) — a stale entry breaks `import *` and every tool that walks the list.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_exports.py::test_every_all_entry_resolves",
+]
 candidates = [
     "tests/test_exports.py",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-M-2a"
@@ -3633,8 +4322,10 @@ section = "6. Modules, imports, and laziness"
 statement = '''
 The top-level `_LAZY_EXPORTS` points at the **façade** (`pybosl2.solid`, `pybosl2.flat`), never at a backend module, so no top-level name can build on a backend the caller did not select (SPEC A-6). A shape only one backend can make is reached through that backend's module, or gets a façade constructor that refuses on the other.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-M-3"
@@ -3645,8 +4336,13 @@ keyword = "MUST"
 statement = '''
 No native runtime at import time. PythonSCAD primitives are reached through `pybosl2._native.native("cube")`, which defers `import pythonscad` to the first call; libfive is a lazy handle in `pybosl2/sdf/_libfive.py`. `import pybosl2` MUST work with neither installed.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
+]
+status = "enforced"
+note = '''
+Import-time native access is what this stubs out and would fail on.
+'''
 
 [[requirement]]
 id = "PLAN-M-4"
@@ -3656,8 +4352,13 @@ section = "6. Modules, imports, and laziness"
 statement = '''
 Type-only imports go under `if TYPE_CHECKING:`.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+Ruff's TC rules move type-only imports into the block and run as a gate.
+'''
 
 [[requirement]]
 id = "PLAN-M-5"
@@ -3667,8 +4368,13 @@ section = "6. Modules, imports, and laziness"
 statement = '''
 Import direction follows the spec's layering (SPEC A-1); a cycle is resolved by moving the shared piece down a layer, not by a function-local import — those are reserved for genuine cycles and are commented when used.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_layering.py::test_every_deferred_upward_import_is_a_cycle_or_known_debt",
+]
+status = "enforced"
+note = '''
+T29: a deferred import must break a real cycle, and the test resolves the cycle rather than accepting the claim.
+'''
 
 [[requirement]]
 id = "PLAN-E-P1"
@@ -3678,11 +4384,16 @@ section = "7. Errors"
 statement = '''
 Raise `ValueError` for bad arguments, naming the parameter(s) and the accepted spellings: *"tube(): needs two of the three sizes — an inner radius/diameter, an outer radius/diameter, and a wall thickness."*
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_validation_messages.py",
+]
 candidates = [
     "tests/test_validation_messages.py",
 ]
-status = "untriaged"
+status = "enforced"
+note = '''
+The message is asserted, not just the type.
+'''
 
 [[requirement]]
 id = "PLAN-E-P2"
@@ -3694,12 +4405,14 @@ statement = '''
 * A **message-less** `assert` on a parameter is validation too — it is the worst form, since `python -O` erases it and the caller gets wrong geometry instead of an error. It is allowed only where it *narrows* a value the function already validated, which shows as an earlier `raise` whose message names that parameter.
 * **`raise AssertionError(...)` is never right.** It survives `-O`, so it is not even an assert's equivalent, and it reports the caller's mistake as an internal bug. Bad input raises `ValueError`; a broken invariant uses `assert`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_no_assert_validates_user_input",
+]
 candidates = [
     "tests/test_defaults.py::test_no_assert_validates_user_input",
     "tests/test_defaults.py::test_no_bare_assert_stands_in_for_validation",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-E-P3"
@@ -3710,8 +4423,10 @@ keyword = "MUST"
 statement = '''
 Library errors derive from `pybosl2.exceptions.Bosl2Error`; backend refusals use `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses `CrossBackendError`. Both MUST carry an actionable hint.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-E-P4"
@@ -3721,11 +4436,13 @@ section = "7. Errors"
 statement = '''
 Never swallow an exception to return a degenerate shape. A constructor that cannot produce a usable shape from what it was given raises (SPEC E-5); it does not return a polygon of coincident points, a zero-size solid, or anything whose `bounds()` is infinite or `NaN`. `tests/test_min_args.py` asserts the *result*, not merely the absence of a traceback: a zero-argument call either raises `ValueError` or produces a shape with finite, positive bounds.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
+]
 candidates = [
     "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-E-P4a"
@@ -3743,11 +4460,13 @@ SPEC E-1 and E-4 both bind, so the type raised for bad input derives from **both
 
 Every `raise ValueError(...)` in the package becomes `raise Bosl2ValueError(...)`; the message is unchanged, `except ValueError` keeps working unmodified, and `except Bosl2Error` starts working. Tests that assert `pytest.raises(ValueError)` need no change — that is the point of the MRO. New code raises `Bosl2ValueError`; a bare `ValueError` in the package is a defect, guarded by the same AST ratchet that keeps the `assert`s out (`tests/test_errors.py`).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
+]
 candidates = [
     "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-E-P4b"
@@ -3758,8 +4477,10 @@ title = "An error raised from `__getattr__` is an `AttributeError` too."
 statement = '''
 SPEC E-6. `UnsupportedByBackendError` inherits `AttributeError` alongside `Bosl2Error`, because Python's attribute protocol is defined in terms of that type: `hasattr()` and `getattr(x, n, default)` catch `AttributeError` and nothing else, so any other type turns a capability probe into a traceback and breaks `copy`, `pickle`, `inspect` and every REPL completion. Refusals raised from a *call* are unaffected by the change — the extra base is invisible unless something is probing.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-E-P5"
@@ -3769,8 +4490,13 @@ section = "7. Errors"
 statement = '''
 Resolve radius/diameter spellings through `_helpers.pick_radius()`, never with a hand-rolled `radius if radius is not None else diameter / 2` ternary. The helper is what enforces SPEC D-5 — same-dimension conflicts raise, specificity levels resolve most-specific-first — and a local ternary silently opts out of it.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected",
+]
+status = "enforced"
+note = '''
+A hand-rolled ternary would not raise, which is what this asserts.
+'''
 
 [[requirement]]
 id = "PLAN-E-P6"
@@ -3781,11 +4507,13 @@ keyword = "MUST NOT"
 statement = '''
 An attribute fallback (`__getattr__`) MUST NOT convert a shape to another representation to satisfy a missing method. Implement the method or raise `UnsupportedByBackendError`; meshing a distance field to answer `.up(5)` is a silent, lossy backend conversion (SPEC B-5, C-1).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_backend_parity.py::test_an_unknown_operation_refuses_instead_of_meshing",
+]
 candidates = [
     "tests/test_backend_parity.py::test_sdf_shapes_keep_their_backend_through_moves_and_colour",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-S-1"
@@ -3795,8 +4523,13 @@ section = "8. Style"
 statement = '''
 `ruff format` is the formatter; line length 120; double quotes.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+`ruff format` is a gate in CI and a pre-commit hook; a misformatted file fails before the suite runs.
+'''
 
 [[requirement]]
 id = "PLAN-S-2"
@@ -3823,7 +4556,10 @@ statement = '''
 No `TODO` comments and no stubbed bodies in committed code. Unfinished work lives in SPEC §12 (conformance), not in the source.
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+Nothing scans for TODO comments or stubbed bodies. An AST ratchet of the kind used for asserts and bare ValueErrors would cover it.
+'''
 
 [[requirement]]
 id = "PLAN-S-4"
@@ -3834,7 +4570,10 @@ statement = '''
 Comments explain *why*, and are kept truthful when the code changes; a comment that describes behaviour the code no longer has is a defect.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+Whether a comment explains *why*, and whether it is still true, is the definition of a review question.
+'''
 
 [[requirement]]
 id = "PLAN-S-4a"
@@ -3846,7 +4585,10 @@ statement = '''
 Millimetres, degrees, right-handed Z-up (SPEC D-9). No API takes a `units=` parameter; a caller working in inches multiplies by `constants.INCH` at the call site. Do not introduce a second angular unit either — everything is degrees, and anything ported from a radians-based source converts on entry.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+No API takes a units argument today, but nothing forbids one being added. A scan for a `units=` parameter would make it enforced.
+'''
 
 [[requirement]]
 id = "PLAN-S-5"
@@ -3860,7 +4602,10 @@ enforced_by = []
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
-status = "untriaged"
+status = "reviewed"
+note = '''
+Which BOSL2 name to keep and which to improve on is a judgement per name; B2-3 is the same rule and the same answer.
+'''
 
 [[requirement]]
 id = "PLAN-X-1"
@@ -3871,7 +4616,10 @@ statement = '''
 `pytest` is the runner; tests live in `tests/`, one module per source module.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A statement about the runner and the layout, true by construction.
+'''
 
 [[requirement]]
 id = "PLAN-X-2"
@@ -3882,8 +4630,13 @@ keyword = "MUST"
 statement = '''
 Pure-geometry (L0) tests MUST pass with no CAD runtime installed. Tests needing the PythonSCAD **app** (`tests/test_stl_render*.py`) skip when no binary is found via `PYTHONSCAD_BIN` or `/Applications` — they skip, never fail.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_no_mesher.py",
+]
+status = "enforced"
+note = '''
+The pure-geometry surface is exercised with the mesher stubbed out.
+'''
 
 [[requirement]]
 id = "PLAN-X-3"
@@ -3894,7 +4647,10 @@ statement = '''
 Every new public callable gets three tests: it builds *and is measurably right* (X-8), it builds **with the minimum arguments** (this is how SPEC P-1 is enforced mechanically), and its docstring example validates (`tests/validate_examples.py`).
 '''
 enforced_by = []
-status = "untriaged"
+status = "unenforced"
+note = '''
+The minimum-argument third is enforced (Q-4). Nothing requires a *new* callable to arrive with all three tests -- that is what a reviewer counts.
+'''
 
 [[requirement]]
 id = "PLAN-X-4"
@@ -3909,8 +4665,13 @@ Tests the rules still need (they land with their tasks in [TASKS.md](TASKS.md)):
 
 | Test to add | Guards | Task | |---|---|---| | a CSG shape built inside `use_backend("sdf")` reports `backend == "csg"` | O-6a / SPEC C-1 | T0 | | no `assert` carries a message naming a caller-supplied parameter | E-P2 / SPEC E-4 | T0b | | no message-less `assert` and no `raise AssertionError` validates input | E-P2 / SPEC E-4 | T10 | | `shape` is a property on every class in `pybosl2.parts.__all__` | O-2 / SPEC C-14 | T0c | | every name in every public `__all__` resolves | M-2 / SPEC A-7 | T0d | | every top-level shape name yields the active backend or refuses | M-2a / SPEC A-6 | T2b | | every part built under `use_backend("sdf")` is SDF-backed or refuses | O-0a / SPEC S-46a | T0f | | every name in `CSG_ONLY_FEATURES` is genuinely absent from the SDF shape | B-P4 / SPEC PAR-3 | T4 | | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2, B-P1 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_ci_gates.py",
+]
+status = "enforced"
+note = '''
+The named contract tests run in CI; test_requirements.py now also fails if a rule names one that no longer exists.
+'''
 
 [[requirement]]
 id = "PLAN-X-7"
@@ -3920,8 +4681,10 @@ section = "9. Tests"
 statement = '''
 Every rejection path is exercised, asserting the **message** as well as the type (`tests/test_validation_messages.py`) — E-4 is about the message naming the fix, and an unexercised `raise` is an unverified one. A guard that genuinely cannot fire is marked `# pragma: no cover` **on the `if`/`else` header**, with the reason in a comment below it: coverage matches the pragma against a line, so a marker on its own comment line excludes nothing. `test_no_cover_pragmas_are_attached_to_a_statement` enforces the placement.
 '''
-enforced_by = []
-status = "untriaged"
+enforced_by = [
+    "tests/test_validation_messages.py::test_no_cover_pragmas_are_attached_to_a_statement",
+]
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-X-8"
@@ -3943,7 +4706,9 @@ A type assertion is a legitimate *addition* to those, and it is the whole point 
 
 The cost of getting this wrong is not hypothetical: `pybosl2/partitions.py` was 60% covered with a suite full of `isinstance` checks that all passed while the code they claimed to test was never executed at all (its methods were shadowed by a duplicate), and two of its features were outright broken (see [TASKS.md](TASKS.md) T12).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_assertion_quality.py::test_no_test_asserts_only_that_a_result_exists",
+]
 candidates = [
     "tests/test_assertion_quality.py::test_no_test_asserts_only_that_a_result_exists",
     "tests/test_color.py::test_rainbow_colors_each_object",
@@ -3955,7 +4720,7 @@ candidates = [
     "tests/test_shapes2d_object.py::test_every_constructor_returns_the_2d_wrapper",
     "tests/test_shapes2d_object.py::test_region_geometry_is_the_2d_wrapper",
 ]
-status = "untriaged"
+status = "enforced"
 
 [[requirement]]
 id = "PLAN-X-5"
@@ -3966,4 +4731,7 @@ statement = '''
 Changing geometry, backends, or paths means running the full suite — including `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is called done.
 '''
 enforced_by = []
-status = "untriaged"
+status = "reviewed"
+note = '''
+A process rule about what to run before calling a change done; CI runs the suite regardless, but the render tests skip without a binary.
+'''
