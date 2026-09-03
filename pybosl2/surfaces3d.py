@@ -289,7 +289,7 @@ def interior_fillet(
     angle: float = 90,
     overlap: float = 0.01,
     diameter: float | None = None,
-    anchor: Sequence[float] = FRONT + LEFT,
+    anchor: Anchor | Sequence[float] = FRONT + LEFT,
     spin: float = 0,
     orient: Anchor | Sequence[float] = UP,
     fn: int | None = None,
@@ -304,7 +304,8 @@ def interior_fillet(
         angle:     angle between the faces to fillet in degrees (default 90)
         overlap: overlap size for unioning with the faces (default 0.01)
         diameter:       diameter of the fillet
-        anchor:  anchor point (default FRONT+LEFT)
+        anchor:  anchor point in the anchor language (default FRONT+LEFT), as every other
+            constructor takes it (SPEC C-10, PLAN O-6b)
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
         fn: Fixed fragment count for the fillet arc; ambient default when omitted. Omitted, the ambient

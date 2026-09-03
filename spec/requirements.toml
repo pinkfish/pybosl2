@@ -183,10 +183,12 @@ title = "— Progressive disclosure."
 statement = '''
 Positional arguments are for the one or two things everyone supplies; everything else is keyword-only.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_signatures.py::test_no_file_grows_its_positional_tier_parameters",
+]
+status = "enforced"
 note = '''
-Nothing checks that everything past the subject argument is keyword-only; PLAN T-9a is the same rule in Python spelling and equally unchecked. A signature scan covers both.
+Ratcheted: 114 exported callables still take a tier parameter positionally, and no file may grow its count.
 '''
 
 [[requirement]]
@@ -336,10 +338,12 @@ keyword = "MUST NOT"
 statement = '''
 `square`/`circle`/`cube`/`text` intentionally shadow the OpenSCAD builtins with the anchor-aware versions, so the package MUST NOT be wildcard re-exported.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_declared_surface.py::test_the_package_is_not_wildcard_re_exported",
+]
+status = "enforced"
 note = '''
-Nothing asserts the package has no `__all__`-driven wildcard story or that the shadowing names are documented as deliberate. The shadowing itself is intentional and tested; the 'do not wildcard re-export' half is not.
+Both halves: no wildcard import inside the package, and the four shadowing names still resolve to this library's own.
 '''
 
 [[requirement]]
@@ -677,10 +681,12 @@ keyword = "MUST"
 statement = '''
 Forwarding to a native object is limited to an explicit allowlist, and every forwarded name MUST exist on the wrapped object and be statically declared.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_declared_surface.py::test_every_forwarded_name_exists_on_the_wrapped_object",
+]
+status = "enforced"
 note = '''
-The `_NATIVE_PASSTHROUGH` allowlist exists, but nothing checks that every forwarded name exists on the wrapped object -- which is the half of the rule that catches a typo'd passthrough.
+`roof` is named as the one app-only op the pip wheel lacks, which is why the render tests skip rather than fail.
 '''
 
 [[requirement]]
@@ -942,10 +948,12 @@ keyword = "MUST"
 statement = '''
 `Point`/`Vector` are the point types; `Bounds2D`/`Bounds3D` are the axis-aligned box types. Every shape and mesh MUST report its bounds without rendering — this is part of both the `Solid` and the `Flat` contract, not just the 3-D one.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_bounds_contract.py::test_every_bounds_is_a_bounds_object",
+]
+status = "enforced"
 note = '''
-243 functions exceed 50 lines, the longest at 237. Either ratchet it per module or retire the number. T32.
+Every type the rule names is walked -- shapes on both backends, Path2D/Path3D, Region and VNF -- and each is required to answer a real box. **The note this row carried until T39 was PLAN-S-2's**, about functions over 50 lines: T26's confirmed-enforcement table was keyed by the bare id, so `S-2` matched whichever entry came first. That is the collision the prefixed ids exist to prevent, landing in the data written to record it.
 '''
 
 [[requirement]]
@@ -1330,10 +1338,12 @@ section = "6.6 Sweeps, skins and extrusions"
 statement = '''
 Other extrusions — `extrude_from_to`, `cylindrical_extrude`, `text3d`, `path_text`, `chain_hull`, `minkowski_difference` — are part of the specified surface.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_texture_application.py::TestText3d::test_it_builds_text_of_the_requested_size",
+]
+status = "enforced"
 note = '''
-Every extrusion the rule names is exercised except `text3d`, which nothing tests. One symbol, and the gap is the test.
+`text3d` was the one extrusion the rule names that nothing exercised.
 '''
 
 [[requirement]]
@@ -2272,13 +2282,15 @@ keyword = "MUST"
 statement = '''
 T3–T5 MUST be keyword-only; T2 SHOULD be.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_signatures.py::test_no_file_grows_its_positional_tier_parameters",
+]
 candidates = [
     "tests/test_defaults.py::test_the_facade_owns_the_shared_defaults",
 ]
-status = "unenforced"
+status = "enforced"
 note = '''
-Same gap as P-5 and T-9a: nothing checks keyword-only-ness of the placement, resolution and escape-hatch tiers.
+The same scan; D-1 and PLAN T-9a are this rule in three places.
 '''
 
 [[requirement]]
@@ -2289,15 +2301,17 @@ section = "8.1 Argument tiers"
 statement = '''
 One required parameter is the target; a second needs a written justification in the docstring; three is never acceptable. The justified two-argument cases today are `Screw(spec, length)`, `prismoid(size1, size2)` and `regular_prism(sides, …)` — each names two independent dimensions that no default can invent.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_signatures.py::test_no_file_grows_its_three_argument_callables",
+]
 candidates = [
     "tests/test_defaults.py::test_parts_build_from_their_catalogue_name_alone",
     "tests/test_mask_contract.py::test_no_mask_factory_has_more_than_one_required_argument",
     "tests/test_masking_primitives.py::test_mask2d_step_is_square_unless_told_otherwise",
 ]
-status = "unenforced"
+status = "enforced"
 note = '''
-Checked for the mask factories only (test_mask_contract.py::test_no_mask_factory_has_more_than_one_required_argument). Nothing counts required parameters across the rest of the public API, where the rule is stated. Generalising that scan is the work.
+Scoped to callables that return geometry, which is the frame SPEC 8.1 argues in -- `slerp(a, b, t)` is not a constructor with two parameters too many. 8 remain, ratcheted.
 '''
 
 [[requirement]]
@@ -3141,10 +3155,12 @@ section = "1. Language baseline"
 statement = '''
 Modern syntax only: `X | Y` unions (never `typing.Union`/`Optional`), built-in generics (`list[str]`, `dict[str, float]`), `from __future__ import annotations` at the top of every module so annotations stay cheap and forward references work.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_code_hygiene.py::test_no_legacy_typing_spellings",
+]
+status = "enforced"
 note = '''
-Nothing scans for `typing.Union`/`Optional` or bare `typing.List`. Ruff's UP rules would cover it and are not enabled.
+Six `Union` aliases were converted to make it pass; five were the same alias copied into five modules, and only one imported the names its own copy referenced.
 '''
 
 [[requirement]]
@@ -3169,10 +3185,12 @@ section = "1. Language baseline"
 statement = '''
 Third-party runtime dependencies are exactly: `numpy`, `typing-extensions`, `webcolors`, `svgelements`, `shapely`. Adding one is an architectural decision, not a convenience.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_declared_surface.py::test_the_runtime_dependencies_are_the_ones_the_plan_names",
+]
+status = "enforced"
 note = '''
-Nothing asserts the runtime dependency list matches pyproject. A test comparing the two is cheap, and the list has already grown twice (shapely, svgelements).
+pyproject and the plan are compared directly; the list has grown twice and both times by hand.
 '''
 
 [[requirement]]
@@ -3413,10 +3431,12 @@ title = "A return type does not depend on a flag."
 statement = '''
 SPEC S-19b. A `bool` parameter that selects which arm of a union comes back is a second function wearing the first one's name: split it (`path_sweep` / `path_sweep_transforms`). The only unions a public return may carry are ones the *caller's own input* selects — a façade returning `Flat` or `Solid` by dimension — and even those need `@overload` so the checker can narrow. Guarded by `tests/test_exports.py::test_no_public_return_type_is_a_flag_selected_union`.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_code_hygiene.py::test_no_public_return_type_is_a_flag_selected_union",
+]
+status = "enforced"
 note = '''
-PLAN X-4 names `test_no_public_return_type_is_a_flag_selected_union` as the guard and it does not exist. The sweeps were split by hand in T18; nothing stops the next flag-selected union.
+The guard PLAN X-4 has always named and nobody had written. It reads the AST rather than splitting the annotation text, because `list[tuple[str | None, ...]]` is not a union of the return type.
 '''
 
 [[requirement]]
@@ -3513,10 +3533,12 @@ title = "No dynamic globals."
 statement = '''
 Never `globals()[name] = …` or `setattr(module, …)` to register an API. The one permitted `__getattr__` is the top-level lazy re-export table, which is backed by its stub (T-8).
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_code_hygiene.py::test_no_api_is_registered_dynamically",
+]
+status = "enforced"
 note = '''
-Nothing scans for `globals()[...] = ` or `setattr(module, ...)`. The same AST ratchet that keeps bare ValueErrors out would cover it.
+The lazy-export cache in `__init__.py` is T-9's own carve-out and is named as the one exception.
 '''
 
 [[requirement]]
@@ -3528,10 +3550,12 @@ title = "Keyword-only is a `*` in the signature."
 statement = '''
 Everything past the subject argument goes after a bare `*` (SPEC D-1), so no caller can depend on positional order for shaping, placement, resolution or escape-hatch parameters. A public callable carries at most one required parameter; a second needs a `Note:` in the docstring saying why no default can invent it (SPEC D-2), and a third is never acceptable.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_signatures.py::test_no_file_grows_its_positional_tier_parameters",
+]
+status = "enforced"
 note = '''
-Nothing checks that a public callable's parameters past the subject are keyword-only. A signature scan would; D-2's required-argument count is checked for the masks only.
+The same scan as SPEC P-5 and D-1.
 '''
 
 [[requirement]]
@@ -3730,10 +3754,12 @@ title = "Immutability."
 statement = '''
 Spec objects are frozen dataclasses. Shapes and paths return new objects from every operation (SPEC C-3); no public method mutates `self`. The pattern is copy-then-set — `out = self._wrap(self.shape); out.tag_name = …; return out` — so the `attachments`/`tag_name` setters exist for the copy to use and are never part of the public call surface.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_declared_surface.py::test_every_spec_object_is_frozen",
+]
+status = "enforced"
 note = '''
-Spec objects are frozen dataclasses today, but nothing walks `pybosl2/parts` asserting `frozen=True`. A scan would be cheap and would have caught the two that were not.
+`ScrewSpec` is the one exception, with the reason: an 87-line constructor that parses a trade name, so converting it is a refactor rather than a decorator.
 '''
 
 [[requirement]]
@@ -3807,10 +3833,12 @@ title = "Anchors use the anchor language."
 statement = '''
 A parameter meaning "which face, edge or corner" is typed `Anchor | Sequence[float]` and resolved through `resolve_anchor()` (SPEC C-10). Do not accept a bare string like `"top"` or an integer index — that is a parallel vocabulary the reader has to learn twice. `constants.TOP` is an alias of `Anchor.TOP`; new code and examples use the enum spelling (SPEC C-11).
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_signatures.py::test_every_anchor_parameter_speaks_the_anchor_language",
+]
+status = "enforced"
 note = '''
-`text()` was typed `anchor: str` until T36 and nothing noticed. A scan for a parameter named `anchor` not typed `Anchor | Sequence[float]` would have.
+Found and fixed `text3d`'s `anchor: str = "baseline[-1,0,-1]"` -- the same defect as `flat.text()`'s, in the module the first version of the scan could not see.
 '''
 
 [[requirement]]
@@ -3982,10 +4010,12 @@ section = "4.3 Resolution plumbing (`fn` / `fa` / `fs` / `res`)"
 statement = '''
 The parameters are spelled `fn: int | None = None`, `fa: float | None = None`, `fs: float | None = None` (CSG) and `res: int | None = None` (SDF), keyword-only, defaulting to `None`. Never `$fn`, never a positional.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_signatures.py::test_every_facet_parameter_is_spelled_the_same_way",
+]
+status = "enforced"
 note = '''
-Nothing checks the facet parameters' spelling and keyword-only-ness. `test_facets.py` checks they are *present*, not how they are declared.
+Clean when first measured, so it has no budget: a second spelling would be a new defect.
 '''
 
 [[requirement]]
@@ -4555,10 +4585,12 @@ section = "8. Style"
 statement = '''
 No `TODO` comments and no stubbed bodies in committed code. Unfinished work lives in SPEC §12 (conformance), not in the source.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_code_hygiene.py::test_no_unfinished_work_hides_in_a_comment",
+]
+status = "enforced"
 note = '''
-Nothing scans for TODO comments or stubbed bodies. An AST ratchet of the kind used for asserts and bare ValueErrors would cover it.
+Both halves: TODO-family comments, and stubbed bodies. Clean when first measured.
 '''
 
 [[requirement]]

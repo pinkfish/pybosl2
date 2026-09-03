@@ -34,7 +34,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Sequence, Union, cast
+from typing import TYPE_CHECKING, Any, Sequence, TypeAlias, cast
 
 from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 
@@ -114,7 +114,7 @@ class CapType(Enum):
 #: * a ``Sequence[CapType | CapSpec]`` pair (per-end caps)
 #:
 #: Use ``CapType.NONE`` to request no cap; ``CapType.BUTT`` for a flat cap.
-CapsSpec = Union["CapType", "CapSpec", "str", "Sequence[Union['CapType', 'CapSpec', str]]"]
+CapsSpec: TypeAlias = "CapType | CapSpec | str | Sequence[CapType | CapSpec | str]"
 
 #: The default cap type used when no explicit cap is requested.
 DEFAULT_CAP = CapType.BUTT

@@ -201,16 +201,17 @@ def test_the_untriaged_backlog_only_shrinks() -> None:
 #: How many requirements nothing checks. Each carries a `note` saying what is missing, so this is
 #: a work list rather than a status. It only shrinks: writing the guard removes one, and a rule
 #: that stops being checked has to be argued for rather than quietly downgraded.
-UNENFORCED_BUDGET = 19
+UNENFORCED_BUDGET = 3
 
 
 def test_the_unenforced_list_only_shrinks() -> None:
     """The honest measure of how much of this project's contract nothing checks.
 
-    250 requirements were untriaged until T38; the triage found 186 already guarded by a test that
-    walks the package, 46 that are review judgements no test can make, and 18 that are mechanically
-    checkable and simply unchecked. Those 18 -- plus SPEC-A-6's predecessor -- are this number, and
-    each one's `note` says what the missing guard would do.
+    250 requirements were untriaged until T38; the triage found 19 that were mechanically checkable
+    and simply unchecked. T39 closed 16 of them with three scans -- signatures, code hygiene, and
+    the claims the package makes about itself. The three left are work rather than missing checks:
+    textures beyond the cylinder family (S-35), parity measured per option rather than per shape
+    (PAR-4), and "every new callable arrives with three tests" (X-3), which is a reviewer's count.
     """
     unenforced = sorted(e["id"] for e in REQUIREMENTS if e["status"] == "unenforced")
     assert len(unenforced) <= UNENFORCED_BUDGET, (

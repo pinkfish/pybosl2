@@ -147,3 +147,41 @@ class TestTexturedCylinderSolid:
         assert texture("diamonds")
         built = cyl(height=20, radius=10, texture="diamonds", tex_reps=[8, 2], tex_depth=1)
         assert built.vnf().is_watertight()
+
+
+class TestText3d:
+    """`text3d` is the one extrusion SPEC S-22 names that nothing tested (T39).
+
+    It was the gap the T38 triage found behind S-22: every other extrusion the rule lists is
+    exercised somewhere, and this one was not, so nothing would have noticed it breaking.
+    """
+
+    def test_it_builds_text_of_the_requested_size(self) -> None:
+        from pybosl2.shapes3d.extrusions import text3d
+
+        shape = text3d("BOSL2", size=10, height=3)
+        assert shape.bounds().size[2] == pytest.approx(3.0), "the extrusion height"
+        assert shape.bounds().size[0] > shape.bounds().size[1], "five characters are wider than tall"
+        assert shape.vnf().volume() > 0
+
+    def test_height_and_size_are_independent(self) -> None:
+        from pybosl2.shapes3d.extrusions import text3d
+
+        thin = text3d("X", size=10, height=1)
+        thick = text3d("X", size=10, height=4)
+        assert thick.bounds().size[2] == pytest.approx(4 * thin.bounds().size[2])
+        assert thick.bounds().size[0] == pytest.approx(thin.bounds().size[0])
+
+    def test_it_takes_the_anchor_language(self) -> None:
+        """PLAN O-6b: it took `anchor: str = "baseline[-1,0,-1]"` until T39."""
+        from pybosl2 import Anchor
+        from pybosl2.shapes3d.extrusions import text3d
+
+        centred = text3d("X", size=10, height=3, anchor=Anchor.CENTER)
+        assert centred.bounds().min[2] == pytest.approx(-1.5), "centred on its own height"
+
+    def test_valign_still_carries_the_typographic_half(self) -> None:
+        """The baseline moved to `valign`, as it did for `flat.text()` in T36 -- it is not lost."""
+        from pybosl2.shapes3d.extrusions import text3d
+
+        assert text3d("X", size=10, height=3, valign="top").bounds().max[1] == pytest.approx(0.0, abs=0.01)
