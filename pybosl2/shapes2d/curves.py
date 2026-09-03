@@ -15,10 +15,7 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union, cast
-
-import numpy as np
+from typing import TYPE_CHECKING, cast
 
 from pybosl2._backend import backend_only
 
@@ -59,13 +56,14 @@ from .base import (
 )
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD
+    from collections.abc import Sequence
 
     from pybosl2._edges_lang import Anchor
     from pybosl2.path2d import Path2D
 
 
-Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
+# Defined once in base.py: five identical copies is the same duplication C-21 is about, and
+# only base.py imported the names its own copy referenced.
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import circle as _ocircle

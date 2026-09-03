@@ -14,8 +14,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 import numpy as np
 
@@ -43,13 +42,15 @@ from pybosl2.points import Point
 from pybosl2.vectors import unit
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from openscad import PyOpenSCAD
 
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes3d.base import CsgSolid as Bosl2Solid
 
-Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
+Shape2DLike: TypeAlias = "Bosl2Shape2D | PyOpenSCAD | Path2D | Sequence[Sequence[float]] | np.ndarray"
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import circle as _ocircle

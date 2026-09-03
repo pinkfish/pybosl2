@@ -202,7 +202,7 @@ def text3d(
     direction: str = "ltr",
     language: str = "em",
     script: str = "latin",
-    anchor: str = "baseline[-1,0,-1]",
+    anchor: "Anchor | Sequence[float]" = (-1, 0, -1),
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
@@ -222,7 +222,10 @@ def text3d(
         direction: text direction: "ltr", "rtl", "ttb", "btt" (default "ltr")
         language:  language the text is in (default "en")
         script:    script the text is in (default "latin")
-        anchor:    anchor point (default "baseline")
+        anchor:    anchor point in the anchor language (default the baseline-left corner,
+                   ``(-1, 0, -1)``), as every other constructor takes it (SPEC C-10, PLAN O-6b).
+                   *valign* is derived from its Y component when not given, which is where the
+                   old ``"baseline[...]"`` string carried the typographic half (T39)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
         fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;

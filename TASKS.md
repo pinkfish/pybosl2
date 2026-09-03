@@ -53,7 +53,7 @@ spec renumbers as items close, and all but S-46a have.
 | 3 | spec maintainability | [T26](#t26--make-the-requirements-measurable) ✅ | M |
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) ✅ | M |
 | 3 | spec maintainability | [T38](#t38--triage-every-requirement) ✅ | L |
-| 3a | 19 unchecked rules | [T39](#t39--close-the-nineteen) | M |
+| 3a | 19 unchecked rules | [T39](#t39--close-the-nineteen) ✅ | M |
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
@@ -766,29 +766,54 @@ only shrinks — the work list is §12.2 item 3a, and T39 is closing it.
 
 ---
 
-## T39 — Close the nineteen
+## T39 — Close the nineteen ✅
 
 **Closes:** §12.2 item 3a · **Needs:** T38 · **Size:** M
 
-The 19 rules nothing checks, each already carrying a note that says what the guard would do. They
-group into three jobs rather than nineteen:
+**16 of 19 closed**, by three scans rather than nineteen fixes:
 
-1. **One signature scan** closes P-5, D-1 and T-9a (keyword-only past the subject argument), D-2
-   (required-argument count, checked for the masks only), R-P1 (the facet parameters' spelling) and
-   O-6b (an `anchor` not typed in the anchor language — how `text()` kept a `str` anchor until T36).
-2. **Four AST ratchets**, of exactly the kind already used for asserts and bare `ValueError`s:
-   `TODO` comments and stubbed bodies (S-3), `typing.Union`/`Optional` (L-2 — ruff's `UP` rules may
-   do it outright), dynamic-global registration (T-9), and flag-selected return unions (T-6d, which
-   PLAN X-4 has always claimed exists).
-3. **Five coverage gaps**: `text3d` (S-22), textures beyond the cylinders (S-35, and T37's own
-   remainder), parity per option rather than per shape (PAR-4), `bounds()` on every type S-2 names,
-   frozen spec objects (O-5), the passthrough allowlist naming real attributes (C-6), and the
-   dependency list against pyproject (L-4).
+* **`tests/test_signatures.py`** — one pass over the public signatures closing six rules: P-5, D-1
+  and T-9a (keyword-only past the subject argument, 114 ratcheted), D-2 (three required parameters,
+  8 ratcheted), R-P1 (the facet controls' spelling, clean) and O-6b (anchors in the anchor
+  language, clean after one fix).
+* **`tests/test_code_hygiene.py`** — S-3 (TODO comments and stubbed bodies), L-2 (legacy `typing`
+  spellings), T-9 (dynamic globals) and T-6d (flag-selected return unions). All four clean, so none
+  has a budget.
+* **`tests/test_declared_surface.py`** — the claims the package makes about itself: C-6 (the
+  passthrough allowlist names real attributes), L-4 (the dependency list matches the plan), O-5
+  (spec objects are frozen) and A-5 (no wildcard re-export).
 
-**Done when:** `UNENFORCED_BUDGET` is 0, or a rule that cannot be checked has moved to `reviewed`
-with the argument for why written down.
+**Writing a check you expect to pass is still worth it**, which is the case these made four times:
 
----
+* **`text3d` took `anchor: str = "baseline[-1,0,-1]"`** — the same defect `flat.text()` had until
+  T36, sitting in `shapes3d/extrusions.py`, which has no `__all__`, so the scan's first version
+  skipped the module entirely even though `text3d` is a *top-level export*. Widening the scan to
+  resolve the lazy export table to where each name is **defined** rather than re-exported is what
+  found it. `valign` carries the typographic half now and the geometry is unchanged.
+* **Six `typing.Union` aliases** survived L-2 — and five were the *same* `Shape2DLike` alias copied
+  into five modules, of which **only `base.py` imported the names its own copy referenced**. They
+  are one definition now.
+* **`ScrewSpec` is not a frozen dataclass**: an 87-line constructor that parses a trade name, so it
+  is the one named exception rather than a decorator away.
+* **`roof` is in the native passthrough allowlist and not on the pip wheel** — an app-only op, now
+  named as such, which is why the render tests skip rather than fail.
+
+**And the prefix collision bit a third time, in my own data.** `SPEC-S-2` ("every shape and mesh
+reports its bounds") has carried **`PLAN-S-2`'s note** — about functions over 50 lines — since T26,
+because that task's confirmed-enforcement table was keyed by the *bare* id and `S-2` matched
+whichever entry came first. It is enforced by `test_bounds_contract.py`, and has been all along.
+The collision the prefixed ids exist to prevent, landing in the data written to record it.
+
+**One rule was scoped rather than satisfied.** D-2 ("three required parameters is never
+acceptable") reads under §8.1's argument tiers, which are about what is being *made*; applied to
+every exported callable it flags `slerp(a, b, t)`, which is three operands and not a constructor
+with two parameters too many. The check covers callables that return geometry, which is the frame
+the rule argues in and what its own examples are.
+
+**Three remain**, and they are work rather than missing checks: textures beyond the cylinder family
+(S-35 — T37's own remainder), parity measured per option rather than per shape (PAR-4), and "every
+new callable arrives with three tests" (X-3), which is a reviewer's count. `UNENFORCED_BUDGET` is 3.
+
 
 ## Keeping this file honest
 
