@@ -247,7 +247,12 @@ class Region:
         return simplified
 
     def color(self, c: "Color") -> "Region":
-        """Return a copy of this region with the given :class:`Color`."""
+        """Return a copy of this region with the given :class:`Color`.
+
+        Args:
+            c: The colour to apply.
+
+        """
         copy = self.copy()
         copy._color = c
         return copy
@@ -1036,6 +1041,13 @@ class Region:
         """Break every path in the region into dashed polygon outlines.
 
         Returns a :class:`Region` of all dash polygons.
+
+        Args:
+            dashpat: The dash pattern, as alternating on and off lengths.
+            closed: Join the last point back to the first.
+            fit: Stretch the pattern so a whole number of dashes fits the path.
+            mindash: Shortest dash to keep; anything shorter is dropped.
+
         """
         from pybosl2._stroke2d import dashed_stroke_2d
 

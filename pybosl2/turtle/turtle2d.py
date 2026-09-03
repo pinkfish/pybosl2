@@ -100,11 +100,21 @@ class Turtle2DState:
     arcsteps: int = 0
 
     def with_point(self, pt: Sequence[float]) -> Turtle2DState:
-        """Return a new state with *pt* appended to the path."""
+        """Return a new state with *pt* appended to the path.
+
+        Args:
+            pt: The point.
+
+        """
         return replace(self, path=self.path + [[float(pt[0]), float(pt[1])]])
 
     def with_step(self, v: Sequence[float]) -> Turtle2DState:
-        """Return a new state with the step vector set to *v*."""
+        """Return a new state with the step vector set to *v*.
+
+        Args:
+            v: The vector.
+
+        """
         return replace(self, step=[float(v[0]), float(v[1])])
 
     @property
@@ -160,6 +170,10 @@ class Turtle2D(TurtleCommands):
 
     def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle2D:
         """Execute *commands* (optionally *repeat* times), advancing this turtle's state.
+
+        Args:
+            commands: The commands to run.
+            repeat: How many times to repeat them.
 
         Returns:
             self.

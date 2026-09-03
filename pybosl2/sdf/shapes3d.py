@@ -691,6 +691,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         assert afterward) -- edges="TOP"/"LEFT"/etc. are global-frame selectors, evaluated
         before any rotation, the same order pybosl2's own anchor/edges-then-spin/orient applies
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
+
+        Args:
+            a: The shape or value to combine.
+            v: The vector.
+
         """
         if a is None:
             raise Bosl2ValueError("rotate(): give an angle (with an axis) or a list of Euler angles.")
@@ -718,27 +723,51 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     # ---- directional moves: exact, and they keep the field (SPEC C-1, PLAN E-P6) ------------
 
     def right(self, x: float) -> PyShape:
-        """Move this shape *x* along +X."""
+        """Move this shape *x* along +X.
+
+        Args:
+            x: The X coordinate.
+        """
         return self.translate([x, 0.0, 0.0])
 
     def left(self, x: float) -> PyShape:
-        """Move this shape *x* along -X."""
+        """Move this shape *x* along -X.
+
+        Args:
+            x: The X coordinate.
+        """
         return self.translate([-x, 0.0, 0.0])
 
     def back(self, y: float) -> PyShape:
-        """Move this shape *y* along +Y."""
+        """Move this shape *y* along +Y.
+
+        Args:
+            y: The Y coordinate.
+        """
         return self.translate([0.0, y, 0.0])
 
     def forward(self, y: float) -> PyShape:
-        """Move this shape *y* along -Y."""
+        """Move this shape *y* along -Y.
+
+        Args:
+            y: The Y coordinate.
+        """
         return self.translate([0.0, -y, 0.0])
 
     def up(self, z: float) -> PyShape:
-        """Move this shape *z* along +Z."""
+        """Move this shape *z* along +Z.
+
+        Args:
+            z: The Z coordinate.
+        """
         return self.translate([0.0, 0.0, z])
 
     def down(self, z: float) -> PyShape:
-        """Move this shape *z* along -Z."""
+        """Move this shape *z* along -Z.
+
+        Args:
+            z: The Z coordinate.
+        """
         return self.translate([0.0, 0.0, -z])
 
     def scale(self, v: float | Sequence[float]) -> PyShape:
@@ -749,6 +778,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         distance under non-uniform scaling; for uniform scaling it stays exact. Drops
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
+
+        Args:
+            v: The vector.
+
         """
         s = [float(v)] * 3 if isinstance(v, (int, float)) else [float(a) for a in v]
         if not (all((a > 0 for a in s))):
@@ -766,6 +799,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         `f(p) -> f(Mp)`, with M the Householder reflection, matching the real mirror(). Drops
         cuboid_size/cuboid_center metadata, same rationale as rotate(): edge selectors are
         pre-transform concepts.
+
+        Args:
+            v: The vector.
+
         """
         nx, ny, nz = (float(a) for a in v)
         nlen = math.sqrt(nx * nx + ny * ny + nz * nz)
@@ -798,7 +835,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return self._wrap(new_fn, new_mn, new_mx)
 
     def multmatrix(self, matrix: Sequence[Sequence[float]] | np.ndarray) -> PyShape:
-        """Apply a 4x4 affine transformation matrix to the SDF, exact and free."""
+        """Apply a 4x4 affine transformation matrix to the SDF, exact and free.
+
+        Args:
+            matrix: The 4x4 matrix to apply.
+        """
         import numpy as np
 
         m = np.asarray(matrix, dtype=float)
@@ -1149,7 +1190,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
     @staticmethod
     def difference(shape: PyShape, *tools: PyShape) -> PyShape:
-        """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape."""
+        """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape.
+
+        Args:
+            shape: The shape to operate on.
+        """
         if not (isinstance(shape, PyShape)):
             raise Bosl2ValueError(f"difference() base must be a PyShape, got {type(shape).__name__}")
         if not tools:
@@ -1209,13 +1254,25 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def round(
         self, radius: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
     ) -> PyShape:
-        """Round the selected edges by `radius`, in addition to any existing edge treatment."""
+        """Round the selected edges by `radius`, in addition to any existing edge treatment.
+
+        Args:
+            radius: The radius.
+            edges: Edges to treat.
+            except_edges: Edges to spare.
+        """
         return self._edge_treat(radius, edges, except_edges, EdgeMode.ROUND)
 
     def chamfer(
         self, size: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
     ) -> PyShape:
-        """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
+        """Chamfer the selected edges by `size`, in addition to any existing edge treatment.
+
+        Args:
+            size: The size, one number or one per axis.
+            edges: Edges to treat.
+            except_edges: Edges to spare.
+        """
         return self._edge_treat(size, edges, except_edges, EdgeMode.CHAMFER)
 
     # -- hull / projection: the counterparts of Bosl2Solid's, on the SDF side ------------------

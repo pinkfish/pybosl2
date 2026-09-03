@@ -95,6 +95,10 @@ def as_points(pts: ArrayLike) -> NDArray[np.float64]:
     data is numpy everywhere INSIDE the libraries -- but must be `.tolist()`ed before
     crossing any native boundary (frep bounds, polygon(), translate(), the osuse FFI):
     raw ndarrays there raise SystemError/TypeError and poison the interpreter.
+
+    Args:
+        pts: The points to operate on.
+
     """
     arr = np.asarray(pts, dtype=float)
     if not (arr.ndim == 2):
@@ -365,7 +369,18 @@ def superformula(
     a: float,
     b: float,
 ) -> float:
-    """Return the superformula radius at angle `theta` (degrees)."""
+    """Return the superformula radius at angle `theta` (degrees).
+
+    Args:
+        theta: The angle in degrees.
+        m1: First superformula rotational symmetry.
+        m2: Second superformula rotational symmetry.
+        n1: First superformula exponent.
+        n2: Second superformula exponent.
+        n3: Third superformula exponent.
+        a: The first point or value.
+        b: The second point or value.
+    """
     t1 = abs(math.cos(math.radians(m1 * theta / 4)) / a) ** n2
     t2 = abs(math.sin(math.radians(m2 * theta / 4)) / b) ** n3
     return (t1 + t2) ** (-1.0 / n1)  # type: ignore[no-any-return]
@@ -387,6 +402,20 @@ def supershape_path(
     """Return the superformula outline as a closed point path -- same parameters and sampling as the.
 
     bosl2 port's supershape() (which builds a polygon() from the identical path).
+
+    Args:
+        step: Angular step in degrees between sampled points.
+        n: Number of points to produce.
+        m1: First superformula rotational symmetry.
+        m2: Second superformula rotational symmetry.
+        n1: First superformula exponent.
+        n2: Second superformula exponent.
+        n3: Third superformula exponent.
+        a: The first point or value.
+        b: The second point or value.
+        radius: The radius.
+        diameter: Diameter, instead of *radius*.
+
     """
     n_pts = n if n is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
@@ -412,6 +441,11 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     T-4d): this is a per-sample kernel, called once per spline step inside `bezpath_points()`, and
     its "curve" is not always a polyline -- `path_to_bezpath()` evaluates it over a control array
     built from *normal vectors*, which no point type describes.
+
+    Args:
+        curve: The bezier curve, as its control points.
+        u: Parameter along the curve, from 0 to 1.
+
     """
     pts = np.asarray(curve, dtype=float)
     while len(pts) > 1:
@@ -428,6 +462,13 @@ def bezpath_points(
     """Sample a Bezier path (degree-N segments sharing endpoints, len % n_degree == 1) into a point.
 
     array -- same shape as the bosl2 port's bezpath_curve().
+
+    Args:
+        bezpath: The path as a sequence of bezier segments.
+        splinesteps: How many segments each bezier is flattened into.
+        n_degree: Degree of the bezier segments.
+        endpoint: Include the final point in the result.
+
     """
     bez = as_points(bezpath)
     if len(bez) % n_degree != 1:
@@ -451,6 +492,14 @@ def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n
 
     total length, and side arcs of radius arc_radius blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
+
+    Args:
+        length: The length.
+        radius1: Radius at the start.
+        radius2: Radius at the end.
+        arc_radius: Radius of the arc inserted at each corner.
+        n: Number of points to produce.
+
     """
     if length <= 0:
         raise Bosl2ValueError(f"egg_path(): length must be positive, got {length}.")
@@ -585,6 +634,11 @@ def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]
     """Return the unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --.
 
     byte-for-byte the bosl2 port's convention.
+
+    Args:
+        p1: The start point.
+        p2: The end point.
+
     """
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
 
@@ -594,6 +648,12 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
     Supports either a scalar step or a per-segment step list (the non-uniform variant
     path_tangents() feeds with segment lengths).
+
+    Args:
+        data: The values to operate on.
+        h: The height.
+        closed: Treat the path as closed, joining the last point back to the first.
+
     """
     pts = np.asarray(data, dtype=float)
     n_pts = len(pts)
@@ -653,6 +713,12 @@ def path_tangents(path: "Path", closed: bool = False, uniform: bool = True) -> N
 
     Takes a `Path` rather than either concrete type: a tangent is the same construction in 2-D and
     3-D, so both are meant (SPEC C-7a).
+
+    Args:
+        path: The path to operate on.
+        closed: Treat the path as closed, joining the last point back to the first.
+        uniform: Sample by arc length rather than by parameter.
+
     """
     pts = as_points(require_path(path, "path", "path_tangents"))
     if uniform:
@@ -723,6 +789,15 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     Uses the given (or derived) tangents, with control-point lengths chosen so the
     curve deviates from each segment by *size* (absolute) or *relsize* (fraction of
     segment length).
+
+    Args:
+        path: The path to operate on.
+        closed: Treat the path as closed, joining the last point back to the first.
+        tangents: Tangent directions, one per point, instead of deriving them.
+        uniform: Sample by arc length rather than by parameter.
+        size: The size, one number or one per axis.
+        relsize: Corner size as a fraction of the shorter adjacent segment.
+
     """
     if not (size is None or relsize is None):
         raise Bosl2ValueError("Can't define both size and relsize")
@@ -791,6 +866,13 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
     point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
     the circles don't overlap.
+
+    Args:
+        radius1: Radius at the start.
+        cp1: The first control point.
+        radius2: Radius at the end.
+        cp2: The second control point.
+
     """
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
@@ -828,6 +910,11 @@ def offset_polyline(path: "Path2D", delta: float) -> NDArray[np.float64]:
 
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
     rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling).
+
+    Args:
+        path: The path to operate on.
+        delta: The offset distance; negative shrinks the outline.
+
     """
     pts = as_points(require_path(path, "path", "offset_polyline", Path2D))
     tang = path_tangents(path, closed=False, uniform=False)
@@ -842,7 +929,12 @@ def offset_polyline(path: "Path2D", delta: float) -> NDArray[np.float64]:
 
 
 def total_length(path: "Path", closed: bool = False) -> float:
-    """Total arc length of an open (or closed) polyline, in 2-D or 3-D alike."""
+    """Total arc length of an open (or closed) polyline, in 2-D or 3-D alike.
+
+    Args:
+        path: The path to operate on.
+        closed: Treat the path as closed, joining the last point back to the first.
+    """
     pts = as_points(require_path(path, "path", "total_length"))
     total = float(np.sum(np.linalg.norm(np.diff(pts, axis=0), axis=1)))
     if closed and len(pts) > 1:
@@ -855,6 +947,12 @@ def path_cut_points(path: "Path", cutdist: float | list[float], closed: bool = F
 
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points().
+
+    Args:
+        path: The path to operate on.
+        cutdist: Distance from the corner at which the path is cut.
+        closed: Treat the path as closed, joining the last point back to the first.
+
     """
     pts = as_points(require_path(path, "path", "path_cut_points"))
     if isinstance(cutdist, (int, float)):
@@ -900,6 +998,11 @@ def path_normals(path: "Path2D", closed: bool = False) -> NDArray[np.float64]:
 
     `Path2D`, not `Path`: rotating the tangent a quarter turn in the plane is a 2-D construction,
     and a 3-D path has a whole normal *plane* rather than one normal.
+
+    Args:
+        path: The path to operate on.
+        closed: Treat the path as closed, joining the last point back to the first.
+
     """
     tangents = path_tangents(require_path(path, "path", "path_normals", Path2D), closed=closed)
     return np.stack([tangents[:, 1], -tangents[:, 0]], axis=1)

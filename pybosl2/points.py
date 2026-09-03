@@ -195,11 +195,19 @@ class Point(Sequence[float]):
         return Point(self.x, self.y, self.z)
 
     def dot(self, other: Sequence[float] | np.ndarray) -> float:
-        """Dot product with another vector (2‑D or 3‑D)."""
+        """Dot product with another vector (2‑D or 3‑D).
+
+        Args:
+            other: The point to compare or combine with.
+
+        """
         return float(np.dot(np.asarray(self), np.asarray(other, dtype=float)))
 
     def cross(self, other: Sequence[float] | np.ndarray) -> Point:
         """Cross product with another 3‑D vector, returning a :class:`Point`.
+
+        Args:
+            other: The point to compare or combine with.
 
         Raises:
             ValueError: If this point is 2‑D (cross product requires 3‑D vectors).
@@ -254,6 +262,10 @@ class Point(Sequence[float]):
 
         For a 2‑D point this adds the Z coordinate. For a 3‑D point this
         returns a copy with *z* replaced (unless *z* equals ``self.z``).
+
+        Args:
+            z: Z coordinate to give a 2-D point when lifting it to 3-D.
+
         """
         return Point(self.x, self.y, self.z if self.z is not None and z == 0.0 else z)
 
@@ -261,6 +273,10 @@ class Point(Sequence[float]):
         """Normalize this vector to unit length, returning a new Point.
 
         If it has (near) zero length, returns *error* if given, else raises ValueError.
+
+        Args:
+            error: Raise on a degenerate input rather than returning a fallback.
+
         """
         from pybosl2.math import EPSILON
 
@@ -276,6 +292,10 @@ class Point(Sequence[float]):
         """Angle between this vector and *other* in radians.
 
         The result is always in the range [0, pi].
+
+        Args:
+            other: The point to compare or combine with.
+
         """
         import math
 
@@ -298,6 +318,10 @@ class Point(Sequence[float]):
         """Return the axis vector (cross product) and angle between this vector and *other*.
 
         Requires 3-D vectors.
+
+        Args:
+            other: The point to compare or combine with.
+
         """
         import math
 
@@ -326,6 +350,10 @@ class Point(Sequence[float]):
         """Return a unit vector that bisects the minor angle between this vector and *other*.
 
         Returns None if they are directly opposite.
+
+        Args:
+            other: The point to compare or combine with.
+
         """
         import math
 
@@ -346,7 +374,12 @@ class Point(Sequence[float]):
         return Point.from_seq([x / mid_norm for x in mid])
 
     def closest(self, points: Sequence[Point]) -> int:
-        """Return the index of the closest point in *points* to this point."""
+        """Return the index of the closest point in *points* to this point.
+
+        Args:
+            points: The points to operate on.
+
+        """
         if len(points) == 0:
             raise Bosl2ValueError("Cannot find closest point in an empty list")
         result: int = 0
@@ -359,7 +392,12 @@ class Point(Sequence[float]):
         return result
 
     def furthest(self, points: Sequence[Point]) -> int:
-        """Return the index of the furthest point in *points* from this point."""
+        """Return the index of the furthest point in *points* from this point.
+
+        Args:
+            points: The points to operate on.
+
+        """
         if len(points) == 0:
             raise Bosl2ValueError("Cannot find furthest point in an empty list")
         result: int = 0

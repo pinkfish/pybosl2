@@ -144,6 +144,11 @@ class SdfBackend:
         A caller who said nothing about sampling resolution gets the ambient one
         (:func:`pybosl2.defaults.use_defaults`), but only for constructors that actually take a
         ``res`` -- the rest never see an argument they have no notion of.
+
+        Args:
+            shape: Name of the shape to build.
+            arguments: The arguments to build it with.
+
         """
         fn = self.constructor(shape)
         refuse_unhonoured(shape, arguments, fn, "sdf", self._OWN_NAMES)
@@ -163,6 +168,11 @@ class SdfBackend:
         is refused rather than quietly replaced by the hull: the hull of an L-shaped prism fills
         the notch, reports the same bounding box, and nothing downstream notices (SPEC B-4, B-9).
 
+
+        Args:
+            points: The vertices of the mesh.
+            faces: The faces, as indices into *points*.
+            convexity: Convexity hint for the renderer.
         Raises:
             UnsupportedByBackendError: If *faces* bound a non-convex solid.
 
@@ -187,6 +197,12 @@ class SdfBackend:
 
         The CSG-only rendering options (``convexity``, ``fn``/``fa``/``fs``) describe tessellation
         and are ignored here, as B-9's carve-out allows; there are no facets in a field.
+
+        Args:
+            paths: The paths to draw.
+            angle: The angle in degrees.
+            arguments: The arguments to build it with.
+
         """
         options = dict(arguments)
         res = int(options.pop("res", 10) or 10)
@@ -203,6 +219,12 @@ class SdfBackend:
         extra, the same ones ``offset_sweep`` gives on the CSG side. The native ``linear_extrude``
         options that shear the profile as it rises (``twist``/``scale``/``slices``) have no
         polygon_prism equivalent and are rejected rather than silently ignored.
+
+        Args:
+            paths: The paths to draw.
+            height: Height of the extrusion.
+            arguments: The arguments to build it with.
+
         """
         from pybosl2.exceptions import UnsupportedByBackendError
 
@@ -254,7 +276,15 @@ class SdfBackend:
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
     ) -> _s.PyShape:
-        """3-D stroke via the SDF backend's own cylinder/sphere primitives."""
+        """3-D stroke via the SDF backend's own cylinder/sphere primitives.
+
+        Args:
+            path: The path to draw.
+            width: Width of the drawn line.
+            closed: Join the last point back to the first.
+            endcap1: Treatment for the start of the line.
+            endcap2: Treatment for the end.
+        """
         return _s.stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)
 
     def intersection(self, solids: Any) -> _s.PyShape:

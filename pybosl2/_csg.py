@@ -64,6 +64,11 @@ class CsgBackend:
 
         Takes only the arguments this constructor declares, so the façade can forward every
         default it owns without a constructor choking on an option it has no notion of (B-3).
+
+        Args:
+            shape: Name of the shape to build.
+            arguments: The arguments to build it with.
+
         """
         constructor = self.constructor(shape)
         refuse_unhonoured(shape, arguments, constructor, "csg")
@@ -79,7 +84,14 @@ class CsgBackend:
         return Bosl2Solid(native("polyhedron")(points, faces, convexity=convexity))
 
     def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> Any:
-        """Revolve *paths* about the Z axis with the native ``rotate_extrude()``."""
+        """Revolve *paths* about the Z axis with the native ``rotate_extrude()``.
+
+        Args:
+            paths: The paths to draw.
+            angle: The angle in degrees.
+            arguments: The arguments to build it with.
+
+        """
         from pybosl2._helpers import unwrap
         from pybosl2._native import native
         from pybosl2.shapes3d import Bosl2Solid
@@ -98,6 +110,12 @@ class CsgBackend:
 
         Goes through the native ``linear_extrude()`` and accepts every native option
         (``center``/``twist``/``scale``/``slices``/...).
+
+        Args:
+            paths: The paths to draw.
+            height: Height of the extrusion.
+            arguments: The arguments to build it with.
+
         """
         from pybosl2.shapes2d import Bosl2Shape2D
         from pybosl2.shapes3d import Bosl2Solid
@@ -129,7 +147,16 @@ class CsgBackend:
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
     ) -> Any:
-        """3-D tube along *path* via the CSG stroke_3d."""
+        """3-D tube along *path* via the CSG stroke_3d.
+
+        Args:
+            path: The path to draw.
+            width: Width of the drawn line.
+            closed: Join the last point back to the first.
+            endcap1: Treatment for the start of the line.
+            endcap2: Treatment for the end.
+
+        """
         from pybosl2._stroke3d import stroke_3d
 
         return stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)

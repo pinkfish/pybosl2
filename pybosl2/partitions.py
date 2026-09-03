@@ -788,6 +788,15 @@ class Partitionable:
         setting. *cut_path* follows a 2-D :func:`partition_path` for an interlocking cut face;
         *cut_angle* spins that face about *v*; *offset* grows the mask.
 
+
+        Args:
+            v: Normal of the cut plane.
+            center: Point to cut about.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
         Examples:
             Cut a cube in half along a jigsaw pattern:
 
@@ -822,7 +831,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the left (-X) half, cut at ``X=x``."""
+        """Keep the left (-X) half, cut at ``X=x``.
+
+        Args:
+            x: X coordinate of the cut plane.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             LEFT,
             center=[x, 0, 0],
@@ -840,7 +858,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the right (+X) half, cut at ``X=x``."""
+        """Keep the right (+X) half, cut at ``X=x``.
+
+        Args:
+            x: X coordinate of the cut plane.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             RIGHT,
             center=[x, 0, 0],
@@ -858,7 +885,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the front (-Y) half, cut at ``Y=y``."""
+        """Keep the front (-Y) half, cut at ``Y=y``.
+
+        Args:
+            y: Y coordinate.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             FRONT,
             center=[0, y, 0],
@@ -876,7 +912,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the back (+Y) half, cut at ``Y=y``."""
+        """Keep the back (+Y) half, cut at ``Y=y``.
+
+        Args:
+            y: Y coordinate.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             BACK,
             center=[0, y, 0],
@@ -894,7 +939,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the bottom (-Z) half, cut at ``Z=z``."""
+        """Keep the bottom (-Z) half, cut at ``Z=z``.
+
+        Args:
+            z: Z coordinate.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             DOWN,
             center=[0, 0, z],
@@ -912,7 +966,16 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the top (+Z) half, cut at ``Z=z``."""
+        """Keep the top (+Z) half, cut at ``Z=z``.
+
+        Args:
+            z: Z coordinate.
+            s: Size of the cutting mask.
+            cut_path: The interlocking profile the cut follows.
+            cut_angle: Angle of the cut in degrees.
+            offset: Distance to move the cut plane along its normal.
+
+        """
         return self.half_of(
             UP,
             center=[0, 0, z],

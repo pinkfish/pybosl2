@@ -125,6 +125,15 @@ def stroke_2d(
     For decorative endcaps (arrows, diamonds, dots, etc.), the cap polygons are
     generated, placed at the endpoints, and unioned with the buffered body.
 
+
+    Args:
+        path: The path to draw.
+        width: Width of the drawn line.
+        closed: Join the last point back to the first.
+        endcap1: Treatment for the start of the line.
+        endcap2: Treatment for the end.
+        joints: Treatment at each interior corner.
+
     Returns:
         A :class:`Path2D` of the stroked polygon outline.
 
@@ -179,6 +188,13 @@ def dashed_stroke_2d(
     mindash: float = 0.5,
 ) -> Region:
     """2-D dashed stroke: split the path into dash segments, buffer each.
+
+    Args:
+        path: The path to draw.
+        dashpat: The dash pattern, as alternating on and off lengths.
+        closed: Join the last point back to the first.
+        fit: Stretch the pattern so a whole number of dashes fits the path.
+        mindash: Shortest dash to keep; anything shorter is dropped.
 
     Returns:
         A :class:`Region` of dash-polygon outlines.

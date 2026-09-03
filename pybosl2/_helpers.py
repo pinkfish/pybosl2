@@ -40,7 +40,12 @@ from pybosl2.exceptions import Bosl2ValueError
 
 
 def is_num(value: Any) -> bool:
-    """Return True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
+    """Return True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool.
+
+    Args:
+        value: The value to convert or check.
+
+    """
     return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
 
@@ -54,6 +59,10 @@ def vec3(vector: Any) -> np.ndarray:
 
     Unlike :func:`scalar_vec3`, a scalar becomes ``[vector, vector, vector]`` (matching ``np.asarray``
     broadcast semantics in places where all three coordinates are the same).
+
+    Args:
+        vector: The vector.
+
     """
     array = np.asarray(vector, dtype=float)
     if array.ndim == 0:
@@ -68,6 +77,11 @@ def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
 
     BOSL2's ``scalar_vec3()`` -- used for direction vectors where a single value
     fills a single axis.
+
+    Args:
+        value: The value to convert or check.
+        fill: Value to pad the remaining components with.
+
     """
     if is_num(value):
         return np.array([float(value), float(fill), float(fill)])
@@ -84,6 +98,10 @@ def unit(vector: Any) -> np.ndarray:
     """Normalize *vector* to unit length.  Returns zero vector if zero-length (matching.
 
     ``pybosl2/transforms.py``'s ``_unit()`` convention).
+
+    Args:
+        vector: The vector.
+
     """
     arr = np.asarray(vector, dtype=float)
     norm = float(np.linalg.norm(arr))
@@ -96,7 +114,12 @@ def unit(vector: Any) -> np.ndarray:
 
 
 def zrot4(angle_degrees: float) -> np.ndarray:
-    """4x4 rotation matrix of *angle_degrees* degrees about the Z axis."""
+    """4x4 rotation matrix of *angle_degrees* degrees about the Z axis.
+
+    Args:
+        angle_degrees: The angle in degrees.
+
+    """
     from pybosl2.transforms import axis_angle_matrix
 
     matrix = np.eye(4)
@@ -105,7 +128,12 @@ def zrot4(angle_degrees: float) -> np.ndarray:
 
 
 def xrot4(angle_degrees: float) -> np.ndarray:
-    """4x4 rotation matrix of *angle_degrees* degrees about the X axis."""
+    """4x4 rotation matrix of *angle_degrees* degrees about the X axis.
+
+    Args:
+        angle_degrees: The angle in degrees.
+
+    """
     rad = math.radians(angle_degrees)
     c, s = math.cos(rad), math.sin(rad)
     m = np.eye(4)
@@ -114,7 +142,12 @@ def xrot4(angle_degrees: float) -> np.ndarray:
 
 
 def scale4(s: Sequence[float]) -> np.ndarray:
-    """4x4 scale matrix for scaling factors *s* (2-D or 3-D)."""
+    """4x4 scale matrix for scaling factors *s* (2-D or 3-D).
+
+    Args:
+        s: The scalar.
+
+    """
     m = np.eye(4)
     m[0, 0] = float(s[0])
     m[1, 1] = float(s[1])
@@ -124,7 +157,13 @@ def scale4(s: Sequence[float]) -> np.ndarray:
 
 
 def rot_from_to4(source: Any, target: Any) -> np.ndarray:
-    """4x4 rotation matrix rotating direction *source* onto direction *target*."""
+    """4x4 rotation matrix rotating direction *source* onto direction *target*.
+
+    Args:
+        source: The direction to rotate from.
+        target: The direction to rotate to.
+
+    """
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
 
     angle, axis = rot_from_to(source, target)
@@ -134,7 +173,12 @@ def rot_from_to4(source: Any, target: Any) -> np.ndarray:
 
 
 def translate4(offset: Any) -> np.ndarray:
-    """4x4 translation matrix. *offset* is a 3-D point (or 2-D with z=0)."""
+    """4x4 translation matrix. *offset* is a 3-D point (or 2-D with z=0).
+
+    Args:
+        offset: The offset to apply.
+
+    """
     point = np.asarray(offset, dtype=float).ravel()
     matrix = np.eye(4)
     matrix[:3, 3] = [
@@ -150,6 +194,11 @@ def frame_map4_yz(y_axis: Any, z_axis: Any) -> np.ndarray:
 
     Different from ``frame_map4_xz``: this version takes Y and Z axes (used by
     :mod:`pybosl2.miscellaneous`'s path_extrude2d).
+
+    Args:
+        y_axis: The vector to use as the Y axis.
+        z_axis: The vector to use as the Z axis.
+
     """
     y_unit, z_unit = (
         unit(np.asarray(y_axis, dtype=float)),
@@ -176,6 +225,10 @@ def union(shapes: "Iterable[_Unionable]") -> _Unionable:
     Generic in the shape type, so unioning solids gives a solid back rather than `Any` -- which
     otherwise spreads through every part that builds by unioning a list of pieces, and hides
     exactly the mistakes the `Solid` contract exists to catch.
+
+    Args:
+        shapes: The shapes to combine.
+
     """
     return reduce(operator.or_, shapes)
 
@@ -193,6 +246,10 @@ def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
     Both are plain Python wrappers around a native handle, so anything handing an object
     *directly* to a native function (``hull()``, ``minkowski()``, ...) rather than calling a
     method on it must unwrap first.
+
+    Args:
+        obj: The object to inspect.
+
     """
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
@@ -223,7 +280,13 @@ def norm_atype(atype: str | AnchorType) -> AnchorType:
 
 
 def quantup(x: float, y: float) -> float:
-    """Ceiling quantization, rounding x up to the next multiple of y."""
+    """Ceiling quantization, rounding x up to the next multiple of y.
+
+    Args:
+        x: The X coordinate.
+        y: The Y coordinate.
+
+    """
     return math.ceil(x / y - 1e-9) * y
 
 
@@ -239,6 +302,14 @@ def frag_count(
     defaults (:func:`pybosl2.defaults.use_defaults`) before OpenSCAD's own $fa=12 / $fs=2.
     An *fn* below 3 means "use fa/fs", so ``fn=0`` is how one call opts out of an ambient
     ``fn`` (SPEC R-5).
+
+    Args:
+        radius: The radius.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
     """
     fn, fa, fs = resolve_facets(fn, fa, fs)
     if fn is not None and fn >= 3:
@@ -399,13 +470,25 @@ def anchor_offset_generic(
 
 
 def anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
-    """3-D box anchor offset: returns the translation vector for a box of *size* at *anchor*."""
+    """3-D box anchor offset: returns the translation vector for a box of *size* at *anchor*.
+
+    Args:
+        size: The size, one number or one per axis.
+        anchor: Anchor point.
+
+    """
     a = anchor_vector(anchor)
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
 def anchor_offset_hull3(points: PathLike, anchor: Anchor | Sequence[float]) -> list[float]:
-    """3-D convex hull anchor offset with centroid tie-breaking."""
+    """3-D convex hull anchor offset with centroid tie-breaking.
+
+    Args:
+        points: The points to operate on.
+        anchor: Anchor point.
+
+    """
     a = anchor_vector(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
@@ -424,7 +507,16 @@ def anchor_offset_cyl(
     anchor: Anchor | Sequence[float],
     axis: int = 2,
 ) -> list[float]:
-    """3-D cylinder anchor offset along *axis* (0=X, 1=Y, 2=Z)."""
+    """3-D cylinder anchor offset along *axis* (0=X, 1=Y, 2=Z).
+
+    Args:
+        radius1: The first radius.
+        radius2: The second radius.
+        length: The length.
+        anchor: Anchor point.
+        axis: The axis to rotate about.
+
+    """
     a = anchor_vector(anchor)
     az = a[axis]
     r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
@@ -441,7 +533,13 @@ def anchor_offset_cyl(
 
 
 def anchor_offset_sphere(r: float, anchor: Anchor | Sequence[float]) -> list[float]:
-    """3-D sphere anchor offset: project *anchor* direction onto the sphere surface."""
+    """3-D sphere anchor offset: project *anchor* direction onto the sphere surface.
+
+    Args:
+        r: The radius, in BOSL2's short spelling.
+        anchor: Anchor point.
+
+    """
     a = anchor_vector(anchor)
     n = math.hypot(*a)
     if n == 0:
@@ -460,6 +558,15 @@ def arc_points(
     """*count* points along an arc of radius *radius* centered at *center*, from angle *start*.
 
     sweeping *angle* degrees.
+
+    Args:
+        count: How many to produce.
+        radius: The radius.
+        start: Where to begin.
+        angle: The angle in degrees.
+        center: Centre the shape on the origin.
+        endpoint: Include the final value in the result.
+
     """
     if not endpoint:
         return arc_points(count + 1, radius, start, angle, center, True)[:-1]
@@ -548,6 +655,10 @@ def as_native_2d(obj: Any) -> Any:
     """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
     a :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
+
+    Args:
+        obj: The object to inspect.
+
     """
     unwrapped = unwrap(obj)
     if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
@@ -567,6 +678,10 @@ def is_child_2d(obj: Any) -> bool:
     """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or.
 
     native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
+
+    Args:
+        obj: The object to inspect.
+
     """
     if not isinstance(obj, (list, tuple)):
         return True  # a wrapper or a native handle

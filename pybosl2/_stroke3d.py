@@ -180,6 +180,13 @@ def dashed_stroke_3d(
 ) -> Bosl2Solid:
     """3-D dashed stroke: dashes along *path*, each stroked and unioned.
 
+    Args:
+        path: The path to draw.
+        dashpat: The dash pattern, as alternating on and off lengths.
+        closed: Join the last point back to the first.
+        fit: Stretch the pattern so a whole number of dashes fits the path.
+        mindash: Shortest dash to keep; anything shorter is dropped.
+
     Returns:
         A :class:`Bosl2Solid` union of all dash tubes.
 

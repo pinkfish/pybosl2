@@ -457,6 +457,15 @@ class Roundable:
         from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2
         ``method="corners"`` variant is not ported.
 
+
+        Args:
+            tangents: Tangent directions, one per point, instead of deriving them.
+            size: The size, one number or one per axis.
+            relsize: Corner size as a fraction of the shorter adjacent segment.
+            splinesteps: How many segments each bezier is flattened into.
+            uniform: Sample by arc length rather than by parameter.
+            closed: Treat the path as closed.
+
         Returns:
             A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
 
@@ -501,7 +510,15 @@ class Roundable:
         endcap: CapType = CapType.ROUND,
         joint: CapType = CapType.ROUND,
     ) -> "Region":
-        """Offset this 2-D path to create a thickened outline Region."""
+        """Offset this 2-D path to create a thickened outline Region.
+
+        Args:
+            width: Width of the result.
+            closed: Treat the path as closed.
+            endcap: Treatment applied to the ends.
+            joint: Rounding size as the distance along each leg from the corner.
+
+        """
         path_self = cast("Path", self)
         return cast(
             "Region",
@@ -571,7 +588,17 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> "Solid":
-        """Offset sweep/extrusion of this 2-D shape."""
+        """Offset sweep/extrusion of this 2-D shape.
+
+        Args:
+            height: Height of the result.
+            bottom: Treatment applied to the bottom.
+            top: Treatment applied to the top.
+            steps: How many segments the rounded corner is built from.
+            caps: Close the open ends.
+            style: How each grid cell is split into triangles.
+
+        """
         from pybosl2.skin import _convex_offset_extrude as _coe
 
         return _as_solid(
@@ -600,7 +627,22 @@ class Roundable:
         joint_bot: float | dict[str, object] | None = None,
         k_sides: float | list[float] | None = None,
     ) -> "Solid":
-        """Return the rounded prism between this path and a top path."""
+        """Return the rounded prism between this path and a top path.
+
+        Args:
+            top: Treatment applied to the top.
+            height: Height of the result.
+            joint_top: Joint distance at the top.
+            joint_bottom: Joint distance at the bottom.
+            joint_sides: Joint distance on the side edges.
+            curvature_sides: Continuous-curvature smoothness on the side edges, from 0 to 1.
+            steps: How many segments the rounded corner is built from.
+            caps: Close the open ends.
+            style: How each grid cell is split into triangles.
+            joint_bot: Joint distance at the bottom.
+            k_sides: Continuous-curvature smoothness on the side edges, from 0 to 1.
+
+        """
         from pybosl2.skin import _rounded_prism as _rp
 
         # joint_bot / k_sides are BOSL2's names for joint_bottom / curvature_sides
@@ -630,7 +672,16 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> "Solid":
-        """Join this prism to a base plane with a filleted transition."""
+        """Join this prism to a base plane with a filleted transition.
+
+        Args:
+            height: Height of the result.
+            fillet: Fillet radius.
+            steps: How many segments the rounded corner is built from.
+            caps: Close the open ends.
+            style: How each grid cell is split into triangles.
+
+        """
         from pybosl2.skin import _join_prism as _jp
 
         return _as_solid(
@@ -654,7 +705,18 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> "Solid":
-        """Construct a filleted prism connecting two objects."""
+        """Construct a filleted prism connecting two objects.
+
+        Args:
+            length: Length of the result.
+            fillet: Fillet radius.
+            fillet1: Fillet radius at the start.
+            fillet2: Fillet radius at the end.
+            steps: How many segments the rounded corner is built from.
+            caps: Close the open ends.
+            style: How each grid cell is split into triangles.
+
+        """
         from pybosl2.skin import _prism_connector as _pc
 
         return _as_solid(
@@ -724,7 +786,14 @@ class Roundable:
         thickness: float,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> "Solid":
-        """Create a mask to generate a round-edged cutout in a cylindrical shell."""
+        """Create a mask to generate a round-edged cutout in a cylindrical shell.
+
+        Args:
+            radius: Rounding radius.
+            thickness: Wall thickness.
+            style: How each grid cell is split into triangles.
+
+        """
         from pybosl2.skin import _bent_cutout_mask as _bcm
 
         return _as_solid(

@@ -196,7 +196,12 @@ class BearingType(Enum):
 
     @classmethod
     def of(cls, trade_name: str) -> BearingType:
-        """Look up a :class:`BearingType` from its trade-name string (``"608"``, ``"R8ZZ"``)."""
+        """Look up a :class:`BearingType` from its trade-name string (``"608"``, ``"R8ZZ"``).
+
+        Args:
+            trade_name: The bearing's catalogue name, such as ``"608"``.
+
+        """
         bt = _BY_TRADE_NAME.get(trade_name)
         if bt is not None:
             return bt

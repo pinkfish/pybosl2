@@ -779,7 +779,12 @@ class VNF:
 
     @classmethod
     def union(cls, vnfs: list["VNF"]) -> "VNF":
-        """Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join())."""
+        """Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join()).
+
+        Args:
+            vnfs: The meshes to combine.
+
+        """
         vnfs = list(vnfs)
         if len(vnfs) == 1:
             return vnfs[0]

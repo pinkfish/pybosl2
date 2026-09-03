@@ -81,6 +81,10 @@ class LinearBearings:
         """Return the :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2.
 
         lmxuu_info()).
+
+        Args:
+            size: Nominal LMxUU size, so ``8`` for an LM8UU.
+
         """
         try:
             return _LMXUU[int(size)]
@@ -163,7 +167,13 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> "Solid":
-        """Return a standard LMxUU linear bearing for a *size* mm rod."""
+        """Return a standard LMxUU linear bearing for a *size* mm rod.
+
+        Args:
+            size: Nominal LMxUU size, so ``8`` for an LM8UU.
+            color: Colour to apply to the returned solid.
+
+        """
         spec = LinearBearings.lmxuu_info(size)
         color_val = Color(color) if color else None
         return LinearBearings.linear_bearing(

@@ -115,6 +115,10 @@ class Turtle3D(TurtleCommands):
     def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle3D:
         """Execute *commands* (optionally *repeat* times), advancing this turtle's state.
 
+        Args:
+            commands: The commands to run.
+            repeat: How many times to repeat them.
+
         Returns:
             self.
 

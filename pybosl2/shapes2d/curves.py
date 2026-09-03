@@ -430,6 +430,12 @@ def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
     """Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.
 
     *radius*.
+
+    Args:
+        squareness: How square the curve is, from 0 (a circle) to 1 (a square).
+        radius: The radius.
+        angle: The angle in degrees.
+
     """
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))
     return radius * math.sqrt(2) / s2a * math.sqrt(1 - math.sqrt(1 - s2a * s2a)) if s2a > 0 else radius

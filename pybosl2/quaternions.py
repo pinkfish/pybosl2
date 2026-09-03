@@ -53,21 +53,38 @@ class Quaternion:
 
     @classmethod
     def from_array(cls, array: Sequence[float] | np.ndarray) -> Quaternion:
-        """Create a Quaternion from a 4-element numeric sequence."""
+        """Create a Quaternion from a 4-element numeric sequence.
+
+        Args:
+            array: The four components as ``[x, y, z, w]``.
+
+        """
         if len(array) != 4:
             raise Bosl2ValueError(f"from_array expects a 4-element sequence, got length {len(array)}")
         return cls(float(array[0]), float(array[1]), float(array[2]), float(array[3]))
 
     @classmethod
     def from_scalar_vector(cls, scalar: float, vector: Sequence[float] | np.ndarray) -> Quaternion:
-        """Create a Quaternion from a scalar and a 3-element vector."""
+        """Create a Quaternion from a scalar and a 3-element vector.
+
+        Args:
+            scalar: The scalar (real) part of the quaternion.
+            vector: The vector part of the quaternion, ``[x, y, z]``.
+
+        """
         if len(vector) != 3:
             raise Bosl2ValueError(f"from_scalar_vector expects a 3-element vector, got length {len(vector)}")
         return cls(float(scalar), float(vector[0]), float(vector[1]), float(vector[2]))
 
     @classmethod
     def from_real_imaginary(cls, real: float, imaginary: Sequence[float] | np.ndarray) -> Quaternion:
-        """Create a Quaternion from real and 3-element imaginary parts."""
+        """Create a Quaternion from real and 3-element imaginary parts.
+
+        Args:
+            real: The scalar part of the quaternion.
+            imaginary: The vector part of the quaternion.
+
+        """
         if len(imaginary) != 3:
             raise Bosl2ValueError(
                 f"from_real_imaginary expects a 3-element imaginary vector, got length {len(imaginary)}"
@@ -76,7 +93,14 @@ class Quaternion:
 
     @classmethod
     def from_matrix(cls, matrix: Any, rtol: float = 1e-05, atol: float = 1e-08) -> Quaternion:
-        """Initialise from 3x3 or 4x4 matrix representation."""
+        """Initialise from 3x3 or 4x4 matrix representation.
+
+        Args:
+            matrix: A 3x3 or 4x4 rotation matrix to convert from.
+            rtol: Relative tolerance for the comparison.
+            atol: Absolute tolerance for the comparison.
+
+        """
         try:
             shape = matrix.shape
         except AttributeError as err:
@@ -119,7 +143,13 @@ class Quaternion:
 
     @classmethod
     def from_axis_angle(cls, axis: Sequence[float] | np.ndarray, angle: float) -> Quaternion:
-        """Create a Quaternion from rotation axis and angle (in radians)."""
+        """Create a Quaternion from rotation axis and angle (in radians).
+
+        Args:
+            axis: Axis to rotate about.
+            angle: Rotation angle in degrees.
+
+        """
         axis_arr = np.asarray(axis, dtype=float)
         mag_sq = np.dot(axis_arr, axis_arr)
         if mag_sq == 0.0:
@@ -409,7 +439,12 @@ class Quaternion:
         return self.normalised
 
     def is_unit(self, tolerance: float = 1e-14) -> bool:
-        """Check if quaternion is of unit length."""
+        """Check if quaternion is of unit length.
+
+        Args:
+            tolerance: How far from unit length a quaternion may be and still count as normalised.
+
+        """
         return abs(1.0 - self._sum_of_squares()) < tolerance
 
     def _q_matrix(self) -> np.ndarray:
@@ -440,7 +475,12 @@ class Quaternion:
         return unit * q * unit.conjugate
 
     def rotate(self, vector: Any) -> Any:
-        """Rotate a 3D vector by the quaternion."""
+        """Rotate a 3D vector by the quaternion.
+
+        Args:
+            vector: The vector part of the quaternion, ``[x, y, z]``.
+
+        """
         if isinstance(vector, Quaternion):
             return self._rotate_quaternion(vector)
         q = Quaternion.from_scalar_vector(0.0, vector)
@@ -454,7 +494,12 @@ class Quaternion:
 
     @classmethod
     def exp(cls, q: Quaternion) -> Quaternion:
-        """Quaternion Exponential."""
+        """Quaternion Exponential.
+
+        Args:
+            q: The quaternion to operate on.
+
+        """
         tolerance = 1e-17
         v_norm = np.linalg.norm(q.vector)
         vec = q.vector
@@ -465,7 +510,12 @@ class Quaternion:
 
     @classmethod
     def log(cls, q: Quaternion) -> Quaternion:
-        """Quaternion Logarithm."""
+        """Quaternion Logarithm.
+
+        Args:
+            q: The quaternion to operate on.
+
+        """
         v_norm = np.linalg.norm(q.vector)
         q_norm = q.norm
         tolerance = 1e-17
@@ -478,29 +528,59 @@ class Quaternion:
 
     @classmethod
     def exp_map(cls, q: Quaternion, eta: Quaternion) -> Quaternion:
-        """Quaternion exponential map."""
+        """Quaternion exponential map.
+
+        Args:
+            q: The quaternion to operate on.
+            eta: Small threshold below which two quaternions count as aligned and slerp falls back to a straight lerp.
+
+        """
         return q * Quaternion.exp(eta)
 
     @classmethod
     def sym_exp_map(cls, q: Quaternion, eta: Quaternion) -> Quaternion:
-        """Symmetrized exponential map."""
+        """Symmetrized exponential map.
+
+        Args:
+            q: The quaternion to operate on.
+            eta: Small threshold below which two quaternions count as aligned and slerp falls back to a straight lerp.
+
+        """
         sqrt_q = q**0.5
         return sqrt_q * Quaternion.exp(eta) * sqrt_q
 
     @classmethod
     def log_map(cls, q: Quaternion, p: Quaternion) -> Quaternion:
-        """Quaternion logarithm map."""
+        """Quaternion logarithm map.
+
+        Args:
+            q: The quaternion to operate on.
+            p: The point or vector to rotate.
+
+        """
         return Quaternion.log(q.inverse * p)
 
     @classmethod
     def sym_log_map(cls, q: Quaternion, p: Quaternion) -> Quaternion:
-        """Symmetrized logarithm map."""
+        """Symmetrized logarithm map.
+
+        Args:
+            q: The quaternion to operate on.
+            p: The point or vector to rotate.
+
+        """
         inv_sqrt_q = q ** (-0.5)
         return Quaternion.log(inv_sqrt_q * p * inv_sqrt_q)
 
     @classmethod
     def absolute_distance(cls, q0: Quaternion, q1: Quaternion) -> float:
-        """Quaternion absolute distance."""
+        """Quaternion absolute distance.
+
+        Args:
+            q0: The first quaternion.
+            q1: The second quaternion.
+
+        """
         q0_minus_q1 = q0 - q1
         q0_plus_q1 = q0 + q1
         d_minus = q0_minus_q1.norm
@@ -509,13 +589,25 @@ class Quaternion:
 
     @classmethod
     def distance(cls, q0: Quaternion, q1: Quaternion) -> float:
-        """Quaternion intrinsic distance."""
+        """Quaternion intrinsic distance.
+
+        Args:
+            q0: The first quaternion.
+            q1: The second quaternion.
+
+        """
         q = Quaternion.log_map(q0, q1)
         return q.norm
 
     @classmethod
     def sym_distance(cls, q0: Quaternion, q1: Quaternion) -> float:
-        """Symmetrized geodesic distance."""
+        """Symmetrized geodesic distance.
+
+        Args:
+            q0: The first quaternion.
+            q1: The second quaternion.
+
+        """
         q = Quaternion.sym_log_map(q0, q1)
         return q.norm
 
@@ -525,6 +617,12 @@ class Quaternion:
 
         The endpoints are normalised (and one may be negated, to take the short way round) on
         copies: interpolating between two rotations does not change either of them.
+
+        Args:
+            q0: The first quaternion.
+            q1: The second quaternion.
+            amount: How far to rotate, as a fraction of the full angle.
+
         """
         start = q0.normalised
         end = q1.normalised
@@ -557,19 +655,38 @@ class Quaternion:
     def intermediates(
         cls, q0: Quaternion, q1: Quaternion, n: int, include_endpoints: bool = False
     ) -> Iterator[Quaternion]:
-        """Generate iterable sequence of intermediates."""
+        """Generate iterable sequence of intermediates.
+
+        Args:
+            q0: The first quaternion.
+            q1: The second quaternion.
+            n: How many intermediate quaternions to produce.
+            include_endpoints: Include the two ends in the returned sequence.
+
+        """
         step_size = 1.0 / (n + 1)
         steps = [i * step_size for i in range(n + 2)] if include_endpoints else [i * step_size for i in range(1, n + 1)]
         for step in steps:
             yield cls.slerp(q0, q1, step)
 
     def derivative(self, rate: Any) -> Quaternion:
-        """Instantaneous quaternion derivative."""
+        """Instantaneous quaternion derivative.
+
+        Args:
+            rate: Angular rate in degrees per unit time.
+
+        """
         rate_arr = self._cast_other(rate).vector if isinstance(rate, Quaternion) else np.asarray(rate, dtype=float)
         return 0.5 * self * Quaternion.from_scalar_vector(0.0, rate_arr)
 
     def integrate(self, rate: Any, timestep: float) -> None:
-        """Advance time varying quaternion in-place."""
+        """Advance time varying quaternion in-place.
+
+        Args:
+            rate: Angular rate in degrees per unit time.
+            timestep: Length of one step, in the same units as *rate*.
+
+        """
         self._fast_normalise()
         rate_arr = self._cast_other(rate).vector if isinstance(rate, Quaternion) else np.asarray(rate, dtype=float)
 
@@ -613,7 +730,12 @@ class Quaternion:
         return result
 
     def get_axis(self, undefined: np.ndarray | None = None) -> np.ndarray:
-        """Get the rotation axis."""
+        """Get the rotation axis.
+
+        Args:
+            undefined: What to return when the rotation is undefined, as it is for a zero vector.
+
+        """
         undef = np.zeros(3) if undefined is None else undefined
         tolerance = 1e-17
         vector = self.normalised.vector
@@ -714,14 +836,24 @@ class Quaternion:
 
     @staticmethod
     def to_degrees(angle_rad: float | None) -> float | None:
-        """Convert radians to degrees."""
+        """Convert radians to degrees.
+
+        Args:
+            angle_rad: Rotation angle in radians.
+
+        """
         if angle_rad is not None:
             return float(angle_rad) / pi * 180.0
         return None
 
     @staticmethod
     def to_radians(angle_deg: float | None) -> float | None:
-        """Convert degrees to radians."""
+        """Convert degrees to radians.
+
+        Args:
+            angle_deg: Rotation angle in degrees.
+
+        """
         if angle_deg is not None:
             return float(angle_deg) / 180.0 * pi
         return None
@@ -742,6 +874,13 @@ def quaternion(
 
     If no arguments are provided, returns the identity quaternion [0, 0, 0, 1].
     All angles are specified in degrees.
+
+    Args:
+        angle: Rotation angle in degrees.
+        axis: Axis to rotate about.
+        rpy: Roll, pitch and yaw in degrees.
+        matrix: A 3x3 or 4x4 rotation matrix to convert from.
+
     """
     if angle is not None:
         if axis is None:
@@ -773,19 +912,35 @@ def quaternion(
 
 
 def quaternion_to_matrix(q: Sequence[float]) -> list[list[float]]:
-    """Convert a quaternion to a 3x3 rotation matrix."""
+    """Convert a quaternion to a 3x3 rotation matrix.
+
+    Args:
+        q: The quaternion to operate on.
+
+    """
     quat = Quaternion.from_array([q[3], q[0], q[1], q[2]])
     return quat.rotation_matrix.tolist()  # type: ignore[no-any-return]
 
 
 def quaternion_to_axis(q: Sequence[float]) -> tuple[float, list[float]]:
-    """Convert a quaternion to its angle and rotation axis representation."""
+    """Convert a quaternion to its angle and rotation axis representation.
+
+    Args:
+        q: The quaternion to operate on.
+
+    """
     quat = Quaternion.from_array([q[3], q[0], q[1], q[2]])
     return float(quat.degrees), quat.axis.tolist()
 
 
 def quaternion_mult(q1: Sequence[float], q2: Sequence[float]) -> list[float]:
-    """Multiplies two quaternions (q1 * q2)."""
+    """Multiplies two quaternions (q1 * q2).
+
+    Args:
+        q1: The first quaternion.
+        q2: The second quaternion.
+
+    """
     quat1 = Quaternion.from_array([q1[3], q1[0], q1[1], q1[2]])
     quat2 = Quaternion.from_array([q2[3], q2[0], q2[1], q2[2]])
     res = quat1 * quat2
@@ -793,7 +948,14 @@ def quaternion_mult(q1: Sequence[float], q2: Sequence[float]) -> list[float]:
 
 
 def quaternion_slerp(q1: Sequence[float], q2: Sequence[float], t: float) -> list[float]:
-    """Perform spherical linear interpolation (SLERP) between two quaternions."""
+    """Perform spherical linear interpolation (SLERP) between two quaternions.
+
+    Args:
+        q1: The first quaternion.
+        q2: The second quaternion.
+        t: Interpolation parameter from 0 (*q1*) to 1 (*q2*).
+
+    """
     quat1 = Quaternion.from_array([q1[3], q1[0], q1[1], q1[2]])
     quat2 = Quaternion.from_array([q2[3], q2[0], q2[1], q2[2]])
     res = Quaternion.slerp(quat1, quat2, t)
@@ -801,7 +963,13 @@ def quaternion_slerp(q1: Sequence[float], q2: Sequence[float], t: float) -> list
 
 
 def quaternion_rot(q: Sequence[float], v: Sequence[float]) -> list[float]:
-    """Rotates a 3-D vector v by a quaternion q."""
+    """Rotates a 3-D vector v by a quaternion q.
+
+    Args:
+        q: The quaternion to operate on.
+        v: The vector part, or the point to rotate.
+
+    """
     quat = Quaternion.from_array([q[3], q[0], q[1], q[2]])
     res: list[float] = quat.rotate(list(v))
     return res

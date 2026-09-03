@@ -58,7 +58,7 @@ spec renumbers as items close, and all but S-46a have.
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
-| 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) 🔶 | M |
+| 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) ✅ | M |
 | 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) ✅ | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) ✅ | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
@@ -479,7 +479,7 @@ application, not the vocabulary. T37.
 
 ---
 
-## T35 — Give every public callable an `Args:` section 🔶
+## T35 — Give every public callable an `Args:` section ✅
 
 **Closes:** §12.2 item 7a (in part) · **Implements:** PLAN D-P4, DOC-2 · **Size:** M
 
@@ -523,8 +523,21 @@ than by reading the result: a one-line docstring has nowhere to insert a section
 reopened as a multi-line one, and `Args:` belongs *before* `Returns:`/`Examples:`, not appended at
 the end.
 
-**Still open:** the 256, and the `PARTIAL` list for sections that name only some parameters — empty
-today, and the second check keeps it that way.
+**The remaining 256 landed too** (second pass). 439 descriptions written, and the method held: the
+same-named counterpart and the delegation target covered what they could, and the rest came from a
+vocabulary written **per module** rather than per name — because a name is reliably one thing inside
+one module and demonstrably not across the library, which is what the reverted first attempt proved.
+`distributors.py` alone repeated one vocabulary of 38 across fifteen functions.
+
+**Reviewing the output still caught things a scan would not.** `quaternion_slerp(q1, q2, t)` came
+out documented as "the second quaternion" and "the third", because the vocabulary assumed a `q0`
+that only `absolute_distance` has; three varargs (`*diffs`, `**kwargs`) were invisible to the
+generator, which read `args` and `kwonlyargs` only; and two properties ended up with an empty
+`Args:` section whose sole parameter was `self`.
+
+`tests/test_documented_arguments.py` is a plain assertion now rather than a budget: **every public
+callable in the package documents its arguments**, and a new one that does not has nowhere to be
+written down.
 
 ---
 

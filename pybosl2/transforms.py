@@ -35,7 +35,13 @@ if TYPE_CHECKING:
 
 
 def polar_to_xy(radius: float, angle: float) -> list[float]:
-    """Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point."""
+    """Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point.
+
+    Args:
+        radius: Radius to scale by.
+        angle: Rotation angle in degrees.
+
+    """
     rad = math.radians(angle)
     return [radius * math.cos(rad), radius * math.sin(rad)]
 
@@ -51,6 +57,11 @@ def rot_from_to(a: Sequence[float] | np.ndarray, b: Sequence[float] | np.ndarray
 
     Matches BOSL2's ``rot(from=, to=)`` axis choice, including the antiparallel case (180
     degrees about a perpendicular axis).
+
+    Args:
+        a: The first vector, or the angle in degrees.
+        b: The second vector.
+
     """
     au, bu = _unit(a), _unit(b)
     dot = float(np.clip(au @ bu, -1.0, 1.0))
@@ -65,7 +76,13 @@ def rot_from_to(a: Sequence[float] | np.ndarray, b: Sequence[float] | np.ndarray
 
 
 def axis_angle_matrix(angle: float, axis: Sequence[float] | np.ndarray) -> np.ndarray:
-    """3x3 rotation matrix for *angle* degrees about *axis* (Rodrigues' rotation formula)."""
+    """3x3 rotation matrix for *angle* degrees about *axis* (Rodrigues' rotation formula).
+
+    Args:
+        angle: Rotation angle in degrees.
+        axis: Axis to rotate about.
+
+    """
     rad = math.radians(angle)
     x, y, z = _unit(axis)
     c, s = math.cos(rad), math.sin(rad)
@@ -86,6 +103,12 @@ def rot_about_axis(
 
     The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate
     back.
+
+    Args:
+        angle: Rotation angle in degrees.
+        axis: Axis to rotate about.
+        center: Point to rotate or scale about.
+
     """
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
@@ -98,6 +121,10 @@ def rot_inverse(t: np.ndarray) -> np.ndarray:
     """Inverse of a rigid 4x4 transform: transpose the rotation,.
 
     un-translate.
+
+    Args:
+        t: Interpolation parameter from 0 to 1.
+
     """
     t = np.asarray(t, dtype=float)
     radius = t[:3, :3]
@@ -114,6 +141,11 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
     *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen.
+
+    Args:
+        m: The 4x4 matrix.
+        long: Take the long way round the rotation rather than the short one.
+
     """
     from pybosl2.points import Point
 
@@ -206,6 +238,11 @@ def apply(
     Usage::
 
         apply(reorient(anchor=CENTER, orient=LEFT, size=[1, 1, 1]), [[5, 0, 0], [-5, 0, 0]])
+
+    Args:
+        transform: The 4x4 matrix to apply.
+        points: The points to transform.
+
     """
     m = np.asarray(transform, dtype=float)
     pts = np.asarray(points, dtype=float)

@@ -562,7 +562,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [Point(float(t[0]), float(t[1])) for t in self.tangent_array(closed=closed, uniform=uniform)]
 
     def normals(self, tangents: "list[Point] | None" = None, closed: bool | None = None) -> "list[Point]":
-        """Perpendicular unit normal at each point (90° rotation of tangent)."""
+        """Perpendicular unit normal at each point (90° rotation of tangent).
+
+        Args:
+            tangents: Tangent directions, one per point, instead of deriving them.
+            closed: Join the last point back to the first.
+
+        """
         if tangents is None:
             tangents = self.tangents(closed=closed)
         return [Point(-t[1], t[0]) for t in tangents]
@@ -688,6 +694,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Cut path at given distance(s) from start.
 
         If *direction* is True, each CutPoint includes direction and normal.
+
+        Args:
+            cutdist: Distance from the corner at which to cut.
+            closed: Join the last point back to the first.
+            direction: Which way to measure or travel.
+
         """
         if closed is None:
             closed = self.closed
@@ -757,6 +769,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Uses the Shapely line to find the local tangent at each cut location,
         then returns the perpendicular (normal) vector.
+
+        Args:
+            cuts: Where along the path to cut.
+            closed: Join the last point back to the first.
+
         """
         from shapely.geometry import LineString
         from shapely.geometry import Point as _Point
@@ -970,7 +987,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(pts, closed=self.closed)
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path2D":
-        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2."""
+        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
+
+        Args:
+            s1: Parameter at the start of the first segment.
+            u1: Parameter along the first curve.
+            s2: Parameter at the start of the second.
+            u2: Parameter along the second.
+            closed: Join the last point back to the first.
+
+        """
         if closed is None:
             closed = self.closed
         from shapely.ops import substring
@@ -2036,6 +2062,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Break this 2-D path into dashed polygon outlines.
 
         Returns a :class:`Region` of dash polygons.
+
+        Args:
+            dashpat: The dash pattern, as alternating on and off lengths.
+            closed: Join the last point back to the first.
+            fit: Stretch the pattern so a whole number of dashes fits the path.
+            mindash: Shortest dash to keep; anything shorter is dropped.
+
         """
         from pybosl2._stroke2d import dashed_stroke_2d
 
@@ -2072,6 +2105,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def self_intersections(self, closed: bool | None = None, eps: float = EPSILON) -> list[SelfIntersection]:
         """All self-intersection points of the path.
+
+        Args:
+            closed: Join the last point back to the first.
+            eps: Tolerance for the comparison.
 
         Returns:
             A list of :class:`SelfIntersection` entries with ``.point``, ``.seg1``,
