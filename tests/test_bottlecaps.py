@@ -59,17 +59,27 @@ def test_wall_thickness_changes_cap_size() -> None:
     assert _size(thick)[2] > _size(thin)[2]
 
 
-@pytest.mark.parametrize("texture", ["knurled", "ribbed"])
-def test_texture_falls_back_to_plain(texture: str) -> None:
-    """Textures aren't supported by this port, so a textured cap *is* the plain one.
+@pytest.mark.parametrize("texture", ["ribs", "checkers"])
+def test_a_named_texture_is_cut_into_the_cap(texture: str) -> None:
+    """The cap's grip is real geometry now (T39, SPEC S-35).
 
-    Not merely "the builder still succeeds": the fallback is only honest if the model that comes
-    out is identical to the untextured cap, rather than something quietly half-textured.
+    This test used to assert the opposite -- that a textured cap *is* the plain one, because the
+    port could not apply a texture. It was right to assert it rather than merely check the builder
+    succeeded, and right to say so out loud: a documented fallback is still a silent no-op at the
+    call site, which is what E-5 forbids and S-35 exists to prevent.
     """
     plain = BottleCaps.pco1881_cap(texture="none", fn=None, fa=None, fs=None)
     textured = BottleCaps.pco1881_cap(texture=texture, fn=None, fa=None, fs=None)
-    assert _size(textured) == pytest.approx(_size(plain))
-    assert repr(textured) == repr(plain)
+    assert _size(textured)[0] == pytest.approx(_size(plain)[0], abs=0.1), "the knurl is cut in, not grown on"
+    assert textured.vnf().volume() < plain.vnf().volume(), "and it removes material"
+
+
+def test_an_unknown_texture_names_the_ones_that_exist() -> None:
+    """SPEC E-4: the refusal names the accepted spellings rather than falling back silently."""
+    from pybosl2.exceptions import Bosl2ValueError
+
+    with pytest.raises(Bosl2ValueError, match="available"):
+        BottleCaps.pco1881_cap(texture="knurled", fn=None, fa=None, fs=None)
 
 
 def test_neck_and_cap_are_distinct_pieces() -> None:

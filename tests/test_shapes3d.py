@@ -469,22 +469,20 @@ def test_a_teardrop_rounding_clips_the_overhang(name: str, kwargs: dict[str, obj
 
 
 def test_texture_enum() -> None:
-    """A TextureType resolves to its height map, and a cap accepts the enum spelling.
+    """A TextureType resolves to its height map, and a cap applies the enum spelling.
 
-    The cap's texture is a documented fallback (bottlecaps.py: "cap surface textures fall back to
-    a plain wall"), so the ribbed cap is the plain one -- asserted here so the day it stops being
-    a fallback, this test says so.
+    This asserted the cap's texture was "a documented fallback", and said it was written so that
+    "the day it stops being a fallback, this test says so". T39 is that day: the named styles are
+    cut into the cap's outer wall.
     """
     from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
     from pybosl2.texture import texture
 
-    ribs = texture(TextureType.RIBS)
-    assert [list(row) for row in ribs] == [[1.0, 0.0]]  # one rib per tile, full height then flat
+    assert texture(TextureType.RIBS) == [[1.0, 0.0]]
 
-    plain = BottleCaps.pco1810_cap(texture=BottleCapTexture.NONE, fn=None, fa=None, fs=None)
-    ribbed = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS, fn=None, fa=None, fs=None)
-    assert isinstance(ribbed, Bosl2Solid)
-    assert repr(ribbed.shape) == repr(plain.shape)
+    plain = BottleCaps.pco1881_cap(texture=BottleCapTexture.NONE)
+    ribbed = BottleCaps.pco1881_cap(texture=BottleCapTexture.RIBS)
+    assert ribbed.vnf().volume() < plain.vnf().volume()
 
 
 def test_align_places_child_on_face() -> None:
