@@ -119,7 +119,23 @@ class SdfBackend:
     name = "sdf"
 
     #: Parameters this backend spells differently from the BOSL2 names the facade uses.
-    _OWN_NAMES = {"sides": "num_sides"}
+    #: This backend's own spelling for a façade parameter it names differently (SPEC PAR-4,
+    #: PLAN B-P2). The difference belongs here and nowhere else: a name the table does not carry
+    #: reaches `refuse_unhonoured` and comes back as "the sdf backend cannot do this", which is
+    #: false when the backend can do it and merely calls it something else. `tube`'s eight per-end
+    #: spellings were exactly that until T39 -- `tube(outer_radius1=8)` built on CSG and refused
+    #: on SDF, whose `outer_r1` is the same option.
+    _OWN_NAMES = {
+        "sides": "num_sides",
+        "outer_radius1": "outer_r1",
+        "outer_radius2": "outer_r2",
+        "outer_diameter1": "od1",
+        "outer_diameter2": "od2",
+        "inner_radius1": "ir1",
+        "inner_radius2": "ir2",
+        "inner_diameter1": "id1",
+        "inner_diameter2": "id2",
+    }
 
     def constructor(self, shape: str, /) -> Callable[..., _s.PyShape]:
         """Return the pybosl2.sdf.shapes3d constructor for *shape*.

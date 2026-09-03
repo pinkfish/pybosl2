@@ -664,7 +664,6 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     [
         ("cuboid", {"p1": [0, 0, 0], "p2": [10, 20, 30]}, (10, 20, 30)),
         ("cube", {"size": 10, "chamfer": 2, "trimcorners": True}, (10, 10, 10)),
-        ("tube", {"height": 10, "outer_radius1": 10, "outer_radius2": 6, "inner_radius": 3}, (20, None, 10)),
         ("rect_tube", {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}, (20, 20, 10)),
         ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
         ("cyl", {"height": 20, "radius": 5, "teardrop": True}, (10, 10, 20)),
@@ -689,3 +688,24 @@ def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
         getattr(solid, shape)(**kwargs)
     # The message names the parameter that is missing, not just the shape.
     assert any(key in str(excinfo.value) for key in kwargs)
+
+
+def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
+    """SPEC PAR-4: a rename is not a capability gap.
+
+    `tube(outer_radius1=...)` was in the table above, asserted to refuse on SDF -- and it did,
+    because the SDF tube calls the same option `outer_r1` and the translation table did not carry
+    it. That is not a backend that cannot taper a tube; it is two names for one option, and the
+    refusal told the caller something false. T39 added the eight per-end spellings to
+    `SdfBackend._OWN_NAMES`, and `tests/test_option_parity.py` keeps a rename from being reported
+    as a missing feature again.
+    """
+    sizes = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            sizes[backend] = tuple(
+                solid.tube(height=10, outer_radius1=10, outer_radius2=6, inner_radius=3).bounds().size
+            )
+    assert sizes["csg"][2] == pytest.approx(10, abs=0.2)
+    assert sizes["sdf"][2] == pytest.approx(10, abs=0.2)
+    assert sizes["sdf"][0] == pytest.approx(sizes["csg"][0], abs=0.3), sizes
