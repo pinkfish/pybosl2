@@ -554,6 +554,8 @@ candidates = [
 status = "enforced"
 note = '''
 Closed on the shape surface in T17 and open everywhere the test did not look: Path2D and Path3D each carried three synonym pairs until T32 — deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. The check now walks every public class reachable from the top level, not one class family.
+
+**One concept, one name is a rule about *rules* as much as about names.** T40 found `center=` resolved into an anchor in **eleven** places across the CSG backend, in three spellings and **two contradicting precedences**. Seven gave `center` precedence, which is BOSL2's rule -- six through a private helper and one spelling the same thing out. The other four spelled it inline in a form that lets `anchor` win — while their own docstrings said "center: if given, overrides anchor". `cyl(height=10, radius=5, anchor=TOP, center=False)` sat on its top face with the documentation beside it saying it would sit on the bottom one (E-5). Nothing here compares two implementations of one rule, which is why this went unseen while the *names* were being deduplicated; what closed it was needing the rule a twelfth time, for the SDF backend, and putting it in `pybosl2.groups.resolve_center_anchor` instead.
 '''
 
 [[requirement]]
@@ -972,8 +974,14 @@ enforced_by = [
 candidates = [
     "tests/test_bounds_contract.py::test_the_box_carries_every_spelling_of_itself",
     "tests/test_bounds_contract.py::test_unpacking_a_box_fails_loudly",
+    "tests/test_option_parity.py::test_a_spin_about_z_leaves_a_round_shape_where_it_was",
 ]
 status = "enforced"
+note = '''
+The rule is about the box's *type*, and one thing about its *value* is recorded here because T40 made it reachable. A shape that is round about Z reports a **looser box after a spin that cannot move it** -- `sphere(spin=30)` says 27.3 across where it is still 20 -- because `PyShape.rotate` recomputes the bound as the axis-aligned box of the rotated *corner box*: exact for a cuboid, loose for a disc. The field is untouched (rotating `|p| - r` gives back `|p| - r`); only the stored bound grew. Pre-existing in `rotate`, and invisible until T40 gave the SDF constructors `spin`. `ROUND_ABOUT_Z` in `tests/test_option_parity.py` lists the shapes and a test fails if the list goes stale, so one comes off it rather than sitting there as an excuse. Fixing it means giving `rotate` a bound that tracks the shape rather than its corner box, which touches every rotated shape and is its own task.
+
+The general point is worth more than the case: an SDF shape's `bounds()` is the box it **declares**, not a measurement of its field. A cross-backend bounds comparison therefore cannot see a defect that moves the geometry and leaves the declaration alone -- T40 found one (the `shift` shear plane, PAR-5) that a bounds test passes with the defect put back.
+'''
 
 [[requirement]]
 id = "SPEC-S-2a"
@@ -2135,6 +2143,7 @@ The façade exposes the **union** of what the backends can build, not the inters
 '''
 enforced_by = [
     "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
+    "tests/test_backend_matrix.py::test_turning_something_off_is_a_request_the_backend_has_to_honour",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",
@@ -2145,6 +2154,11 @@ candidates = [
     "tests/test_backend_matrix.py::test_the_facade_exposes_every_shared_constructors_full_surface",
 ]
 status = "enforced"
+note = '''
+The carve-out for a value that asks for nothing had a hole in it, found in T40. An explicit zero rounding is "no rounding" and refusing it was a false alarm (`RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`) -- but where the façade's default is `True`, passing `False` is the caller turning something **off**, which is a request. `cuboid(trimcorners=False)` leaves the chamfer running past the corners; the SDF backend trims them regardless, and the argument was being dropped in silence. The wrong answer arrived *through* the guard against false alarms rather than around it. `_is_no_op` now takes the façade's default and calls a falsy value nothing only when the default is falsy too. Two parameters in the whole façade have a truthy default a backend lacks, and both of them are this one.
+
+This rule's own worked example also went stale: `test_an_argument_the_backend_cannot_honour_is_refused_not_dropped` used `cube(10, spin=45)` as the CSG-only option until T40 built `spin` on the SDF backend. The example carried an implicit claim -- that `spin` was CSG-only -- which was never true; it was unwritten. What the rule governs is the refusal, not any particular gap.
+'''
 
 [[requirement]]
 id = "SPEC-PAR-1"
@@ -2225,6 +2239,7 @@ Parity is measured per *option*: if the CSG cuboid takes `rounding`, `chamfer`, 
 '''
 enforced_by = [
     "tests/test_option_parity.py::test_no_shape_grows_its_option_gap",
+    "tests/test_option_parity.py::test_the_design_note_states_the_measured_gap",
 ]
 candidates = [
     "tests/test_partitions.py::test_partition_returns_two_pieces",
@@ -2232,7 +2247,9 @@ candidates = [
 ]
 status = "enforced"
 note = '''
-The two backends' constructors are compared option by option. 176 options the SDF backend lacks are honest parity debt -- refused with the parameter named (B-9) -- and ratcheted per shape. The other half has no budget: a *rename* is not a capability gap, and one left out of the translation table surfaces as "the sdf backend cannot do this" when it can. `tube(outer_radius1=8)` built on CSG and refused on SDF, whose `outer_r1` is the same option, and a test asserted that refusal as correct behaviour.
+The two backends' constructors are compared option by option. 176 options the SDF backend lacked were honest parity debt -- refused with the parameter named (B-9) -- and are ratcheted per shape; T40 took that to **113**. The other half has no budget: a *rename* is not a capability gap, and one left out of the translation table surfaces as "the sdf backend cannot do this" when it can. `tube(outer_radius1=8)` built on CSG and refused on SDF, whose `outer_r1` is the same option, and a test asserted that refusal as correct behaviour.
+
+**What T40 closed is the argument for measuring per option rather than per shape.** Every shape in the matrix already built on both backends, so nothing before this rule was broken -- and 63 of the 176 turned out to need no distance-field work at all. 38 were `spin` and `orient`, absent from *every* SDF constructor: a rotation about Z and a rotation of +Z onto a direction, both exact in a field, neither ever written. 11 were `center`, which is not a shape option but `anchor` spelled as a boolean. 14 were an alias declining to pass on what it aliases: `cube` is `cuboid` and `cylinder` and `zcyl` are `cyl` on both backends, but each SDF alias had grown its own field, so `cylinder(rounding=1)` was refused while `cyl(rounding=1)` built it -- the false refusal again, this time caused by a second implementation of one shape rather than a missing table entry (B-3).
 '''
 
 [[requirement]]
@@ -2247,6 +2264,10 @@ For any construction both backends support, the two MUST agree on placement, ori
 '''
 enforced_by = [
     "tests/test_backend_parity.py::test_the_same_call_builds_the_same_geometry_on_both_backends",
+    "tests/test_option_parity.py::test_an_oblique_cylinder_leans_the_same_way_on_both_backends",
+    "tests/test_option_parity.py::test_center_places_the_same_on_both_backends",
+    "tests/test_option_parity.py::test_spin_and_orient_place_the_same_on_both_backends",
+    "tests/test_option_parity.py::test_the_oblique_shear_is_taken_about_the_mid_plane",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
@@ -2258,6 +2279,15 @@ candidates = [
     "tests/test_sdf_shapes3d.py::test_round3d_runs",
 ]
 status = "enforced"
+note = '''
+"Same result" is the half of parity that a per-shape matrix cannot see, and giving the SDF backend the options it was missing (T40) is what made the disagreements reachable. Three were found by comparing the two backends on the *same call*, and each had a symmetric case that would have hidden it:
+
+* **`shift` sheared from the wrong plane.** BOSL2's `shift` is the far end's offset *relative to* the near one, and CSG takes the shear about the mid-plane (`x' = x + shift_x * z / length`, on a cylinder spanning `-h/2 .. h/2`). The SDF backend interpolated from the bottom face, so it built the same lean half a shift from where CSG built it. The relative offset -- the thing anyone would check -- was right.
+* **`shift` widened the box by the whole shift at both ends**, when each end disc carries its own radius: a 13-wide box reported for a solid 10 wide. A bound rather than the geometry, but a bound is what every caller measuring a shape reads.
+* **`_AXIS_LEAN`, which carries `shift` through the rotation that turns a `cyl` into an `xcyl`, had every sign inverted** in its first version. `shift=[3, 3]` on a symmetric cone passes with the signs backwards, so the tests use an asymmetric shift on each axis.
+
+**A bounds comparison could only see two of the three.** An SDF shape's `bounds()` is the box it *declares*, not a measurement of its field, so the wrong shear plane moves the geometry and leaves the reported box alone -- planting that defect again leaves the cross-backend bounds test green. It took a test that asks the field where the material is (`test_the_oblique_shear_is_taken_about_the_mid_plane`, sampling either side of each end disc). That is a general limit on how far the cross-backend comparison can reach on this backend, not a fact about `shift`.
+'''
 
 [[requirement]]
 id = "SPEC-PAR-6"

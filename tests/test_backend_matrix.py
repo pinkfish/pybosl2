@@ -461,21 +461,47 @@ def test_one_shape_contract_with_two_specialisations() -> None:
 
 
 def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
-    """SPEC B-9. `spin=` is CSG-only, and the SDF backend used to silently ignore it.
+    """SPEC B-9. An option one backend lacks is refused by name, never dropped in silence.
 
     `for_backend()` filters the façade's arguments down to what the target constructor declares,
     which is right for a default the façade forwards on the caller's behalf and wrong for a value
     the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
     error. Silence is the one outcome B-9 does not allow.
+
+    **The example had to change, and the reason is the point of the rule.** `spin=` was this
+    test's CSG-only option until T40 gave it to every SDF constructor -- it was never CSG-only,
+    just unwritten. `cuboid(p1=, p2=)` takes its place, and if that one is built too the test needs
+    another: what B-9 governs is the *refusal*, not any particular gap.
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
+    corners = {"p1": [0, 0, 0], "p2": [10, 20, 30]}
     with use_backend("csg"):
-        assert solid.cube(10, spin=45).backend == "csg"  # type: ignore[attr-defined]
+        assert solid.cuboid(**corners).backend == "csg"  # type: ignore[attr-defined]
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="spin") as excinfo:
-        solid.cube(10, spin=45)  # type: ignore[attr-defined]
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="p1") as excinfo:
+        solid.cuboid(**corners)
     assert "use_backend" in str(excinfo.value)  # the message names the way forward
+
+
+def test_turning_something_off_is_a_request_the_backend_has_to_honour() -> None:
+    """B-9's no-op carve-out stops where the façade's default is truthy.
+
+    A falsy value is normally nothing to honour -- `prismoid(rounding=0)` is "no rounding", and
+    refusing it turned `RingHook` away from the SDF backend for no reason. But where the default
+    is `True`, `False` is the caller turning something *off*: `cuboid(trimcorners=False)` leaves
+    the chamfer running past the corners, and the SDF backend trims them regardless. It was being
+    dropped -- a silent wrong answer arriving through the guard against false alarms rather than
+    around it. Two parameters in the whole façade have a truthy default a backend lacks, and both
+    are this one.
+    """
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("sdf"):
+        # The default itself still passes quietly: nobody asked for it.
+        assert solid.cuboid(size=10, chamfer=2, trimcorners=True).backend == "sdf"  # type: ignore[attr-defined]
+        with pytest.raises(UnsupportedByBackendError, match="trimcorners"):
+            solid.cuboid(size=10, chamfer=2, trimcorners=False)
 
 
 def test_a_facade_default_is_still_filtered_quietly() -> None:
@@ -663,7 +689,7 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     ("shape", "kwargs", "expected"),
     [
         ("cuboid", {"p1": [0, 0, 0], "p2": [10, 20, 30]}, (10, 20, 30)),
-        ("cube", {"size": 10, "chamfer": 2, "trimcorners": True}, (10, 10, 10)),
+        ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
         ("rect_tube", {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}, (20, 20, 10)),
         ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
         ("cyl", {"height": 20, "radius": 5, "teardrop": True}, (10, 10, 20)),

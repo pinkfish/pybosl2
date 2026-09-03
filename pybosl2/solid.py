@@ -217,9 +217,9 @@ def _groups(
 def cube(
     size: float | Sequence[float] | None = 1,
     *,
-    chamfer: float | None = None,
+    chamfer: float | None = 0,
     treatment: EdgeTreatment | None = None,
-    rounding: float | None = None,
+    rounding: float | None = 0,
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
     spin: float | None = 0,

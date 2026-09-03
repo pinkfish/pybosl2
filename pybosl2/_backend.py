@@ -313,7 +313,7 @@ def refuse_unhonoured(
         if renamed.get(name, name) not in accepted
         and name not in TESSELLATION_PARAMETERS
         and not _is_default(defaults, name, value)
-        and not _is_no_op(value)
+        and not _is_no_op(value, defaults.get(name))
     )
     if unhonoured:
         raise UnsupportedByBackendError(
@@ -328,14 +328,32 @@ def refuse_unhonoured(
         )
 
 
-def _is_no_op(value: Any) -> bool:
+def _is_no_op(value: Any, default: Any = None) -> bool:
     """Report whether *value* asks for nothing, so dropping it changes no geometry.
 
     An explicit zero rounding or chamfer is "no rounding", not a request a backend has to honour --
     and parts pass one routinely, normalising `None` to `0` before forwarding. Refusing those was a
     false alarm: `RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`.
     Matches the same no-op set the SDF `linear_extrude` has always used for `twist`/`scale`.
+
+    **A falsy value is only nothing when the façade's default is falsy too.** Where the default is
+    `True`, passing `False` is the caller *turning something off* -- a request, and one the backend
+    has to be able to honour. `cuboid(trimcorners=False)` leaves the chamfer running past the
+    corners, and it was being dropped on the SDF backend, which trims them regardless: a silent
+    wrong answer of exactly the kind B-9 exists to prevent, arriving through the guard against
+    false alarms rather than around it. Two parameters in the whole façade have a truthy default a
+    backend lacks, and both of them are this one.
+
+    Args:
+        value: The value the façade is about to forward.
+        default: The façade's own default for that parameter, when it has one.
+
+    Returns:
+        True when dropping *value* changes no geometry.
+
     """
+    if default:
+        return value is None
     return value is None or value is False or (isinstance(value, (int, float)) and float(value) == 0.0)
 
 

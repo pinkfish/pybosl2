@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER, FRONT, LEFT, UP
+from pybosl2.groups import resolve_center_anchor
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -40,7 +41,6 @@ from .base import (
     _finish3,
     _ocylinder,
     _osphere,
-    _resolve_center_anchor,
 )
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -342,9 +342,9 @@ def cube(
 
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
-    use_anchor: Anchor | Sequence[float] = anchor
-    if center is not None:
-        use_anchor = Anchor.CENTER if center else Anchor.BOTTOM_FRONT_LEFT
+    use_anchor = resolve_center_anchor(
+        center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=Anchor.BOTTOM_FRONT_LEFT
+    )
     return cuboid(
         size=sz,
         chamfer=chamfer,
@@ -571,7 +571,7 @@ def prismoid(
     radius2 = rounding2 if rounding2 is not None else rounding
     c1 = chamfer1 if chamfer1 is not None else chamfer
     c2 = chamfer2 if chamfer2 is not None else chamfer
-    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
 
     path1 = _rect_path(s1, rounding=radius1, chamfer=c1, fn=fn, fa=fa, fs=fs)
     path2 = _rect_path(s2, rounding=radius2, chamfer=c2, fn=fn, fa=fa, fs=fs)
@@ -650,7 +650,7 @@ def wedge(
 
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
-    use_anchor = _resolve_center_anchor(center, anchor, [-1, -1, -1])
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=[-1, -1, -1])
     pts: list[list[float]] = [[1, 1, -1], [1, -1, -1], [1, -1, 1], [-1, 1, -1], [-1, -1, -1], [-1, -1, 1]]
     pts = [[p[0] * sz[0] / 2, p[1] * sz[1] / 2, p[2] * sz[2] / 2] for p in pts]
     faces = [
@@ -850,7 +850,7 @@ def rect_tube(
     ichamfer1_v = _rect_tube_rounding(1 / math.sqrt(2), ichamfer1_t, chamfer1_v, irounding1_t, size1_v, isize1_v)
     ichamfer2_v = _rect_tube_rounding(1 / math.sqrt(2), ichamfer2_t, chamfer2_v, irounding2_t, size2_v, isize2_v)
 
-    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
 
     outer = prismoid(
         size1_v,
@@ -1017,9 +1017,10 @@ def regular_prism(
     if (r1v or r2v) and (c1v or c2v):
         raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
-    use_anchor = anchor
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
     if use_anchor is None:
-        use_anchor = CENTER if center is None or center else BOTTOM
+        # Neither was given: this family centres by default (SPEC D-4).
+        use_anchor = CENTER
 
     if not (r1v or r2v or c1v or c2v):
         shape = _ocylinder(height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides)
