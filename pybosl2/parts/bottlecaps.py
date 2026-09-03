@@ -16,9 +16,11 @@
 #    breaks cut by the same zrot_copies-placed prismoids as BOSL2.
 #
 #    Approximations (this port's threading/cyl lack a few BOSL2 features): the thread lead-in
-#    ``taper`` is not applied, cap threads are built without the ``internal=`` flank flip, and the
-#    ``knurled``/``ribbed`` cap surface textures fall back to a plain wall (VNF texturing is not in
-#    this port). The named-anchor system is not reproduced; geometry is anchored bottom-on-origin.
+#    ``taper`` is not applied, and cap threads are built without the ``internal=`` flank flip. The
+#    ``ribs``/``checkers`` cap textures ARE applied now (T39): they go on the outer wall, inset so
+#    the knurl is cut into the nominal diameter rather than grown outside it. They used to be
+#    accepted and ignored, which is the silent no-op SPEC E-5 forbids and S-35 exists to prevent.
+#    The named-anchor system is not reproduced; geometry is anchored bottom-on-origin.
 #    Not ported (follow-ups): generic_bottle_neck/cap, the bottle adapters, and the SPI (sp_) threads.
 #
 # FileSummary: PCO-1810 / PCO-1881 bottle necks and caps.
@@ -38,6 +40,7 @@ from pybosl2._helpers import union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
 from pybosl2.distributors import DistributableMatrix
+from pybosl2.groups import Texturing
 from pybosl2.parts.threading import ThreadHelix
 from pybosl2.path2d import Path2D
 from pybosl2.solid import cyl, prismoid
@@ -314,6 +317,12 @@ class BottleCapTexture(Enum):
     CHECKERS = "checkers"
 
 
+#: Circumferential spacing of one grip rib, in millimetres, and how deep it is cut. A bottle cap's
+#: knurl is fine and shallow: about a 2 mm pitch and a third of a millimetre.
+_GRIP_PITCH = 2.0
+_GRIP_DEPTH = 0.35
+
+
 def _build_cap(
     diameter: BottleThreadSpec,
     wall: float,
@@ -322,10 +331,18 @@ def _build_cap(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Solid":
-    _ = texture.value if isinstance(texture, BottleCapTexture) else texture
+    style = texture.value if isinstance(texture, BottleCapTexture) else str(texture)
     w = diameter.cap_id + 2 * wall
     height = diameter.cap_tamper_ring_h + wall
-    outer = cyl(diameter=w, length=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs)
+    # The cap's grip: the named styles are registry textures applied to the outer wall, inset so
+    # the peaks sit at the nominal diameter rather than growing it -- which is what a knurl is
+    # (SPEC S-35). This used to accept the style and silently build a plain wall.
+    grip = (
+        Texturing(style, size=[_GRIP_PITCH, height], depth=_GRIP_DEPTH, inset=True)
+        if style and style != BottleCapTexture.NONE.value
+        else None
+    )
+    outer = cyl(diameter=w, length=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs, texturing=grip)
     bore = cyl(diameter=diameter.cap_id, height=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs).up(wall)
     shell = outer - bore
     turns = diameter.cap_turns / 360

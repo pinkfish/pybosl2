@@ -1629,10 +1629,12 @@ keyword = "MUST"
 statement = '''
 Anything that can be textured MUST accept the texture by name or object plus the same set of controls: tile size or repeat count, depth, inset, rotation, and per-texture options.
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_texture_application.py::test_the_texture_reaches_the_geometry",
+]
+status = "enforced"
 note = '''
-Only the cylinder family accepts a texture at all (T37); the other twelve constructors declaring the parameters still refuse, so 'anything that can be textured' is not yet true, let alone checked.
+Every callable that declares `texture=` is built with and without one and required to differ, and the scan is over the package rather than over the case list, so a new declarer must add itself. That is what would have caught the bottle caps, which accepted a style and built a plain wall for as long as they existed -- with a module comment saying so, which makes it a documented silent wrong answer rather than an excuse for one (E-5).
 '''
 
 [[requirement]]

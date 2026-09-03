@@ -732,8 +732,18 @@ from 0 to 5 with the reason written at the entry rather than redefine the metric
 docstring and the signature already do not count toward it, and a rule that keeps shrinking to fit
 stops measuring anything. It returns to 0 when the façade duplication does.
 
-**Still open:** the other twelve constructors that declare the texture parameters — the bottle caps
-and `textured_tile` — and the three remaining gaps in `tests/test_unimplemented.py`.
+**S-35 closed in T39.** `textured_tile` already honoured its parameters; the **bottle caps did not** —
+they accepted a `BottleCapTexture` and built a plain wall, and the module comment said so, which
+makes it a documented silent wrong answer rather than an excuse for one (E-5). The named styles go
+on the cap's outer wall now, inset so the knurl is cut *into* the nominal diameter rather than grown
+outside it: a ribbed PCO-1881 cap measures the same across as the plain one and holds less material.
+An unrecognised style raises, naming the registry's names (E-4), instead of falling back.
+
+The guard is a scan rather than a list: every callable declaring `texture=` is built with and
+without one and required to differ, and the scan walks the package, so a new declarer that ignores
+it fails instead of joining quietly. That is what would have caught the caps.
+
+**Still open:** the three remaining gaps in `tests/test_unimplemented.py`.
 
 
 ## T38 — Triage every requirement ✅

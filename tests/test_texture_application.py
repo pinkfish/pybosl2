@@ -185,3 +185,104 @@ class TestText3d:
         from pybosl2.shapes3d.extrusions import text3d
 
         assert text3d("X", size=10, height=3, valign="top").bounds().max[1] == pytest.approx(0.0, abs=0.01)
+
+
+# ---------------------------------------------------------------------------
+# SPEC S-35: anything that can be textured honours it
+# ---------------------------------------------------------------------------
+
+#: How to build each callable that declares a `texture` parameter, plain and textured. A new
+#: declarer has to be added here, which is the point: `texture=` was declared on the bottle caps
+#: and silently ignored for as long as they existed, and nothing could have noticed.
+TEXTURABLE: dict[str, tuple[object, dict[str, object], dict[str, object]]] = {}
+
+
+def _textureable_cases() -> list[tuple[str, object, dict[str, object], dict[str, object]]]:
+    """Return (label, callable, plain kwargs, textured kwargs) for every texture-taking callable."""
+    from pybosl2 import cyl, cylinder, xcyl, ycyl, zcyl
+    from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
+    from pybosl2.surfaces3d import textured_tile
+
+    cylinder_args = ({"height": 20, "radius": 10}, {"texture": "ribs", "tex_reps": [12, 1], "tex_depth": 1})
+    return [
+        ("cyl", cyl, *cylinder_args),
+        ("cylinder", cylinder, *cylinder_args),
+        ("xcyl", xcyl, *cylinder_args),
+        ("ycyl", ycyl, *cylinder_args),
+        ("zcyl", zcyl, *cylinder_args),
+        (
+            "textured_tile",
+            textured_tile,
+            {"size": [20, 20, 3], "texture": "ribs", "tex_reps": [4, 4], "tex_depth": 0.001},
+            {"size": [20, 20, 3], "texture": "ribs", "tex_reps": [4, 4], "tex_depth": 1},
+        ),
+        ("pco1810_cap", BottleCaps.pco1810_cap, {}, {"texture": BottleCapTexture.RIBS}),
+        ("pco1881_cap", BottleCaps.pco1881_cap, {}, {"texture": BottleCapTexture.CHECKERS}),
+    ]
+
+
+CASES = _textureable_cases()
+
+
+def test_every_texture_taking_callable_is_covered() -> None:
+    """A new callable declaring `texture=` has to say how to exercise it (SPEC S-35).
+
+    The scan is over the package rather than over this list, so adding a declarer without adding a
+    case fails -- which is what would have caught the bottle caps.
+    """
+    import ast
+    import pathlib
+
+    package = pathlib.Path(__file__).resolve().parent.parent / "pybosl2"
+    declarers: set[str] = set()
+    for path in sorted(package.rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not isinstance(node, ast.FunctionDef) or node.name.startswith("_"):
+                continue
+            names = {a.arg for a in node.args.args + node.args.kwonlyargs}
+            # `resolve_texturing` takes the parameters to resolve them, and builds nothing.
+            if "texture" in names and node.name != "resolve_texturing":
+                declarers.add(node.name)
+    covered = {label for label, *_ in CASES}
+    assert declarers <= covered, (
+        f"these declare `texture=` and no case exercises it: {sorted(declarers - covered)}. "
+        f"Add one to `_textureable_cases`, or the parameter is advertised and unchecked (S-35)."
+    )
+
+
+@pytest.mark.parametrize(
+    ("label", "builder", "plain", "textured"), CASES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_the_texture_reaches_the_geometry(
+    label: str, builder: object, plain: dict[str, object], textured: dict[str, object]
+) -> None:
+    """SPEC S-35: declaring the parameter and ignoring it is the silent no-op E-5 forbids.
+
+    The bottle caps accepted a `BottleCapTexture` and built a plain wall, with a module comment
+    saying so -- which is a documented silent wrong answer rather than an excuse for one. They
+    apply the named style to the cap's outer wall now, inset so the knurl is cut *into* the
+    nominal diameter rather than grown outside it.
+    """
+    without = builder(**plain)  # type: ignore[operator]
+    with_texture = builder(**textured)  # type: ignore[operator]
+    assert with_texture.vnf().volume() != pytest.approx(without.vnf().volume(), rel=1e-4), (
+        f"{label}: the texture changed nothing, so the parameter is decorative"
+    )
+
+
+def test_a_knurl_is_cut_in_rather_than_grown_on() -> None:
+    """The cap keeps its nominal diameter: a grip is cut into the wall, not added outside it."""
+    from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
+
+    plain = BottleCaps.pco1810_cap()
+    ribbed = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS)
+    assert ribbed.bounds().size[0] == pytest.approx(plain.bounds().size[0], abs=0.1)
+    assert ribbed.vnf().volume() < plain.vnf().volume(), "a knurl removes material"
+
+
+def test_every_cap_style_builds_something_different() -> None:
+    """Three named styles, three different caps -- not two aliases and a no-op."""
+    from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
+
+    volumes = {style.value: BottleCaps.pco1881_cap(texture=style).vnf().volume() for style in BottleCapTexture}
+    assert len({round(v, 3) for v in volumes.values()}) == len(volumes), volumes
