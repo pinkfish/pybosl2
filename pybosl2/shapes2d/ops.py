@@ -326,7 +326,7 @@ def text(
     direction: str = "ltr",
     language: str = "en",
     script: str = "latin",
-    anchor: str = "baseline",
+    anchor: "Anchor | Sequence[float] | None" = None,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -339,12 +339,14 @@ def text(
         size:      font size (default 10)
         font:      font to use (default "Liberation Sans")
         halign:    horizontal alignment: "left", "center", "right" (default "center")
-        valign:    vertical alignment: "top", "center", "baseline", "bottom" (default: `anchor`)
+        valign:    vertical alignment: "top", "center", "baseline", "bottom" (default "baseline")
         spacing:   relative spacing multiplier between characters (default 1.0)
         direction: text direction: "ltr", "rtl", "ttb", "btt" (default "ltr")
         language:  language the text is in (default "en")
         script:    script the text is in (default "latin")
-        anchor:    vertical alignment fallback used when valign isn't given (default "baseline")
+        anchor:    where the finished text's bounding box lands, in the anchor language
+                   (SPEC C-10). ``None`` leaves it where *halign*/*valign* put it, which is the
+                   typographic placement and the usual answer for text
         spin:      Z-axis rotation in degrees (default 0)
         fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
@@ -353,7 +355,7 @@ def text(
 
     """
     h = halign if halign is not None else "center"
-    v = valign if valign is not None else anchor
+    v = valign if valign is not None else "baseline"
     shape = _otext(
         text,
         size=size,
@@ -368,4 +370,7 @@ def text(
         fa=fa,
         fs=fs,
     )
-    return _finish(shape, [0.0, 0.0], spin)
+    placed = _finish(shape, [0.0, 0.0], spin)
+    # The typographic alignment has already positioned the text; an anchor, if given, then places
+    # its finished box the way it places every other 2-D shape (SPEC C-10, PLAN O-6b).
+    return placed.reanchor(anchor) if anchor is not None else placed

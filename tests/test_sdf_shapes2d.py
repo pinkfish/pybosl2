@@ -9,6 +9,7 @@ import math
 
 import pytest
 
+from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.path2d import Path2D
 from pybosl2.sdf import shapes2d as sdf_s2d
 
@@ -522,22 +523,27 @@ class TestSdfInstanceMethods:
 
 
 class TestFill:
-    """fill() on PyShape2D."""
+    """fill() refuses on a distance field (SPEC PAR-3, B-5, PLAN B-P4)."""
 
-    def test_fill_on_circle(self) -> None:
-        shape = sdf_s2d.circle2d(radius=10)
-        filled = shape.fill()
-        assert filled is not None
-        assert filled.backend == "sdf"
+    def test_fill_refuses_and_names_the_conversion(self) -> None:
+        """It used to work by meshing to CSG and back, which is the conversion B-5 forbids.
 
-    def test_fill_on_rect(self) -> None:
-        shape = sdf_s2d.rect2d([10, 10])
-        filled = shape.fill()
-        assert filled is not None
-        assert filled.backend == "sdf"  # a filled 2-D shape is still a field, not a mesh
-        # fill() closes the outline in place: the same 10x10 extent, plus the meshing margin.
-        assert filled.mn == pytest.approx([-5.1, -5.1])
-        assert filled.mx == pytest.approx([5.1, 5.1])
+        `fill` is in `CSG_ONLY_FEATURES`, so a working implementation made it PLAN B-P4's third
+        case: a feature listed as exclusive that works anyway, so the refusal never fires. That is
+        how `projection` behaved until T4. The round trip is still available, said out loud, via
+        `.to_csg()`.
+        """
+        for shape in (sdf_s2d.circle2d(radius=10), sdf_s2d.rect2d([10, 10])):
+            with pytest.raises(UnsupportedByBackendError, match=r"to_csg"):
+                shape.fill()
+
+    def test_the_exclusive_list_and_the_shape_now_agree(self) -> None:
+        """PLAN B-P4: a name listed as exclusive must genuinely refuse on the other backend."""
+        from pybosl2._backend import CSG_ONLY_FEATURES
+
+        assert "fill" in CSG_ONLY_FEATURES
+        with pytest.raises(UnsupportedByBackendError):
+            sdf_s2d.circle2d(radius=10).fill()
 
 
 class TestFlip:

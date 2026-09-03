@@ -54,10 +54,10 @@ spec renumbers as items close, and all but S-46a have.
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) ✅ | M |
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
-| 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) | S |
+| 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) 🔶 | M |
-| 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) | S |
+| 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) ✅ | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
@@ -330,36 +330,27 @@ the test failed on my mistake rather than the code's.
 
 ---
 
-## T34 — Decide what `fill` means on a distance field
+## T34 — Decide what `fill` means on a distance field ✅
 
 **Closes:** §12.2 item 9 · **Implements:** PAR-3, B-5, PLAN B-P4 · **Size:** S
-**This one needs a decision before any code moves.**
 
-`fill` is in `CSG_ONLY_FEATURES` and `PyShape2D.fill()` works anyway, by extruding the field,
-meshing it, crossing to CSG, projecting, and rebuilding a polygon. Two records disagree:
+**Decided: `fill` refuses on the SDF backend**, naming `.to_csg()`. Of the two coherent answers,
+this is the one consistent with the rules already written — PAR-3 says an exclusive feature is
+declared and refuses, B-5 says a lossy conversion is never implicit, and `projection` was made to
+behave exactly this way in T4. The round trip is not lost, only made explicit: `.to_csg()` crosses
+the boundary and `fill` there does the same work without pretending to be a field operation.
 
-* **PAR-3 / B-P4** say an exclusive feature is *declared and refuses*, and name this exact case as
-  the one that must never happen.
-* **B-5** says a lossy backend conversion is never implicit, and a mesh round trip is one.
-* **`tests/test_sdf_shapes2d.py::TestFill`** asserts the meshing margin, so the behaviour is
-  deliberate and someone wanted it.
+`tests/test_sdf_shapes2d.py::TestFill` asserted the meshing margin, so the old behaviour was
+deliberate rather than accidental; it now asserts the refusal and that the list and the shape
+agree.
 
-Either answer closes it, and they are genuinely different products:
+**The general finding is worth more than the decision.** `test_every_csg_only_feature_refuses_on_the_sdf_shape`
+walked `SdfSolid` and nothing else. `fill` is a *2-D* operation, so `SdfSolid` never had it and the
+check never looked at `PyShape2D` — where it was quietly working for as long as the exclusive list
+has said it could not. The test is parametrised over both shapes now, and a negative control
+confirms it fails when a listed feature works: restoring the old `fill` fails it, which is what the
+original never did.
 
-1. **`fill` refuses on SDF**, naming `.to_csg()`, as `projection` does after T4. Consistent with
-   PAR-3 and B-5; costs the SDF backend a working operation.
-2. **`fill` leaves `CSG_ONLY_FEATURES`**, and the round trip is documented as what it is. Honest
-   about what the code does; needs B-5 to say that an *explicit, documented* round trip inside one
-   named operation is not the implicit conversion it forbids.
-
-**Whichever is chosen, the general finding stands and is worth more than either:** the backend
-parity tests walk the solid classes and not the 2-D ones, so nothing was ever going to catch this.
-That gap is the first thing to close.
-
-**Done when:** the lists and the code agree, and the parity tests cover `CsgShape2D`/`PyShape2D`
-the way they cover the solids.
-
----
 
 ## T30 — Group the arguments that travel together 🔶
 
@@ -654,28 +645,34 @@ The same collision as the bare requirement ids, in a third place.
 
 ---
 
-## T36 — Give `text()` the anchor language
+## T36 — Give `text()` the anchor language ✅
 
-**Closes:** §12.2 item 7b · **Implements:** PLAN O-6b · **Size:** S
+**Closes:** §12.2 item 7b · **Implements:** PLAN O-6b, SPEC C-10 · **Size:** S
 
-`flat.text()` declares `anchor: str = "baseline"`. O-6b requires a parameter meaning "which face,
-edge or corner" to be `Anchor | Sequence[float]` and resolved through `resolve_anchor()`, and the
-other eight 2-D façade constructors do exactly that. This one is a parallel vocabulary the reader
-has to learn twice — the defect O-6b exists to prevent.
+**Landed, and it was smaller than it looked.** The task was written expecting a design decision —
+a text-specific enum, or folding the typographic spellings into `halign`/`valign` — because
+`anchor="baseline"` seemed to mean something the anchor language has no member for.
 
-Found because it is the one 2-D constructor `placement=` could not be wired into (T30): a
-`Placement` carries an `Anchor`, and this does not.
+**Reading the body settled it in one line.** `text()` computed
+`v = valign if valign is not None else anchor`, so its `anchor` was never an anchor at all: it was
+a **second spelling of `valign`** with a different default. Not a parallel vocabulary standing in
+for a missing concept, just a duplicate of the parameter next to it — which is C-21's defect as
+well as O-6b's, in the one place neither rule was looking.
 
-**Retyping it is not the fix.** The typographic anchors — `"baseline"`, and the `halign`/`valign`
-vocabulary beside it — mean things `Anchor` has no member for, and a baseline is genuinely not a
-bounding-box anchor. So the options are a text-specific enum (O-6) alongside the ordinary `anchor`,
-or folding the typographic ones into `halign`/`valign` where they belong and leaving `anchor` to
-mean what it means everywhere else. That is a design decision, which is why this is its own task.
+So: `valign` carries the `"baseline"` default it always really owned, and `anchor` is
+`Anchor | Sequence[float] | None` like everywhere else, applied to the finished text's bounding box
+after the typographic alignment has placed it. `None` means "leave it where halign/valign put it",
+which is the usual answer for text and what every existing call already gets — and no caller in the
+package or the tests passed `anchor=` to `text()`, so nothing had to change. All nine 2-D façade
+constructors take `placement=` now.
 
-**Done when:** `text()` takes the anchor language like every other constructor, `placement=` is
-wired into all nine, and the typographic vocabulary has a home of its own.
+**One near-miss worth recording.** The test that documented this as an exception sat above two
+other classes, and deleting it by "from here to the next `class TestFacets`" took
+`TestEdgeTreatment` and `TestEdgeSelection` with it. Nothing in the suite noticed — the tests were
+simply gone — but `test_every_enforced_by_target_exists` failed, because G-7 names one of the
+deleted tests as what enforces it. **The registry caught a deletion the test suite could not**,
+which is an argument for `enforced_by` that had not occurred to me when writing it.
 
----
 
 ## T37 — Build `texture=`, or stop advertising it
 

@@ -599,28 +599,31 @@ class SdfShape2D(Colorable, Distributable):
         g = width / 2
         return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
-    def fill(self) -> PyShape2D:
-        """Return a copy of this shape with all interior holes filled.
+    def fill(self) -> "NoReturn":
+        """Refuse: filling an outline is a CSG-backend notion (SPEC PAR-3, B-5).
 
-        Extrudes to a thin 3-D solid, meshes, projects back to 2-D to drop
-        holes, and converts the resulting outline to an SDF polygon.
+        This used to work, by extruding the field to a thin solid, meshing it, crossing to CSG,
+        projecting to drop the holes, and rebuilding an SDF polygon from the outline. That is the
+        silent lossy backend conversion B-5 forbids, and it made `fill` the third case PLAN B-P4
+        names: a feature listed in ``CSG_ONLY_FEATURES`` that works anyway, so the refusal never
+        fires. `projection` behaved the same way until T4.
 
-        Returns:
-            A new :class:`PyShape2D` with holes removed.
+        The round trip is still available, said out loud: ``shape.to_csg()`` crosses the boundary
+        explicitly, and `fill` there does the same work without pretending to be a field operation.
+
+        Raises:
+            UnsupportedByBackendError: always, naming the conversion that does the job.
+
         """
-        extruded = self.extrude(0.1, res=self.res)
-        csg = extruded.to_csg()
-        projection = csg.projection(cut=True)
-        shapes = [projection] if not hasattr(projection, "__iter__") else list(projection)
-        if not shapes:
-            return self
-        pts: list[list[float]] = []
-        if hasattr(shapes[0], "paths"):
-            for p in shapes[0].paths:
-                pts.extend([[float(c[0]), float(c[1])] for c in p])
-        if not pts:
-            return self
-        return polygon2d(Path2D(pts), res=self.res)
+        raise UnsupportedByBackendError(
+            "fill",
+            "sdf",
+            hint=(
+                "filling an outline needs the outline, and a distance field does not retain one. "
+                "Cross the boundary explicitly with `.to_csg()` and fill there, which is the same "
+                "work this used to do silently."
+            ),
+        )
 
     def xflip(self, x: float = 0.0) -> PyShape2D:
         """Mirror this shape across the vertical line x = *x*, keeping the copy left of it.

@@ -25,20 +25,34 @@ from pybosl2.sdf.shapes3d import SdfSolid
 from pybosl2.shapes3d.base import CsgSolid
 
 
-def test_every_csg_only_feature_refuses_on_the_sdf_shape() -> None:
+def _sdf_shapes() -> list[tuple[str, object, type]]:
+    """The SDF shapes an exclusive feature could be called on: the solid *and* the 2-D field.
+
+    Both, because walking only the solid is how `fill` stayed broken. It is a 2-D operation, so
+    `SdfSolid` never had it and the check never looked at `PyShape2D`, where it was quietly
+    working by meshing to CSG and back for as long as the list has said it could not (T34).
+    """
+    from pybosl2.sdf.shapes2d import PyShape2D, circle2d
+
+    return [("SdfSolid", _sdf_probe(), SdfSolid), ("PyShape2D", circle2d(radius=5), PyShape2D)]
+
+
+@pytest.mark.parametrize("label", ["SdfSolid", "PyShape2D"])
+def test_every_csg_only_feature_refuses_on_the_sdf_shape(label: str) -> None:
     """A CSG-only feature is declared on the SDF shape and refuses (SPEC PAR-3, PLAN B-P4).
 
     What must never happen is the third case -- listed as exclusive and quietly *working*, as
-    `projection` once did, so the refusal never fires. Absence is no longer the requirement:
-    a member supplied only by `__getattr__` makes `isinstance(sdf_solid, Solid)` false (T-6b), and
-    a method that says why is more explicit than a missing name (C-13).
+    `projection` once did and `fill` did until T34, so the refusal never fires. Absence is no
+    longer the requirement: a member supplied only by `__getattr__` makes
+    `isinstance(sdf_solid, Solid)` false (T-6b), and a method that says why is more explicit than
+    a missing name (C-13).
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    shape = _sdf_probe()
+    shape, cls = next((s, c) for name, s, c in _sdf_shapes() if name == label)
     silent: list[str] = []
     for feature in sorted(CSG_ONLY_FEATURES):
-        member = inspect.getattr_static(SdfSolid, feature, None)
+        member = inspect.getattr_static(cls, feature, None)
         if member is None:
             continue  # reached through __getattr__, which refuses for anything unlisted
         try:
@@ -48,7 +62,7 @@ def test_every_csg_only_feature_refuses_on_the_sdf_shape() -> None:
         except Exception:
             continue
         silent.append(feature)
-    assert not silent, "listed as CSG-only but succeeds on SdfSolid, so the refusal never fires: " + ", ".join(silent)
+    assert not silent, f"listed as CSG-only but succeeds on {label}, so the refusal never fires: " + ", ".join(silent)
 
 
 def _sdf_probe() -> SdfSolid:
