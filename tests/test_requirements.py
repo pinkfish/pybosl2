@@ -46,8 +46,8 @@ VALID_STATUS = frozenset({"enforced", "reviewed", "unenforced", "untriaged", "wi
 
 #: How many requirements nobody has triaged yet. This number only ever goes down: triage means
 #: reading the candidate test and deciding whether it guards the rule, then recording the answer.
-#: 263 requirements were migrated from the prose in T26 and 12 were triaged with them.
-UNTRIAGED_BUDGET = 251
+#: 263 requirements were migrated from the prose in T26; the count falls as each is triaged.
+UNTRIAGED_BUDGET = 250
 
 
 def _registry() -> list[dict[str, Any]]:

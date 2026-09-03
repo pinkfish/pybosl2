@@ -780,6 +780,22 @@ def fillet(
     material, centered along its own Z. Only 90-degree edges are ported (BOSL2's ``angle`` for other
     dihedral angles is not).
 
+    Args:
+        length: Length of the cutter along its axis (default 1).
+        radius: Rounding radius (both ends).
+        angle: Angle in degrees between the two faces the fillet sits in.
+        radius1: Rounding radius at the first end, for a tapered cutter.
+        radius2: Rounding radius at the second end, for a tapered cutter.
+        diameter: Rounding diameter (both ends).
+        diameter1: Rounding diameter at the first end.
+        diameter2: Rounding diameter at the second end.
+        excess: Extra length added at each end, so the cutter reaches past the solid it trims.
+        height: Length of the cutter along its axis (default 1).
+        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+            out to fa/fs.
+        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
     Examples:
         .. pythonscad-example::
 

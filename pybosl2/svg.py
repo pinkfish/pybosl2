@@ -582,6 +582,18 @@ def svg_rings_with_colors(
     The element each ring came from is NOT preserved -- use
     :func:`svg_element_groups` when that matters (it does for compositing: nesting means
     "hole" only WITHIN one element).
+
+    Args:
+        file: Path to the SVG file to read.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        flip_y: Flip the Y axis, since SVG counts Y downwards and this library counts it up.
+        color: Colour to use for rings the file does not give one.
+        strokes: How to treat stroked-but-unfilled paths.
+        clip_to_viewbox: Drop anything outside the document's viewBox.
+
     """
     paths: list[Path2D] = []
     colors: list[str | None] = []

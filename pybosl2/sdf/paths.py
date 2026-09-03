@@ -952,6 +952,15 @@ def round_corners(  # type: ignore[no-untyped-def]
     """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each.
 
     vertex -- the bosl2 port's round_corners() (radius method), pure python.
+
+    Args:
+        path: The path whose corners are rounded.
+        radius: The rounding radius. A single float applies to all corners; a list applies per-corner radii.
+        r: Rounding radius, the short spelling of *radius*.
+        closed: Override whether paths are treated as closed.
+        fn: Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+
     """
     pts = as_points(require_path(path, "path", "round_corners", Path2D))
     n = len(pts)

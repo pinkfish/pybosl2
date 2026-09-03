@@ -693,21 +693,31 @@ def texture(
     *border*/*gap* shape the VNF-tile textures; *roughness* perturbs ``bricks``. Pass a name
     from :data:`TEXTURES`. See the module docstring for which textures are ported.
 
-    Returns
+    Returns:
     -------
          list[list[float]]:
             The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
-    Raises
+    Raises:
     ------
         ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.
 
-    See Also
+    See Also:
     --------
         pybosl2.paths.Path2D.texture()
         pybosl2.paths.Path2D.texture_v()
         pybosl2.shapes3d.Bosl2Solid.texture()
         pybosl2.shapes3d.Bosl2Solid.texture_v()
+
+    Args:
+        tex: The texture name to look up, or an already-built texture to pass through.
+        sides: Number of sides for the textures that have a polygon count.
+        border: Flat border left around each tile.
+        gap: Gap left between tiles.
+        roughness: Amplitude of the random variation, for the rough textures.
+        inset: How far the pattern is inset into the surface.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
 
     """
     if inset is not None and border is not None:

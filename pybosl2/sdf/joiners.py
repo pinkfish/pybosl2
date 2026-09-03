@@ -94,6 +94,25 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     no print-in-place cones. `inner=True` gives the segment set that meshes into the
     `inner=False` one. anchor/spin/orient follow BOSL2 attachable() semantics against the
     same declared bounding box the original uses.
+
+    Args:
+        length: Overall length of the hinge along +X.
+        segs: Number of knuckle segments along the hinge.
+        offset: Distance from the arm's mounting face to the knuckle centre.
+        inner: Build the interleaving leaf, whose segments fill the other leaf's gaps.
+        arm_height: Height of the mounting arm. Only ``0`` is ported; another value raises.
+        arm_angle: Angle of the mounting arm in degrees. Only ``90`` is ported; another value raises.
+        gap: Clearance between adjacent knuckle segments.
+        seg_ratio: Length ratio between the two interleaved sets of knuckles, so one leaf's can be longer.
+        knuckle_diam: Diameter of the knuckle cylinders.
+        pin_diam: Diameter of the pin hole through the knuckles.
+        fill: Accepted for BOSL2 signature compatibility and ignored: this port always fills the arm.
+        clear_top: Cut away everything above the arm's centre line, leaving a half-round knuckle.
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor.
+        orient: Direction to rotate the top towards, after spin.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     _ = fill
     if not (arm_angle == 90):
@@ -165,6 +184,24 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
 
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
+
+    Args:
+        type: ``"pin"`` for the clip itself, or ``"socket"`` for the cavity it snaps into.
+        length: Length of the clip from its base to the tip.
+        width: Width across the clip's ears.
+        snap: How far the ears stand proud, which is what makes the snap.
+        thickness: Thickness of the clip in Z.
+        depth: How deep the clip sits into the socket.
+        compression: Extra width at the ears that squeezes on insertion; applied to the pin, never the socket.
+        clearance: Clearance added to the socket so the pin fits.
+        lock: Add the locking notch that resists pull-out.
+        lock_clearance: Extra clearance around the locking notch.
+        splinesteps: How many segments each bezier of the outline is flattened into.
+        anchor: Anchor point.
+        orient: Direction to rotate the top towards, after spin.
+        spin: Z-axis rotation in degrees after anchor.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
     """
     if type not in ("pin", Gender.MALE, "socket", Gender.FEMALE):
         raise Bosl2ValueError(f"unsupported rabbit_clip type {type!r}")

@@ -102,6 +102,16 @@ class LinearBearings:
         *inner_diameter* / outer *outer_diameter* / length *length*
         (BOSL2 linear_bearing()).
 
+        Args:
+            length: Overall length of the cartridge.
+            outer_diameter: Outside diameter of the cartridge body.
+            inner_diameter: Bore diameter, which is the rod the bearing runs on.
+            color: Colour to apply to the returned solid.
+            fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+                ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
         Examples:
             An LM8UU-sized bearing:
 
@@ -250,7 +260,23 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> "Solid":
-        """Return a pillow-block housing sized for a standard LMxUU bearing."""
+        """Return a pillow-block housing sized for a standard LMxUU bearing.
+
+        Args:
+            size: Nominal LMxUU size, so ``8`` for an LM8UU.
+            tab: Width of the mounting tabs either side of the block.
+            gap: Gap in the clamp, which lets it grip the bearing when the screws are tightened.
+            wall: Wall thickness around the bearing.
+            tabwall: Wall thickness of the mounting tabs.
+            screwsize: Nominal diameter of the clamp screws.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+                ``use_defaults(fs=...)`` value applies.
+
+        """
         spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing_housing(
             diameter=spec.outer_diameter,

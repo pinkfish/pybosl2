@@ -674,6 +674,19 @@ def partition_cut_mask(
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
 
+    Args:
+        length: Length of the mask along the cut, which should span the solid being split.
+        height: Height of the mask across the cut.
+        cutsize: Size of one repeat of the cut profile: a scalar, or ``[width, depth]``.
+        cutpath: The interlocking profile, by name (:class:`PartitionCutType`) or as a custom :class:`Path2D`.
+        gap: Extra flat run inserted between repeats of the profile.
+        cutpath_centered: Centre the profile on the cut line rather than starting it at one edge.
+        slop: Kerf width: how much material the cut removes, so the two halves fit back together.
+        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
     Examples:
         Split a 100×100×10 mm plate with a jigsaw cut:
 
@@ -928,6 +941,19 @@ class Partitionable:
         *spread* apart along the (spun) Y axis so they print separately and snap back together.
         The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
         rotates the cut direction; *slop* leaves a printer-fit clearance.
+
+        Args:
+            spread: Distance between the two halves after splitting.
+            cutsize: Size of the mask beyond the part.
+            cutpath: Cut pattern; ``"jigsaw"``, ``"dovetail"``, etc.
+            gap: Clearance gap between the two halves.
+            cutpath_centered: Whether the cut-path is centered on the split plane.
+            spin: Spin angle for the cut-path.
+            slop: Extra slop for 3-D printed fits.
+            fn: Smoothness override. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
+                out to fa/fs.
+            fa: Minimum angle for smoothness. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum segment length for smoothness. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
         Examples:
             Split a block into two dovetailed halves:

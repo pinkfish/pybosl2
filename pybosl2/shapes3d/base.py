@@ -333,6 +333,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         the cylinder's circumference (native ``wrap()``). *fn* sets the
         facet count of the bend.
+
+        Args:
+            radius: Radius of the cylinder to wrap around.
+            fn: Smoothness override for the mesh. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+                ``fn=0`` opts back out to fa/fs.
+
         """
         if fn is not None:
             return self._wrap(self.shape.wrap(r=float(radius), fn=float(fn)))
@@ -1160,7 +1166,26 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> "Bosl2Solid":
-        """Cut an asymmetric edge profile into the solid's edges."""
+        """Cut an asymmetric edge profile into the solid's edges.
+
+        Args:
+            edges: Edges to mask (default ``"ALL"``).
+            except_edges: Edges to explicitly not mask.
+            mask: The 2-D mask cross-section, as a :class:`~pybosl2.path2d.Path2D`.
+            convexity: Accepted for signature compatibility; unused.
+            radius: rounding radius.
+            diameter: rounding diameter.
+            r: rounding radius alias.
+            d: rounding diameter alias.
+            tag: override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+            fn: fixed fragment count for the default roundover mask; ambient default when omitted. Omitted, the
+                ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+            fa: minimum fragment angle for the default roundover mask. Omitted, the ambient ``use_defaults(fa=...)``
+                value applies.
+            fs: minimum fragment size for the default roundover mask. Omitted, the ambient ``use_defaults(fs=...)``
+                value applies.
+
+        """
         return self.edge_profile(
             edges=edges,
             except_edges=except_edges,
@@ -1267,7 +1292,25 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         d: float | None = None,
         tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
-        """Cut a face profile into the solid's faces."""
+        """Cut a face profile into the solid's faces.
+
+        Args:
+            faces: Face(s) to round, e.g. ``TOP``, or ``"ALL"`` (default).
+            radius: Rounding radius.
+            diameter: Rounding diameter (alternative to *radius*).
+            mask: The 2-D mask cross-section, as a :class:`~pybosl2.path2d.Path2D`; defaults to
+                ``Mask2D.roundover(radius)``.
+            convexity: Accepted for signature compatibility; unused.
+            fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts
+                back out to fa/fs.
+            fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+            bbox: override bounding box (see :meth:`_resolve_bounds`)
+            r: rounding radius alias.
+            d: rounding diameter alias.
+            tag: override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+
+        """
         from pybosl2 import masking
 
         center, size = self._resolve_bounds(bbox)
