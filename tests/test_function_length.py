@@ -77,7 +77,7 @@ BUDGET: dict[str, int] = {
     "skin.py": 8,
     "surfaces3d.py": 6,
     "svg.py": 2,
-    "texture.py": 2,
+    "textures.py": 2,
     "turtle/turtle2d.py": 2,
     "turtle/turtle3d.py": 2,
     "vnf.py": 6,

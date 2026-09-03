@@ -36,7 +36,7 @@ from pybosl2.shapes3d import (
     zcyl,
 )
 from pybosl2.shapes3d.base import _anchor_offset_hull3
-from pybosl2.texture import TextureType
+from pybosl2.textures import TextureType
 
 # unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
 _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5, 0.5)]
@@ -476,7 +476,7 @@ def test_texture_enum() -> None:
     cut into the cap's outer wall.
     """
     from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
-    from pybosl2.texture import texture
+    from pybosl2.textures import texture
 
     assert texture(TextureType.RIBS) == [[1.0, 0.0]]
 

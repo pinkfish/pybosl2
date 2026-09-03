@@ -38,13 +38,16 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
    about: the total double-counted an alias and the claim had not been rerun since parts were
    ported.*
-3. **113 options one backend takes and the other does not.** Parity is measured per option, not
+3. **88 options one backend takes and the other does not.** Parity is measured per option, not
    per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
-   named rather than dropped (B-9). What remains after T40 is the cylinder family's
-   `texture`/`tex_*` — a textured *field*, not a mesh with a texture applied, so B-5 rules out the
-   cheap route — and the chamfer geometry variants `chamfer_angle`, `from_end`, `extra`,
-   `clip_angle` and `teardrop`. The 63 T40 closed were not like these: `spin`, `orient`, `center`
-   and a set of aliases that had stopped forwarding what they alias (SPEC §12.2 item 10).
+   named rather than dropped (B-9). What remains after T41 is the chamfer geometry variants —
+   `chamfer_angle`, `from_end`, `extra`, `clip_angle`, `teardrop` — plus `rect_tube`'s tapered
+   form and `prismoid`'s edge treatments. *This entry said the cylinder family's `texture`/`tex_*`
+   could not cross, "a textured field, not a mesh with a texture applied, so B-5 rules out the
+   cheap route". That was wrong, and it was wrong the same day it was written: the CSG backend
+   does not apply a texture to a mesh either — it reduces the texture to a grid of heights and
+   then places vertices at it. The map is not a mesh, and there was nothing to convert. T41 built
+   it (SPEC §12.2 item 12).*
 4. **`pie_slice` bounds.** The SDF wedge stores the full disc's bounding box, so `bounds()`
    over-reports on the backend whose selling point is exact bounds.
    `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it (SPEC PAR-5).

@@ -187,7 +187,7 @@ Status meanings:
      - every 3-D primitive, on both backends via the facade.
    * - ``skin.scad``
      - ported
-     - ``pybosl2.skin``, ``pybosl2.texture``
+     - ``pybosl2.skin``, ``pybosl2.textures``
      - skin, sweep, path_sweep, textures.
    * - ``sliders.scad``
      - ported

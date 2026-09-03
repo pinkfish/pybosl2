@@ -10,8 +10,9 @@
 passed. PAR-4 asks for more: if the CSG cuboid takes `rounding`, `chamfer`, `edges` and
 `except_edges`, the SDF cuboid takes the same ones. Nothing walked the two constructors' parameter
 lists and compared them until T39, which found **176** options one backend has and the other does
-not. T40 closed 63 of them, and what it closed says more than the count: none of the 63 needed a
-distance field anyone had to invent.
+not. T40 and T41 closed 88 of them, and what they closed says more than the count.
+
+T40, 63 of which none needed a distance field anyone had to invent:
 
 * 38 were `spin` and `orient`, missing from *every* SDF constructor. A rotation about Z and a
   rotation of +Z onto a direction are exact in a field; they had simply never been written.
@@ -19,6 +20,11 @@ distance field anyone had to invent.
 * 14 were pure forwarding: `cube` is `cuboid`, and `cylinder` and `zcyl` are `cyl`, on both
   backends -- but the SDF aliases each kept their own field and so quietly lacked the rim
   treatments and the `shift` the thing they alias had built all along.
+
+T41, the 25 texture options, which looked like the hard ones and were not. The CSG backend has no
+"texture" primitive either: `textured_cylinder_vnf` reduces every texture to a grid of heights and
+*then* places vertices. The displacement map exists before either backend sees it, so building a
+field from it crosses nothing (B-5). See `tests/test_sdf_texture.py`.
 
 Two things this separates, because they are different defects:
 
@@ -50,15 +56,15 @@ TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 OPTION_GAPS: dict[str, int] = {
     "cube": 2,
     "cuboid": 4,
-    "cyl": 16,
-    "cylinder": 16,
+    "cyl": 11,
+    "cylinder": 11,
     "prismoid": 6,
     "rect_tube": 15,
     "regular_prism": 1,
     "teardrop": 5,
-    "xcyl": 16,
-    "ycyl": 16,
-    "zcyl": 16,
+    "xcyl": 11,
+    "ycyl": 11,
+    "zcyl": 11,
 }
 
 

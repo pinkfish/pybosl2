@@ -66,6 +66,8 @@ spec renumbers as items close, and all but S-46a have.
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
 | 10 | PAR-4 / PAR-5 / S-2b | [T40](#t40--close-the-sdf-option-gaps) 🔶 | L |
 | 11 | C-21 / B2-3 | [T40](#t40--close-the-sdf-option-gaps) ✅ | S |
+| 12 | PAR-4 / PAR-5 / S-34 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | M |
+| 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -940,6 +942,85 @@ pre-existing in `rotate` and became reachable when spin reached these shapes (S-
 the list goes stale, so a shape comes off it rather than sitting there as an excuse. Fixing it
 means giving `rotate` a bound that tracks the shape rather than its corner box, which is its own
 task and touches every rotated shape, not just these.
+
+
+## T41 — Build `texture=` on the SDF backend ✅
+
+**§12.2 item 12. PAR-4, PAR-5, S-34.**
+
+The five texture options were 25 of the 176 gaps, and T40 left them as the honest remainder with a
+reason attached: *"a textured field is not a mesh with a texture applied, so B-5 rules out the
+cheap route."* Three documents said it — that §12.2 row, `docs/design/sdf-csg-compatibility.md`,
+and PAR-4's own note.
+
+**All three were written by reading the CSG signature rather than the CSG code.**
+
+`textured_cylinder_vnf` has no texture primitive either. It reduces a texture — a named height
+field, a rasterised VNF tile, or a caller's own array — to a **grid of heights in 0..1**, and only
+then places a vertex per cell pushed out radially by `depth * h`. The displacement map exists
+before either backend sees it. There was nothing to convert and no backend to cross; the work was
+evaluating the same map at every point instead of at sample points.
+
+The claim the tests make is exact: **the field is zero at every vertex the mesh is built from**,
+for all 21 registry textures. Not close — zero. Both read the same tile, the same repeat counts
+and the same radius formula.
+
+### What made it affordable
+
+* **The repeats are folded, not unrolled.** A texture repeating 20 times around and 4 along would
+  be a 480-column grid written out. It is periodic, so `atan2(-sin(n·θ), -cos(n·θ))` recovers
+  `frac(n·θ/2π)` exactly, and `sin`/`cos` of a multiple angle come from the Chebyshev recurrence
+  on `x/r` and `y/r`. The tree is the size of one *tile*, whatever the counts are.
+* **Interpolation is a sum of hats.** `max(0, 1 − |t − c|)` is a triangular basis function, so
+  `Σ h[c]·hat(t − c)` is linear interpolation with no comparison operator — which matters, because
+  libfive gives `min`, `max` and `abs` and no `if`. Zero-height cells drop out of the sum.
+* **`_AXIS_LEAN` is read backwards.** `xcyl` is a `cyl` turned, and on the CSG side that is
+  literal — it builds a `cyl` and rotates the result. A field has nothing to rotate, so the angle
+  goes into the cylinder's own frame instead, using the same table `shift=` reads forwards. One
+  rotation written down once, rather than two derivations that can disagree.
+
+A tile past ~1600 cells refuses and names what to do; the largest in the registry is `rough` at
+32×32, so no named texture reaches it.
+
+### What the guards found
+
+**`default_tex_reps` was written twice for one turn.** "Repeat the tile so one comes out roughly
+square" is the D-4 answer when the caller gives neither `tex_size` nor `tex_reps`, and it existed
+once in the CSG `_textured_cyl` and once in the SDF one — the same duplication, in the same shape,
+as `center=` in item 11, and the same way two backends come to answer one undecorated call with
+two different surfaces. It lives in `pybosl2.textures` now.
+
+**And the test written to catch that sampled zero points.** The first and last grid rows sit on the
+rims, where the slab term is zero whatever the texture does, so the sampler skips them — but the
+undecorated case repeats a one-row tile *once* along, which is a two-row grid whose only rows are
+those two. The loop ran zero times and reported a pass. It went green with the SDF backend's
+default replaced by `[1, 1]`, which is the one thing it existed to catch.
+
+Planting the defect found it; running the test did not. The helper now refuses to report a pass it
+did not measure, and the case uses a texture with rows between the rims. **A test that measures
+nothing looks exactly like a test that passes** — which is the argument for the negative control
+being part of writing a guard rather than a thing done afterwards if there is time.
+
+### And a name that reached two different things
+
+`texture` was a top-level export — BOSL2's function that builds a tile — **and** the module holding
+the texture machinery. Python binds a submodule onto its package as an attribute when the submodule
+is imported, and that wins over the package's own lazy export table:
+
+```python
+from pybosl2 import texture  # the function
+from pybosl2.texture import TEXTURES  # ... and now `pybosl2.texture` is the module
+```
+
+So `from pybosl2 import texture` returned the function or the module depending on import order.
+It survived every test that imported one way, and came out when a *new* test module imported the
+other way and two unrelated tests three files later started calling a module. C-21 exactly — one
+name, two things — and the one case in the package where the language decides which you get rather
+than the library.
+
+The module is `pybosl2.textures` now; the function keeps BOSL2's spelling (B2-3), it being the half
+a caller reads. Exactly one name in the package collided, which is why the guard is a plain
+assertion and not a budget.
 
 
 ## Keeping this file honest

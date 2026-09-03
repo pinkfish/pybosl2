@@ -6,7 +6,7 @@
 
 """The texture() named-texture engine (BOSL2 skin.scad)."""
 
-# LibFile: pybosl2/texture.py
+# LibFile: pybosl2/textures.py
 #    Port of BOSL2's texture() engine from skin.scad: the named-texture table that
 #    :func:`~pybosl2.shapes3d.textured_tile` (and, in BOSL2, the textured sweeps) build from.
 #    :func:`texture` resolves a texture *name* to its data -- either a height-field (a 2-D array of
@@ -48,6 +48,7 @@ __all__ = [
     "TEXTURES",
     "TextureData",
     "TextureType",
+    "default_tex_reps",
     "height_field",
     "is_heightfield_texture",
     "is_vnf_texture",
@@ -936,7 +937,7 @@ def height_field(tex: "str | TextureType | TextureData", sides: int = 24) -> lis
         Bosl2ValueError: if *tex* is neither kind of texture.
 
     Examples:
-        >>> from pybosl2.texture import height_field
+        >>> from pybosl2.textures import height_field
         >>> height_field("ribs")
         [[1.0, 0.0]]
 
@@ -990,6 +991,39 @@ def texture_grid(
         )
     rows, columns = len(field), len(field[0])
     return [[_sample(field, r, c) for c in range(columns * reps_around)] for r in range(rows * reps_along + 1)]
+
+
+def default_tex_reps(height: float, radius1: float, radius2: float) -> list[int]:
+    """Return the repeat counts to use when the caller gave neither *tex_size* nor *tex_reps*.
+
+    SPEC D-4: neither given is "decide for me", not an error. The rule is to repeat the tile so
+    one tile comes out roughly square in world space -- as many around as the circumference holds
+    at the cylinder's own height. One tile wrapped around a whole cylinder is not a texture, and
+    making the caller say so is what P-1 exists to avoid.
+
+    It lives here because *both* backends need it and neither owns it. It was written twice for
+    one turn -- once in the CSG `_textured_cyl` and once in the SDF one -- which is how two
+    backends come to answer the same undecorated call with two different surfaces (SPEC C-21,
+    PAR-5). The same duplication, in the same shape, that `center=` had.
+
+    Args:
+        height: Height of the cylinder.
+        radius1: Radius at the bottom.
+        radius2: Radius at the top.
+
+    Returns:
+        The ``[around, along]`` counts.
+
+    Examples:
+        >>> from pybosl2.textures import default_tex_reps
+        >>> default_tex_reps(20.0, 10.0, 10.0)
+        [3, 1]
+
+    """
+    if height <= 0:
+        return [1, 1]
+    circumference = 2.0 * math.pi * max(radius1, radius2)
+    return [max(1, round(circumference / height)), 1]
 
 
 def _repeat_counts(
@@ -1071,7 +1105,7 @@ def textured_cylinder_vnf(
             cylinder's dimensions are not positive.
 
     Examples:
-        >>> from pybosl2.texture import textured_cylinder_vnf
+        >>> from pybosl2.textures import textured_cylinder_vnf
         >>> mesh = textured_cylinder_vnf(20, 10, 10, "ribs", tex_reps=[12, 1])
         >>> mesh.is_watertight()
         True

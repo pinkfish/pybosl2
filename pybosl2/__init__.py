@@ -233,7 +233,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # rotation algebra (S-5): the class is the preferred spelling, not just the functions
     "Quaternion": ("pybosl2.quaternions", "Quaternion"),
     # textures (S-34)
-    "texture": ("pybosl2.texture", "texture"),
+    "texture": ("pybosl2.textures", "texture"),
     # the mask family, whole (S-26): mask2d_roundover was the one member left out
     "mask2d_roundover": ("pybosl2.masking", "mask2d_roundover"),
     # export (S-53)

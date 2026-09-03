@@ -121,3 +121,40 @@ def test_the_shadowing_names_are_still_the_anchor_aware_ones() -> None:
         value = getattr(pybosl2, name)
         assert callable(value), f"{name} is not callable"
         assert value.__module__.startswith("pybosl2"), f"{name} resolves to {value.__module__}"
+
+
+def test_no_exported_name_is_also_a_submodule_name() -> None:
+    """One name, one thing -- and `import` decides this one, not the package (SPEC C-21).
+
+    `pybosl2/texture.py` held the texture machinery and `texture` was also a top-level export, the
+    BOSL2 function that builds a tile. Python binds a submodule onto its package as an attribute
+    when the submodule is imported, and that wins over the package's own lazy export table -- so
+    `from pybosl2 import texture` gave the **function** or the **module** depending on whether
+    anything had imported `pybosl2.texture` first:
+
+        >>> from pybosl2 import texture           # the function
+        >>> from pybosl2.texture import TEXTURES  # ... and now `pybosl2.texture` is the module
+
+    Order-dependent, so it survived every test that imported one way. It came out when a new test
+    module imported the other way and two unrelated tests three files later started calling a
+    module. The module is `pybosl2.textures` now; the function keeps BOSL2's spelling (B2-3), it
+    being the half a caller reads.
+
+    There was exactly one such name in the package, which is why this is a plain assertion rather
+    than a budget.
+    """
+    import re
+
+    source = (ROOT / "pybosl2" / "__init__.py").read_text()
+    exported = {name for name, _ in re.findall(r'^\s*"(\w+)": \("pybosl2\.[\w.]+", "(\w+)"\),', source, re.M)}
+    package = ROOT / "pybosl2"
+    submodules = {p.stem for p in package.glob("*.py") if p.stem != "__init__"}
+    submodules |= {p.name for p in package.iterdir() if p.is_dir() and (p / "__init__.py").exists()}
+
+    assert exported, "the lazy export table was not found -- this check is reading the wrong thing"
+    clash = sorted(exported & submodules)
+    assert not clash, (
+        f"these names are both a top-level export and a submodule: {clash}. Importing the "
+        f"submodule rebinds the name on the package, so `from pybosl2 import {clash[0]}` returns "
+        f"whichever the import order happened to leave there. Rename the module."
+    )
