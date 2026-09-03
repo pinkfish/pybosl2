@@ -64,6 +64,8 @@ spec renumbers as items close, and all but S-46a have.
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
+| 10 | PAR-4 / PAR-5 / S-2b | [T40](#t40--close-the-sdf-option-gaps) 🔶 | L |
+| 11 | C-21 / B2-3 | [T40](#t40--close-the-sdf-option-gaps) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -844,6 +846,100 @@ is not, and has no budget, because it tells a caller the backend cannot do somet
 **One remains**, and it is not a missing check: X-3 asks that every new public callable arrive with
 three tests, which is a count a reviewer makes and no scan can — the minimum-argument third of it is
 enforced (Q-4). `UNENFORCED_BUDGET` is 1.
+
+
+## T40 — Close the SDF option gaps 🔶
+
+**§12.2 items 10 and 11. PAR-4, PAR-5, S-2b, C-21, B2-3.**
+
+T39 measured parity per *option* for the first time and found **176** the SDF backend lacked. This
+closes **63** of them, and the interesting result is not the number:
+
+**Not one of the 63 needed a distance field anyone had to invent.**
+
+| What | How many | Why it was missing |
+|---|---|---|
+| `spin`, `orient` | 38 | Never written. A rotation about Z and a rotation of +Z onto a direction are exact in a field. |
+| `center` | 11 | Not a shape option — `anchor` spelled as a boolean. |
+| alias forwarding | 14 | `cube` is `cuboid`; `cylinder` and `zcyl` are `cyl`. Each SDF alias had its own field and passed nothing on. |
+
+`_place(shape, offset, spin, orient)` applies the three in the order `_finish3` does on the CSG
+side, and every SDF constructor's tail now goes through it. Nine of them declared `spin`/`orient`
+and ignored them in the first pass — caught by `ruff`'s ARG001, the same silent no-op T39 had just
+fixed in the bottle caps, which is the argument for keeping that rule on.
+
+**113 remain and they are the honest ones**: the cylinder family's `texture`/`tex_*` (a textured
+field is not a mesh with a texture applied to it, so B-5 forbids the cheap route), and the chamfer
+geometry variants `chamfer_angle`, `from_end`, `extra`, `clip_angle`, `teardrop`.
+
+### What writing the tests found
+
+**Three defects in `shift=`, every one of which a symmetric test case would have passed.**
+
+1. The SDF backend sheared from the **bottom face** where CSG shears about the **mid-plane**
+   (`x' = x + shift_x * z / length`, on a cylinder spanning `-h/2 .. h/2`), so it built the same
+   lean half a shift from where CSG built it. The *relative* offset — the thing the option is
+   defined as, and the thing anyone would check — was correct.
+2. The reported box was widened by the **whole** shift at **both** ends, when each end disc slides
+   half a shift and carries its own radius: a 10-wide solid reported 13 wide.
+3. `_AXIS_LEAN`, which carries `shift` through the rotation that turns a `cyl` into an `xcyl`, had
+   **every sign inverted** in its first version. `shift=[3, 3]` on a symmetric cone passes with the
+   signs backwards. Every case in the tests is asymmetric for that reason.
+
+**And the negative controls found that a bounds comparison can only see two of the three.** An SDF
+shape's `bounds()` is the box it *declares*, not a measurement of its field: putting defect 1 back
+moves the geometry three units and leaves the reported box — and the cross-backend bounds test —
+untouched. Closing it took a test that asks the *field* where the material is, sampling either side
+of each end disc through the numeric mock. That is a limit on how far a bounds comparison can reach
+on this backend generally, not a fact about `shift`, and it is the reason every guard in this
+session gets its defect planted rather than being trusted because it passes.
+
+**And `center=` was written in eleven places, in three spellings and two contradicting
+precedences.** BOSL2's rule is `anchor = center==true ? CENTER : center==false ? uncentred :
+anchor` — `center` wins. Seven sites do that (six through a private helper, one spelling it out).
+The other four spelled it inline as `use_anchor = anchor; if use_anchor is None: ...`, which lets
+`anchor` win — **while their own docstrings said "center: if given, overrides anchor"**. `cyl(height=10, radius=5, anchor=TOP, center=False)` sat on its top
+face with the documentation beside it saying it would sit on the bottom one. That is E-5's silent
+wrong answer, and it survived because the rule had no single home to be right in.
+
+It has one now: `pybosl2.groups.resolve_center_anchor`. `centred` and `uncentred` are named at each
+call site rather than defaulted, because the CSG backend anchors with `Anchor` members and the SDF
+backend with the raw direction vectors of `pybosl2/sdf/_constants.py` — that vocabulary was the
+only thing that ever differed between the two, which is why one function can serve both.
+
+### Two more the guards caught on the way
+
+**A test asserted the `shift` defect as correct behaviour** — the fourth this session.
+`test_oblique_cone_top_lands_at_shift` required the top to land at the *full* shift with the bottom
+left on the axis, which is what the SDF backend did and what CSG has never done. It is
+`test_the_ends_slide_half_a_shift_each_way` now.
+
+**B-9's no-op carve-out was dropping a request.** A falsy value is normally nothing to honour —
+`prismoid(rounding=0)` is "no rounding", and refusing it turned `RingHook` away from the SDF
+backend for nothing. But where the façade's default is `True`, `False` is the caller turning
+something *off*: `cuboid(trimcorners=False)` leaves the chamfer running past the corners, and the
+SDF backend trims them regardless. It was being dropped in silence — the wrong answer arriving
+*through* the guard against false alarms rather than around it. `_is_no_op` now takes the façade's
+default and only calls a falsy value nothing when the default is falsy too. Two parameters in the
+whole façade have a truthy default a backend lacks, and both of them are this one.
+
+**And `spin=` had been this rule's worked example.** `test_an_argument_the_backend_cannot_honour_is_
+refused_not_dropped` used `cube(10, spin=45)` as its CSG-only option; T40 built it, so the test
+needed a gap that is still a gap (`cuboid(p1=, p2=)`). Worth noting because the example was
+carrying an implicit claim — that `spin` was CSG-only — which was never true. It was unwritten.
+
+### Recorded rather than fixed
+
+A shape that is **round about Z reports a looser box after a spin that cannot move it**:
+`sphere(spin=30)` says 27.3 across where it is still 20. `PyShape.rotate` recomputes the bound as
+the axis-aligned box of the rotated *corner box* — exact for a cuboid, loose for a disc. The field
+is untouched: rotating `|p| − r` gives back `|p| − r`, and only the stored bound grew. It is
+pre-existing in `rotate` and became reachable when spin reached these shapes (S-2b).
+
+`ROUND_ABOUT_Z` lists them and `test_a_spin_about_z_leaves_a_round_shape_where_it_was` fails when
+the list goes stale, so a shape comes off it rather than sitting there as an excuse. Fixing it
+means giving `rotate` a bound that tracks the shape rather than its corner box, which is its own
+task and touches every rotated shape, not just these.
 
 
 ## Keeping this file honest

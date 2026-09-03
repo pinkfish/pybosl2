@@ -1,6 +1,6 @@
 # SDF ↔ CSG Backend Compatibility
 
-**Status:** current as of the T11 sweep (checked against the code, not from memory). This document
+**Status:** current as of the T40 sweep (checked against the code, not from memory). This document
 describes *where the two backends still differ*. It is not the authority on what is exclusive — [`CSG_ONLY_FEATURES` and
 `SDF_ONLY_FEATURES` in `pybosl2/_backend.py`](../../pybosl2/_backend.py) are (SPEC PAR-3), and
 `tests/test_backend_parity.py` fails if either list drifts from the implementations.
@@ -31,11 +31,21 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
 1. **Distribution on 2-D SDF shapes.** `SdfSolid` has `_distribute` and the whole copier surface
    (`xcopies`, `ycopies`, `distribute_on_path`, …); `PyShape2D` has none of it, so a 2-D field
    cannot be laid out the way a 2-D CSG shape can.
-2. **Parts have no SDF form.** All 53 build CSG directly. Under `use_backend("sdf")` they refuse
-   with `UnsupportedByBackendError` — a tracked refusal rather than a silent CSG shape, which is
-   what SPEC S-46a asks for today — but closing the gap means expressing the ones that can be
-   (simple prisms, bearings, hoses) through the façade (SPEC §12.2 item 4).
-3. **`pie_slice` bounds.** The SDF wedge stores the full disc's bounding box, so `bounds()`
+2. **Eleven parts have no SDF form.** 40 of the 51 build on either backend (T14). The eleven that
+   refuse all need the same thing — a non-convex mesh, which has no closed-form distance field —
+   so closing this fully would mean approximating one, which SPEC B-5 forbids. The refusal is
+   tracked rather than a silent CSG shape, which is what S-46a asks for (SPEC §12.2 item 2).
+   *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
+   about: the total double-counted an alias and the claim had not been rerun since parts were
+   ported.*
+3. **113 options one backend takes and the other does not.** Parity is measured per option, not
+   per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
+   named rather than dropped (B-9). What remains after T40 is the cylinder family's
+   `texture`/`tex_*` — a textured *field*, not a mesh with a texture applied, so B-5 rules out the
+   cheap route — and the chamfer geometry variants `chamfer_angle`, `from_end`, `extra`,
+   `clip_angle` and `teardrop`. The 63 T40 closed were not like these: `spin`, `orient`, `center`
+   and a set of aliases that had stopped forwarding what they alias (SPEC §12.2 item 10).
+4. **`pie_slice` bounds.** The SDF wedge stores the full disc's bounding box, so `bounds()`
    over-reports on the backend whose selling point is exact bounds.
    `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it (SPEC PAR-5).
 

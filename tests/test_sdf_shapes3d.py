@@ -525,12 +525,21 @@ class TestMirror:
 
 
 class TestCylShift:
-    def test_oblique_cone_top_lands_at_shift(self) -> None:
+    def test_the_ends_slide_half_a_shift_each_way(self) -> None:
+        """`shift` is the far end's offset *relative to* the near one, about the mid-plane.
+
+        This asserted the defect until T40: it required the top to land at the full `shift` with
+        the bottom left on the axis, which is what the SDF backend did and what CSG has never
+        done. CSG shears with `x' = x + shift_x * z / length` on a cylinder spanning
+        `z = -h/2 .. h/2`, so the bottom slides to `-shift/2` and the top to `+shift/2`. Both
+        conventions give the same *relative* offset -- the thing `shift` is defined as, and the
+        thing this test was checking -- while placing the whole solid three units apart (PAR-5).
+        """
         shape = sdf_s3d.cyl(height=10, radius1=4, radius2=2, shift=[6, 0]).mesh()
-        assert shape.sample(0, 0, -4.9) < 0, "bottom center solid"
-        assert shape.sample(6, 0, 4.9) < 0, "top center slid to x=6"
-        assert shape.sample(0, 0, 4.9) > 0, "original top center now empty"
-        assert shape.sample(6, 0, 5.1) > 0, "above the top face"
+        assert shape.sample(-3, 0, -4.9) < 0, "bottom center slid to x=-3"
+        assert shape.sample(3, 0, 4.9) < 0, "top center slid to x=+3"
+        assert shape.sample(6, 0, 4.9) > 0, "the top slid the whole shift, not half of it"
+        assert shape.sample(3, 0, 5.1) > 0, "above the top face"
 
     def test_shift_rejects_rounding(self) -> None:
         with pytest.raises(ValueError, match="shift= cannot be combined"):

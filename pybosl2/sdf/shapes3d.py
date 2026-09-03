@@ -30,10 +30,11 @@ from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.groups import resolve_center_anchor
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.paths import require_path
-from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
+from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT, TOP
 from pybosl2.sdf._libfive import LVTree, lv
 from pybosl2.sdf.edges import (
     _anchor_offset_box3,
@@ -69,6 +70,57 @@ if TYPE_CHECKING:
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
     from pybosl2.vnf import VNF
+
+
+def _place(
+    shape: PyShape,
+    offset: "Sequence[float]",
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
+) -> PyShape:
+    """Anchor, spin and orient a freshly built field, in the order the CSG backend uses.
+
+    SPEC PAR-4 asks for the same *options* on both backends, not just the same shapes, and `spin`
+    and `orient` were missing from every SDF constructor -- 38 of the 176 gaps the option-parity
+    check found. They are pure placement: a rotation about Z and a rotation of +Z onto the
+    requested direction, which a distance field expresses exactly. Nothing about F-Rep made them
+    hard; they had simply never been written.
+
+    The order matches `pybosl2.shapes3d.base._finish3` -- offset, then spin, then orient -- because
+    PAR-5 requires an identical call to place a shape identically on either backend, and these
+    three do not commute.
+
+    Args:
+        shape: The field just built, centred on the origin.
+        offset: The anchor offset to translate by.
+        spin: Rotation about Z in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
+
+    Returns:
+        The placed shape.
+
+    """
+    if any(offset):
+        shape = shape.translate([float(v) for v in offset])
+    if spin:
+        shape = shape.rotate(float(spin), [0, 0, 1])
+    direction = list(orient.vector) if isinstance(orient, Anchor) else [float(v) for v in orient]
+    if direction == [0.0, 0.0, 1.0]:
+        return shape
+    if direction == [0.0, 0.0, -1.0]:
+        return shape.rotate(180.0, [1, 0, 0])
+    axis = [
+        0.0 * direction[2] - 1.0 * direction[1],
+        1.0 * direction[0] - 0.0 * direction[2],
+        0.0 * direction[1] - 0.0 * direction[0],
+    ]
+    scale = math.sqrt(sum(v * v for v in axis))
+    if scale < 1e-12:
+        return shape
+    axis = [v / scale for v in axis]
+    unit_z = direction[2] / math.sqrt(sum(v * v for v in direction))
+    angle = math.degrees(math.acos(max(-1.0, min(1.0, unit_z))))
+    return shape.rotate(angle, axis)
 
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
@@ -1812,6 +1864,8 @@ def cuboid(
     except_edges: list[EdgeAtom] | None = None,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
 ) -> PyShape:
     """Return a cuboid with optional per-edge rounding or chamfering as a libfive SDF.
 
@@ -1837,6 +1891,8 @@ def cuboid(
         res: libfive meshing resolution passed to frep() (default 10; higher = finer mesh). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
         anchor:       anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
 
     Examples:
         .. pythonscad-example::
@@ -1890,9 +1946,7 @@ def cuboid(
                         mx[hperp] = max(mx[hperp], half[hperp] + r)
         shape = PyShape(sdf_fn, mn, mx, res)
         offset = _anchor_offset_box3(sz, [int(a) for a in anchor])
-        if offset[0] or offset[1] or offset[2]:
-            shape = shape.translate(offset)
-        return shape
+        return _place(shape, offset, spin, orient)
     mode = EdgeMode.CHAMFER if chamfer else EdgeMode.ROUND
     amount = chamfer if chamfer else rounding
     amounts, modes = _edge_matrices(amount, edge_set, mode)
@@ -1907,21 +1961,49 @@ def cuboid(
         cuboid_edge_modes=modes,
     )
     offset = _anchor_offset_box3(sz, [int(a) for a in anchor])
-    if offset[0] or offset[1] or offset[2]:
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
-def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
-    """Return a cube, as a plain (unrounded) libfive SDF. See cuboid() for rounding/chamfering.
+def cube(
+    size: float | list[float] = 1,
+    rounding: float = 0,
+    chamfer: float = 0,
+    edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
+    except_edges: "list[EdgeAtom] | None" = None,
+    center: bool | None = None,
+    anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
+    res: int = 10,
+) -> PyShape:
+    """Return a cube as a libfive SDF -- :func:`cuboid` with one size, and the same edge options.
 
     Args:
         size: size of the cube, a number or length-3 vector.
+        rounding: Rounding radius for the edges, as :func:`cuboid` builds it.
+        chamfer: Chamfer size for the edges, as :func:`cuboid` builds it.
+        edges: Which edges to treat; the whole edge language :func:`cuboid` accepts.
+        except_edges: Which edges to leave alone.
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on FRONT+LEFT+BOTTOM (SPEC B2-3).
         anchor: anchor point (default Anchor.CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
-    return cuboid(size=size, anchor=anchor, res=res)
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=FRONT + LEFT + BOTTOM)
+    return cuboid(
+        size=size,
+        rounding=rounding,
+        chamfer=chamfer,
+        edges=edges,
+        except_edges=except_edges,
+        anchor=anchor,
+        spin=spin,
+        orient=orient,
+        res=res,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1929,12 +2011,20 @@ def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res:
 # ---------------------------------------------------------------------------
 
 
-def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
+def octahedron(
+    size: float = 1,
+    anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
+    res: int = 10,
+) -> PyShape:
     """Return an octahedron with axis-aligned points (`|x|+|y|+|z| <= size/2`), as a libfive SDF.
 
     Args:
         size: A scalar (circumscribed cube edge) or ``(dx, dy, dz)`` tuple.
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
@@ -1943,9 +2033,7 @@ def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 1
     shape = PyShape(sdf_fn, [-s, -s, -s], [s, s, s], res)
     pts = [[s, 0, 0], [-s, 0, 0], [0, s, 0], [0, -s, 0], [0, 0, s], [0, 0, -s]]
     offset = _anchor_offset_hull3(pts, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def _axis_aligned_box(shape: PyShape) -> "tuple[list[float], list[float]] | None":
@@ -2273,18 +2361,26 @@ def convex_polyhedron(points: "Path3D", res: int = 10) -> PyShape:
 
 def wedge(
     size: list[float] | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float] | None" = None,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, as a libfive SDF.
 
     Args:
         size:   [width, thickness, height]
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on FRONT+LEFT+BOTTOM (SPEC B2-3).
         anchor: anchor point (default FRONT+LEFT+BOTTOM, matching pybosl2.shapes3d.wedge())
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
             value applies.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=FRONT + LEFT + BOTTOM)
     if size is None:
         size = [1, 1, 1]
     if anchor is None:
@@ -2311,15 +2407,15 @@ def wedge(
         [-bx, -by, bz],
     ]
     offset = _anchor_offset_hull3(pts, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def sphere(
     radius: float | None = None,
     diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a sphere, as a libfive SDF (`length(p) - r`).
@@ -2328,6 +2424,8 @@ def sphere(
         radius: Sphere radius (mutually exclusive with *diameter*).
         diameter: Sphere diameter.
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     Examples:
@@ -2342,15 +2440,15 @@ def sphere(
     sdf_fn = lambda x, y, z: lv.sqrt(x * x + y * y + z * z) - rad  # noqa: E731
     shape = PyShape(sdf_fn, [-rad, -rad, -rad], [rad, rad, rad], res)
     offset = _anchor_offset_sphere(rad, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def spheroid(
     radius: float | None = None,
     diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return an approximate sphere as a libfive SDF.
@@ -2362,11 +2460,13 @@ def spheroid(
         radius: radius of the spheroid.
         diameter: diameter of the spheroid.
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
 
     """
-    return sphere(radius=radius, diameter=diameter, anchor=anchor, res=res)
+    return sphere(radius=radius, diameter=diameter, anchor=anchor, spin=spin, orient=orient, res=res)
 
 
 def torus(
@@ -2378,7 +2478,10 @@ def torus(
     inner_radius: float | None = None,
     outer_diameter: float | None = None,
     inner_diameter: float | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a torus (donut) shape, as a libfive SDF.
@@ -2398,7 +2501,11 @@ def torus(
         inner_radius: inside radius of the torus (use with outer_radius or outer_diameter)
         outer_diameter: outer diameter of the torus (use with inner_radius or inner_diameter)
         inner_diameter: inside diameter of the torus (use with outer_radius or outer_diameter)
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     Examples:
@@ -2409,6 +2516,7 @@ def torus(
             shape.show()
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     _ir = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
     _r_maj = _pick_radius(radius=major_radius, diameter=major_diameter, dflt=None)
@@ -2443,9 +2551,7 @@ def torus(
     outer = maj + minr
     shape = PyShape(sdf_fn, [-outer, -outer, -minr], [outer, outer, minr], res)
     offset = _anchor_offset_cyl(outer, outer, minr * 2, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 # ---------------------------------------------------------------------------
@@ -2471,10 +2577,15 @@ def _cylinder_sdf(
 ) -> LVTree:
     hb = h / 2
     if shift and (shift[0] or shift[1]):
-        # Oblique cone (BOSL2 cyl(shift=)): the section center slides linearly from [0, 0]
-        # at the bottom to `shift` at the top -- same interpolate-per-height construction
-        # (and the same not-quite-Euclidean-but-zero-set-correct caveat) as prismoid().
-        t = (z + hb) / h
+        # Oblique cone (BOSL2 cyl(shift=)): `shift` is the offset of the top section's centre
+        # *relative to the bottom's*, and the shear is taken about the mid-plane -- the bottom
+        # slides by -shift/2 and the top by +shift/2, which is what the CSG backend's shear
+        # matrix (`x' = x + shift_x * z / length`, on a cylinder spanning z = -h/2..h/2) does.
+        # Measuring t from the bottom face instead put the whole solid half a shift off from the
+        # CSG one for the same call: the relative offset was right and the placement was not
+        # (SPEC PAR-5). Same interpolate-per-height construction, and the same
+        # not-quite-Euclidean-but-zero-set-correct caveat, as prismoid().
+        t = z / h
         x = x - shift[0] * t
         y = y - shift[1] * t
     rxy = _lv_hypot(x, y)
@@ -2528,38 +2639,72 @@ def cylinder(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    anchor: "Sequence[float]" = CENTER,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    shift: list[float] | None = None,
+    anchor: "Sequence[float] | None" = None,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering.
+    """Return a cylinder or cone as a libfive SDF -- OpenSCAD's spelling of :func:`cyl`.
+
+    This is an alias, exactly as it is on the CSG backend, where `cylinder()` forwards every
+    argument to `cyl()` and adds nothing. It had its own field here until T40, which is why it
+    silently lacked the rim treatments `cyl` has built all along: `cylinder(rounding=1)` came back
+    "the sdf backend cannot do this" while `cyl(rounding=1)` built it. A second implementation of
+    one shape is a second place for the two backends to drift (SPEC PAR-4, B-3).
 
     Args:
         height: length of the cylinder along its axis (default 1)
         radius1: radius of the negative end of the cylinder.
         radius2: radius of the positive end of the cylinder.
-        center: if given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         length: length of the cylinder along its axis (default 1)
         radius: radius of the cylinder (default 1)
         diameter: diameter of the cylinder.
         diameter1: diameter of the negative end of the cylinder.
         diameter2: diameter of the positive end of the cylinder.
+        chamfer: Chamfer size on the end rims (overall/negative/positive)
+        chamfer1: Chamfer size on the end rims (overall/negative/positive)
+        chamfer2: Chamfer size on the end rims (overall/negative/positive)
+        rounding: Rounding radius on the end rims (overall/negative/positive)
+        rounding1: Rounding radius on the end rims (overall/negative/positive)
+        rounding2: Rounding radius on the end rims (overall/negative/positive)
+        shift: [X,Y] offset of the top section's centre, making an oblique cone.
         anchor: anchor point (default BOTTOM if center=False, otherwise CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
-    length = length if length is not None else (height if height is not None else 1)
-    rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
-    sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2)  # noqa: E731
-    maxr = max(rad1, rad2)
-    shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
-    offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return cyl(
+        height=height,
+        radius=radius,
+        center=center,
+        length=length,
+        radius1=radius1,
+        radius2=radius2,
+        diameter=diameter,
+        diameter1=diameter1,
+        diameter2=diameter2,
+        chamfer=chamfer,
+        chamfer1=chamfer1,
+        chamfer2=chamfer2,
+        rounding=rounding,
+        rounding1=rounding1,
+        rounding2=rounding2,
+        shift=shift,
+        anchor=anchor,
+        spin=spin,
+        orient=orient,
+        res=res,
+    )
 
 
 def cyl(
@@ -2580,6 +2725,8 @@ def cyl(
     rounding2: float | None = None,
     shift: list[float] | None = None,
     anchor: "Sequence[float] | None" = None,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a cylinder/cone with optional rounding or chamfering of its end rims, as a libfive SDF.
@@ -2609,6 +2756,8 @@ def cyl(
         rounding2: rounding radius on the end rims (overall/negative/positive)
         shift: X/Y offset for the positive end (shear) (default [0,0])
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     Examples:
@@ -2645,16 +2794,49 @@ def cyl(
     maxr = max(rad1, rad2)
     mn = [-maxr, -maxr, -length / 2]
     mx = [maxr, maxr, length / 2]
-    if shift is not None:
-        # The top section slides sideways by `shift` -- widen the bounds to cover it.
+    if shift is not None and (shift[0] or shift[1]):
+        # The two end discs slide to -shift/2 and +shift/2, and they have their own radii: the
+        # box is the union of the two, not the plain box widened by the whole shift at both ends.
+        # Widening both ends by `shift` reported a 13-wide box for a solid 10 wide -- a bound, not
+        # the geometry, but a bound wide enough to matter to anything that reads one.
         for i in (0, 1):
-            mn[i] = min(mn[i], mn[i] + shift[i])
-            mx[i] = max(mx[i], mx[i] + shift[i])
+            mn[i] = min(-shift[i] / 2 - rad1, shift[i] / 2 - rad2)
+            mx[i] = max(-shift[i] / 2 + rad1, shift[i] / 2 + rad2)
     shape = PyShape(sdf_fn, mn, mx, res)
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
+
+
+#: How `shift=` maps onto the two non-axial coordinates, per axis. `shift` is stated in the
+#: cylinder's *own* frame -- BOSL2's `xcyl` builds a `cyl` and turns it -- so the pair has to be
+#: carried through that turn: `xcyl` is a 90-degree rotation about Y (local x,y,z -> world z,y,-x)
+#: and `ycyl` is -90 about X (local x,y,z -> world x,z,-y). Each entry gives, for `others[0]` and
+#: `others[1]`, which member of `shift` applies and with what sign -- the signed displacement of
+#: the *far end's section centre* along that coordinate. Written down once, and checked against
+#: the CSG backend with an asymmetric shift on each axis: a sign wrong here is invisible in a
+#: symmetric case, and the first version had every one of them inverted.
+_AXIS_LEAN: dict[int, tuple[tuple[int, float], tuple[int, float]]] = {
+    0: ((1, 1.0), (0, -1.0)),
+    1: ((0, 1.0), (1, -1.0)),
+    2: ((0, 1.0), (1, 1.0)),
+}
+
+
+def _axis_shift(axis: int, shift: "list[float] | None") -> "list[float] | None":
+    """Return `shift` resolved into the two non-axial coordinates, or None if there is no lean.
+
+    Args:
+        axis: 0, 1 or 2 -- the coordinate the cylinder runs along.
+        shift: The ``[X, Y]`` offset of the far end in the cylinder's own frame, or ``None``.
+
+    Returns:
+        The displacement to apply to ``others[0]`` and ``others[1]``, or ``None`` when the
+        cylinder is upright.
+
+    """
+    if shift is None or not (shift[0] or shift[1]):
+        return None
+    return [sign * float(shift[idx]) for idx, sign in _AXIS_LEAN[axis]]
 
 
 def _cyl_axis(
@@ -2675,6 +2857,9 @@ def _cyl_axis(
     rounding2: float | None,
     anchor: "Sequence[float]",
     res: int,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
+    shift: "list[float] | None" = None,
 ) -> PyShape:
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -2687,21 +2872,33 @@ def _cyl_axis(
         raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
+    lean = _axis_shift(axis, shift)
+    if lean is not None and (amt1 or amt2):
+        raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
+
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         coords = [x, y, z]
         axial = coords[axis]
         others = [coords[i] for i in range(3) if i != axis]
+        if lean is not None:
+            t = axial / length
+            others = [o - m * t for o, m in zip(others, lean, strict=True)]
         radial = _lv_hypot(others[0], others[1])
         return _cyl_edge_sdf(axial, radial, length, rad1, rad2, amt1, amt2, mode)
 
     maxr = max(rad1, rad2)
     mn, mx = [-maxr, -maxr, -maxr], [maxr, maxr, maxr]
     mn[axis], mx[axis] = -length / 2, length / 2
+    if lean is not None:
+        # Each end disc slides to its own half of the lean and carries its own radius, exactly as
+        # in `cyl` -- the box is the union of the two, not the upright box widened by the whole
+        # shift at both ends.
+        for k, i in enumerate(i for i in range(3) if i != axis):
+            mn[i] = min(-lean[k] / 2 - rad1, lean[k] / 2 - rad2)
+            mx[i] = max(-lean[k] / 2 + rad1, lean[k] / 2 + rad2)
     shape = PyShape(sdf_fn, mn, mx, res)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=axis)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def xcyl(
@@ -2719,7 +2916,11 @@ def xcyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    shift: list[float] | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a cylinder oriented along the X axis. See cyl() for argument details.
@@ -2739,10 +2940,16 @@ def xcyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     return _cyl_axis(
         0,
         height,
@@ -2761,6 +2968,9 @@ def xcyl(
         rounding2,
         anchor,
         res,
+        spin=spin,
+        orient=orient,
+        shift=shift,
     )
 
 
@@ -2779,7 +2989,11 @@ def ycyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    shift: list[float] | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a cylinder oriented along the Y axis. See cyl() for argument details.
@@ -2799,10 +3013,16 @@ def ycyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     return _cyl_axis(
         1,
         height,
@@ -2821,6 +3041,9 @@ def ycyl(
         rounding2,
         anchor,
         res,
+        spin=spin,
+        orient=orient,
+        shift=shift,
     )
 
 
@@ -2839,10 +3062,14 @@ def zcyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
-    anchor: "Sequence[float]" = CENTER,
+    shift: list[float] | None = None,
+    center: bool | None = None,
+    anchor: "Sequence[float] | None" = None,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
-    """Return a cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details.
+    """Return a cylinder oriented along the Z axis -- an alias for :func:`cyl`, as on CSG.
 
     Args:
         height: Length of the cylinder along its axis (default 1)
@@ -2859,28 +3086,36 @@ def zcyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        shift: [X,Y] offset of the top section's centre, making an oblique cone.
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     """
-    return _cyl_axis(
-        2,
-        height,
-        radius,
-        length,
-        radius1,
-        radius2,
-        diameter,
-        diameter1,
-        diameter2,
-        chamfer,
-        chamfer1,
-        chamfer2,
-        rounding,
-        rounding1,
-        rounding2,
-        anchor,
-        res,
+    return cyl(
+        height=height,
+        radius=radius,
+        center=center,
+        length=length,
+        radius1=radius1,
+        radius2=radius2,
+        diameter=diameter,
+        diameter1=diameter1,
+        diameter2=diameter2,
+        chamfer=chamfer,
+        chamfer1=chamfer1,
+        chamfer2=chamfer2,
+        rounding=rounding,
+        rounding1=rounding1,
+        rounding2=rounding2,
+        shift=shift,
+        anchor=anchor,
+        spin=spin,
+        orient=orient,
+        res=res,
     )
 
 
@@ -2906,7 +3141,10 @@ def tube(
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     length: float | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a hollow cylindrical tube (outer cylinder minus inner cylinder), as a libfive SDF.
@@ -2936,11 +3174,16 @@ def tube(
         chamfer1: chamfer size on end rims (overall/bottom/top)
         chamfer2: chamfer size on end rims (overall/bottom/top)
         length: height of the tube (default 1)
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     length = length if length is not None else (height if height is not None else 1)
     orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, radius=outer_radius, diameter=outer_diameter, dflt=None)
     orr2 = _pick_radius(radius1=outer_r2, diameter1=od2, radius=outer_radius, diameter=outer_diameter, dflt=None)
@@ -2977,9 +3220,7 @@ def tube(
     maxr = max(rad1, rad2)
     shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def _sector_xy_bounds(radius: float, angle: float) -> tuple[float, float, float, float]:
@@ -3015,7 +3256,10 @@ def pie_slice(
     diameter1: float | None = None,
     diameter2: float | None = None,
     length: float | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a pie slice (wedge of a cylinder/cone), as a libfive SDF.
@@ -3035,11 +3279,16 @@ def pie_slice(
         diameter1: diameter of the bottom.
         diameter2: diameter of the top.
         length: height of the pie slice.
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
     rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=10)
@@ -3063,9 +3312,7 @@ def pie_slice(
     # Anchoring stays on the full cylinder, as the CSG pie_slice does: `anchor` names a point on
     # the cylinder the slice was cut from, so the two backends place an anchored slice alike.
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 # ---------------------------------------------------------------------------
@@ -3079,7 +3326,10 @@ def prismoid(
     height: float | None = None,
     shift: list[float] | None = None,
     length: float | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = BOTTOM,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a rectangular prismoid (truncated pyramid), as a libfive SDF.
@@ -3100,11 +3350,16 @@ def prismoid(
         height:    height of the prism
         length:    height of the prism
         shift:  [X,Y] shift of the top center relative to the bottom center
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor: anchor point (default BOTTOM)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
             value applies.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     if shift is None:
         shift = [0, 0]
     height = height if height is not None else (length if length is not None else 1)
@@ -3128,9 +3383,7 @@ def prismoid(
     maxy = max(by1, by2, by1 + abs(shift[1]), by2 + abs(shift[1]))
     shape = PyShape(sdf_fn, [-maxx, -maxy, -hb], [maxx, maxy, hb], res)
     offset = _anchor_offset_box3([maxx * 2, maxy * 2, height], [int(a) for a in anchor])
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 def rect_tube(
@@ -3141,7 +3394,10 @@ def rect_tube(
     rounding: float = 0,
     inner_rounding: float | None = None,
     length: float | None = None,
+    center: bool | None = None,
     anchor: "Sequence[float]" = BOTTOM,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF.
@@ -3160,11 +3416,16 @@ def rect_tube(
         wall:      wall thickness (used with `size` if `isize` isn't given, or vice versa)
         rounding:  outer vertical-edge rounding radius (default: no rounding)
         inner_rounding: inner vertical-edge rounding radius (default: same as `rounding`)
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor:    anchor point (default BOTTOM)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
             value applies.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     length = height if height is not None else (length if length is not None else 1)
     if size is None:
         raise Bosl2ValueError("rect_tube(): needs an outer size -- give size=, or an inner size with a wall.")
@@ -3188,9 +3449,7 @@ def rect_tube(
     half = [sz[0] / 2, sz[1] / 2, length / 2]
     shape = PyShape(sdf_fn, [-half[0], -half[1], -half[2]], half, res)
     offset = _anchor_offset_box3([sz[0], sz[1], length], [int(a) for a in anchor])
-    if any(offset):
-        shape = shape.translate(offset)
-    return shape
+    return _place(shape, offset, spin, orient)
 
 
 # ---------------------------------------------------------------------------
@@ -3204,6 +3463,8 @@ def interior_fillet(
     angle: float = 90,
     diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return an interior-fillet cutter for a corner between two faces meeting at `angle` degrees.
@@ -3222,6 +3483,8 @@ def interior_fillet(
         angle: Angle in degrees between the two faces the fillet sits in.
         diameter: diameter of the fillet.
         anchor: anchor point (default FRONT+LEFT)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
@@ -3243,10 +3506,8 @@ def interior_fillet(
         return lv.max(fillet2d, slab)
 
     shape = PyShape(sdf_fn, [-rad * 2, -hb, -rad * 2], [rad * 2, hb, rad * 2], res)
-    if any(anchor):
-        offset = [-a * b for a, b in zip(anchor, [rad * 2, hb, rad * 2], strict=False)]
-        shape = shape.translate(offset)
-    return shape
+    offset = [-a * b for a, b in zip(anchor, [rad * 2, hb, rad * 2], strict=False)] if any(anchor) else [0.0, 0.0, 0.0]
+    return _place(shape, offset, spin, orient)
 
 
 def rounding_edge_mask(
@@ -3489,6 +3750,8 @@ def teardrop(
     diameter1: float | None = None,
     diameter2: float | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a teardrop shape (useful for 3-D-printable horizontal holes), as a libfive SDF: the.
@@ -3511,6 +3774,8 @@ def teardrop(
         diameter1: diameter of the front end.
         diameter2: diameter of the back end.
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
     Examples:
@@ -3552,14 +3817,16 @@ def teardrop(
     maxr = max(rad1, rad2)
     maxheight = maxr / sin_a if cap_height is None else min(cap_height, maxr / sin_a)
     shape = PyShape(sdf_fn, [-maxr, -hb, -maxr], [maxr, hb, maxheight], res)
-    if any(anchor):
-        offset = [
+    offset = (
+        [
             -anchor[0] * maxr,
             -anchor[1] * hb,
             -anchor[2] * maxheight if anchor[2] > 0 else -anchor[2] * maxr,
         ]
-        shape = shape.translate(offset)
-    return shape
+        if any(anchor)
+        else [0.0, 0.0, 0.0]
+    )
+    return _place(shape, offset, spin, orient)
 
 
 def onion(
@@ -3568,6 +3835,8 @@ def onion(
     cap_height: float | None = None,
     diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return an onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a.
@@ -3582,6 +3851,8 @@ def onion(
         cap_height: height above the sphere center to truncate the shape (default: no truncation)
         diameter: diameter of the spherical portion of the bottom.
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: Sampling resolution; ambient default when omitted (SDF backend). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
 
@@ -3603,14 +3874,16 @@ def onion(
 
     maxheight = rad / sin_a if cap_height is None else min(cap_height, rad / sin_a)
     shape = PyShape(sdf_fn, [-rad, -rad, -rad], [rad, rad, maxheight], res)
-    if any(anchor):
-        offset = [
+    offset = (
+        [
             -anchor[0] * rad,
             -anchor[1] * rad,
             -anchor[2] * maxheight if anchor[2] > 0 else -anchor[2] * rad,
         ]
-        shape = shape.translate(offset)
-    return shape
+        if any(anchor)
+        else [0.0, 0.0, 0.0]
+    )
+    return _place(shape, offset, spin, orient)
 
 
 def heightfield(
@@ -3682,7 +3955,10 @@ def regular_prism(
     chamfer1: float | None = None,
     chamfer2: float | None = None,
     realign: bool = False,
+    center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
+    spin: float = 0,
+    orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
     """Return a regular num_sides-gon prism (equilateral, equiangular cross-section), as a libfive SDF.
@@ -3705,7 +3981,11 @@ def regular_prism(
         inner_diameter:               inner diameter
         side:                         length of each side
         realign:                      rotate so a face centre (not vertex) faces +X (default False)
+        center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
+            it on BOTTOM (SPEC B2-3).
         anchor:                       anchor point (default CENTER)
+        spin: Z-axis rotation in degrees, applied after anchoring.
+        orient: Direction to rotate the shape's top towards, applied last.
         res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
         radius1: Bottom circumradius, for a tapered prism.
         radius2: Top circumradius, for a tapered prism.
@@ -3717,6 +3997,7 @@ def regular_prism(
         chamfer2: End chamfer size at the top, instead of *chamfer*.
 
     """
+    anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     import math as _m
 
     length = length if length is not None else (height if height is not None else 1)
@@ -3791,9 +4072,7 @@ def regular_prism(
         [[p[0], p[1], -length / 2] for p in hull] + [[p[0], p[1], length / 2] for p in hull],
         anchor,
     )
-    if any(offset):
-        prism = prism.translate(offset)
-    return prism
+    return _place(prism, offset, spin, orient)
 
 
 # ---------------------------------------------------------------------------

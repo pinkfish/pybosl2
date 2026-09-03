@@ -52,6 +52,7 @@ __all__ = [
     "EdgeTreatment",
     "EdgeSelection",
     "Texturing",
+    "resolve_center_anchor",
     "resolve_placement",
     "resolve_placement_2d",
     "resolve_edge_treatment",
@@ -287,6 +288,57 @@ class Facets:
             for name, value in (("fn", self.fn), ("fa", self.fa), ("fs", self.fs), ("res", self.res))
             if value is not None
         }
+
+
+#: Every anchor `resolve_center_anchor` sees, as one variable rather than three, so the resolver
+#: hands back exactly the vocabulary it was given: the CSG backend passes `Anchor` members and the
+#: SDF backend passes raw `Vec3` direction vectors, and a return type widened to the union of both
+#: would make every SDF call site fail the checker for an `Anchor` it can never receive.
+_CenterAnchorT = TypeVar("_CenterAnchorT", bound="Anchor | Sequence[float] | None")
+
+
+def resolve_center_anchor(
+    *,
+    center: bool | None,
+    anchor: _CenterAnchorT,
+    centred: _CenterAnchorT,
+    uncentred: _CenterAnchorT,
+) -> _CenterAnchorT:
+    """Fold BOSL2's ``center=`` shorthand into the anchor language (SPEC G-1, B2-3).
+
+    ``center=`` is a placement option wearing a boolean: True means "sit on the origin", False
+    means "sit on the shape's own base". BOSL2 gives it precedence over ``anchor=`` --
+    ``anchor = center==true ? CENTER : center==false ? uncentred : anchor`` -- and this is the one
+    place that rule is written.
+
+    It was written in **eleven** places before T40, in three spellings and *two contradicting
+    precedences*. Seven gave ``center`` precedence, which is right. The other four spelled it
+    inline as ``use_anchor = anchor; if use_anchor is None: use_anchor = CENTER if center is None
+    or center else BOTTOM``, which lets ``anchor`` win — while their own docstrings said "center:
+    if given, overrides anchor". ``cyl(height=10, radius=5, anchor=TOP, center=False)`` sat on its
+    top face, and the documentation next to it said it would sit on the bottom one. That is E-5's
+    silent wrong answer, and it survived because the rule had no single home to be right in.
+
+    Args:
+        center: True for a centred anchor, False for *uncentred*, ``None`` to leave *anchor* be.
+        anchor: The anchor as passed, used only when *center* is ``None``.
+        centred: What ``center=True`` means for this shape.
+        uncentred: What ``center=False`` means -- ``BOTTOM`` for the cylinders,
+            ``BOTTOM_FRONT_LEFT`` for the boxes.
+
+    Both are named at the call site rather than defaulted, because each backend anchors in its own
+    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend
+    passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all
+    three anchors so the resolver hands back exactly what it was given.
+
+    Returns:
+        The anchor to place with. ``None`` propagates, so a constructor whose own default depends
+        on more than this (SPEC D-4) still gets to compute it.
+
+    """
+    if center is not None:
+        return centred if center else uncentred
+    return anchor
 
 
 def resolve_placement(

@@ -30,6 +30,7 @@ from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.groups import resolve_center_anchor
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -38,7 +39,6 @@ from .base import (
     _finish3,
     _ocylinder,
     _osphere,
-    _resolve_center_anchor,
 )
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -306,6 +306,21 @@ def _textured_cyl(
     return _finish3(Bosl2Solid._unwrap(solid), offset, spin, orient)
 
 
+def _cyl_anchor(center: bool | None, anchor: "Anchor | Sequence[float] | None") -> "Anchor | Sequence[float]":
+    """Resolve `center=`/`anchor=` for the cylinder family, which centres when given neither.
+
+    Args:
+        center: The `center=` shorthand as passed.
+        anchor: The anchor as passed, or ``None``.
+
+    Returns:
+        The anchor to place with -- ``CENTER`` when the caller named neither (SPEC D-4).
+
+    """
+    resolved = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
+    return CENTER if resolved is None else resolved
+
+
 def cyl(
     height: float | None = None,
     radius: float | None = None,
@@ -438,9 +453,7 @@ def cyl(
         sc = 1 / math.cos(math.pi / sides)
         rad1 *= sc
         rad2 *= sc
-    use_anchor = anchor
-    if use_anchor is None:
-        use_anchor = CENTER if center is None or center else BOTTOM
+    use_anchor = _cyl_anchor(center, anchor)
 
     if texture is not None and texture != "none":
         return _textured_cyl(
@@ -798,9 +811,7 @@ def xcyl(
         rad1 *= sc
         rad2 *= sc
 
-    use_anchor = anchor
-    if use_anchor is None:
-        use_anchor = CENTER if center is None or center else BOTTOM
+    use_anchor = _cyl_anchor(center, anchor)
 
     shape = cyl(
         length=length_val,
@@ -951,9 +962,7 @@ def ycyl(
         rad1 *= sc
         rad2 *= sc
 
-    use_anchor = anchor
-    if use_anchor is None:
-        use_anchor = CENTER if center is None or center else BOTTOM
+    use_anchor = _cyl_anchor(center, anchor)
 
     shape = cyl(
         length=length_val,
@@ -1270,7 +1279,7 @@ def tube(
         raise Bosl2ValueError("tube(): inner radius is larger than outer radius.")
     if not (irad2 <= rad2):
         raise Bosl2ValueError("tube(): inner radius is larger than outer radius.")
-    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
 
     # Build outer and inner cylinders via cyl() for chamfer/rounding support
     outer = cyl(

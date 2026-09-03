@@ -1570,27 +1570,6 @@ def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[f
     return math.degrees(math.acos(diameter)), axis
 
 
-def _resolve_center_anchor(
-    center: bool | None,
-    anchor: "Anchor | Sequence[float]",
-    default_if_false: "Anchor | Sequence[float]",
-) -> "Anchor | Sequence[float]":
-    """Normalize center= to an anchor value.
-
-    Args:
-        center: If True, returns CENTER; if False, returns *default_if_false*.
-        anchor: The anchor to return when *center* is None.
-        default_if_false: The anchor to use when center=False.
-
-    Returns:
-        The resolved anchor.
-
-    """
-    if center is not None:
-        return Anchor.CENTER if center else default_if_false
-    return anchor
-
-
 def _finish3(
     shape: PyOpenSCAD,
     offset: Sequence[float],

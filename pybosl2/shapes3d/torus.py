@@ -28,6 +28,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BOTTOM, DOWN
 from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.groups import resolve_center_anchor
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -35,7 +36,6 @@ from .base import (
     _anchor_offset_cyl,
     _finish3,
     _ocylinder,
-    _resolve_center_anchor,
 )
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -114,7 +114,7 @@ def pie_slice(
     length = height if height is not None else (length if length is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
     rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=10)
-    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=BOTTOM)
 
     base = _ocylinder(
         height=length,
@@ -230,7 +230,7 @@ def torus(
             "inner_radius/inner_diameter or outer_radius/outer_diameter alongside the major radius."
         )
 
-    use_anchor = _resolve_center_anchor(center, anchor, DOWN)
+    use_anchor = resolve_center_anchor(center=center, anchor=anchor, centred=Anchor.CENTER, uncentred=DOWN)
 
     sides = _frag_count(min_rad, fn, fa, fs)
     profile = _arc_points(sides, min_rad, 0, 360, [maj_rad, 0.0], endpoint=False)
