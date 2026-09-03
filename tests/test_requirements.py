@@ -20,7 +20,9 @@ Guarded here:
 * every requirement in the prose is in the registry and vice versa, until ``docs/_reqgen.py``
   (T27) replaces this with the stronger generated-file check ``_covgen.py`` already uses;
 * every id cited in the package or the tests resolves;
-* the untriaged backlog only shrinks.
+* the untriaged backlog only shrinks -- it is empty since T38, so the rule now reads "a new
+  requirement says what checks it before it lands";
+* an `unenforced` or `reviewed` requirement says *why*, so the gap is legible rather than a status.
 """
 
 from __future__ import annotations
@@ -44,10 +46,10 @@ CITATION = re.compile(rf"\b(SPEC|PLAN)[ -]({ID})\b")
 
 VALID_STATUS = frozenset({"enforced", "reviewed", "unenforced", "untriaged", "withdrawn"})
 
-#: How many requirements nobody has triaged yet. This number only ever goes down: triage means
-#: reading the candidate test and deciding whether it guards the rule, then recording the answer.
-#: 263 requirements were migrated from the prose in T26; the count falls as each is triaged.
-UNTRIAGED_BUDGET = 250
+#: How many requirements nobody has triaged yet. **Zero**, since T38. It stays as a ratchet: a new
+#: requirement arrives `untriaged` and has to be decided before it can land, which is the point --
+#: writing a rule and saying nothing about what checks it is how 250 of them accumulated.
+UNTRIAGED_BUDGET = 0
 
 
 def _registry() -> list[dict[str, Any]]:
@@ -184,11 +186,47 @@ def test_the_untriaged_backlog_only_shrinks() -> None:
     """
     untriaged = [entry["id"] for entry in REQUIREMENTS if entry["status"] == "untriaged"]
     assert len(untriaged) <= UNTRIAGED_BUDGET, (
-        f"{len(untriaged)} untriaged requirements, budget {UNTRIAGED_BUDGET}: "
-        f"triage adds no rules, so this number cannot grow"
+        f"{len(untriaged)} untriaged requirements, budget {UNTRIAGED_BUDGET}: {untriaged}. "
+        f"A new rule has to say what checks it -- name the test and mark it `enforced`, or say "
+        f"`reviewed`/`unenforced` with the reason. Writing the rule and saying nothing is how "
+        f"250 of these accumulated."
     )
     if len(untriaged) < UNTRIAGED_BUDGET:
         pytest.fail(
             f"{len(untriaged)} untriaged, budget {UNTRIAGED_BUDGET} -- lower UNTRIAGED_BUDGET to "
             f"{len(untriaged)} so the backlog cannot grow back"
         )
+
+
+#: How many requirements nothing checks. Each carries a `note` saying what is missing, so this is
+#: a work list rather than a status. It only shrinks: writing the guard removes one, and a rule
+#: that stops being checked has to be argued for rather than quietly downgraded.
+UNENFORCED_BUDGET = 19
+
+
+def test_the_unenforced_list_only_shrinks() -> None:
+    """The honest measure of how much of this project's contract nothing checks.
+
+    250 requirements were untriaged until T38; the triage found 186 already guarded by a test that
+    walks the package, 46 that are review judgements no test can make, and 18 that are mechanically
+    checkable and simply unchecked. Those 18 -- plus SPEC-A-6's predecessor -- are this number, and
+    each one's `note` says what the missing guard would do.
+    """
+    unenforced = sorted(e["id"] for e in REQUIREMENTS if e["status"] == "unenforced")
+    assert len(unenforced) <= UNENFORCED_BUDGET, (
+        f"{len(unenforced)} unenforced requirements, budget {UNENFORCED_BUDGET}: {unenforced}. "
+        f"A rule that was checked and is not any more needs its guard back, not a lower status."
+    )
+    if len(unenforced) < UNENFORCED_BUDGET:
+        pytest.fail(
+            f"{len(unenforced)} unenforced, budget {UNENFORCED_BUDGET} -- lower UNENFORCED_BUDGET "
+            f"to {len(unenforced)} so the gap cannot reopen."
+        )
+
+
+def test_every_unenforced_requirement_says_what_is_missing() -> None:
+    """An `unenforced` status without a reason is just a shrug with a label on it."""
+    silent = sorted(
+        e["id"] for e in REQUIREMENTS if e["status"] in ("unenforced", "reviewed") and not e.get("note", "").strip()
+    )
+    assert not silent, f"these say nothing about why nothing checks them: {silent}"
