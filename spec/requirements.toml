@@ -2223,14 +2223,16 @@ keyword = "MUST"
 statement = '''
 Parity is measured per *option*: if the CSG cuboid takes `rounding`, `chamfer`, `edges` and `except_edges`, the SDF cuboid MUST take the same ones with the same selector semantics. The **façade** spelling is identical on both backends; where a backend's own module spells a parameter differently, the difference MUST be declared in one central translation table rather than leaking into the façade. The only sanctioned backend-specific control is the resolution knob (`fn`/`fa`/`fs` vs `res`).
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_option_parity.py::test_no_shape_grows_its_option_gap",
+]
 candidates = [
     "tests/test_partitions.py::test_partition_returns_two_pieces",
     "tests/test_sdf_flat_parity.py::test_minkowski_refuses_and_names_the_thing_that_does_work",
 ]
-status = "unenforced"
+status = "enforced"
 note = '''
-Parity is measured per *shape*, not per *option*: the matrix builds the same shapes on both backends but nothing walks the two constructors' parameter lists and compares them. B-9 covers the caller-facing half (an unhonoured argument raises).
+The two backends' constructors are compared option by option. 176 options the SDF backend lacks are honest parity debt -- refused with the parameter named (B-9) -- and ratcheted per shape. The other half has no budget: a *rename* is not a capability gap, and one left out of the translation table surfaces as "the sdf backend cannot do this" when it can. `tube(outer_radius1=8)` built on CSG and refused on SDF, whose `outer_r1` is the same option, and a test asserted that refusal as correct behaviour.
 '''
 
 [[requirement]]

@@ -833,9 +833,17 @@ every exported callable it flags `slerp(a, b, t)`, which is three operands and n
 with two parameters too many. The check covers callables that return geometry, which is the frame
 the rule argues in and what its own examples are.
 
-**Three remain**, and they are work rather than missing checks: textures beyond the cylinder family
-(S-35 — T37's own remainder), parity measured per option rather than per shape (PAR-4), and "every
-new callable arrives with three tests" (X-3), which is a reviewer's count. `UNENFORCED_BUDGET` is 3.
+**S-35 and PAR-4 followed, and both found live defects.** S-35's was a bottle cap that accepted a
+texture style and built a plain wall. PAR-4's was sharper: the two backends' *shapes* had been
+compared since the matrix was written, and their *options* never — so 176 options one backend has
+and the other lacks were invisible, and `tube(outer_radius1=8)` **built on CSG and refused on SDF**,
+whose `outer_r1` is the same option under another name. A test asserted that refusal as correct
+behaviour. The missing options are honest debt and are ratcheted per shape; a missing *translation*
+is not, and has no budget, because it tells a caller the backend cannot do something it can.
+
+**One remains**, and it is not a missing check: X-3 asks that every new public callable arrive with
+three tests, which is a count a reviewer makes and no scan can — the minimum-argument third of it is
+enforced (Q-4). `UNENFORCED_BUDGET` is 1.
 
 
 ## Keeping this file honest
