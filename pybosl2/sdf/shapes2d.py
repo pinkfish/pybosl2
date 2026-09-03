@@ -353,19 +353,35 @@ class SdfShape2D(Colorable, Distributable):
         return [self.multmatrix(m) for m in mats]
 
     def left(self, x: float) -> PyShape2D:
-        """Move this shape *x* in -X."""
+        """Move this shape *x* in -X.
+
+        Args:
+            x: The X coordinate.
+        """
         return self.translate([-x, 0.0])
 
     def right(self, x: float) -> PyShape2D:
-        """Move this shape *x* in +X."""
+        """Move this shape *x* in +X.
+
+        Args:
+            x: The X coordinate.
+        """
         return self.translate([x, 0.0])
 
     def forward(self, y: float) -> PyShape2D:
-        """Move this shape *y* in -Y."""
+        """Move this shape *y* in -Y.
+
+        Args:
+            y: The Y coordinate.
+        """
         return self.translate([0.0, -y])
 
     def back(self, y: float) -> PyShape2D:
-        """Move this shape *y* in +Y."""
+        """Move this shape *y* in +Y.
+
+        Args:
+            y: The Y coordinate.
+        """
         return self.translate([0.0, y])
 
     def show(self) -> PyShape2D:
@@ -403,6 +419,10 @@ class SdfShape2D(Colorable, Distributable):
 
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
         components must be 0), so migrated call sites keep working unchanged.
+
+        Args:
+            a: The shape or value to combine.
+
         """
         if isinstance(a, (list, tuple)):
             if not (len(a) == 3):
@@ -443,7 +463,11 @@ class SdfShape2D(Colorable, Distributable):
         )
 
     def mirror(self, v: list[float]) -> PyShape2D:
-        """Mirror across the line through the origin whose NORMAL is `v` (native convention)."""
+        """Mirror across the line through the origin whose NORMAL is `v` (native convention).
+
+        Args:
+            v: The vector.
+        """
         nx, ny = float(v[0]), float(v[1])
         nlen = math.hypot(nx, ny)
         nx, ny = nx / nlen, ny / nlen
@@ -568,6 +592,10 @@ class SdfShape2D(Colorable, Distributable):
         nests one lambda per piece, so composing hundreds of pieces (a dense tiling, say)
         overflows Python's recursion limit when the SDF is finally evaluated -- the tree keeps
         the evaluation depth at log2(n) instead.
+
+        Args:
+            shapes: The shapes to combine.
+
         """
         shapes = list(shapes)
         if not (shapes):
@@ -585,6 +613,11 @@ class SdfShape2D(Colorable, Distributable):
 
         polygon offsetting/self-intersection cleanup. Growth is round-style (matching native
         offset(radius=...)); accepts either the delta= or radius= spelling since they coincide here.
+
+        Args:
+            delta: Offset distance; negative shrinks the outline.
+            radius: The radius.
+
         """
         amount = float(radius if radius is not None else delta)
         fn = self._sdf_fn
@@ -593,7 +626,11 @@ class SdfShape2D(Colorable, Distributable):
         return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
     def outline(self, width: float) -> PyShape2D:
-        """Return the centered outline strip of this shape's boundary: |d| - width/2."""
+        """Return the centered outline strip of this shape's boundary: |d| - width/2.
+
+        Args:
+            width: Width of the drawn line.
+        """
         fn = self._sdf_fn
         new_fn = lambda x, y: lv.abs(fn(x, y)) - width / 2  # noqa: E731
         g = width / 2

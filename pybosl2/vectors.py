@@ -34,6 +34,13 @@ def is_vector(
     """Check if *v* is a list/tuple/ndarray of finite numbers.
 
     Optionally of a given length and/or zero-ness.
+
+    Args:
+        v: The vector.
+        length: Target length to scale the vector to.
+        zero: What to return when the vector has no length.
+        eps: Tolerance below which a component counts as zero.
+
     """
     if isinstance(v, np.ndarray):
         if v.ndim != 1 or v.size == 0:
@@ -58,7 +65,13 @@ def is_vector(
 
 
 def add_scalar(v: Point | Sequence[float] | np.ndarray, s: float) -> np.ndarray:
-    """Return *v* with scalar *s* added to every entry."""
+    """Return *v* with scalar *s* added to every entry.
+
+    Args:
+        v: The vector.
+        s: The scalar to combine with the vector.
+
+    """
     return np.asarray(v, dtype=float) + s
 
 
@@ -70,6 +83,11 @@ def unit(
 
     If *v* has (near) zero length, returns *error* if given, else raises
     ValueError (matching BOSL2's default assert-on-zero-vector behavior).
+
+    Args:
+        v: The vector.
+        error: Raise instead of returning *zero* when the vector has no length.
+
     """
     arr = np.asarray(v, dtype=float)
     sides = float(np.linalg.norm(arr))
@@ -84,5 +102,9 @@ def v_theta(vec: Sequence[float]) -> float:
     """Return the angle in degrees of the 2-D vector *vec*, measured counter-clockwise from +X.
 
     Equivalent to ``math.degrees(math.atan2(vec[1], vec[0]))``.
+
+    Args:
+        vec: The vector.
+
     """
     return math.degrees(math.atan2(vec[1], vec[0]))

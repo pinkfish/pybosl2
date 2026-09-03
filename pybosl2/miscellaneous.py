@@ -120,6 +120,16 @@ def extrude_from_to(
     The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between
     them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.
 
+
+    Args:
+        profile: The cross-section to sweep or extrude.
+        pt1: The first point.
+        pt2: The second point.
+        twist: Total twist in degrees.
+        scale: Scale applied along the extrusion.
+        slices: How many intermediate sections to insert.
+        convexity: Convexity hint for the renderer.
+
     Examples:
         A twisted, tapering column between two points:
 
@@ -275,7 +285,15 @@ def chain_hull(*objects: object) -> Bosl2Solid:
 
 
 def minkowski_difference(base: object, *diffs: object, size: float = 1000, convexity: int = 10) -> Bosl2Solid:
-    """Carve *diffs* out of the surface of *base*."""
+    """Carve *diffs* out of the surface of *base*.
+
+    Args:
+        base: The shape to carve out of.
+        *diffs: The shapes to subtract from its surface.
+        size: The size, one number or one per axis.
+        convexity: Convexity hint for the renderer.
+
+    """
     _ = (size, convexity)
     from pythonscad import cube as _cube
     from pythonscad import minkowski as _mink
@@ -328,6 +346,14 @@ class Extrudable:
         3-D "moulding" that follows the path. *caps* rounds the two open ends (the profile must be
         symmetric across the Y axis); *closed* joins the ends into a loop; *s* is the internal mask
         size (defaults to the path's bounding-box diagonal).
+
+        Args:
+            profile: The cross-section to sweep or extrude.
+            caps: Close the open ends.
+            closed: Treat the path as closed.
+            s: The scale factor.
+            convexity: Convexity hint for the renderer.
+
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -401,6 +427,12 @@ class Extrudable:
         between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps
         :func:`~pybosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary
         native 2-D object (text, multi-part shapes) that is not a single polygon.
+
+        Args:
+            profile: The cross-section to sweep or extrude.
+            convexity: Convexity hint for the renderer.
+            clipsize: Size of the clipping box used to trim the result.
+
         """
         from pythonscad import cube as _cube
 

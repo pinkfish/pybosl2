@@ -283,27 +283,57 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     # ---- 3-D directional overrides (use 3-vectors) -------------------------
 
     def right(self, x: float) -> "Bosl2Solid":
-        """Move the solid to the right."""
+        """Move the solid to the right.
+
+        Args:
+            x: The X coordinate.
+
+        """
         return self.translate([x, 0.0, 0.0])
 
     def left(self, x: float) -> "Bosl2Solid":
-        """Move the solid to the left."""
+        """Move the solid to the left.
+
+        Args:
+            x: The X coordinate.
+
+        """
         return self.translate([-x, 0.0, 0.0])
 
     def back(self, y: float) -> "Bosl2Solid":
-        """Move the solid to the back."""
+        """Move the solid to the back.
+
+        Args:
+            y: The Y coordinate.
+
+        """
         return self.translate([0.0, y, 0.0])
 
     def forward(self, y: float) -> "Bosl2Solid":
-        """Move the solid forward."""
+        """Move the solid forward.
+
+        Args:
+            y: The Y coordinate.
+
+        """
         return self.translate([0.0, -y, 0.0])
 
     def up(self, z: float) -> "Bosl2Solid":
-        """Move the solid up."""
+        """Move the solid up.
+
+        Args:
+            z: The Z coordinate.
+
+        """
         return self.translate([0.0, 0.0, z])
 
     def down(self, z: float) -> "Bosl2Solid":
-        """Move the solid down."""
+        """Move the solid down.
+
+        Args:
+            z: The Z coordinate.
+
+        """
         return self.translate([0.0, 0.0, -z])
 
     # ---- native-only mesh operations (no BOSL2 equivalent) ----
@@ -348,6 +378,11 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """Pull the part of the solid on the +*direction* side apart by.
 
         *distance*, stretching the material between (native ``pull()``).
+
+        Args:
+            direction: Which way to measure or travel.
+            distance: How far.
+
         """
         return self._wrap(self.shape.pull([float(x) for x in direction], float(distance)))
 
@@ -355,6 +390,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """Subdivide every mesh facet *sides*-fold, e.g. before :meth:`wrap`.
 
         so the bend is smooth (native ``oversample()``).
+
+
+        Args:
+            sides: Number of sides.
 
         Examples:
             .. pythonscad-example::
@@ -372,7 +411,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         return [self._wrap(part) for part in self.shape.separate()]
 
     def inside(self, point: "Sequence[float] | np.ndarray") -> bool:
-        """Return True if *point* lies inside the solid (native ``inside()``)."""
+        """Return True if *point* lies inside the solid (native ``inside()``).
+
+        Args:
+            point: The point to measure to.
+
+        """
         return bool(self.shape.inside([float(x) for x in point]))
 
     # ---- hull / projection ----
@@ -404,6 +448,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         With ``cut=True`` you get the cross-section where the solid crosses the z=0 plane instead
         of the full outline -- slice the solid at the height you want first.
+
+
+        Args:
+            cut: Take the cross-section at z=0 rather than the silhouette.
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight back into the
@@ -704,6 +752,12 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         then :meth:`bounds` and the anchor points derived from it describe the PARENT only,
         so chained anchoring stays keyed to the parent rather than drifting as children are
         added. Call :meth:`realize` yourself if you need a single measurable solid sooner.
+
+
+        Args:
+            anchor: Anchor point.
+            child: The shape to attach.
+            bbox: Bounding box to anchor against, instead of the shape's own.
 
         Examples:
         .. pythonscad-example::
@@ -1357,6 +1411,10 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.
 
         Uses the native bounding box, so it is exact and fast.
+
+        Args:
+            excess: Extra length so a cutter reaches past the solid it trims.
+
         """
         from pybosl2.shapes3d.cuboid import cuboid
 
@@ -1448,7 +1506,13 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         return _chain_hull(self, *others)
 
     def minkowski_difference(self, *diffs: object, size: float = 1000) -> "Bosl2Solid":
-        """Carve *diffs* out of this solid's surface."""
+        """Carve *diffs* out of this solid's surface.
+
+        Args:
+            *diffs: The shapes to subtract from this one.
+            size: The size, one number or one per axis.
+
+        """
         from pybosl2.miscellaneous import minkowski_difference as _minkowski_difference
 
         return _minkowski_difference(self, *diffs, size=size)

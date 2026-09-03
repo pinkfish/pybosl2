@@ -70,7 +70,12 @@ class ThreadPitches:
     super_fine: float | None = None
 
     def pitch(self, thread: ThreadPitchClass = ThreadPitchClass.COARSE) -> float:
-        """Return the pitch for a thread class, falling back to coarse if it's undefined for this size."""
+        """Return the pitch for a thread class, falling back to coarse if it's undefined for this size.
+
+        Args:
+            thread: The thread pitch class, or a pitch in millimetres.
+
+        """
         if thread == ThreadPitchClass.NONE:
             return self.coarse
         lookup: dict[ThreadPitchClass, float | None] = {

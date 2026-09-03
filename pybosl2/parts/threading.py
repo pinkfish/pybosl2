@@ -73,7 +73,12 @@ class ThreadProfile:
         return max(ys) - min(ys)
 
     def depth_abs(self, pitch: float) -> float:
-        """Absolute peak-to-valley depth (mm) at the given *pitch*."""
+        """Absolute peak-to-valley depth (mm) at the given *pitch*.
+
+        Args:
+            pitch: Thread pitch in millimetres.
+
+        """
         return self.depth * pitch
 
     def as_points(self) -> list[list[float]]:

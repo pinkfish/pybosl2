@@ -98,7 +98,16 @@ def line_copies(
     p2: Point | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return translation matrices evenly spread along a line."""
+    """Return translation matrices evenly spread along a line.
+
+    Args:
+        spacing: Distance between adjacent copies.
+        length: Total length to spread the copies over, instead of *spacing*.
+        p1: Start of the line the copies are placed along.
+        p2: End of that line.
+        num_copies: How many copies to make.
+
+    """
     if length is not None:
         ll = _vec3(length, 0.0)
     elif spacing is not None and num_copies is not None:
@@ -155,7 +164,15 @@ def xcopies(
     start_pos: float | Point | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return copies spread along the X axis."""
+    """Return copies spread along the X axis.
+
+    Args:
+        spacing: Distance between adjacent copies.
+        length: Total length to spread the copies over, instead of *spacing*.
+        start_pos: Where the first copy sits, as a distance along the axis or a point.
+        num_copies: How many copies to make.
+
+    """
     return _axis_copies(
         RIGHT.vector,
         spacing,
@@ -171,7 +188,15 @@ def ycopies(
     start_pos: float | Point | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return copies spread along the Y axis."""
+    """Return copies spread along the Y axis.
+
+    Args:
+        spacing: Distance between adjacent copies.
+        length: Total length to spread the copies over, instead of *spacing*.
+        start_pos: Where the first copy sits, as a distance along the axis or a point.
+        num_copies: How many copies to make.
+
+    """
     return _axis_copies(BACK.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
 
 
@@ -181,7 +206,15 @@ def zcopies(
     start_pos: float | Point | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return copies spread along the Z axis."""
+    """Return copies spread along the Z axis.
+
+    Args:
+        spacing: Distance between adjacent copies.
+        length: Total length to spread the copies over, instead of *spacing*.
+        start_pos: Where the first copy sits, as a distance along the axis or a point.
+        num_copies: How many copies to make.
+
+    """
     return _axis_copies(UP.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
 
 
@@ -194,7 +227,18 @@ def grid_copies(
     axes: str = "xy",
     num_copies: int | Sequence[int] | np.ndarray | None = None,
 ) -> list[np.ndarray]:
-    """Return copies laid out in a square or staggered (hex) grid."""
+    """Return copies laid out in a square or staggered (hex) grid.
+
+    Args:
+        spacing: Distance between adjacent copies.
+        size: Extent to spread the copies over, one number or one per axis.
+        stagger: Offset alternate rows by half a step, for a hexagonal packing.
+        inside: Keep only the copies whose centres fall inside this outline.
+        nonzero: Use the nonzero winding rule for *inside* rather than even-odd.
+        axes: Which plane the grid lies in, as two of ``"xyz"``.
+        num_copies: How many copies to make.
+
+    """
     if stagger not in (False, True, StaggerMode.ALT):
         raise Bosl2ValueError("grid_copies(): stagger must be False, True or 'alt'.")
     if not (len(axes) == 2):
@@ -299,7 +343,19 @@ def rot_copies(
     subrot: bool = True,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return rotated copies about an axis, optionally offset into a ring."""
+    """Return rotated copies about an axis, optionally offset into a ring.
+
+    Args:
+        rots: The rotation angles in degrees, one per copy.
+        v: Axis to rotate about.
+        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+        sa: Starting angle in degrees.
+        offset: Distance to shift each copy along the rotation axis.
+        delta: Translation applied to each copy before it is rotated.
+        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+        num_copies: How many copies to make.
+
+    """
     if not (subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0):
         raise Bosl2ValueError("rot_copies(): subrot can only be False when delta is nonzero.")
     sang = sa + offset
@@ -332,7 +388,18 @@ def xrot_copies(
     subrot: bool = True,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return rotated copies around the X axis, optionally into a ring of radius *radius*."""
+    """Return rotated copies around the X axis, optionally into a ring of radius *radius*.
+
+    Args:
+        rots: The rotation angles in degrees, one per copy.
+        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+        sa: Starting angle in degrees.
+        radius: Radius of the arc or sphere the copies are placed on.
+        diameter: Diameter, instead of *radius*.
+        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+        num_copies: How many copies to make.
+
+    """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
@@ -354,7 +421,18 @@ def yrot_copies(
     subrot: bool = True,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""
+    """Return rotated copies around the Y axis, optionally into a ring of radius *radius*.
+
+    Args:
+        rots: The rotation angles in degrees, one per copy.
+        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+        sa: Starting angle in degrees.
+        radius: Radius of the arc or sphere the copies are placed on.
+        diameter: Diameter, instead of *radius*.
+        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+        num_copies: How many copies to make.
+
+    """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
@@ -376,7 +454,18 @@ def zrot_copies(
     subrot: bool = True,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""
+    """Return rotated copies around the Z axis, optionally into a ring of radius *radius*.
+
+    Args:
+        rots: The rotation angles in degrees, one per copy.
+        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+        sa: Starting angle in degrees.
+        radius: Radius of the arc or sphere the copies are placed on.
+        diameter: Diameter, instead of *radius*.
+        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+        num_copies: How many copies to make.
+
+    """
     rr: float = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
@@ -401,7 +490,21 @@ def arc_copies(
     rot: bool = True,
     num_copies: int = 6,
 ) -> list[np.ndarray]:
-    """Return copies spread along an (elliptical) arc in the XY plane."""
+    """Return copies spread along an (elliptical) arc in the XY plane.
+
+    Args:
+        radius: Radius of the arc or sphere the copies are placed on.
+        radius_x: Radius along X, for an elliptical arc.
+        radius_y: Radius along Y, for an elliptical arc.
+        diameter: Diameter, instead of *radius*.
+        diameter_x: Diameter along X, instead of *radius_x*.
+        diameter_y: Diameter along Y, instead of *radius_y*.
+        sa: Starting angle in degrees.
+        ea: Ending angle in degrees.
+        rot: Rotate each copy to face along the arc.
+        num_copies: How many copies to make.
+
+    """
     rxv = (
         radius_x
         if radius_x is not None
@@ -447,7 +550,17 @@ def sphere_copies(
     scale: Sequence[float] = (1, 1, 1),
     perp: bool = True,
 ) -> list[np.ndarray]:
-    """Return copies spread over a sphere/ellipsoid by the golden-spiral method."""
+    """Return copies spread over a sphere/ellipsoid by the golden-spiral method.
+
+    Args:
+        num_copies: How many copies to make.
+        radius: Radius of the arc or sphere the copies are placed on.
+        diameter: Diameter, instead of *radius*.
+        cone_ang: Half-angle of the cone the sphere copies are restricted to; 90 is the whole sphere.
+        scale: Scale applied to the sphere before the copies are placed, for an ellipsoid.
+        perp: Orient each copy perpendicular to the surface.
+
+    """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=50)
     cnt = math.ceil(num_copies / (cone_ang / 180))
     scalev = _vec3(scale, 1.0)
@@ -478,7 +591,18 @@ def path_copies(
     closed: bool | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
-    """Return copies placed along *path*, oriented to it."""
+    """Return copies placed along *path*, oriented to it.
+
+    Args:
+        path: The path to place the copies along.
+        spacing: Distance between adjacent copies.
+        start_pos: Where the first copy sits, as a distance along the axis or a point.
+        dist: Distances along the path, one per copy, instead of even spacing.
+        rotate_children: Turn each copy to follow the path's direction.
+        closed: Treat the path as closed, so the spacing wraps.
+        num_copies: How many copies to make.
+
+    """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.paths import require_path
@@ -546,7 +670,14 @@ def mirror_copy(
     offset: float = 0,
     center: bool | list[float] | None = None,
 ) -> list[np.ndarray]:
-    """Return the original plus a mirrored copy across the plane with normal *v*."""
+    """Return the original plus a mirrored copy across the plane with normal *v*.
+
+    Args:
+        v: Axis to rotate about.
+        offset: Distance to shift each copy along the rotation axis.
+        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+
+    """
     nv = np.asarray(v, dtype=float)
     nv_norm = float(np.linalg.norm(nv))
     nv = nv / nv_norm if nv_norm else nv
@@ -565,17 +696,35 @@ def mirror_copy(
 
 
 def xflip_copy(offset: float = 0, x: float = 0) -> list[np.ndarray]:
-    """Return the original plus a copy mirrored across the X=*x* plane."""
+    """Return the original plus a copy mirrored across the X=*x* plane.
+
+    Args:
+        offset: Distance to shift each copy along the rotation axis.
+        x: X coordinate of the mirror plane.
+
+    """
     return mirror_copy(v=[1, 0, 0], offset=offset, center=[x, 0, 0])
 
 
 def yflip_copy(offset: float = 0, y: float = 0) -> list[np.ndarray]:
-    """Return the original plus a copy mirrored across the Y=*y* plane."""
+    """Return the original plus a copy mirrored across the Y=*y* plane.
+
+    Args:
+        offset: Distance to shift each copy along the rotation axis.
+        y: Y coordinate of the mirror plane.
+
+    """
     return mirror_copy(v=[0, 1, 0], offset=offset, center=[0, y, 0])
 
 
 def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
-    """Return the original plus a copy mirrored across the Z=*z* plane."""
+    """Return the original plus a copy mirrored across the Z=*z* plane.
+
+    Args:
+        offset: Distance to shift each copy along the rotation axis.
+        z: Z coordinate of the mirror plane.
+
+    """
     return mirror_copy(v=[0, 0, 1], offset=offset, center=[0, 0, z])
 
 
@@ -641,7 +790,16 @@ class Distributable(ABC):
         p2: Point | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Return copies spread along a line."""
+        """Return copies spread along a line.
+
+        Args:
+            spacing: Distance between adjacent copies.
+            length: Total length to spread the copies over, instead of *spacing*.
+            p1: Start of the line the copies are placed along.
+            p2: End of that line.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(line_copies(spacing, length, p1, p2, num_copies=num_copies))
 
     def xcopies(
@@ -651,7 +809,15 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Return copies spread along the X axis."""
+        """Return copies spread along the X axis.
+
+        Args:
+            spacing: Distance between adjacent copies.
+            length: Total length to spread the copies over, instead of *spacing*.
+            start_pos: Where the first copy sits, as a distance along the axis or a point.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(_axis_copies(RIGHT.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def ycopies(
@@ -661,7 +827,15 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Return copies spread along the Y axis."""
+        """Return copies spread along the Y axis.
+
+        Args:
+            spacing: Distance between adjacent copies.
+            length: Total length to spread the copies over, instead of *spacing*.
+            start_pos: Where the first copy sits, as a distance along the axis or a point.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(_axis_copies(BACK.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def zcopies(
@@ -671,7 +845,15 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Return copies spread along the Z axis."""
+        """Return copies spread along the Z axis.
+
+        Args:
+            spacing: Distance between adjacent copies.
+            length: Total length to spread the copies over, instead of *spacing*.
+            start_pos: Where the first copy sits, as a distance along the axis or a point.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(_axis_copies(UP.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def grid_copies(
@@ -684,7 +866,18 @@ class Distributable(ABC):
         axes: str = "xy",
         num_copies: int | Sequence[int] | np.ndarray | None = None,
     ) -> list[_CopyType]:
-        """Return copies in a square or staggered (hex) grid."""
+        """Return copies in a square or staggered (hex) grid.
+
+        Args:
+            spacing: Distance between adjacent copies.
+            size: Extent to spread the copies over, one number or one per axis.
+            stagger: Offset alternate rows by half a step, for a hexagonal packing.
+            inside: Keep only the copies whose centres fall inside this outline.
+            nonzero: Use the nonzero winding rule for *inside* rather than even-odd.
+            axes: Which plane the grid lies in, as two of ``"xyz"``.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(grid_copies(spacing, size, stagger, inside, nonzero, axes, num_copies))
 
     def rot_copies(
@@ -698,7 +891,19 @@ class Distributable(ABC):
         subrot: bool = True,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Rotated copies about an axis (optionally into a ring via *delta*)."""
+        """Rotated copies about an axis (optionally into a ring via *delta*).
+
+        Args:
+            rots: The rotation angles in degrees, one per copy.
+            v: Axis to rotate about.
+            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+            sa: Starting angle in degrees.
+            offset: Distance to shift each copy along the rotation axis.
+            delta: Translation applied to each copy before it is rotated.
+            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(rot_copies(rots, v, center, sa, offset, delta, subrot, num_copies=num_copies))
 
     def xrot_copies(
@@ -711,7 +916,18 @@ class Distributable(ABC):
         subrot: bool = True,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Rotated copies around the X axis."""
+        """Rotated copies around the X axis.
+
+        Args:
+            rots: The rotation angles in degrees, one per copy.
+            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+            sa: Starting angle in degrees.
+            radius: Radius of the arc or sphere the copies are placed on.
+            diameter: Diameter, instead of *radius*.
+            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(xrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def yrot_copies(
@@ -724,7 +940,18 @@ class Distributable(ABC):
         subrot: bool = True,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Rotated copies around the Y axis."""
+        """Rotated copies around the Y axis.
+
+        Args:
+            rots: The rotation angles in degrees, one per copy.
+            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+            sa: Starting angle in degrees.
+            radius: Radius of the arc or sphere the copies are placed on.
+            diameter: Diameter, instead of *radius*.
+            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(yrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def zrot_copies(
@@ -737,7 +964,18 @@ class Distributable(ABC):
         subrot: bool = True,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Rotated copies around the Z axis."""
+        """Rotated copies around the Z axis.
+
+        Args:
+            rots: The rotation angles in degrees, one per copy.
+            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+            sa: Starting angle in degrees.
+            radius: Radius of the arc or sphere the copies are placed on.
+            diameter: Diameter, instead of *radius*.
+            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(zrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def arc_copies(
@@ -753,7 +991,21 @@ class Distributable(ABC):
         rot: bool = True,
         num_copies: int = 6,
     ) -> list[_CopyType]:
-        """Return copies spread along an (elliptical) arc in the XY plane."""
+        """Return copies spread along an (elliptical) arc in the XY plane.
+
+        Args:
+            radius: Radius of the arc or sphere the copies are placed on.
+            radius_x: Radius along X, for an elliptical arc.
+            radius_y: Radius along Y, for an elliptical arc.
+            diameter: Diameter, instead of *radius*.
+            diameter_x: Diameter along X, instead of *radius_x*.
+            diameter_y: Diameter along Y, instead of *radius_y*.
+            sa: Starting angle in degrees.
+            ea: Ending angle in degrees.
+            rot: Rotate each copy to face along the arc.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(
             arc_copies(
                 radius,
@@ -778,7 +1030,17 @@ class Distributable(ABC):
         scale: Sequence[float] = (1, 1, 1),
         perp: bool = True,
     ) -> list[_CopyType]:
-        """Return copies spread over a sphere/ellipsoid surface."""
+        """Return copies spread over a sphere/ellipsoid surface.
+
+        Args:
+            num_copies: How many copies to make.
+            radius: Radius of the arc or sphere the copies are placed on.
+            diameter: Diameter, instead of *radius*.
+            cone_ang: Half-angle of the cone the sphere copies are restricted to; 90 is the whole sphere.
+            scale: Scale applied to the sphere before the copies are placed, for an ellipsoid.
+            perp: Orient each copy perpendicular to the surface.
+
+        """
         return self._distribute(sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp))
 
     def path_copies(
@@ -791,7 +1053,18 @@ class Distributable(ABC):
         closed: bool | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
-        """Return copies placed along *path*, oriented to it."""
+        """Return copies placed along *path*, oriented to it.
+
+        Args:
+            path: The path to place the copies along.
+            spacing: Distance between adjacent copies.
+            start_pos: Where the first copy sits, as a distance along the axis or a point.
+            dist: Distances along the path, one per copy, instead of even spacing.
+            rotate_children: Turn each copy to follow the path's direction.
+            closed: Treat the path as closed, so the spacing wraps.
+            num_copies: How many copies to make.
+
+        """
         return self._distribute(
             path_copies(
                 path,
@@ -810,19 +1083,44 @@ class Distributable(ABC):
         offset: float = 0,
         center: bool | list[float] | None = None,
     ) -> list[_CopyType]:
-        """Return this object plus a copy mirrored across the plane with normal *v*."""
+        """Return this object plus a copy mirrored across the plane with normal *v*.
+
+        Args:
+            v: Axis to rotate about.
+            offset: Distance to shift each copy along the rotation axis.
+            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.
+
+        """
         return self._distribute(mirror_copy(v, offset, center))
 
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[_CopyType]:
-        """Return This object plus a copy mirrored across the X=*x* plane."""
+        """Return This object plus a copy mirrored across the X=*x* plane.
+
+        Args:
+            offset: Distance to shift each copy along the rotation axis.
+            x: X coordinate of the mirror plane.
+
+        """
         return self._distribute(xflip_copy(offset, x))
 
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[_CopyType]:
-        """Return This object plus a copy mirrored across the Y=*y* plane."""
+        """Return This object plus a copy mirrored across the Y=*y* plane.
+
+        Args:
+            offset: Distance to shift each copy along the rotation axis.
+            y: Y coordinate of the mirror plane.
+
+        """
         return self._distribute(yflip_copy(offset, y))
 
     def zflip_copy(self, offset: float = 0, z: float = 0) -> list[_CopyType]:
-        """Return This object plus a copy mirrored across the Z=*z* plane."""
+        """Return This object plus a copy mirrored across the Z=*z* plane.
+
+        Args:
+            offset: Distance to shift each copy along the rotation axis.
+            z: Z coordinate of the mirror plane.
+
+        """
         return self._distribute(zflip_copy(offset, z))
 
     # ---------------------------------------------------------------------------
@@ -896,6 +1194,12 @@ def xdistribute(
 ) -> BaseShape:
     """Distribute distinct children along the X axis.
 
+    Args:
+        children: The shapes to place. One is copied; several are distributed between them.
+        spacing: Distance between adjacent copies.
+        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.
+        length: Total length to spread the copies over, instead of *spacing*.
+
     Examples:
         .. pythonscad-example::
 
@@ -914,7 +1218,15 @@ def ydistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
-    """Distribute distinct children along the Y axis."""
+    """Distribute distinct children along the Y axis.
+
+    Args:
+        children: The shapes to place. One is copied; several are distributed between them.
+        spacing: Distance between adjacent copies.
+        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.
+        length: Total length to spread the copies over, instead of *spacing*.
+
+    """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=BACK, length=length)
 
 
@@ -924,5 +1236,13 @@ def zdistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
-    """Distribute distinct children along the Z axis."""
+    """Distribute distinct children along the Z axis.
+
+    Args:
+        children: The shapes to place. One is copied; several are distributed between them.
+        spacing: Distance between adjacent copies.
+        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.
+        length: Total length to spread the copies over, instead of *spacing*.
+
+    """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=UP, length=length)

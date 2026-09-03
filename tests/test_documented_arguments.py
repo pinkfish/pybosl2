@@ -13,6 +13,11 @@ when it first was. T35 wrote 57 of them -- the ones blocking the ambient-resolut
 
 Two things this deliberately does *not* do:
 
+**Empty since T39.** The 57 that blocked the ambient-resolution documentation went first (T35);
+the remaining 256 followed, and the budget below is now the shape of a ratchet rather than a list.
+
+Two things this deliberately does *not* do:
+
 * It does not accept a partial `Args:`. A section listing three of a function's ten parameters
   reads as though the other seven are not parameters, which is worse than saying nothing --
   so the per-parameter check below is separate from the has-a-section check, and only the second
@@ -31,48 +36,10 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "pybosl2"
 
-#: Public callables that take parameters and document none of them. Writing a file's `Args:`
-#: sections means lowering its number; nothing may raise one.
-BUDGET: dict[str, int] = {
-    "_backend.py": 14,
-    "_csg.py": 4,
-    "_helpers.py": 21,
-    "_native.py": 1,
-    "_stroke2d.py": 2,
-    "_stroke3d.py": 1,
-    "caps.py": 5,
-    "distributors.py": 35,
-    "flat.py": 2,
-    "math.py": 5,
-    "miscellaneous.py": 4,
-    "partitions.py": 7,
-    "parts/ball_bearings.py": 1,
-    "parts/linear_bearings.py": 2,
-    "parts/screws.py": 1,
-    "parts/threading.py": 1,
-    "path2d.py": 6,
-    "paths.py": 2,
-    "points.py": 9,
-    "quaternions.py": 29,
-    "regions.py": 2,
-    "rounding.py": 7,
-    "sdf/__init__.py": 5,
-    "sdf/paths.py": 15,
-    "sdf/shapes2d.py": 9,
-    "sdf/shapes3d.py": 13,
-    "shapes2d/base.py": 7,
-    "shapes2d/curves.py": 1,
-    "shapes3d/base.py": 13,
-    "shapes3d/cuboid.py": 1,
-    "skin.py": 11,
-    "texture.py": 3,
-    "transforms.py": 7,
-    "turtle/_fluent.py": 1,
-    "turtle/turtle2d.py": 3,
-    "turtle/turtle3d.py": 1,
-    "vectors.py": 4,
-    "vnf.py": 1,
-}
+#: Public callables that take parameters and document none of them. **Empty** since T39: every
+#: public callable in the package documents its arguments. Kept as the ratchet's shape -- a new
+#: undocumented callable has to add itself here, and there is nowhere to add it to.
+BUDGET: dict[str, int] = {}
 
 
 def _undocumented() -> dict[str, list[str]]:
@@ -100,7 +67,20 @@ def test_the_scan_found_the_package() -> None:
     assert any(PACKAGE.rglob("*.py")), "no package modules found"
 
 
-@pytest.mark.parametrize("path", sorted(set(UNDOCUMENTED) | set(BUDGET)))
+def test_every_public_callable_documents_its_arguments() -> None:
+    """PLAN D-P4, at zero: 313 callables taking 1307 parameters documented none of them in T35.
+
+    The whole package is covered now, so this is a plain assertion rather than a budget. The
+    per-file form below stays for the day one comes back.
+    """
+    undocumented = {path: sorted(names) for path, names in UNDOCUMENTED.items() if path not in BUDGET}
+    assert not undocumented, (
+        f"public callables with parameters and no `Args:` section (PLAN D-P4): "
+        f"{ {k: v[:3] for k, v in undocumented.items()} }"
+    )
+
+
+@pytest.mark.parametrize("path", sorted(set(UNDOCUMENTED) | set(BUDGET)) or ["(none)"])
 def test_no_file_exceeds_its_undocumented_budget(path: str) -> None:
     """A new public callable documents its arguments; an old one is written down until it does."""
     actual = len(UNDOCUMENTED.get(path, []))

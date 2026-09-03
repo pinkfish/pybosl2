@@ -31,7 +31,14 @@ EPSILON = 1e-9
 def lerp(
     a: float | Sequence[float] | np.ndarray, b: float | Sequence[float] | np.ndarray, t: float
 ) -> float | np.ndarray:
-    """Linearly interpolate between *a* and *b* by fraction *t* (scalar or vector)."""
+    """Linearly interpolate between *a* and *b* by fraction *t* (scalar or vector).
+
+    Args:
+        a: The first value.
+        b: The second value.
+        t: Interpolation parameter from 0 (*a*) to 1 (*b*).
+
+    """
     if isinstance(a, (list, tuple, np.ndarray)):
         return np.asarray(a, dtype=float) + (np.asarray(b, dtype=float) - np.asarray(a, dtype=float)) * t  # type: ignore[no-any-return]
     return a + (b - a) * t  # type: ignore[operator]
@@ -49,6 +56,13 @@ def lerpn(
 
     If endpoint is True, the last returned point equals *b*; otherwise the
     range is divided into *sides* equal steps without reaching *b*.
+
+    Args:
+        a: The first value.
+        b: The second value.
+        sides: Number of sides.
+        endpoint: Include the final value in the returned sequence.
+
     """
     if sides <= 0:
         return np.empty(0)
@@ -109,6 +123,12 @@ def deriv(
     Uses a symmetric derivative approximation for internal points and a
     two-point method at the endpoints of an open path. If *height* is a list it
     is treated as the (possibly non-uniform) per-segment sampling distance.
+
+    Args:
+        data: The values to reduce.
+        height: Height of the segment.
+        closed: Treat the sequence as closed, so the last value wraps to the first.
+
     """
     if not isinstance(height, (int, float)):
         return _deriv_nonuniform(data, height, closed)
@@ -137,6 +157,12 @@ def deriv2(
     """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an.
 
     ndarray.
+
+    Args:
+        data: The values to reduce.
+        height: Height of the segment.
+        closed: Treat the sequence as closed, so the last value wraps to the first.
+
     """
     arr = np.asarray(data, dtype=float)
     length = len(arr)
@@ -175,6 +201,12 @@ def deriv3(
     """Numeric third-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.
 
     Requires at least 5 points.
+
+    Args:
+        data: The values to reduce.
+        height: Height of the segment.
+        closed: Treat the sequence as closed, so the last value wraps to the first.
+
     """
     arr = np.asarray(data, dtype=float)
     length = len(arr)

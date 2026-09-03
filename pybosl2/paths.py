@@ -83,6 +83,11 @@ def require_closed_flag(closed: object, type_name: str) -> bool:
     downstream reads it as anything but truthy, so the result was an empty mesh with no error --
     the silent wrong answer that SPEC C-7a exists to remove, in the constructor callers were being
     sent to.
+
+    Args:
+        closed: Treat the path as closed.
+        type_name: Name of the expected type, for the error message.
+
     """
     if isinstance(closed, bool):
         return closed
@@ -239,7 +244,12 @@ class Path(ABC):
         return super().__new__(cls)
 
     def color(self, c: "Color") -> Self:
-        """Return a copy of this path with the given :class:`Color`."""
+        """Return a copy of this path with the given :class:`Color`.
+
+        Args:
+            c: The colour to apply.
+
+        """
         copy = self.copy()
         copy._color = c
         return copy

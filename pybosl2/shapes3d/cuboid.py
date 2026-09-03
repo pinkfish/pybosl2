@@ -256,6 +256,11 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
     :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton
     algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tests.
 
+
+    Args:
+        shape: The shape to operate on.
+        method: How to build it.
+
     Examples:
         .. pythonscad-example::
 

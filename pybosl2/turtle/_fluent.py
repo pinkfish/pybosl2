@@ -91,7 +91,13 @@ class TurtleCommands:
     """
 
     def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Self:
-        """Execute *commands*; provided by the concrete turtle."""
+        """Execute *commands*; provided by the concrete turtle.
+
+        Args:
+            commands: The commands to run.
+            repeat: How many times to repeat them.
+
+        """
         raise NotImplementedError
 
     def command(self, command: TurtleCommand) -> Self:

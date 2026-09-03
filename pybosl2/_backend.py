@@ -55,6 +55,10 @@ def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
     The backends take different parameter sets, so only what was asked for is forwarded through
     :meth:`SolidBackend.construct` -- a backend never sees an option it has no notion of, and
     each keeps its own defaults.
+
+    Args:
+        arguments: The arguments to build it with.
+
     """
     return {name: value for name, value in arguments.items() if value is not None}
 
@@ -211,6 +215,10 @@ def accepted_parameters(constructor: "Callable[..., Any]") -> frozenset[str]:
     The façade owns the default for every argument both backends understand (SPEC B-3) and always
     forwards it, so each backend filters by what it actually declares rather than relying on the
     caller to have omitted the ones it does not know (PLAN F-P2).
+
+    Args:
+        constructor: The backend constructor about to be called.
+
     """
     try:
         parameters = inspect.signature(constructor).parameters
@@ -387,6 +395,11 @@ def supports(backend: str, feature: str) -> bool:
     """Whether *backend* can do *feature*. Backend-exclusive features are False on the other side.
 
     everything else (the shared surface) is assumed supported.
+
+    Args:
+        backend: Name of the backend.
+        feature: Name of the feature being refused.
+
     """
     if feature in CSG_ONLY_FEATURES:
         return backend == "csg"
@@ -399,6 +412,11 @@ def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError |
     """Return the :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the.
 
     OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling).
+
+    Args:
+        backend: Name of the backend.
+        name: The name to look up.
+
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
@@ -529,7 +547,12 @@ def current_backend() -> str:
 
 
 def set_default_backend(name: str) -> None:
-    """Change the process-wide default backend (outside any :func:`use_backend` block)."""
+    """Change the process-wide default backend (outside any :func:`use_backend` block).
+
+    Args:
+        name: The name to look up.
+
+    """
     _validate(name)
     global _default
     _default = name
@@ -537,7 +560,12 @@ def set_default_backend(name: str) -> None:
 
 @contextlib.contextmanager
 def use_backend(name: str) -> Iterator[None]:
-    """Make *name* the active backend for the duration of the ``with`` block (nestable, thread-safe)."""
+    """Make *name* the active backend for the duration of the ``with`` block (nestable, thread-safe).
+
+    Args:
+        name: The name to look up.
+
+    """
     _validate(name)
     token = _current.set(name)
     try:
@@ -547,7 +575,13 @@ def use_backend(name: str) -> Iterator[None]:
 
 
 def register_backend(name: str, impl: "SolidBackend") -> None:
-    """Register a :class:`SolidBackend` implementation under *name* (also makes it a known backend)."""
+    """Register a :class:`SolidBackend` implementation under *name* (also makes it a known backend).
+
+    Args:
+        name: The name to look up.
+        impl: The backend implementation to register.
+
+    """
     _KNOWN.add(name)
     _registry[name] = impl
 
@@ -557,6 +591,10 @@ def get_backend(name: str | None = None) -> "SolidBackend":
 
     The two built-in backends register themselves on first use (importing them is FFI-free -- the
     native runtime is only touched when geometry is actually realized).
+
+    Args:
+        name: The name to look up.
+
     """
     key = name or current_backend()
     if key not in _registry:
@@ -830,6 +868,11 @@ class Shape(Protocol):
 
         Backend-neutral, so a shape can name the frame it anchors to without reaching for a native
         handle. `bounds()` keeps reporting the geometry.
+
+        Args:
+            size: The size, one number or one per axis.
+            anchor: Anchor point.
+
         """
         ...
 
@@ -870,7 +913,14 @@ class Solid(Shape, Protocol):
     def export(
         self, path: "str | os.PathLike[str]", *, file_format: str | None = None, check: bool = True
     ) -> "FilePath":
-        """Write this solid to a mesh file (SPEC S-53)."""
+        """Write this solid to a mesh file (SPEC S-53).
+
+        Args:
+            path: The path to draw.
+            file_format: The format to write, taken from the suffix when not given.
+            check: Validate the mesh before writing it.
+
+        """
         ...
 
     def rotate(self, a: "float | Sequence[float] | None" = None, v: "Sequence[float] | None" = None) -> "Solid": ...
@@ -992,6 +1042,11 @@ class SolidBackend(Protocol):
 
         *arguments* holds just the parameters the caller gave, so a backend never has to accept
         an option it has no notion of (see :func:`pybosl2.solid._given`).
+
+        Args:
+            shape: Name of the shape to build.
+            arguments: The arguments to build it with.
+
         """
         ...
 
@@ -1008,6 +1063,12 @@ class SolidBackend(Protocol):
         (:class:`~pybosl2.shapes2d.Bosl2Shape2D`), whereas a path is backend-neutral. It is what
         :meth:`pybosl2.paths.Path2D.linear_extrude` dispatches through, so the same call yields a
         Bosl2Solid on the CSG backend and a PyShape on the SDF one.
+
+        Args:
+            paths: The paths to draw.
+            height: Height of the extrusion.
+            arguments: The arguments to build it with.
+
         """
         ...
 
@@ -1019,6 +1080,12 @@ class SolidBackend(Protocol):
         ``(hypot(x, y), z)``, so the SDF backend needs no meshing and no approximation for it.
         Like :meth:`linear_extrude` it takes raw point paths rather than a 2-D shape object,
         because 2-D *geometry* is a CSG notion while a path is backend-neutral.
+
+        Args:
+            paths: The paths to draw.
+            angle: The angle in degrees.
+            arguments: The arguments to build it with.
+
         """
         ...
 
@@ -1030,7 +1097,16 @@ class SolidBackend(Protocol):
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
     ) -> Solid:
-        """3-D tube along *path*."""
+        """3-D tube along *path*.
+
+        Args:
+            path: The path to draw.
+            width: Width of the drawn line.
+            closed: Join the last point back to the first.
+            endcap1: Treatment for the start of the line.
+            endcap2: Treatment for the end.
+
+        """
         ...
 
 

@@ -28,6 +28,10 @@ def native(name: str) -> Callable[..., Any]:
 
     ``_ocube = native("cube")`` at module level behaves like ``from pythonscad import cube as
     _ocube`` at every call site, but defers ``import pythonscad`` until geometry is first built.
+
+    Args:
+        name: Name of the native primitive to reach.
+
     """
 
     # forwards to whichever native function `name` picks out, so this one keeps a generic

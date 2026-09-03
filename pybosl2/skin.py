@@ -119,6 +119,24 @@ class Sweepable:
         (degrees) and *scale* (scalar, 2-vector, per-point vector, or Nx2) are interpolated along the
         path. See BOSL2 path_sweep() for the full semantics.
 
+
+        Args:
+            shape: The cross-section to sweep.
+            method: How cross-sections are matched or oriented along the sweep.
+            normal: The surface normal to use.
+            closed: Treat the path or profile as closed.
+            twist: Total twist in degrees along the sweep.
+            twist_by_length: Distribute the twist by arc length rather than evenly per section.
+            scale: Scale applied along the sweep, from 1 at the start.
+            scale_by_length: Distribute the scaling by arc length rather than evenly per section.
+            symmetry: Rotational symmetry of the profile, used to match its points up.
+            last_normal: The previous section's normal, so the sweep does not flip.
+            tangent: The path's direction at this point.
+            uniform: Sample by arc length rather than by parameter.
+            relaxed: Allow a less exact match where an exact one is not possible.
+            caps: Close the two open ends of the sweep.
+            style: How each grid cell is split into triangles.
+
         Examples:
             Sweeping a small square profile along a helical path into a solid:
 
@@ -238,6 +256,13 @@ class Sweepable:
         producing a stack of profiles that are skinned into the final surface. Closed paths are
         reversed automatically to maintain the same winding.
 
+
+        Args:
+            shape: The cross-section to sweep.
+            closed: Treat the path or profile as closed.
+            caps: Close the two open ends of the sweep.
+            style: How each grid cell is split into triangles.
+
         Examples:
             A rounded bar swept along a wavy 2-D path:
 
@@ -269,6 +294,17 @@ class Sweepable:
         The profile is duplicated at *slices* positions along the Z axis; at each level the points
         are twisted (rotation around Z, degrees) and scaled (uniform scalar or 2-vector), then
         shifted in XY. The slices are skinned into a VNF.
+
+
+        Args:
+            height: Height of the extrusion.
+            twist: Total twist in degrees along the sweep.
+            scale: Scale applied along the sweep, from 1 at the start.
+            shift: Offset of the far end from the near one, as ``[x, y]``.
+            slices: How many intermediate sections to insert between profiles.
+            center: Centre the result on the origin.
+            caps: Close the two open ends of the sweep.
+            style: How each grid cell is split into triangles.
 
         Examples:
             A twisting, tapering square column:
@@ -307,6 +343,14 @@ class Sweepable:
 
         The profile is swept through *angle* degrees (default 360) around Z, starting at
         *start* degrees. When *angle* < 360 the profile is capped at both ends.
+
+
+        Args:
+            angle: The angle in degrees.
+            caps: Close the two open ends of the sweep.
+            _closed: Internal closed flag.
+            style: How each grid cell is split into triangles.
+            start: Where along the path to begin.
 
         Examples:
             Revolving a rounded profile into a spool:
@@ -410,6 +454,13 @@ class Sweepable:
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.
 
         or Bosl2Solid (BOSL2 sweep()).
+
+        Args:
+            transforms: The matrices to place each section with, instead of deriving them.
+            closed: Treat the path or profile as closed.
+            caps: Close the two open ends of the sweep.
+            style: How each grid cell is split into triangles.
+
         """
         return _as_solid(
             _sweep(
@@ -446,6 +497,10 @@ def path3d(path: Sequence[Sequence[float]] | Path | np.ndarray | Sequence[np.nda
     numpy row in would otherwise leak ``np.float64`` scalars out of an annotation that promises
     ``float``, and those raise SystemError/TypeError at the native FFI boundary (see the note in
     pybosl2/paths.py).
+
+    Args:
+        path: The path to sweep along.
+
     """
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
@@ -457,6 +512,10 @@ def clockwise_polygon(poly: "Path2D") -> "Path2D":
     outline, and handing back the raw points would drop the type its caller just supplied (PLAN
     T-4, SPEC C-9). The old signature said `list[Sequence[float]]` while actually returning numpy
     rows, which only type-checked because a `# type: ignore` sat on the call.
+
+    Args:
+        poly: The polygon to operate on.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -472,6 +531,12 @@ def frame_map(
     """Return the 4x4 rotation whose columns are the given orthonormal axes.
 
     Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.
+
+    Args:
+        x: The X coordinate.
+        y: The Y coordinate.
+        z: The Z coordinate.
+
     """
     xu = _u(x) if x is not None else None
     yu = _u(y) if y is not None else None
@@ -730,6 +795,12 @@ def slice_profiles(profiles: "Sequence[Path2D | Path3D]", slices: int, closed: b
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
     lists; the interpolation is vertex-by-vertex.
+
+    Args:
+        profiles: The cross-sections to skin between, in order.
+        slices: How many intermediate sections to insert between profiles.
+        closed: Treat the path or profile as closed.
+
     """
     profiles = require_paths(profiles, "profiles", "slice_profiles")  # type: ignore[assignment]
     sides = len(profiles)
@@ -1009,6 +1080,14 @@ def subdivide_and_slice(
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles.
 
+
+    Args:
+        profiles: The cross-sections to skin between, in order.
+        slices: How many intermediate sections to insert between profiles.
+        numpoints: How many points to resample each profile to.
+        method: How cross-sections are matched or oriented along the sweep.
+        closed: Treat the path or profile as closed.
+
     Raises:
         Bosl2ValueError: If *profiles* is not a sequence of `Path2D`/`Path3D`.
 
@@ -1076,7 +1155,13 @@ class OSProfile:
     points: list[list[float]] = field(default_factory=list[list[float]])
 
     def get(self, key: str, default: object = None) -> object:
-        """Return the value for key or a default."""
+        """Return the value for key or a default.
+
+        Args:
+            key: Function returning the value to sort or group by.
+            default: Value to return when there is none.
+
+        """
         if key == "type":
             return self.type.value
         mapping = {

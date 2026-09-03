@@ -281,7 +281,12 @@ class CsgShape2D(BaseShape):
         return out
 
     def translate(self, v: Sequence[float]) -> "CsgShape2D":
-        """Translate the shape by a vector."""
+        """Translate the shape by a vector.
+
+        Args:
+            v: The vector.
+
+        """
         out = super().translate(v)
         if self._bbox is not None:
             v_float = [float(x) for x in v]
@@ -319,7 +324,12 @@ class CsgShape2D(BaseShape):
         return out
 
     def scale(self, v: float | Sequence[float]) -> "CsgShape2D":
-        """Scale the shape."""
+        """Scale the shape.
+
+        Args:
+            v: The vector.
+
+        """
         out = super().scale(v)
         if self._bbox is not None:
             sv = [float(v), float(v)] if isinstance(v, (int, float)) else [float(x) for x in v]
@@ -346,13 +356,25 @@ class CsgShape2D(BaseShape):
     def anchor_point(
         self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
     ) -> list[float]:
-        """Return the 2D point for the given anchor."""
+        """Return the 2D point for the given anchor.
+
+        Args:
+            anchor: Anchor point.
+            bbox: Bounding box to anchor against, instead of the shape's own.
+
+        """
         center, size = self._resolve_bounds(bbox)
         a = list(anchor.vector_2d) if isinstance(anchor, Anchor) else list(anchor)
         return [center[i] + a[i] * size[i] / 2 for i in range(2)]
 
     def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
-        """Move the shape so that the given anchor is at the origin."""
+        """Move the shape so that the given anchor is at the origin.
+
+        Args:
+            anchor: Anchor point.
+            bbox: Bounding box to anchor against, instead of the shape's own.
+
+        """
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1]])
         if moved.size is not None and isinstance(anchor, Anchor):
@@ -481,11 +503,21 @@ class CsgShape2D(BaseShape):
     spin = BaseShape.rotate
 
     def xflip(self, x: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the vertical line at *x*."""
+        """Mirror across the vertical line at *x*.
+
+        Args:
+            x: The X coordinate.
+
+        """
         return self.translate([-x, 0.0]).mirror([1, 0]).translate([x, 0.0])
 
     def yflip(self, y: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the horizontal line at *y*."""
+        """Mirror across the horizontal line at *y*.
+
+        Args:
+            y: The Y coordinate.
+
+        """
         return self.translate([0.0, -y]).mirror([0, 1]).translate([0.0, y])
 
     # ---- 2-D operators ----
@@ -676,6 +708,11 @@ class CsgShape2D(BaseShape):
         """Sweep this 2-D shape along *path* via the native ``path_extrude()``.
 
         *path* is a :class:`~pybosl2.paths.Path3D` or a point list.
+
+
+        Args:
+            path: The outline.
+            convexity: Convexity hint for the renderer.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.

@@ -71,7 +71,13 @@ def _lerpn(a: float, b: float, sides: int, endpoint: bool = True) -> list[float]
 
 
 def quantup(x: float, m: int) -> int:
-    """Round *x* up to the next multiple of *m* (BOSL2 quantup)."""
+    """Round *x* up to the next multiple of *m* (BOSL2 quantup).
+
+    Args:
+        x: The X coordinate.
+        m: The height field.
+
+    """
     return int(_quantup_float(x, m))
 
 
@@ -882,7 +888,12 @@ def vnf_tile_to_solid(
 
 
 def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], list[list[int]]]) -> bool:
-    """Check if *tex* is a height-field: a 2-D array whose entries are plain numbers."""
+    """Check if *tex* is a height-field: a 2-D array whose entries are plain numbers.
+
+    Args:
+        tex: The texture, by name or already built.
+
+    """
     try:
         row = tex[0]
         return not isinstance(row[0], (list, tuple, np.ndarray))
@@ -891,7 +902,12 @@ def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], lis
 
 
 def is_vnf_texture(tex: object) -> bool:
-    """Check if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors."""
+    """Check if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors.
+
+    Args:
+        tex: The texture, by name or already built.
+
+    """
     try:
         verts: Any
         faces: Any

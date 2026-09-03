@@ -59,11 +59,22 @@ class Flat(Shape, Protocol):
         ...
 
     def rotate(self, a: float | Sequence[float]) -> Flat:
-        """Rotate this shape *a* degrees about Z."""
+        """Rotate this shape *a* degrees about Z.
+
+        Args:
+            a: The rotation angle in degrees.
+
+        """
         ...
 
     def linear_extrude(self, height: float, **kwargs: Any) -> Solid:
-        """Extrude this 2-D shape into a 3-D solid."""
+        """Extrude this 2-D shape into a 3-D solid.
+
+        Args:
+            height: Height of the extrusion.
+            **kwargs: Options the active backend's extruder declares.
+
+        """
         ...
 
     # The rest of the way up into three dimensions (SPEC C-17), and the operations only an outline

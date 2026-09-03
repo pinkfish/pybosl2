@@ -228,6 +228,10 @@ def normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
     If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
     from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it
     unchanged.
+
+    Args:
+        cap: The cap to build.
+
     """
     if isinstance(cap, CapSpec):
         return cap
@@ -242,7 +246,12 @@ def normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
 
 
 def has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
-    """Return True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
+    """Return True if any endcap is a decorative (non-flat/non-dome/non-none) type.
+
+    Args:
+        cap_specs: The caps for each end and the joints.
+
+    """
     _basic = frozenset({CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE})
     return any(cs.cap_type not in _basic for cs in cap_specs)
 
@@ -405,7 +414,14 @@ def endcap_trim(spec: CapSpec, width: float) -> float:
 
 
 def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[float]]:
-    """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
+    """Rotate a local polygon by *theta_deg* and translate it to point *at*.
+
+    Args:
+        poly: The cap's outline.
+        theta_deg: The cap's angle in degrees.
+        at: Where along the path the cap sits.
+
+    """
     # Imported here, not at module scope: `pybosl2.paths` imports CapSpec from this module, so a
     # top-level import closes the cycle and the package stops importing at all.
     from pybosl2.path2d import Path2D
@@ -418,7 +434,14 @@ def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[fl
 
 
 def trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
-    """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
+    """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).
+
+    Args:
+        body: The stroke body the cap is attached to.
+        trim1: How much to trim from the start so the cap keeps the requested end position.
+        trim2: How much to trim from the end.
+
+    """
     body = [list(map(float, p)) for p in body]
     if len(body) >= 2 and trim1 > 0:
         a0, a1 = float(body[0][0]), float(body[0][1])
@@ -442,6 +465,12 @@ def oriented_to(shape: Any, outdir: Sequence[float], at: Sequence[float]) -> Any
 
     Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's
     solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.
+
+    Args:
+        shape: The shape being capped.
+        outdir: Direction the cap points.
+        at: Where along the path the cap sits.
+
     """
     from pybosl2.transforms import rot_from_to
 
