@@ -10,7 +10,17 @@ from __future__ import annotations
 
 import pytest
 
-from pybosl2 import Anchor, EdgeSelection, EdgeTreatment, Facets, Placement, cuboid, cyl, use_defaults
+from pybosl2 import (
+    Anchor,
+    EdgeSelection,
+    EdgeTreatment,
+    Facets,
+    Placement,
+    Texturing,
+    cuboid,
+    cyl,
+    use_defaults,
+)
 from pybosl2.defaults import resolve_facets, resolve_res
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.flat import circle, rect, square
@@ -198,6 +208,39 @@ class TestEdgeSelection:
         """Unlike a treatment, a selection's members narrow one another (SPEC G-7 does not apply)."""
         both = EdgeSelection(edges=Anchor.TOP, excepted=Anchor.FRONT).as_kwargs()
         assert both == {"edges": Anchor.TOP, "except_edges": Anchor.FRONT}
+
+
+class TestTexturing:
+    """The texture and how it is applied, as one value (SPEC G-1, G-7).
+
+    The cleanest group in the library by G-1's own measure -- all five members travel together on
+    every callable that takes more than one -- and the last to be built, because until T37 every
+    one of those parameters refused.
+    """
+
+    def test_a_texturing_textures_the_way_the_loose_arguments_do(self) -> None:
+        grouped = cyl(height=30, radius=12, texturing=Texturing("ribs", reps=[16, 1], depth=1.5))
+        loose = cyl(height=30, radius=12, texture="ribs", tex_reps=[16, 1], tex_depth=1.5)
+        assert grouped.bounds().size == pytest.approx(loose.bounds().size)
+        assert grouped.vnf().volume() == pytest.approx(loose.vnf().volume(), rel=1e-9)
+
+    def test_size_and_reps_together_are_unrepresentable(self) -> None:
+        """SPEC G-7: a tile is sized or counted, and the group refuses to hold both."""
+        with pytest.raises(Bosl2ValueError, match="sized or counted"):
+            Texturing("ribs", size=5, reps=[4, 1])
+
+    def test_the_group_beside_a_loose_member_is_refused(self) -> None:
+        """SPEC G-3, as for every group."""
+        with pytest.raises(Bosl2ValueError, match=r"texturing= and tex_depth="):
+            cyl(height=30, radius=12, texturing=Texturing("ribs", reps=[16, 1]), tex_depth=2)
+
+    def test_one_texturing_serves_several_shapes(self) -> None:
+        """The point of a group: build it once, pass it to everything."""
+        knurl = Texturing("ribs", reps=[20, 1], depth=0.8)
+        for radius in (8, 12):
+            shape = cyl(height=20, radius=radius, texturing=knurl)
+            assert shape.vnf().is_watertight()
+            assert max(shape.bounds().size[:2]) == pytest.approx(2 * (radius + 0.8), abs=0.1)
 
 
 class TestFacets:

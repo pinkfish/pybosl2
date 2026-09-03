@@ -2086,6 +2086,23 @@ enforced_by = [
 status = "enforced"
 
 [[requirement]]
+id = "SPEC-G-9"
+aliases = ["G-9"]
+layer = "contract"
+section = "8.1 Argument tiers"
+title = "Groups are resolved where the arguments already are."
+keyword = "SHOULD"
+statement = '''
+A constructor taking several groups SHOULD resolve them in one call, operating on the arguments it is about to forward rather than beside them. The loose members are already listed in that dict, so resolving in place costs a constructor one wrapper; resolving beside it cost thirteen lines of unpacking in every constructor, which is the transcription B-3 exists to reduce rather than add to. `cube` and `cuboid` went from 53 lines to 28 on this change alone.
+'''
+enforced_by = []
+candidates = []
+status = "reviewed"
+note = '''
+Reviewed rather than enforced: no test can tell "resolved in one call" from "resolved in three" without asserting a shape of code, and the thing that actually goes wrong — a group not reaching the geometry — is covered by the per-group tests in tests/test_groups.py.
+'''
+
+[[requirement]]
 id = "SPEC-G-8"
 aliases = ["G-8"]
 layer = "contract"

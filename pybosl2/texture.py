@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -40,7 +40,21 @@ import numpy as np
 from pybosl2._helpers import quantup as _quantup_float
 from pybosl2.exceptions import Bosl2ValueError
 
-__all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture", "TextureType"]
+#: A built texture: a height field (rows of heights in 0..1) or a VNF tile as a
+#: ``(vertices, faces)`` pair. `texture()` returns one; every consumer takes either (SPEC S-34).
+TextureData: TypeAlias = "list[list[float]] | tuple[list[list[float]], list[list[int]]]"
+
+__all__ = [
+    "TEXTURES",
+    "TextureData",
+    "TextureType",
+    "height_field",
+    "is_heightfield_texture",
+    "is_vnf_texture",
+    "texture",
+    "texture_grid",
+    "textured_cylinder_vnf",
+]
 
 
 # --- small helpers mirroring the BOSL2 list utilities texture() uses ----------
@@ -885,3 +899,215 @@ def is_vnf_texture(tex: object) -> bool:
         return len(verts[0]) == 3 and hasattr(faces[0], "__len__")
     except (TypeError, ValueError, IndexError):
         return False
+
+
+def height_field(tex: "str | TextureType | TextureData", sides: int = 24) -> list[list[float]]:
+    """Return *tex* as a height field: rows of heights in 0..1, whatever kind it started as.
+
+    A named texture is looked up first. A VNF tile is rasterised
+    (:func:`rasterize_vnf_texture`), so both kinds of texture reduce to one thing a surface can be
+    displaced by -- which is what lets `cyl(texture=...)` take either without the caller knowing
+    which it got (SPEC S-34).
+
+    Args:
+        tex: A texture name, a height field, or a VNF tile.
+        sides: Raster resolution used when *tex* is a VNF tile.
+
+    Returns:
+        The height field, as a list of rows.
+
+    Raises:
+        Bosl2ValueError: if *tex* is neither kind of texture.
+
+    Examples:
+        >>> from pybosl2.texture import height_field
+        >>> height_field("ribs")
+        [[1.0, 0.0]]
+
+    """
+    tile = texture(tex) if isinstance(tex, str | TextureType) else tex
+    if is_heightfield_texture(tile):
+        return [[float(v) for v in row] for row in cast("list[list[float]]", tile)]
+    if is_vnf_texture(tile):
+        from pybosl2.vnf import VNF  # local: vnf imports this module for its texture tiles
+
+        vertices, faces = cast("tuple[list[list[float]], list[list[int]]]", tile)
+        return rasterize_vnf_texture(VNF(vertices, faces), sides=sides)
+    raise Bosl2ValueError(
+        f"height_field(): {tex!r} is neither a height field nor a VNF tile. Pass a name from "
+        f"the texture registry, a 2-D array of heights, or a (verts, faces) tile."
+    )
+
+
+def _sample(field: "Sequence[Sequence[float]]", row: int, column: int) -> float:
+    """Return one cell of a tiling height field, wrapping in both directions."""
+    return float(field[row % len(field)][column % len(field[0])])
+
+
+def texture_grid(
+    field: "Sequence[Sequence[float]]",
+    reps_around: int,
+    reps_along: int,
+) -> list[list[float]]:
+    """Tile *field* into the sampling grid for one wrapped surface.
+
+    The grid has one column per texture cell around the surface and one row per cell along it,
+    plus a closing row so the two ends are sampled exactly rather than interpolated. Columns wrap;
+    rows do not.
+
+    Args:
+        field: The height field for one tile.
+        reps_around: How many times the tile repeats around the surface.
+        reps_along: How many times it repeats along the surface.
+
+    Returns:
+        The sampled heights, one list per row.
+
+    Raises:
+        Bosl2ValueError: if either repeat count is not positive.
+
+    """
+    if reps_around < 1 or reps_along < 1:
+        raise Bosl2ValueError(
+            f"texture_grid(): repeats must be at least 1, got around={reps_around}, along={reps_along}. "
+            f"Give a smaller tex_size, or a tex_reps of 1 or more."
+        )
+    rows, columns = len(field), len(field[0])
+    return [[_sample(field, r, c) for c in range(columns * reps_around)] for r in range(rows * reps_along + 1)]
+
+
+def _repeat_counts(
+    height: float,
+    radius: float,
+    tex_size: "float | Sequence[float] | None",
+    tex_reps: "int | Sequence[int] | None",
+) -> tuple[int, int]:
+    """Return how many times a tile repeats around a surface and along it.
+
+    Args:
+        height: Height of the surface.
+        radius: Largest radius, which sets the circumference the tiles wrap.
+        tex_size: Size of one tile in millimetres, one number or ``[around, along]``.
+        tex_reps: The counts directly, one number or ``[around, along]``.
+
+    Returns:
+        The ``(around, along)`` counts, each at least 1.
+
+    """
+    if tex_reps is not None:
+        counts = [tex_reps, tex_reps] if isinstance(tex_reps, int) else list(tex_reps)
+        return max(1, int(counts[0])), max(1, int(counts[1]))
+    size = [tex_size, tex_size] if isinstance(tex_size, int | float) else list(cast("Sequence[float]", tex_size))
+    circumference = 2.0 * math.pi * radius
+    return max(1, round(circumference / float(size[0]))), max(1, round(height / float(size[1])))
+
+
+def textured_cylinder_vnf(
+    height: float,
+    radius1: float,
+    radius2: float,
+    tex: "str | TextureType | TextureData",
+    *,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
+    sides: int = 24,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> "VNF":
+    """Return a cylinder's surface with *tex* displacing it radially, as a mesh.
+
+    The side is sampled on a grid with one column per texture cell around it and one row per cell
+    along it, each vertex pushed out (or in) by the texture's height there. Both kinds of texture
+    work: a VNF tile is rasterised to a height field first (:func:`height_field`), so a caller
+    passing ``texture("dots")`` and one passing ``texture("ribs")`` get the same treatment, which
+    is what SPEC S-34 means by "the caller does not need to know which".
+
+    Give *tex_size* or *tex_reps*, not both: the first says how big one tile is in millimetres and
+    the repeat counts follow from the cylinder, the second says the counts directly.
+
+    Args:
+        height: Height of the cylinder.
+        radius1: Radius at the bottom.
+        radius2: Radius at the top.
+        tex: A texture name, a height field, or a VNF tile.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the texture's
+            valleys sit flush rather than proud. ``True`` means one full *tex_depth*.
+        sides: Raster resolution used when *tex* is a VNF tile.
+        fn: Fixed fragment count for the cylinder itself. The texture's own cells set a minimum
+            number of columns; this raises it, so a coarse texture does not make a coarse
+            cylinder (SPEC R-1). Omitted, the ambient ``use_defaults(fn=...)`` value applies.
+        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)``
+            value applies.
+        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)``
+            value applies.
+
+    Returns:
+        The textured surface as a closed :class:`~pybosl2.vnf.VNF`, capped at both ends.
+
+    Raises:
+        Bosl2ValueError: if both *tex_size* and *tex_reps* are given, or neither, or if the
+            cylinder's dimensions are not positive.
+
+    Examples:
+        >>> from pybosl2.texture import textured_cylinder_vnf
+        >>> mesh = textured_cylinder_vnf(20, 10, 10, "ribs", tex_reps=[12, 1])
+        >>> mesh.is_watertight()
+        True
+
+    """
+    from pybosl2.path3d import Path3D
+    from pybosl2.vnf import VNF
+
+    if height <= 0 or radius1 < 0 or radius2 < 0 or (radius1 == 0 and radius2 == 0):
+        raise Bosl2ValueError(
+            f"textured_cylinder_vnf(): needs a positive height and radius, got height={height}, "
+            f"radius1={radius1}, radius2={radius2}."
+        )
+    if (tex_size is None) == (tex_reps is None):
+        raise Bosl2ValueError(
+            "textured_cylinder_vnf(): give tex_size or tex_reps, not both and not neither. "
+            "tex_size is the tile's size in millimetres; tex_reps is how many times it repeats."
+        )
+
+    field = height_field(tex, sides=sides)
+    around, along = _repeat_counts(height, max(radius1, radius2), tex_size, tex_reps)
+
+    grid = texture_grid(field, reps_around=around, reps_along=along)
+
+    # The texture's cells set the column count, and that is also the cylinder's facet count -- so
+    # a two-cell texture would give a two-sided cylinder. The facet controls raise it: each cell
+    # is repeated over as many columns as it takes to reach the roundness asked for, which keeps
+    # the texture crisp (a cell stays a constant-height patch) while the curve gets smooth
+    # (SPEC R-1).
+    from pybosl2._helpers import frag_count
+
+    wanted = frag_count(max(radius1, radius2), fn, fa, fs)
+    oversample = max(1, -(-wanted // len(grid[0])))
+    if oversample > 1:
+        grid = [[h for h in row for _ in range(oversample)] for row in grid]
+
+    inset = float(tex_depth) if tex_inset is True else float(tex_inset)
+
+    rows: list[Path3D] = []
+    row_count = len(grid)
+    columns = len(grid[0])
+    for r, heights in enumerate(grid):
+        v = r / (row_count - 1)
+        z = -height / 2.0 + v * height
+        base = radius1 + (radius2 - radius1) * v
+        points: list[list[float]] = []
+        for c, h in enumerate(heights):
+            angle = 2.0 * math.pi * c / columns
+            radius = base - inset + float(h) * float(tex_depth)
+            points.append([radius * math.cos(angle), radius * math.sin(angle), z])
+        rows.append(Path3D(points, closed=True))
+
+    from pybosl2.caps import CapType
+
+    return VNF.vertex_array(rows, col_wrap=True, caps=(CapType.BUTT, CapType.BUTT))

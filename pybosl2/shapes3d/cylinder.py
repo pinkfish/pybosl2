@@ -29,7 +29,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER
-from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
+from pybosl2.exceptions import Bosl2ValueError
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -234,6 +234,78 @@ def cylinder(
 
 
 @backend_only("csg", neutral="pybosl2.solid.cyl")
+def _textured_cyl(
+    length: float,
+    radius1: float,
+    radius2: float,
+    tex: "str | TextureType",
+    *,
+    tex_size: "float | Sequence[float] | None",
+    tex_reps: "int | Sequence[int] | None",
+    tex_depth: float,
+    tex_inset: float | bool,
+    anchor: "Anchor | Sequence[float]",
+    spin: float,
+    orient: "Anchor | Sequence[float]",
+    fn: int | None,
+    fa: float | None,
+    fs: float | None,
+) -> Bosl2Solid:
+    """Build a cylinder whose side carries *tex*, as a polyhedron (SPEC S-34, S-35).
+
+    The mesh is built in pure Python (:func:`~pybosl2.texture.textured_cylinder_vnf`) and crosses
+    to geometry once, at the end. When neither *tex_size* nor *tex_reps* is given the repeats are
+    derived from the facet count the cylinder would have had, so a textured cylinder is as smooth
+    as the plain one it replaces.
+
+    Args:
+        length: Height of the cylinder.
+        radius1: Radius at the bottom.
+        radius2: Radius at the top.
+        tex: The texture, by name or already built.
+        tex_size: Size of one tile in millimetres.
+        tex_reps: Repeat counts, instead of *tex_size*.
+        tex_depth: How far the texture displaces the surface.
+        tex_inset: How far the surface is sunk before the texture is added.
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor.
+        orient: Direction to rotate the top towards, after spin.
+        fn: Fixed fragment count, used to derive the repeats when none are given.
+        fa: Minimum fragment angle in degrees.
+        fs: Minimum fragment size in millimetres.
+
+    Returns:
+        The textured cylinder.
+
+    """
+    from pybosl2.texture import textured_cylinder_vnf
+
+    if tex_size is None and tex_reps is None:
+        # Neither given, so decide (SPEC D-4): repeat the tile so one comes out roughly square in
+        # world space -- as many around as the circumference holds at the cylinder's own height.
+        # One tile around a whole cylinder is not a texture, and requiring the caller to say is
+        # what P-1 exists to avoid.
+        circumference = 2.0 * math.pi * max(radius1, radius2)
+        tex_reps = [max(1, round(circumference / length)) if length > 0 else 1, 1]
+
+    mesh = textured_cylinder_vnf(
+        length,
+        radius1,
+        radius2,
+        tex,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
+    solid = mesh.polyhedron()
+    offset = _anchor_offset_cyl(radius1, radius2, length, anchor)
+    return _finish3(Bosl2Solid._unwrap(solid), offset, spin, orient)
+
+
 def cyl(
     height: float | None = None,
     radius: float | None = None,
@@ -357,15 +429,6 @@ def cyl(
             shape.show()
 
     """
-    if texture is not None and texture != "none":
-        raise Bosl2NotImplementedError(
-            "cyl(): texture= is not built in this port yet, though the texture registry is -- "
-            "`texture('diamonds')` returns the tile. Apply it yourself with "
-            "`VNF.from_skin(...)`/`textured_tile(...)`, or build the plain cylinder and cut the "
-            "pattern. SPEC S-34/S-35 specify the parameter; this port does not honour it yet."
-        )
-    _ = (tex_size, tex_reps, tex_depth, tex_inset)
-
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
@@ -378,6 +441,24 @@ def cyl(
     use_anchor = anchor
     if use_anchor is None:
         use_anchor = CENTER if center is None or center else BOTTOM
+
+    if texture is not None and texture != "none":
+        return _textured_cyl(
+            length_val,
+            rad1,
+            rad2,
+            texture,
+            tex_size=tex_size,
+            tex_reps=tex_reps,
+            tex_depth=tex_depth,
+            tex_inset=tex_inset,
+            anchor=use_anchor,
+            spin=spin,
+            orient=orient,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
 
     r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)

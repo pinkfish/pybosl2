@@ -43,9 +43,11 @@ from pybosl2.groups import (
     EdgeSelection,
     EdgeTreatment,
     Placement,
+    Texturing,
     resolve_edge_selection,
     resolve_edge_treatment,
     resolve_placement,
+    resolve_texturing,
 )
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
@@ -148,6 +150,70 @@ def _forward(arguments: dict[str, Any]) -> dict[str, Any]:
     return {name: value for name, value in arguments.items() if value is not None}
 
 
+def _groups(
+    function: str,
+    arguments: dict[str, Any],
+    *,
+    placement: Placement | None = None,
+    treatment: EdgeTreatment | None = None,
+    selection: EdgeSelection | None = None,
+    texturing: Texturing | None = None,
+    per_corner: bool = True,
+) -> dict[str, Any]:
+    """Resolve every argument group *in place* in the arguments a constructor is about to forward.
+
+    One call rather than one per group, and it works on the forwarding dict itself rather than
+    beside it -- the loose members are already listed there, so resolving them in place costs a
+    constructor nothing but the wrapper. Three separate calls plus their unpacking was thirteen
+    lines in every constructor, which is the transcription B-3 is about.
+
+    The groups are independent: a placement says nothing about a texture. They are resolved
+    together only because they are forwarded together.
+
+    Args:
+        function: Name of the calling constructor, for the error messages.
+        arguments: What the constructor is about to forward, in its own spelling.
+        placement: The placement group, or ``None``.
+        treatment: The edge-treatment group, or ``None``.
+        selection: The edge-selection group, or ``None``.
+        texturing: The texturing group, or ``None``.
+        per_corner: Whether this constructor takes an edge size per corner.
+
+    Returns:
+        *arguments*, with each group's members replaced by what the group resolves to.
+
+    """
+    if {"anchor", "spin", "orient"} & set(arguments):
+        arguments["anchor"], arguments["spin"], arguments["orient"] = resolve_placement(
+            placement, arguments.get("anchor"), arguments.get("spin"), arguments.get("orient"), function
+        )
+    if {"rounding", "chamfer"} & set(arguments):
+        arguments["rounding"], arguments["chamfer"] = resolve_edge_treatment(
+            treatment, arguments.get("rounding"), arguments.get("chamfer"), function, per_corner=per_corner
+        )
+    if {"edges", "except_edges"} & set(arguments):
+        arguments["edges"], arguments["except_edges"] = resolve_edge_selection(
+            selection, arguments.get("edges"), arguments.get("except_edges"), function
+        )
+    if "texture" in arguments:
+        (
+            arguments["texture"],
+            arguments["tex_size"],
+            arguments["tex_reps"],
+            arguments["tex_depth"],
+            arguments["tex_inset"],
+        ) = resolve_texturing(
+            texturing,
+            arguments.get("texture"),
+            arguments.get("tex_size"),
+            arguments.get("tex_reps"),
+            arguments.get("tex_depth"),
+            arguments.get("tex_inset"),
+            function,
+        )
+    return arguments
+
+
 def cube(
     size: float | Sequence[float] | None = 1,
     *,
@@ -234,29 +300,33 @@ def cube(
             cube(size=20, rounding=3).show()
 
     """
-    edges, except_edges = resolve_edge_selection(selection, edges, except_edges, "cube")
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cube", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cube")
     return get_backend().construct(
         "cube",
         _forward(
-            {
-                "size": size,
-                "chamfer": chamfer,
-                "rounding": rounding,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "edges": edges,
-                "except_edges": except_edges,
-                "teardrop": teardrop,
-                "trimcorners": trimcorners,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "cube",
+                {
+                    "size": size,
+                    "center": center,
+                    "teardrop": teardrop,
+                    "trimcorners": trimcorners,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "except_edges": except_edges,
+                    "orient": orient,
+                    "edges": edges,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+                selection=selection,
+                per_corner=False,
+            )
         ),
     )
 
@@ -339,30 +409,34 @@ def cuboid(
             shape.show()
 
     """
-    edges, except_edges = resolve_edge_selection(selection, edges, except_edges, "cuboid")
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cuboid", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cuboid")
     return get_backend().construct(
         "cuboid",
         _forward(
-            {
-                "size": size,
-                "chamfer": chamfer,
-                "rounding": rounding,
-                "edges": edges,
-                "except_edges": except_edges,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "p1": p1,
-                "p2": p2,
-                "teardrop": teardrop,
-                "trimcorners": trimcorners,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "cuboid",
+                {
+                    "size": size,
+                    "p1": p1,
+                    "p2": p2,
+                    "teardrop": teardrop,
+                    "trimcorners": trimcorners,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "except_edges": except_edges,
+                    "orient": orient,
+                    "edges": edges,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+                selection=selection,
+                per_corner=False,
+            )
         ),
     )
 
@@ -408,6 +482,7 @@ def cyl(
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
+    texturing: Texturing | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -463,6 +538,8 @@ def cyl(
         tex_reps: Number of texture repetitions (CSG backend).
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
+        texturing: The texture and how it is applied, as one value (SPEC G-1). Giving it beside any
+            of the tex_* arguments raises (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
             to fa/fs.
@@ -502,54 +579,59 @@ def cyl(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cyl", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cyl")
     return get_backend().construct(
         "cyl",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "center": center,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "shift": shift,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "chamfer_angle": chamfer_angle,
-                "chamfer_angle1": chamfer_angle1,
-                "chamfer_angle2": chamfer_angle2,
-                "circumscribe": circumscribe,
-                "clip_angle": clip_angle,
-                "extra": extra,
-                "extra1": extra1,
-                "extra2": extra2,
-                "from_end": from_end,
-                "from_end1": from_end1,
-                "from_end2": from_end2,
-                "realign": realign,
-                "teardrop": teardrop,
-                "tex_depth": tex_depth,
-                "tex_inset": tex_inset,
-                "tex_reps": tex_reps,
-                "tex_size": tex_size,
-                "texture": texture,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "cyl",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "center": center,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "shift": shift,
+                    "chamfer_angle": chamfer_angle,
+                    "chamfer_angle1": chamfer_angle1,
+                    "chamfer_angle2": chamfer_angle2,
+                    "circumscribe": circumscribe,
+                    "clip_angle": clip_angle,
+                    "extra": extra,
+                    "extra1": extra1,
+                    "extra2": extra2,
+                    "from_end": from_end,
+                    "from_end1": from_end1,
+                    "from_end2": from_end2,
+                    "realign": realign,
+                    "teardrop": teardrop,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "tex_inset": tex_inset,
+                    "tex_reps": tex_reps,
+                    "orient": orient,
+                    "tex_size": tex_size,
+                    "texture": texture,
+                    "chamfer": chamfer,
+                    "tex_depth": tex_depth,
+                },
+                placement=placement,
+                treatment=treatment,
+                texturing=texturing,
+                per_corner=False,
+            )
         ),
     )
 
@@ -595,6 +677,7 @@ def cylinder(
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
+    texturing: Texturing | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -650,6 +733,8 @@ def cylinder(
         tex_reps: Number of texture repetitions (CSG backend).
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
+        texturing: The texture and how it is applied, as one value (SPEC G-1). Giving it beside any
+            of the tex_* arguments raises (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
             to fa/fs.
@@ -689,54 +774,59 @@ def cylinder(
             cylinder(height=30, radius=12, rounding=2).show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "cylinder", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "cylinder")
     return get_backend().construct(
         "cylinder",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "center": center,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "chamfer_angle": chamfer_angle,
-                "chamfer_angle1": chamfer_angle1,
-                "chamfer_angle2": chamfer_angle2,
-                "circumscribe": circumscribe,
-                "clip_angle": clip_angle,
-                "extra": extra,
-                "extra1": extra1,
-                "extra2": extra2,
-                "from_end": from_end,
-                "from_end1": from_end1,
-                "from_end2": from_end2,
-                "realign": realign,
-                "shift": shift,
-                "teardrop": teardrop,
-                "tex_depth": tex_depth,
-                "tex_inset": tex_inset,
-                "tex_reps": tex_reps,
-                "tex_size": tex_size,
-                "texture": texture,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "cylinder",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "center": center,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "chamfer_angle": chamfer_angle,
+                    "chamfer_angle1": chamfer_angle1,
+                    "chamfer_angle2": chamfer_angle2,
+                    "circumscribe": circumscribe,
+                    "clip_angle": clip_angle,
+                    "extra": extra,
+                    "extra1": extra1,
+                    "extra2": extra2,
+                    "from_end": from_end,
+                    "from_end1": from_end1,
+                    "from_end2": from_end2,
+                    "realign": realign,
+                    "shift": shift,
+                    "teardrop": teardrop,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "tex_inset": tex_inset,
+                    "tex_reps": tex_reps,
+                    "orient": orient,
+                    "tex_size": tex_size,
+                    "texture": texture,
+                    "chamfer": chamfer,
+                    "tex_depth": tex_depth,
+                },
+                placement=placement,
+                treatment=treatment,
+                texturing=texturing,
+                per_corner=False,
+            )
         ),
     )
 
@@ -778,9 +868,21 @@ def octahedron(
             octahedron(size=20).show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "octahedron")
     return get_backend().construct(
-        "octahedron", _forward({"size": size, "anchor": anchor, "spin": spin, "orient": orient, "res": res})
+        "octahedron",
+        _forward(
+            _groups(
+                "octahedron",
+                {
+                    "size": size,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "res": res,
+                },
+                placement=placement,
+            )
+        ),
     )
 
 
@@ -839,24 +941,27 @@ def onion(
             onion(radius=15).show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "onion")
     return get_backend().construct(
         "onion",
         _forward(
-            {
-                "radius": radius,
-                "angle": angle,
-                "cap_height": cap_height,
-                "diameter": diameter,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "circumscribe": circumscribe,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "onion",
+                {
+                    "radius": radius,
+                    "angle": angle,
+                    "cap_height": cap_height,
+                    "diameter": diameter,
+                    "circumscribe": circumscribe,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                },
+                placement=placement,
+            )
         ),
     )
 
@@ -926,29 +1031,32 @@ def pie_slice(
             pie_slice(radius=20, angle=120, height=5).show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "pie_slice")
     return get_backend().construct(
         "pie_slice",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "angle": angle,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "length": length,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "pie_slice",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "angle": angle,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "length": length,
+                    "center": center,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                },
+                placement=placement,
+            )
         ),
     )
 
@@ -1029,32 +1137,35 @@ def prismoid(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "prismoid")
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "prismoid")
     return get_backend().construct(
         "prismoid",
         _forward(
-            {
-                "size1": size1,
-                "size2": size2,
-                "height": height,
-                "shift": shift,
-                "length": length,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "prismoid",
+                {
+                    "size1": size1,
+                    "size2": size2,
+                    "height": height,
+                    "shift": shift,
+                    "length": length,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "center": center,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+            )
         ),
     )
 
@@ -1154,43 +1265,46 @@ def rect_tube(
             rect_tube(size=30, wall=3, height=20).show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "rect_tube")
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "rect_tube")
     return get_backend().construct(
         "rect_tube",
         _forward(
-            {
-                "height": height,
-                "size": size,
-                "isize": isize,
-                "wall": wall,
-                "rounding": rounding,
-                "inner_rounding": inner_rounding,
-                "anchor": anchor,
-                "length": length,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "inner_chamfer": inner_chamfer,
-                "inner_chamfer1": inner_chamfer1,
-                "inner_chamfer2": inner_chamfer2,
-                "inner_rounding1": inner_rounding1,
-                "inner_rounding2": inner_rounding2,
-                "isize1": isize1,
-                "isize2": isize2,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "shift": shift,
-                "size1": size1,
-                "size2": size2,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "rect_tube",
+                {
+                    "height": height,
+                    "size": size,
+                    "isize": isize,
+                    "wall": wall,
+                    "inner_rounding": inner_rounding,
+                    "length": length,
+                    "center": center,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "inner_chamfer": inner_chamfer,
+                    "inner_chamfer1": inner_chamfer1,
+                    "inner_chamfer2": inner_chamfer2,
+                    "inner_rounding1": inner_rounding1,
+                    "inner_rounding2": inner_rounding2,
+                    "isize1": isize1,
+                    "isize2": isize2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "shift": shift,
+                    "size1": size1,
+                    "size2": size2,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+            )
         ),
     )
 
@@ -1293,40 +1407,44 @@ def regular_prism(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "regular_prism", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "regular_prism")
     return get_backend().construct(
         "regular_prism",
         _forward(
-            {
-                "sides": sides,
-                "height": height,
-                "radius": radius,
-                "diameter": diameter,
-                "inner_radius": inner_radius,
-                "inner_diameter": inner_diameter,
-                "side": side,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "shift": shift,
-                "circumscribe": circumscribe,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "realign": realign,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "regular_prism",
+                {
+                    "sides": sides,
+                    "height": height,
+                    "radius": radius,
+                    "diameter": diameter,
+                    "inner_radius": inner_radius,
+                    "inner_diameter": inner_diameter,
+                    "side": side,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "shift": shift,
+                    "circumscribe": circumscribe,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "realign": realign,
+                    "center": center,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+                per_corner=False,
+            )
         ),
     )
 
@@ -1383,22 +1501,25 @@ def sphere(
             shape.show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "sphere")
     return get_backend().construct(
         "sphere",
         _forward(
-            {
-                "radius": radius,
-                "diameter": diameter,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "circumscribe": circumscribe,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "sphere",
+                {
+                    "radius": radius,
+                    "diameter": diameter,
+                    "circumscribe": circumscribe,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                },
+                placement=placement,
+            )
         ),
     )
 
@@ -1454,22 +1575,25 @@ def spheroid(
             spheroid(radius=15).show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "spheroid")
     return get_backend().construct(
         "spheroid",
         _forward(
-            {
-                "radius": radius,
-                "diameter": diameter,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "circumscribe": circumscribe,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "spheroid",
+                {
+                    "radius": radius,
+                    "diameter": diameter,
+                    "circumscribe": circumscribe,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                },
+                placement=placement,
+            )
         ),
     )
 
@@ -1552,35 +1676,39 @@ def teardrop(
             shape.show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "teardrop")
     return get_backend().construct(
         "teardrop",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "angle": angle,
-                "cap_height": cap_height,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "anchor": anchor,
-                "spin": spin,
-                "orient": orient,
-                "cap_h1": cap_h1,
-                "cap_h2": cap_h2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "circumscribe": circumscribe,
-                "realign": realign,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "teardrop",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "angle": angle,
+                    "cap_height": cap_height,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "cap_h1": cap_h1,
+                    "cap_h2": cap_h2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "circumscribe": circumscribe,
+                    "realign": realign,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                per_corner=False,
+            )
         ),
     )
 
@@ -1649,28 +1777,31 @@ def torus(
             shape.show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "torus")
     return get_backend().construct(
         "torus",
         _forward(
-            {
-                "major_radius": major_radius,
-                "minor_radius": minor_radius,
-                "major_diameter": major_diameter,
-                "minor_diameter": minor_diameter,
-                "outer_radius": outer_radius,
-                "inner_radius": inner_radius,
-                "outer_diameter": outer_diameter,
-                "inner_diameter": inner_diameter,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "torus",
+                {
+                    "major_radius": major_radius,
+                    "minor_radius": minor_radius,
+                    "major_diameter": major_diameter,
+                    "minor_diameter": minor_diameter,
+                    "outer_radius": outer_radius,
+                    "inner_radius": inner_radius,
+                    "outer_diameter": outer_diameter,
+                    "inner_diameter": inner_diameter,
+                    "center": center,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                },
+                placement=placement,
+            )
         ),
     )
 
@@ -1780,43 +1911,47 @@ def tube(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "tube", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "tube")
     return get_backend().construct(
         "tube",
         _forward(
-            {
-                "height": height,
-                "outer_radius": outer_radius,
-                "inner_radius": inner_radius,
-                "outer_diameter": outer_diameter,
-                "inner_diameter": inner_diameter,
-                "wall": wall,
-                "length": length,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "inner_diameter1": inner_diameter1,
-                "inner_diameter2": inner_diameter2,
-                "inner_radius1": inner_radius1,
-                "inner_radius2": inner_radius2,
-                "outer_diameter1": outer_diameter1,
-                "outer_diameter2": outer_diameter2,
-                "outer_radius1": outer_radius1,
-                "outer_radius2": outer_radius2,
-                "realign": realign,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "tube",
+                {
+                    "height": height,
+                    "outer_radius": outer_radius,
+                    "inner_radius": inner_radius,
+                    "outer_diameter": outer_diameter,
+                    "inner_diameter": inner_diameter,
+                    "wall": wall,
+                    "length": length,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "center": center,
+                    "inner_diameter1": inner_diameter1,
+                    "inner_diameter2": inner_diameter2,
+                    "inner_radius1": inner_radius1,
+                    "inner_radius2": inner_radius2,
+                    "outer_diameter1": outer_diameter1,
+                    "outer_diameter2": outer_diameter2,
+                    "outer_radius1": outer_radius1,
+                    "outer_radius2": outer_radius2,
+                    "realign": realign,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "orient": orient,
+                    "chamfer": chamfer,
+                },
+                placement=placement,
+                treatment=treatment,
+                per_corner=False,
+            )
         ),
     )
 
@@ -1860,10 +1995,22 @@ def wedge(
             wedge([30, 20, 15]).show()
 
     """
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "wedge")
     return get_backend().construct(
         "wedge",
-        _forward({"size": size, "anchor": anchor, "center": center, "spin": spin, "orient": orient, "res": res}),
+        _forward(
+            _groups(
+                "wedge",
+                {
+                    "size": size,
+                    "anchor": anchor,
+                    "center": center,
+                    "spin": spin,
+                    "orient": orient,
+                    "res": res,
+                },
+                placement=placement,
+            )
+        ),
     )
 
 
@@ -1908,6 +2055,7 @@ def xcyl(
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
+    texturing: Texturing | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1963,6 +2111,8 @@ def xcyl(
         tex_reps: Number of texture repetitions (CSG backend).
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
+        texturing: The texture and how it is applied, as one value (SPEC G-1). Giving it beside any
+            of the tex_* arguments raises (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
             to fa/fs.
@@ -1985,54 +2135,59 @@ def xcyl(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "xcyl", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "xcyl")
     return get_backend().construct(
         "xcyl",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "chamfer_angle": chamfer_angle,
-                "chamfer_angle1": chamfer_angle1,
-                "chamfer_angle2": chamfer_angle2,
-                "circumscribe": circumscribe,
-                "clip_angle": clip_angle,
-                "extra": extra,
-                "extra1": extra1,
-                "extra2": extra2,
-                "from_end": from_end,
-                "from_end1": from_end1,
-                "from_end2": from_end2,
-                "realign": realign,
-                "shift": shift,
-                "teardrop": teardrop,
-                "tex_depth": tex_depth,
-                "tex_inset": tex_inset,
-                "tex_reps": tex_reps,
-                "tex_size": tex_size,
-                "texture": texture,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "xcyl",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "center": center,
+                    "chamfer_angle": chamfer_angle,
+                    "chamfer_angle1": chamfer_angle1,
+                    "chamfer_angle2": chamfer_angle2,
+                    "circumscribe": circumscribe,
+                    "clip_angle": clip_angle,
+                    "extra": extra,
+                    "extra1": extra1,
+                    "extra2": extra2,
+                    "from_end": from_end,
+                    "from_end1": from_end1,
+                    "from_end2": from_end2,
+                    "realign": realign,
+                    "shift": shift,
+                    "teardrop": teardrop,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "tex_inset": tex_inset,
+                    "tex_reps": tex_reps,
+                    "orient": orient,
+                    "tex_size": tex_size,
+                    "texture": texture,
+                    "chamfer": chamfer,
+                    "tex_depth": tex_depth,
+                },
+                placement=placement,
+                treatment=treatment,
+                texturing=texturing,
+                per_corner=False,
+            )
         ),
     )
 
@@ -2078,6 +2233,7 @@ def ycyl(
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
+    texturing: Texturing | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2133,6 +2289,8 @@ def ycyl(
         tex_reps: Number of texture repetitions (CSG backend).
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
+        texturing: The texture and how it is applied, as one value (SPEC G-1). Giving it beside any
+            of the tex_* arguments raises (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
             to fa/fs.
@@ -2155,54 +2313,59 @@ def ycyl(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "ycyl", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "ycyl")
     return get_backend().construct(
         "ycyl",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "chamfer_angle": chamfer_angle,
-                "chamfer_angle1": chamfer_angle1,
-                "chamfer_angle2": chamfer_angle2,
-                "circumscribe": circumscribe,
-                "clip_angle": clip_angle,
-                "extra": extra,
-                "extra1": extra1,
-                "extra2": extra2,
-                "from_end": from_end,
-                "from_end1": from_end1,
-                "from_end2": from_end2,
-                "realign": realign,
-                "shift": shift,
-                "teardrop": teardrop,
-                "tex_depth": tex_depth,
-                "tex_inset": tex_inset,
-                "tex_reps": tex_reps,
-                "tex_size": tex_size,
-                "texture": texture,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "ycyl",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "center": center,
+                    "chamfer_angle": chamfer_angle,
+                    "chamfer_angle1": chamfer_angle1,
+                    "chamfer_angle2": chamfer_angle2,
+                    "circumscribe": circumscribe,
+                    "clip_angle": clip_angle,
+                    "extra": extra,
+                    "extra1": extra1,
+                    "extra2": extra2,
+                    "from_end": from_end,
+                    "from_end1": from_end1,
+                    "from_end2": from_end2,
+                    "realign": realign,
+                    "shift": shift,
+                    "teardrop": teardrop,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "tex_inset": tex_inset,
+                    "tex_reps": tex_reps,
+                    "orient": orient,
+                    "tex_size": tex_size,
+                    "texture": texture,
+                    "chamfer": chamfer,
+                    "tex_depth": tex_depth,
+                },
+                placement=placement,
+                treatment=treatment,
+                texturing=texturing,
+                per_corner=False,
+            )
         ),
     )
 
@@ -2248,6 +2411,7 @@ def zcyl(
     tex_reps: int | Sequence[int] | None = None,
     tex_size: float | Sequence[float] | None = None,
     texture: Any = None,
+    texturing: Texturing | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2303,6 +2467,8 @@ def zcyl(
         tex_reps: Number of texture repetitions (CSG backend).
         tex_size: Size of one texture tile (CSG backend).
         texture: Named texture for the side surface (CSG backend).
+        texturing: The texture and how it is applied, as one value (SPEC G-1). Giving it beside any
+            of the tex_* arguments raises (SPEC G-3).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
             to fa/fs.
@@ -2325,54 +2491,59 @@ def zcyl(
             shape.show()
 
     """
-    rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "zcyl", per_corner=False)
-    anchor, spin, orient = resolve_placement(placement, anchor, spin, orient, "zcyl")
     return get_backend().construct(
         "zcyl",
         _forward(
-            {
-                "height": height,
-                "radius": radius,
-                "length": length,
-                "radius1": radius1,
-                "radius2": radius2,
-                "diameter": diameter,
-                "diameter1": diameter1,
-                "diameter2": diameter2,
-                "chamfer": chamfer,
-                "chamfer1": chamfer1,
-                "chamfer2": chamfer2,
-                "rounding": rounding,
-                "rounding1": rounding1,
-                "rounding2": rounding2,
-                "anchor": anchor,
-                "center": center,
-                "spin": spin,
-                "orient": orient,
-                "chamfer_angle": chamfer_angle,
-                "chamfer_angle1": chamfer_angle1,
-                "chamfer_angle2": chamfer_angle2,
-                "circumscribe": circumscribe,
-                "clip_angle": clip_angle,
-                "extra": extra,
-                "extra1": extra1,
-                "extra2": extra2,
-                "from_end": from_end,
-                "from_end1": from_end1,
-                "from_end2": from_end2,
-                "realign": realign,
-                "shift": shift,
-                "teardrop": teardrop,
-                "tex_depth": tex_depth,
-                "tex_inset": tex_inset,
-                "tex_reps": tex_reps,
-                "tex_size": tex_size,
-                "texture": texture,
-                "fn": fn,
-                "fa": fa,
-                "fs": fs,
-                "res": res,
-            }
+            _groups(
+                "zcyl",
+                {
+                    "height": height,
+                    "radius": radius,
+                    "length": length,
+                    "radius1": radius1,
+                    "radius2": radius2,
+                    "diameter": diameter,
+                    "diameter1": diameter1,
+                    "diameter2": diameter2,
+                    "chamfer1": chamfer1,
+                    "chamfer2": chamfer2,
+                    "rounding1": rounding1,
+                    "rounding2": rounding2,
+                    "center": center,
+                    "chamfer_angle": chamfer_angle,
+                    "chamfer_angle1": chamfer_angle1,
+                    "chamfer_angle2": chamfer_angle2,
+                    "circumscribe": circumscribe,
+                    "clip_angle": clip_angle,
+                    "extra": extra,
+                    "extra1": extra1,
+                    "extra2": extra2,
+                    "from_end": from_end,
+                    "from_end1": from_end1,
+                    "from_end2": from_end2,
+                    "realign": realign,
+                    "shift": shift,
+                    "teardrop": teardrop,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                    "res": res,
+                    "rounding": rounding,
+                    "anchor": anchor,
+                    "spin": spin,
+                    "tex_inset": tex_inset,
+                    "tex_reps": tex_reps,
+                    "orient": orient,
+                    "tex_size": tex_size,
+                    "texture": texture,
+                    "chamfer": chamfer,
+                    "tex_depth": tex_depth,
+                },
+                placement=placement,
+                treatment=treatment,
+                texturing=texturing,
+                per_corner=False,
+            )
         ),
     )
 
