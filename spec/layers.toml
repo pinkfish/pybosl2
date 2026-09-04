@@ -84,5 +84,4 @@ L5_parts = ["parts"]
 "path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
 "regions -> shapes3d" = "Region.text3d reaches the CSG module directly (A-10)."
 "skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
-"turtle2d -> shapes2d" = "The turtle builds its arcs through the CSG module (A-10)."
 "vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."

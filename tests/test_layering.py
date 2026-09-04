@@ -236,7 +236,7 @@ def test_a_facade_bridge_really_targets_the_facade(name: str) -> None:
 
 def test_the_known_violation_count_only_shrinks() -> None:
     """The ratchet. Fixing an edge means deleting its row; nothing may add one."""
-    budget = 12
+    budget = 11
     count = len(MODEL["known_violations"])
     assert count <= budget, f"{count} known violations, budget {budget}"
     if count < budget:

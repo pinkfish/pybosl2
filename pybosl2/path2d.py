@@ -3143,3 +3143,221 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
 
 # ---------------------------------------------------------------------------
+
+
+def arc(
+    count: int | None = None,
+    radius: float | None = None,
+    angle: float | Sequence[float] | None = None,
+    diameter: float | None = None,
+    center: Sequence[float] | None = None,
+    points: "Path2D | None" = None,
+    corner: Sequence[Sequence[float]] | None = None,
+    width: float | None = None,
+    thickness: float | None = None,
+    start: float | None = None,
+    wedge: bool = False,
+    long: bool = False,
+    clockwise: bool = False,
+    counterclockwise: bool = False,
+    endpoint: bool = True,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Path2D:
+    """Return a 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).
+
+    All of BOSL2's 2-D arc specifications are supported (3-D arcs, which project onto a plane,
+    are not):
+
+    * ``arc(radius=, angle=, [start=], [center=])`` -- radius about *center*, sweeping *angle* degrees from
+      *start* (or ``angle=[start, end]`` for an explicit range).
+    * ``arc(width=, thickness=)`` -- a circular segment starting and ending on the X axis.
+    * ``arc(center=, points=[P0, P1])`` -- around *center* from ``P0`` toward the direction of ``P1``; the
+      short way by default, or the long/``clockwise``/``counterclockwise`` way.
+    * ``arc(points=[P0, P1, P2])`` -- through three points, from ``P0`` via ``P1`` to ``P2``.
+    * ``arc(corner=[P0, P1, P2], radius=)`` -- the fillet arc of radius tangent to both legs of the
+      corner ``P0-P1-P2``.
+
+    Set ``wedge=True`` to prepend the centre point, giving a closed pie/sector path. When *count* is
+    omitted the point count follows OpenSCAD's $fn/$fa/$fs rules, matching BOSL2.
+
+    Args:
+        count:      number of points (default: from $fn/$fa/$fs)
+        radius:   radius of the arc
+        diameter: diameter of the arc
+        angle:      degrees to sweep from *start*, or ``[start, end]``
+        center:     centre point (default ``[0, 0]``)
+        points:     two points (with *center*) or three points the arc passes through
+        corner:     three points; the arc is the radius fillet tangent to both legs
+        width:      chord width for the width/thickness form
+        thickness:  height of the circular segment for the width/thickness form
+        start:      starting angle in degrees (default 0)
+        wedge:      prepend the centre point, producing a closed sector (default False)
+        long:             for the two-point form, take the long way / a given handedness
+        clockwise:        for the two-point form, take the long way / a given handedness
+        counterclockwise: for the two-point form, take the long way / a given handedness
+        endpoint:   include the final point (default True)
+        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+            ``fn=0`` opts back out to fa/fs.
+        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
+    Returns:
+        A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
+
+    """
+    from pybosl2._helpers import arc_points as _arc_points
+    from pybosl2._helpers import circle_from_3pts as _circle_from_3pts
+    from pybosl2._helpers import circle_from_corner as _circle_from_corner
+    from pybosl2._helpers import det2 as _det2
+    from pybosl2._helpers import frag_count as _frag_count
+    from pybosl2._helpers import pick_radius as _pick_radius
+    from pybosl2._helpers import sign as _sign
+    from pybosl2.geometry import vector_angle3 as _vector_angle
+    from pybosl2.vectors import unit
+
+    # -- width + thickness: a circular segment through 3 points on/above the X axis ----------
+    if width is not None and thickness is not None:
+        if any((v is not None for v in (radius, center, points, angle, start))):
+            raise Bosl2ValueError("conflicting arc() params")
+        return arc(
+            count=count,
+            points=Path2D([[width / 2, 0], [0, thickness], [-width / 2, 0]]),
+            wedge=wedge,
+            endpoint=endpoint,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
+
+    # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
+    if corner is not None:
+        if not (len(corner) == 3):
+            raise Bosl2ValueError("corner= needs exactly 3 points")
+        if is_collinear(
+            Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
+        ):
+            raise Bosl2ValueError("Collinear corner does not define an arc")
+        rad = _pick_radius(radius=radius, diameter=diameter)
+        if not (rad is not None):
+            raise Bosl2ValueError("arc(corner=) needs radius= or diameter=")
+        if not (rad > 0):
+            raise Bosl2ValueError("arc(corner=) needs radius= or diameter=")
+        p0, p1, p2 = corner
+        v1 = unit([float(p0[0]) - float(p1[0]), float(p0[1]) - float(p1[1])])
+        v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
+        half = math.acos(max(-1.0, min(1.0, v1[0] * v2[0] + v1[1] * v2[1]))) / 2
+        d_tan = rad / math.tan(half)
+        cp2 = _circle_from_corner(corner, rad)
+        tp1 = [float(p1[0]) + v1[0] * d_tan, float(p1[1]) + v1[1] * d_tan]
+        tp2 = [float(p1[0]) + v2[0] * d_tan, float(p1[1]) + v2[1] * d_tan]
+        forward = (
+            _det2(
+                [float(p1[0]) - float(p0[0]), float(p1[1]) - float(p0[1])],
+                [float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])],
+            )
+            > 0
+        )
+        c0, c1 = (tp1, tp2) if forward else (tp2, tp1)
+        ts = math.degrees(math.atan2(c0[1] - cp2[1], c0[0] - cp2[0]))
+        te = math.degrees(math.atan2(c1[1] - cp2[1], c1[0] - cp2[0]))
+        sweep = (te - ts) % 360
+        rng = [ts, ts + sweep] if forward else [ts + sweep, ts]
+        return arc(
+            count=count,
+            center=cp2,
+            radius=rad,
+            angle=rng,
+            wedge=wedge,
+            endpoint=endpoint,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
+
+    # -- points forms ------------------------------------------------------------------------
+    if points is not None:
+        points = cast("Path2D", require_path(points, "points", "arc", Path2D))
+        pts = [[float(p[0]), float(p[1])] for p in points]
+        if not (all((len(p) == 2 for p in points))):
+            raise Bosl2ValueError("arc() port handles 2-D points only")
+        if len(pts) == 2:
+            if not (center is not None):
+                raise Bosl2ValueError("center= is required when points has length 2")
+            if not (pts[0] != pts[1]):
+                raise Bosl2ValueError("arc endpoints are equal")
+            centre = [float(center[0]), float(center[1])]
+            dv1 = [float(pts[0][0]) - centre[0], float(pts[0][1]) - centre[1]]
+            dv2 = [float(pts[1][0]) - centre[0], float(pts[1][1]) - centre[1]]
+            angle_val = _vector_angle(pts[0], centre, pts[1])
+            prelim = _sign(_det2(dv1, dv2))
+            if prelim != 0:
+                direction = prelim
+            else:
+                if not (clockwise or counterclockwise):
+                    raise Bosl2ValueError("Collinear inputs don't define a unique arc")
+                direction = 1
+            rad = math.hypot(dv1[0], dv1[1])
+            if long or (counterclockwise and direction < 0) or (clockwise and direction > 0):
+                final_angle = -direction * (360 - angle_val)
+            else:
+                final_angle = direction * angle_val
+            sa = math.degrees(math.atan2(dv1[1], dv1[0]))
+            return arc(
+                count=count,
+                center=centre,
+                radius=rad,
+                start=sa,
+                angle=final_angle,
+                wedge=wedge,
+                endpoint=endpoint,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
+        if not (len(pts) == 3):
+            raise Bosl2ValueError(f"arc(points=) needs 2 or 3 points, got {len(pts)}")
+        if is_collinear(Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])):
+            raise Bosl2ValueError("arc(points=): the three points are collinear, so they define no arc.")
+        centre, arc_radius = _circle_from_3pts(pts)
+        a0 = math.degrees(math.atan2(pts[0][1] - centre[1], pts[0][0] - centre[0]))
+        am = math.degrees(math.atan2(pts[1][1] - centre[1], pts[1][0] - centre[0]))
+        a1 = math.degrees(math.atan2(pts[2][1] - centre[1], pts[2][0] - centre[0]))
+        d_mid = (am - a0) % 360
+        d_end = (a1 - a0) % 360
+        delta = d_end if d_mid <= d_end else d_end - 360
+        point_count = (
+            count if count is not None else max(3, math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(delta) / 360))
+        )
+        out = _arc_points(point_count, arc_radius, a0, delta, centre, endpoint=endpoint)
+        if wedge:
+            out = [list(centre)] + out
+        return Path2D(out, closed=wedge)
+
+    # -- radius + angle (with optional [start, end] range) -----------------------------------
+    arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
+    if arc_r is None:
+        raise Bosl2ValueError(
+            "arc(): needs a size -- give radius= or diameter=, three points= to pass through, "
+            "a corner= to fit, or width=/thickness=."
+        )
+    if isinstance(angle, (list, tuple)):
+        if start is not None:
+            raise Bosl2ValueError("start= is not allowed with angle=[start, end]")
+        calc_start = float(angle[0])
+        calc_angle = float(angle[1]) - float(angle[0])
+    elif isinstance(angle, (int, float)):
+        calc_angle = float(angle)
+        calc_start = 0.0 if start is None else float(start)
+    elif angle is None:
+        calc_angle = 360.0
+        calc_start = 0.0 if start is None else float(start)
+    else:
+        raise TypeError(f"angle must be a number, a [start, end] pair, or None, got {type(angle)}")
+    calc_center = (0.0, 0.0) if center is None else center
+    point_count = count if count is not None else math.ceil(_frag_count(arc_r, fn, fa, fs) * abs(calc_angle) / 360) + 1
+    out = _arc_points(point_count, arc_r, calc_start, calc_angle, calc_center, endpoint=endpoint)
+    if wedge:
+        out = [list(calc_center)] + out
+    return Path2D(out, closed=wedge)

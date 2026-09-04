@@ -1053,3 +1053,57 @@ def teardrop_stations(
         inner = max(0.001, rad2 - chamfer2)
         stations.append((back + abs(chamfer2), inner, capped(inner, None if cap2 is None else cap2 - chamfer2)))
     return stations
+
+
+# Plane-geometry helpers that were private to `pybosl2.shapes2d.base` until T50, moved here so
+# `arc()` -- which is 205 lines of trigonometry returning a `Path2D`, and builds nothing -- could
+# move out of a backend module with them. They join `arc_points`, `frag_count` and
+# `circle_from_3pts`, which are the same kind of thing and were already here.
+
+
+def circle_from_corner(corner: Sequence[Sequence[float]], radius: float) -> list[float]:
+    """Return the centre of a circle of *radius* tangent to both arms of a corner.
+
+    Args:
+        corner: Three points -- the arms meet at the middle one.
+        radius: The circle's radius.
+
+    Returns:
+        The centre, on the corner's angle bisector.
+
+    """
+    p0, p1, p2 = corner
+    v1 = unit([p0[0] - p1[0], p0[1] - p1[1]])
+    v2 = unit([p2[0] - p1[0], p2[1] - p1[1]])
+    bis = unit([v1[0] + v2[0], v1[1] + v2[1]])
+    half_ang = math.acos(max(-1.0, min(1.0, v1[0] * bis[0] + v1[1] * bis[1])))
+    dist = radius / math.sin(half_ang)
+    return [p1[0] + bis[0] * dist, p1[1] + bis[1] * dist]
+
+
+def det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
+    """Return the 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross).
+
+    Args:
+        vec_a: The first vector.
+        vec_b: The second.
+
+    Returns:
+        The scalar cross product.
+
+    """
+    return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
+
+
+def sign(value: float) -> int:
+    """Return -1, 0 or 1 according to the sign of *value*.
+
+    Args:
+        value: The number to test.
+
+    Returns:
+        Its sign.
+
+    """
+    value = float(value)
+    return (value > 0) - (value < 0)

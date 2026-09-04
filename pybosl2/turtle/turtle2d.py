@@ -30,9 +30,8 @@ import numpy as np
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import general_line_intersection, line_normal
-from pybosl2.path2d import Path2D
+from pybosl2.path2d import Path2D, arc
 from pybosl2.points import Point
-from pybosl2.shapes2d import arc
 from pybosl2.vectors import unit
 
 from ._fluent import TurtleCommands
