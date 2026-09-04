@@ -2191,6 +2191,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frame_map4_yz</span><span class="p">,</span> <span class="n">rot_from_to4</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">vec3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
@@ -2495,10 +2496,19 @@
 
 <span class="sd">    :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead</span>
 <span class="sd">    of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).</span>
+
+<span class="sd">    **Both are CSG-only, and say so now.** They are built out of native primitives -- `path_extrude`</span>
+<span class="sd">    clips with `pythonscad.cube`, and `path_extrude2d` takes its corner fillets from</span>
+<span class="sd">    `_planar_half`, which cuts with `pythonscad.square` -- so neither follows the active backend</span>
+<span class="sd">    however the profile is dispatched. Under `use_backend("sdf")` they used to fail from inside,</span>
+<span class="sd">    with an `AttributeError` about `_sdf_fn` or a complaint that "every argument must be a</span>
+<span class="sd">    PyShape": raw exceptions no `except Bosl2Error` could catch, naming an internal detail rather</span>
+<span class="sd">    than the call the caller made (SPEC E-1, E-6, B-9).</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Extrudable.path_extrude2d">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable.path_extrude2d">[docs]</a>
+    <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude2d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
@@ -2585,6 +2595,7 @@
 
 <div class="viewcode-block" id="Extrudable.path_extrude">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable.path_extrude">[docs]</a>
+    <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
