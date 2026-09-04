@@ -276,3 +276,47 @@ def test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on(label: str,
     assert "debug_" in message, f"{label}: the refusal does not name the call: {message}"
     assert "text3d" not in message, f"{label}: the refusal surfaces an internal path: {message}"
     assert "vertices=False" in message, "and says what to do instead"
+
+
+def test_the_path_extrusions_take_a_profile_a_sweep_cannot() -> None:
+    """Why `Extrudable` cannot be rewritten to build a VNF, pinned so it cannot be lost quietly.
+
+    T52 recorded that closing `path2d/path3d -> miscellaneous` means rewriting these two methods to
+    produce a `VNF` the way `Sweepable` does -- "a geometry rewrite rather than a move". Measuring
+    it (T54) says something stronger: **it is a feature removal.**
+
+    A VNF sweep needs the cross-section as *points*. These take any native 2-D object, and that is
+    the stated reason they exist -- `path_extrude`'s own docstring says "for most sweeps
+    `path_sweep` is faster and cleaner; this exists for extruding an arbitrary native 2-D object
+    (text, multi-part shapes) that is not a single polygon". This is that case: two disjoint
+    squares, which `path_sweep` cannot take at all.
+
+    Nor can the point-list subset be delegated to `path_sweep` and only the rest kept native: the
+    two build *different geometry* for the same profile -- a mitred extrusion against a
+    rotation-minimising frame -- so the same call would mean two things.
+    """
+    import pybosl2
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
+
+    def two_squares() -> object:
+        one = pybosl2.square(size=[3, 3], center=True)
+        return one | pybosl2.square(size=[3, 3], center=True).translate([8, 0])
+
+    with use_backend("csg"):
+        # The capability: a disjoint, multi-part profile that is not a single polygon.
+        assert Path3D([[0, 0, 0], [0, 0, 12], [8, 0, 18]]).path_extrude(profile=two_squares) is not None
+        assert Path2D([[0, 0], [10, 0], [10, 8]]).path_extrude2d(profile=two_squares) is not None
+
+        with pytest.raises(TypeError):
+            Path3D([[0, 0, 0], [0, 0, 12]]).path_sweep(two_squares())
+
+        # And the two are not interchangeable even where both accept the profile.
+        square = Path2D([[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]])
+        path = Path3D([[0, 0, 0], [0, 0, 12], [8, 0, 18]])
+        mitred = [round(float(v), 2) for v in path.path_extrude(profile=square).bounds().size]
+        swept = [round(float(v), 2) for v in path.path_sweep(square).bounds().size]
+        assert mitred != swept, (
+            "path_extrude and path_sweep now agree, so the point-list case could be delegated -- "
+            f"re-measure before trusting the note in spec/layers.toml ({mitred} vs {swept})"
+        )

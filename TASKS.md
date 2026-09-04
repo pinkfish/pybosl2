@@ -1710,6 +1710,56 @@ One shared rule now (`_helpers.refuse_text_labels`), which is the fourth time th
 writing a rule once was the fix rather than a tidy-up.
 
 
+## T54 — The VNF rewrite would remove a feature ✅
+
+**§12.2 item 22, continued. A-1. No code change; a correction to T52's own record.**
+
+T52 concluded that closing `path2d/path3d -> miscellaneous` meant *"rewriting the two methods to
+produce a VNF the way `Sweepable` does — a geometry rewrite rather than a move"*. That was still a
+guess. Measured, it is worse than a rewrite: **it is a feature removal.**
+
+### A VNF sweep needs points; these exist to take profiles that are not points
+
+`path_sweep(shape: PathLike)` takes a cross-section as a *point list*. `path_extrude(profile)`
+takes any native 2-D object — and `path_extrude`'s own docstring says why:
+
+> For most sweeps `path_sweep` is faster and cleaner; this exists for extruding an arbitrary
+> native 2-D object (text, multi-part shapes) that is not a single polygon.
+
+That is exactly the case, and it is checkable:
+
+```
+path_extrude  with a disjoint two-part profile  ->  builds
+path_sweep    with the same profile             ->  TypeError
+```
+
+Both `path_extrude` and `path_extrude2d` take it. A VNF version could not.
+
+### And the point-list subset cannot be delegated either
+
+The obvious partial fix — send point-list profiles to `path_sweep` and keep native ones on the CSG
+path — makes the same call mean two things:
+
+| same path, same square profile | bounding box |
+|---|---|
+| `path_extrude` (mitred segments) | `[10.4, 3.0, 19.2]` |
+| `path_sweep` (rotation-minimising frame) | `[9.81, 3.0, 19.84]` |
+
+They are different constructions, not two spellings of one.
+
+### What this is worth
+
+The edge stays, and its entry now says **it is the price of a capability, not deferred tidying** —
+which is a different instruction to whoever reads the debt list next. A test pins the multi-part
+profile so nobody discovers the cost by removing it, and asserts the two constructions still
+disagree, so if they ever converge the note gets re-measured rather than trusted.
+
+**Three tasks running, three stated reasons wrong.** T50 found the debt list counting typing-only
+edges; T52 found "lives in an L3 module" was an accident-of-filing reading of something structural;
+T54 found T52's own replacement reason understated the cost. The list is worth much more than it
+was, and none of that came from moving code.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
