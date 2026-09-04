@@ -1,0 +1,2724 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../_static/favicon.png">
+    
+    
+      
+        <title>pybosl2.caps - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=abc98148" />
+        <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
+      <img src="../../_static/logo.png" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pybosl2.caps
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
+      <img src="../../_static/logo.png" alt="logo">
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Start here</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Start here</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting started</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Color</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Mesh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/textures.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Beziers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Skin</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Coverage</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Coverage</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bosl2_coverage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>BOSL2 coverage</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1>Source code for pybosl2.caps</h1><div class="highlight"><pre>
+<span></span><code><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+<span class="c1"># LibFile: pybosl2/caps.py</span>
+<span class="c1"># FileSummary: Stroke and sweep end caps: the CapType styles and the CapSpec value.</span>
+<span class="c1"># DocCategory: Foundational</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="sd">"""End-cap specifications shared by sweep, skin, bezier, and stroke drawing.</span>
+
+<span class="sd">Provides the :class:`CapType` enum, the :class:`CapSpec` dataclass for</span>
+<span class="sd">controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,</span>
+<span class="sd">:mod:`pybosl2.beziers`, and :mod:`pybosl2.drawing`.</span>
+
+<span class="sd">Cap types</span>
+<span class="sd">    ``NONE`` -- no cap (open end)</span>
+<span class="sd">    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)</span>
+<span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)</span>
+<span class="sd">    ``CIRCLE`` -- round-over end cap (planned)</span>
+<span class="sd">    ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles</span>
+<span class="sd">    ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    Fancy sweep cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are</span>
+<span class="sd">    scaffolding only -- they resolve to flat caps. Full BOSL2 cap profiles</span>
+<span class="sd">    need the sweep's 3-D end-profile geometry exported into</span>
+<span class="sd">    :class:`~pybosl2.vnf.VNF` and are not yet ported.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"CapType"</span><span class="p">,</span>
+    <span class="s2">"CapSpec"</span><span class="p">,</span>
+    <span class="s2">"CapsSpec"</span><span class="p">,</span>
+    <span class="s2">"endcap_polys"</span><span class="p">,</span>
+    <span class="s2">"endcap_trim"</span><span class="p">,</span>
+    <span class="s2">"has_decorative_caps"</span><span class="p">,</span>
+    <span class="s2">"norm_caps"</span><span class="p">,</span>
+    <span class="s2">"vnf_with_decorative_caps"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="CapType">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.CapType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CapType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""End-cap or stroke-endcap style.</span>
+
+<span class="sd">    Sweep/skin cap types:</span>
+<span class="sd">        ``NONE`` -- no cap (open end)</span>
+<span class="sd">        ``BUTT`` -- flat end cap</span>
+<span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical (planned)</span>
+<span class="sd">        ``CIRCLE`` -- round-over (planned)</span>
+<span class="sd">        ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape</span>
+
+<span class="sd">    Stroke endcap/joint types:</span>
+<span class="sd">        ``ARROW`` / ``ARROW2`` / ``ARROW3`` -- arrow heads</span>
+<span class="sd">        ``DIAMOND`` -- diamond shape</span>
+<span class="sd">        ``DOT`` -- circular dot</span>
+<span class="sd">        ``BLOCK`` / ``SQUARE`` -- rectangular block</span>
+<span class="sd">        ``CHISEL`` -- chisel edge</span>
+<span class="sd">        ``TAIL`` / ``TAIL2`` -- tail shapes</span>
+<span class="sd">        ``CROSS`` / ``X`` / ``LINE`` -- line markers</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Path3D, CapType</span>
+
+<span class="sd">            spine = Path3D([[0,0,0],[0,0,30],[30,0,30]], closed=False)</span>
+<span class="sd">            spine.stroke(width=4, endcaps=CapType.ARROW).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">"none"</span>
+    <span class="c1"># Sweep cap types</span>
+    <span class="n">BUTT</span> <span class="o">=</span> <span class="s2">"butt"</span>
+    <span class="n">ROUND</span> <span class="o">=</span> <span class="s2">"round"</span>
+    <span class="n">SPHERE</span> <span class="o">=</span> <span class="s2">"sphere"</span>
+    <span class="n">CIRCLE</span> <span class="o">=</span> <span class="s2">"circle"</span>
+    <span class="n">CUSTOM</span> <span class="o">=</span> <span class="s2">"custom"</span>
+    <span class="c1"># Stroke endcap/joint types</span>
+    <span class="n">ARROW</span> <span class="o">=</span> <span class="s2">"arrow"</span>
+    <span class="n">ARROW2</span> <span class="o">=</span> <span class="s2">"arrow2"</span>
+    <span class="n">ARROW3</span> <span class="o">=</span> <span class="s2">"arrow3"</span>
+    <span class="n">BLOCK</span> <span class="o">=</span> <span class="s2">"block"</span>
+    <span class="n">CHISEL</span> <span class="o">=</span> <span class="s2">"chisel"</span>
+    <span class="n">CROSS</span> <span class="o">=</span> <span class="s2">"cross"</span>
+    <span class="n">DIAMOND</span> <span class="o">=</span> <span class="s2">"diamond"</span>
+    <span class="n">DOT</span> <span class="o">=</span> <span class="s2">"dot"</span>
+    <span class="n">LINE</span> <span class="o">=</span> <span class="s2">"line"</span>
+    <span class="n">SQUARE</span> <span class="o">=</span> <span class="s2">"square"</span>
+    <span class="n">TAIL</span> <span class="o">=</span> <span class="s2">"tail"</span>
+    <span class="n">TAIL2</span> <span class="o">=</span> <span class="s2">"tail2"</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="s2">"x"</span></div>
+
+
+
+<span class="c1">#: A cap specification used by sweep/skin entry points. Can be:</span>
+<span class="c1">#:</span>
+<span class="c1">#: * a single :class:`CapType` enum member (same cap on both ends)</span>
+<span class="c1">#: * a :class:`CapSpec` with custom dimensions</span>
+<span class="c1">#: * a ``Sequence[CapType | CapSpec]`` pair (per-end caps)</span>
+<span class="c1">#:</span>
+<span class="c1">#: Use ``CapType.NONE`` to request no cap; ``CapType.BUTT`` for a flat cap.</span>
+<span class="n">CapsSpec</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">"CapType | CapSpec | str | Sequence[CapType | CapSpec | str]"</span>
+
+<span class="c1">#: The default cap type used when no explicit cap is requested.</span>
+<span class="n">DEFAULT_CAP</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span>
+
+
+<div class="viewcode-block" id="CapSpec">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.CapSpec">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CapSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Customisable end-cap specification.</span>
+
+<span class="sd">    Used wherever a cap type is accepted. The *cap_type* field selects the</span>
+<span class="sd">    shape; *length*, *width*, and *height* control the dimensions; *angle*</span>
+<span class="sd">    rotates the cap; *color* overrides the path colour when set.</span>
+
+<span class="sd">    When *cap_type* is :attr:`CapType.CUSTOM`, the *path* field must hold</span>
+<span class="sd">    a custom 2-D polygon to use as the endcap shape.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cap_type: The :class:`CapType` style.</span>
+<span class="sd">        length: Cap length multiplier (along the path direction).</span>
+<span class="sd">        width: Cap width multiplier (perpendicular scale).</span>
+<span class="sd">        height: Cap height multiplier (0 means use the computed default from width/length).</span>
+<span class="sd">        extent: Extent multiplier for the cap shape.</span>
+<span class="sd">        angle: Rotation angle of the cap in degrees.</span>
+<span class="sd">        color: Override colour for the cap, or ``None`` for the path colour.</span>
+<span class="sd">        path: Custom polygon path for :attr:`CapType.CUSTOM`; ignored otherwise.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Path3D, CapSpec, CapType</span>
+
+<span class="sd">            spine = Path3D([[0,0,0],[0,0,40]], closed=False)</span>
+<span class="sd">            cap = CapSpec(CapType.ARROW, length=2, width=3)</span>
+<span class="sd">            spine.stroke(width=4, endcaps=cap).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">cap_type</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">DEFAULT_CAP</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Post-initialization hook."""</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Default CapSpec for each stroke endcap/joint CapType (BOSL2 _shape_defaults).</span>
+<span class="c1"># Used by endcap_polys via normalize_one; the caller's fields override.</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="n">_DEFAULTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CapType</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">CHISEL</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">CHISEL</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">SQUARE</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">SQUARE</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">DIAMOND</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">DIAMOND</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">DOT</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">DOT</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">45.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">CROSS</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">CROSS</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">LINE</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">LINE</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.22</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW2</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">ARROW2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.14</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW3</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">ARROW3</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">TAIL</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">TAIL</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.47</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">TAIL2</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">TAIL2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">SPHERE</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">SPHERE</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Cap normalisation helpers</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="norm_caps">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.norm_caps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Normalize a :data:`CapsSpec` to a ``[CapSpec, CapSpec]`` pair.</span>
+
+<span class="sd">    Returns a list of two fully-resolved :class:`CapSpec` objects for the</span>
+<span class="sd">    start and end caps. ``CapSpec(cap_type=CapType.NONE)`` means no cap.</span>
+<span class="sd">    When *closed* is True, both caps are ``CapType.NONE``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        caps: The cap specification to normalize.</span>
+<span class="sd">        closed: Whether the sweep is closed (no caps on either end).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A ``[CapSpec, CapSpec]`` pair.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">),</span> <span class="n">CapSpec</span><span class="p">(</span><span class="n">cap_type</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">caps</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">normalize_one</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">caps</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_one</span><span class="p">(</span><span class="n">cap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CapSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Normalize a single cap value to a fully-resolved :class:`CapSpec`.</span>
+
+<span class="sd">    If given a raw :class:`CapType`, looks up the default :class:`CapSpec`</span>
+<span class="sd">    from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it</span>
+<span class="sd">    unchanged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cap: The cap to build.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cap</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cap</span> <span class="o">=</span> <span class="n">CapType</span><span class="p">(</span><span class="n">cap</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_DEFAULTS</span><span class="p">[</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">CapType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_DEFAULTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">_DEFAULTS</span><span class="p">[</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_DEFAULTS</span><span class="p">[</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="has_decorative_caps">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.has_decorative_caps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_decorative_caps</span><span class="p">(</span><span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return True if any endcap is a decorative (non-flat/non-dome/non-none) type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cap_specs: The caps for each end and the joints.</span>
+
+<span class="sd">    """</span>
+    <span class="n">_basic</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">SPHERE</span><span class="p">})</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_basic</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">cap_specs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="vnf_with_decorative_caps">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.vnf_with_decorative_caps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vnf_with_decorative_caps</span><span class="p">(</span>
+    <span class="n">vnf</span><span class="p">:</span> <span class="n">VNF</span><span class="p">,</span>
+    <span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">],</span>
+    <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">profile_centers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">profile_outdirs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">profile_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Convert VNF to CSG polyhedron, add decorative endcaps, return Bosl2Solid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vnf: The body VNF (already volume-checked and corrected).</span>
+<span class="sd">        cap_specs: Normalised cap pair.</span>
+<span class="sd">        closed: Whether the sweep is closed (no caps expected).</span>
+<span class="sd">        profile_centers: Centroids of the first and last profiles.</span>
+<span class="sd">        profile_outdirs: Outward directions for the first and last caps.</span>
+<span class="sd">        profile_radius: Bounding radius of the profile (half the *width* passed to endcap geometry).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A Bosl2Solid with the body polyhedron and any decorative endcaps unioned.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">endcap_geometry_3d</span>
+
+    <span class="k">if</span> <span class="n">closed</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cap_specs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+
+    <span class="n">body</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">profile_radius</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="k">for</span> <span class="n">spec</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">outdir</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">cap_specs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">profile_centers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">profile_outdirs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">cap_specs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile_centers</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">profile_outdirs</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">SPHERE</span><span class="p">):</span>
+            <span class="n">ec</span> <span class="o">=</span> <span class="n">endcap_geometry_3d</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">center</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">outdir</span><span class="p">),</span> <span class="n">width</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">|</span> <span class="n">ec</span>
+    <span class="k">return</span> <span class="n">body</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Stroke endcap polygon generation (shared by drawing.py and caps.py)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="endcap_polys">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.endcap_polys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">endcap_polys</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">lw</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">"""Return the local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).</span>
+
+<span class="sd">    Dimensions are taken directly from the :class:`CapSpec` which has</span>
+<span class="sd">    already been resolved by :func:`normalize_one` against</span>
+<span class="sd">    :data:`_DEFAULTS`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The resolved cap specification.</span>
+<span class="sd">        lw: The line width (stroke width) to scale the polygons.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of (N,2) polygon point lists in the endcap's local frame</span>
+<span class="sd">        (X is the line direction, Y is perpendicular).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"CapType.CUSTOM requires path= on the CapSpec"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span><span class="p">]]</span>
+
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "</span>
+            <span class="s2">"CapSpec with a custom path for an exact circle."</span>
+        <span class="p">)</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">extent</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="n">w</span> <span class="o">-</span> <span class="n">l2</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">lw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="k">else</span> <span class="n">lw</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">w2</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span>
+    <span class="n">poly</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">:</span>
+        <span class="n">th</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">16</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">th</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CHISEL</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">SQUARE</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DIAMOND</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="o">-</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DOT</span><span class="p">:</span>
+        <span class="n">th</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">16</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">th</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]])</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CROSS</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">LINE</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW2</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="mf">0.75</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW3</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="mf">0.5</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">TAIL</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">TAIL2</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mf">0.17</span><span class="p">)</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
+
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">angle</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">cos_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">))</span>
+        <span class="n">sin_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">))</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos_a</span> <span class="o">-</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span> <span class="o">+</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poly</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">poly</span></div>
+
+
+
+<div class="viewcode-block" id="endcap_trim">
+<a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.endcap_trim">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">endcap_trim</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How far to pull the line back under an arrow endcap so it doesn't poke through the tip.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The resolved cap specification.</span>
+<span class="sd">        width: The stroke line width.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The trim distance in world units (0.0 for non-arrow styles).</span>
+
+<span class="sd">    """</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="k">else</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW3</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.0</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">place</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">theta_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">at</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Rotate a local polygon by *theta_deg* and translate it to point *at*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        poly: The cap's outline.</span>
+<span class="sd">        theta_deg: The cap's angle in degrees.</span>
+<span class="sd">        at: Where along the path the cap sits.</span>
+
+<span class="sd">    """</span>
+    <span class="c1"># Imported here, not at module scope: `pybosl2.paths` imports CapSpec from this module, so a</span>
+    <span class="c1"># top-level import closes the cycle and the package stops importing at all.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_path</span>
+
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">require_path</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="s2">"poly"</span><span class="p">,</span> <span class="s2">"place"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">))</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta_deg</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">at</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poly</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">trim_ends</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">trim1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">trim2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        body: The stroke body the cap is attached to.</span>
+<span class="sd">        trim1: How much to trim from the start so the cap keeps the requested end position.</span>
+<span class="sd">        trim2: How much to trim from the end.</span>
+
+<span class="sd">    """</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">body</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">trim1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">b0</span> <span class="o">-</span> <span class="n">a0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">-</span> <span class="n">a1</span>
+        <span class="n">seglen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">trim1</span><span class="p">,</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="n">seglen</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglen</span>
+        <span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a0</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">t</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">trim2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">b0</span> <span class="o">-</span> <span class="n">a0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">-</span> <span class="n">a1</span>
+        <span class="n">seglen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">trim2</span><span class="p">,</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="n">seglen</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglen</span>
+        <span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a0</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">t</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">body</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">oriented_to</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">outdir</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">at</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.</span>
+
+<span class="sd">    Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's</span>
+<span class="sd">    solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: The shape being capped.</span>
+<span class="sd">        outdir: Direction the cap points.</span>
+<span class="sd">        at: Where along the path the cap sits.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_from_to</span>
+
+    <span class="n">angle</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">rot_from_to</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">outdir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">at</span><span class="p">])</span>
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    9.1.0.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
+    
+  </body>
+</html>

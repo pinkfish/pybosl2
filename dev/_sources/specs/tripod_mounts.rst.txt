@@ -1,0 +1,169 @@
+:icon: material/wrench-outline
+
+.. _spec-tripod_mounts:
+
+tripod mounts
+=============
+
+.. raw:: html
+
+    <p class="spec-lede">A Manfrotto RC2 quick-release tripod mount plate — the industry-standard plate for camera and accessory mounting, with a trapezoidal body, chamfered edges, and corner cutouts.</p>
+
+.. raw:: html
+
+    <div class="spec-panel">
+      <div class="spec-draw">
+        <div class="spec-caption"><span id="vpart">ManfrottoRC2Plate().shape</span></div>
+        <div class="spec-viewer" id="viewer">
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Top-down view of a Manfrotto RC2 quick-release tripod plate." xmlns="http://www.w3.org/2000/svg"><rect x="174.9" y="31.2" width="110.2" height="157.5" rx="2" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/><path d="M 181.4,34.25 L 278.6,34.25 L 278.6,185.75 L 181.4,185.75 Z" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.8"/><rect x="174.9" y="31.2" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="220.1" y="31.2" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="174.9" y="174.5" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="220.1" y="174.5" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><path d="M 200.0,182.8 L 200.0,170.8 L 212.0,162.8 L 212.0,182.8 Z" fill="color-mix(in srgb,var(--accent) 16%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="230.0" cy="110.0" r="5" fill="var(--ground)" stroke="var(--pass)" stroke-width="1.6"/><circle cx="230.0" cy="110.0" r="1.5" fill="var(--pass)"/><line x1="164.9" y1="31.2" x2="164.9" y2="188.8" stroke="var(--ink-faint)" stroke-width="1"/><text x="158.9" y="108.0" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="9">52.5</text><line x1="174.9" y1="21.2" x2="285.1" y2="21.2" stroke="var(--ink-faint)" stroke-width="1"/><text x="230.0" y="15.2" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="9">42.4 / 37.4</text><text x="230.0" y="208.8" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">trapezoidal body · chamfered edges · corner cutouts</text></svg></div>
+        </div>
+      </div>
+      <div class="spec-info">
+        <div class="spec-info-header">
+          <h2>rendered &amp; measured</h2>
+          <span class="spec-pill spec-pass" id="wtpill">watertight</span>
+        </div>
+        <p>The plate body is built from a turtle-defined cross-section swept over 52.5 mm. Chamfering is controlled by the <b>chamfer</b> argument — set to <b>all</b>, <b>bot</b>/<b>bottom</b>, or <b>none</b>.</p>
+        <div class="spec-taglabel">variants &middot; click to load</div>
+        <div class="spec-tags"><button class="spec-tag" type="button">all chamfer</button> <button class="spec-tag" type="button">bottom chamfer</button> <button class="spec-tag" type="button">no chamfer</button></div>
+        <div class="spec-stats">
+          <div><span class="spec-stat-v" id="s-tris">112</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">19,569.5</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-bbox">42×52×10</span><span class="spec-stat-l">bbox mm</span></div>
+        </div>
+        <div class="spec-code-wrap">
+          <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
+          <div class="spec-code" id="code">&gt;&gt;&gt; ManfrottoRC2Plate().shape</div>
+        </div>
+
+        <div class="spec-tests">1 tests</div>
+      </div>
+    </div>
+
+.. raw:: html
+
+    <script id="spec-data" type="application/json">[{"id": "rc2-all", "label": "all chamfer", "uri": "_stl/tripod_mounts-rc2-all.stl", "code": "ManfrottoRC2Plate().shape", "part": "ManfrottoRC2Plate().shape", "tris": 112, "vol": "19,569.5", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-bot", "label": "bottom chamfer", "uri": "_stl/tripod_mounts-rc2-bot.stl", "code": "ManfrottoRC2Plate(chamfer=\"bot\").shape", "part": "ManfrottoRC2Plate(chamfer=\"bot\").shape", "tris": 88, "vol": "19,581.0", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-none", "label": "no chamfer", "uri": "_stl/tripod_mounts-rc2-none.stl", "code": "ManfrottoRC2Plate(chamfer=\"none\").shape", "part": "ManfrottoRC2Plate(chamfer=\"none\").shape", "tris": 72, "vol": "19,591.9", "bbox": "42\u00d752\u00d710", "wt": true}]</script>
+    <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+    (function() {
+      const dataEl = document.getElementById("spec-data");
+      if (!dataEl) return;
+      const V = JSON.parse(dataEl.textContent);
+      const box = document.getElementById("viewer");
+      const poster = document.getElementById("poster");
+      if (!box) return;
+
+      let renderer, scene, camera, controls, mesh, ready = false;
+      const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+      const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+      function resize() {
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
+        renderer.setSize(w, Math.max(1, h));
+        camera.aspect = w / Math.max(1, h);
+        camera.updateProjectionMatrix();
+        controls.update();
+      }
+
+      function initThree() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.up.set(0, 0, 1);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        box.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const k = new THREE.DirectionalLight(0xffffff, 0.85);
+        k.position.set(1, 0.6, 1);
+        scene.add(k);
+        const f = new THREE.DirectionalLight(0xffffff, 0.4);
+        f.position.set(-1, -0.8, 0.5);
+        scene.add(f);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        window.addEventListener("resize", resize);
+        ready = true;
+        (function loop() {
+          requestAnimationFrame(loop);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+      }
+
+      const loader = new STLLoader();
+      function loadStl(uri) {
+        if (!ready) initThree();
+        loader.load(uri, function(geo) {
+          if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+          geo.computeVertexNormals();
+          geo.computeBoundingBox();
+          const c = new THREE.Vector3();
+          geo.boundingBox.getCenter(c);
+          const s = new THREE.Vector3();
+          geo.boundingBox.getSize(s);
+          geo.translate(-c.x, -c.y, -c.z);
+          mesh = new THREE.Mesh(geo,
+            new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+          scene.add(mesh);
+          const r = Math.max(s.x, s.y, s.z) || 1;
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          // Depth range tied to the model: a fixed 0.01/1e6 span leaves so little depth precision
+          // that big parts z-fight and shimmer while orbiting.
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          // Depth range tied to the model: a fixed 0.01/1e6 span leaves so little depth precision
+          // that big parts z-fight and shimmer while orbiting.
+          camera.near = r / 100;
+          camera.far = r * 100;
+          camera.updateProjectionMatrix();
+          controls.target.set(0, 0, 0);
+          controls.update();
+          if (poster) poster.style.display = "none";
+          const hint = box.querySelector(".hint");
+          if (hint) hint.remove();
+          resize();
+        }, undefined, function() {
+          if (!box.querySelector(".hint")) {
+            const h = document.createElement("div");
+            h.className = "hint";
+            h.style.cssText = (
+              "position:absolute;inset:0;display:flex;align-items:center;"
+              + "justify-content:center;padding:1em;color:#a00;"
+              + "background:rgba(255,255,255,0.8);font-size:0.85em;"
+            );
+            h.textContent = "Could not load STL — file may be missing";
+            box.appendChild(h);
+          }
+        });
+      }
+
+      function selectVariant(i) {
+        const v = V[i];
+        const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+        buttons.forEach((b, j) => {
+          b.setAttribute("aria-selected", j === i ? "true" : "false");
+          b.classList.toggle("active", j === i);
+        });
+        document.getElementById("code").textContent = ">>> " + v.code;
+        document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+        document.getElementById("s-vol").textContent = v.vol;
+        document.getElementById("s-bbox").textContent = v.bbox;
+        document.getElementById("vpart").textContent = v.part;
+        document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+        loadStl(v.uri);
+      }
+
+      const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+      buttons.forEach((b, i) => {
+        b.addEventListener("click", () => { selectVariant(i); });
+      });
+      selectVariant(0);
+    })();
+    </script>
+    <script>
+    function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
+    navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
+    setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
+    </script>
