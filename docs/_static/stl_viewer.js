@@ -90,9 +90,24 @@ function tick() {
 // --------------------------------------------------------------------------
 
 class Viewer {
+  resolveUri(uri) {
+    if (!uri) return uri;
+    if (uri.startsWith("http://") || uri.startsWith("https://") || uri.startsWith("/")) {
+      return uri;
+    }
+    if (uri.startsWith("_stl/")) {
+      try {
+        return new URL("../" + uri, import.meta.url).href;
+      } catch {
+        return uri;
+      }
+    }
+    return uri;
+  }
+
   constructor(el) {
     this.el = el;
-    this.uri = el.dataset.stlUri;
+    this.uri = this.resolveUri(el.dataset.stlUri);
     this.color = el.dataset.stlColor || "#6f9ac9";
     this.status = el.querySelector(".stl-viewer-status");
     this.mesh = null;
@@ -176,7 +191,10 @@ class Viewer {
       this.uri,
       (geo) => this.onGeometry(geo),
       undefined,
-      () => this.fail("Could not load STL (serve the docs over HTTP to view)."),
+      (err) => {
+        const detail = (err && (err.message || (err.target && err.target.status ? `HTTP ${err.target.status}` : null))) || null;
+        this.fail(detail ? `Could not load STL (${detail}).` : "Could not load STL (serve docs over HTTP to view).");
+      },
     );
   }
 
@@ -212,14 +230,24 @@ class Viewer {
 
   fail(message) {
     if (this.status) {
-      if (this.uri) {
-        this.status.innerHTML =
-          '<a href="' + this.uri + '" download>&#8681; Download STL mesh</a>'
-          + '<br><small style="opacity:0.65">WebGL is unavailable &mdash; <a href="https://support.google.com/chrome/answer/6138473">enable hardware acceleration</a> in Chrome, or try <a href="chrome://flags/#enable-webgl-swiftshader">SwiftShader</a> for software rendering.</small>';
-        this.status.classList.add("stl-viewer-fallback");
+      if (rendererFailed) {
+        if (this.uri) {
+          this.status.innerHTML =
+            '<a href="' + this.uri + '" download>&#8681; Download STL mesh</a>'
+            + '<br><small style="opacity:0.65">WebGL is unavailable &mdash; <a href="https://support.google.com/chrome/answer/6138473">enable hardware acceleration</a> in Chrome, or try <a href="chrome://flags/#enable-webgl-swiftshader">SwiftShader</a> for software rendering.</small>';
+          this.status.classList.add("stl-viewer-fallback");
+          this.status.classList.remove("stl-viewer-error");
+        } else {
+          this.status.textContent = message || "WebGL is unavailable";
+          this.status.classList.add("stl-viewer-error");
+          this.status.classList.remove("stl-viewer-fallback");
+        }
       } else {
-        this.status.textContent = message;
+        const link = this.uri ? '<a href="' + this.uri + '" download>&#8681; Download STL mesh</a><br>' : '';
+        this.status.innerHTML =
+          link + '<small style="opacity:0.85">' + (message || "Could not load STL (serve docs over HTTP to view).") + '</small>';
         this.status.classList.add("stl-viewer-error");
+        this.status.classList.remove("stl-viewer-fallback");
       }
     }
   }

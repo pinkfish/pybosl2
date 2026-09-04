@@ -470,24 +470,29 @@ def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
     the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
     error. Silence is the one outcome B-9 does not allow.
 
-    **The example has had to change four times, and that is the point of the rule.** `spin=` was
-    this test's CSG-only option until T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took
-    its place and T42 built that; `rect_tube(size1=)` took *its* place and T44 built that;
-    `cyl(teardrop=)` took that one and T45 built it. **Not one of the four was ever CSG-only** --
-    all four were unwritten, and naming one here quietly asserted otherwise. What B-9 governs is
-    the *refusal*, not any particular gap, so the example is drawn from whatever
-    `tests/test_option_parity.py` still counts, and `test_the_examples_here_are_still_gaps` fails
-    with that in the message the next time one is built.
+    **This used a real option, and had to change five times.** `spin=` was the CSG-only one until
+    T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took its place and T42 built that;
+    then `rect_tube(size1=)` (T44), `cyl(teardrop=)` (T45), `cuboid(trimcorners=)` (T47), and
+    `regular_prism(shift=)` (T48). **Not one of the six was ever CSG-only** -- every one was
+    unwritten, and naming it here quietly asserted otherwise.
+
+    There is now **no option one backend builds and the other refuses**, so there is no example
+    left to draw on and this is a test of the mechanism instead: a constructor that does not
+    declare a parameter, and a value the caller asked for. That is the rule; the examples were
+    only ever illustrations of it, and the illustrations kept turning out to be wrong.
     """
+    from pybosl2._backend import refuse_unhonoured
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    sheared = {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}
-    with use_backend("csg"):
-        assert solid.regular_prism(**sheared).backend == "csg"  # type: ignore[attr-defined]
+    def narrow(size: float = 1.0) -> None:
+        """Stand-in for a backend constructor that has never heard of `spin`."""
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="shift") as excinfo:
-        solid.regular_prism(**sheared)
-    assert "use_backend" in str(excinfo.value)  # the message names the way forward
+    with pytest.raises(UnsupportedByBackendError, match="spin") as excinfo:
+        refuse_unhonoured("widget", {"size": 10.0, "spin": 45.0}, narrow, "sdf")
+    assert "use_backend" in str(excinfo.value), "the message names the way forward"
+
+    # A default the façade forwards on the caller's behalf still passes quietly (SPEC B-3).
+    refuse_unhonoured("widget", {"size": 10.0, "spin": 0.0}, narrow, "sdf")
 
 
 def test_turning_something_off_is_a_request_the_backend_has_to_honour() -> None:
@@ -710,37 +715,41 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     )
 
 
-@pytest.mark.parametrize(
-    ("shape", "kwargs", "expected"),
-    [
-        ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
-    ],
-)
-def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
-    shape: str,
-    kwargs: dict[str, object],
-    expected: tuple[float | None, float | None, float | None],
-) -> None:
-    """Reachable is not the claim -- honoured on one backend and refused on the other is.
+def test_no_option_is_left_that_one_backend_builds_and_the_other_refuses() -> None:
+    """What `test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf` became.
 
-    Every example here is drawn from what `tests/test_option_parity.py` still counts as a gap, and
-    `test_the_examples_here_are_still_gaps` says so out loud: this list has gone stale four times
-    as the gaps closed (T40, T42, T44, T45), each time as a confusing DID NOT RAISE rather than as
-    "your example was built".
+    That test picked an option the façade carries, built it on CSG, and required the SDF backend
+    to refuse it by name. Its examples went stale six times as the gaps closed, and this run took
+    the last one: **the measured gap table is empty.** There is nothing to build on one backend
+    and be refused on the other, which is the outcome B-9 exists to drive towards rather than a
+    reason to keep a test pointing at whatever is left.
+
+    So the assertion is the state itself. If a new CSG-only option is added, this fails and the
+    refusal test comes back with it -- which is the right time for it to exist.
     """
-    from pybosl2.exceptions import UnsupportedByBackendError
+    import sys
 
-    with use_backend("csg"):
-        built = getattr(solid, shape)(**kwargs)
-    size = built.bounds().size
-    for axis, want in enumerate(expected):
-        if want is not None:
-            assert float(size[axis]) == pytest.approx(want, abs=0.2), f"{shape}: size {list(size)}"
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
-        getattr(solid, shape)(**kwargs)
-    # The message names the parameter that is missing, not just the shape.
-    assert any(key in str(excinfo.value) for key in kwargs)
+    from test_option_parity import GAPS
+
+    from pybosl2.exceptions import Bosl2NotImplementedError
+
+    # `GAPS` is measured off the two signatures, so it still lists an option the CSG backend
+    # *declares* and refuses to build. That is a missing feature, not a parity gap -- and it is
+    # checked here rather than asserted, because "neither backend does it" is exactly the kind of
+    # claim that quietly stops being true.
+    unbuilt = {("cube", "teardrop"), ("cuboid", "teardrop")}
+    for shape, option in sorted(unbuilt):
+        with use_backend("csg"), pytest.raises(Bosl2NotImplementedError):
+            getattr(solid, shape)(size=10, **{option: True})
+
+    live = {shape: sorted(o for o in options if (shape, o) not in unbuilt) for shape, options in GAPS.items()}
+    live = {shape: options for shape, options in live.items() if options}
+    assert not live, (
+        f"an option one backend builds and the other refuses is back: {live}. Restore the refusal "
+        "test alongside it -- B-9 needs an example again."
+    )
 
 
 def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
@@ -762,30 +771,3 @@ def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
     assert sizes["csg"][2] == pytest.approx(10, abs=0.2)
     assert sizes["sdf"][2] == pytest.approx(10, abs=0.2)
     assert sizes["sdf"][0] == pytest.approx(sizes["csg"][0], abs=0.3), sizes
-
-
-def test_the_examples_here_are_still_gaps() -> None:
-    """The refusal examples above are only examples while they are still refused.
-
-    They have gone stale five times as the parity gaps closed. The first four surfaced as a
-    confusing `DID NOT RAISE` three tests away from the thing that changed; the fifth surfaced
-    here, saying which two options had been built. The budget is the authority on what is left, so
-    this reads it rather than keeping a second list beside it (SPEC B2-1).
-
-    **The pool is down to one.** `regular_prism(shift=)` is the last option one backend builds and
-    the other refuses; `cuboid`/`cube`'s `teardrop` is unbuilt on both, so it cannot serve as an
-    example of a *refusal*. When that one goes, this test and the ones it guards have nothing left
-    to say and should be **deleted** rather than kept limping -- B-9 will be enforced by there
-    being nothing left to refuse, which is the outcome the rule is for.
-    """
-    import sys
-
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-    from test_option_parity import GAPS
-
-    examples = {("regular_prism", "shift")}
-    built = sorted(f"{shape}({option}=)" for shape, option in examples if option not in GAPS.get(shape, ()))
-    assert not built, (
-        "these are used above as options one backend cannot honour, and both backends build them "
-        f"now: {built}. Pick another from tests/test_option_parity.py's budget."
-    )

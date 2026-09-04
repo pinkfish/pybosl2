@@ -388,3 +388,75 @@ def test_every_facade_example_runs() -> None:
                 ran += 1
                 exec(compile(code, f"<{module.__name__}.{name}>", "exec"), {})
     assert ran > 30, f"only {ran} façade examples were exercised"
+
+
+def test_stl_viewer_directive_resolves_relative_paths() -> None:
+    """The STL viewer directive computes relative paths from the document's directory depth."""
+    from unittest.mock import MagicMock
+
+    from docs._ext.stl_viewer import STLDirective
+
+    directive = STLDirective.__new__(STLDirective)
+    directive.arguments = ["_stl/test.stl"]
+    directive.options = {}
+    directive.state = MagicMock()
+    directive.state.document.settings.env.docname = "parts/screws"
+
+    nodes = directive.run()
+    html = nodes[0].astext()
+    assert 'data-stl-uri="../_stl/test.stl"' in html
+
+    directive.state.document.settings.env.docname = "foundational/shapes3d/cuboid"
+    nodes = directive.run()
+    html = nodes[0].astext()
+    assert 'data-stl-uri="../../_stl/test.stl"' in html
+
+    directive.state.document.settings.env.docname = "index"
+    nodes = directive.run()
+    html = nodes[0].astext()
+    assert 'data-stl-uri="_stl/test.stl"' in html
+
+
+def test_pybosl2_example_directive_resolves_relative_paths() -> None:
+    """The pythonscad-example directive computes relative paths from the document's directory depth."""
+    from unittest.mock import MagicMock
+
+    from docs._ext.pybosl2_example import Bosl2ExampleDirective
+
+    directive = Bosl2ExampleDirective.__new__(Bosl2ExampleDirective)
+    directive.content = ["cuboid(10).show()"]
+    directive.state = MagicMock()
+    directive.state.document.settings.env.docname = "parts/screws"
+    directive._render_stl = MagicMock(return_value="_stl/test1234.stl")
+
+    nodes = directive.run()
+    raw_html = [n for n in nodes if hasattr(n, "astext") and "stl-viewer" in n.astext()][0].astext()
+    assert 'data-stl-uri="../_stl/test1234.stl"' in raw_html
+
+    # Check download link
+    ref = [
+        n
+        for n in nodes
+        if hasattr(n, "children")
+        and any(getattr(c, "astext", lambda: "")() == "⬇ Download STL mesh" for c in n.children)
+    ][0]
+    link = ref.children[0]
+    assert link["refuri"] == "../_stl/test1234.stl"
+
+
+def test_wiki_stl_uris_are_properly_relative() -> None:
+    """All STL URIs and download links in wiki pages must resolve correctly relative to the page."""
+    if not WIKI_DIR.is_dir():
+        pytest.skip("wiki directory not present")
+    broken = []
+    for html in WIKI_DIR.rglob("*.html"):
+        if html.parts[1] == "specs":
+            continue
+        rel = html.relative_to(WIKI_DIR)
+        depth = len(rel.parts) - 1
+        if depth == 0:
+            continue
+        content = html.read_text()
+        if 'data-stl-uri="_stl/' in content or 'href="_stl/' in content:
+            broken.append(str(rel))
+    assert not broken, f"Wiki files with unadjusted _stl/ links (need ../ prefixes): {broken}"

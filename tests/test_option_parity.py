@@ -55,9 +55,11 @@ real vertices, so the strongest cross-backend statement available is "is the fie
 vertex of the mesh the other backend builds". No box could have settled this one: the trimmed and
 untrimmed solids have the *same* box and differ by one vertex out of 24.
 
-**Three remain**: `regular_prism`'s `shift` (1), which needs shear in `polygon_prism`, and
-`cuboid`/`cube`'s `teardrop` (2), which raises `Bosl2NotImplementedError` on the *CSG* backend too
--- a feature neither backend has rather than a parity gap.
+T48, `regular_prism`'s `shift` -- the last option one backend built and the other refused.
+
+**Two remain, and neither is a parity gap**: `cuboid`/`cube`'s `teardrop` raises
+`Bosl2NotImplementedError` on the *CSG* backend too, so it is a feature neither backend has. From
+176 to nothing that one side can do and the other cannot.
 
 Two things this separates, because they are different defects:
 
@@ -89,7 +91,6 @@ TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 OPTION_GAPS: dict[str, int] = {
     "cube": 1,
     "cuboid": 1,
-    "regular_prism": 1,
 }
 
 
