@@ -468,21 +468,24 @@ def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
     the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
     error. Silence is the one outcome B-9 does not allow.
 
-    **The example has had to change twice, and that is the point of the rule.** `spin=` was this
-    test's CSG-only option until T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took its
-    place and T42 built that. Neither was ever CSG-only -- both were unwritten, and naming one here
-    quietly asserted otherwise. What B-9 governs is the *refusal*, not any particular gap, so the
-    example is chosen from whatever `tests/test_option_parity.py` still counts as a gap and is
-    expected to keep moving.
+    **The example has had to change three times, and that is the point of the rule.** `spin=` was
+    this test's CSG-only option until T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took
+    its place and T42 built that; `rect_tube(size1=)` took *its* place and T44 built that. Not one
+    of the three was ever CSG-only -- all three were unwritten, and naming one here quietly
+    asserted otherwise. What B-9 governs is the *refusal*, not any particular gap, so the example
+    is chosen from whatever `tests/test_option_parity.py` still counts and is expected to keep
+    moving. `teardrop=` is the current one, and it is the last kind left: a rounding clipped at an
+    angle is a non-convex corner, so it is the first gap here whose reason is about the field
+    rather than about nobody having written it.
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    tapered = {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}
+    printable = {"height": 20, "radius": 5, "teardrop": True}
     with use_backend("csg"):
-        assert solid.rect_tube(**tapered).backend == "csg"  # type: ignore[attr-defined]
+        assert solid.cyl(**printable).backend == "csg"  # type: ignore[attr-defined]
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="size1") as excinfo:
-        solid.rect_tube(**tapered)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="teardrop") as excinfo:
+        solid.cyl(**printable)
     assert "use_backend" in str(excinfo.value)  # the message names the way forward
 
 
@@ -702,7 +705,7 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     [
         ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
         ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
-        ("rect_tube", {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}, (20, 20, 10)),
+        ("cyl", {"height": 20, "radius": 5, "clip_angle": 40}, (10, 10, 20)),
         ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
         ("cyl", {"height": 20, "radius": 5, "teardrop": True}, (10, 10, 20)),
     ],
