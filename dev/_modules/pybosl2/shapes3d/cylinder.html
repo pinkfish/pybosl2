@@ -2805,7 +2805,11 @@
 
     <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">td_ang</span> <span class="o">=</span> <span class="n">teardrop</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">teardrop</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="mf">45.0</span>
+        <span class="c1"># `bool` is a subclass of `int`, so an `isinstance(teardrop, (int, float))` test answers</span>
+        <span class="c1"># True for `teardrop=True` and takes the boolean itself as the angle -- a **1 degree**</span>
+        <span class="c1"># teardrop, which is a rounding with an imperceptible flat on it rather than the 45 the</span>
+        <span class="c1"># flag is supposed to mean. The bool has to be ruled out before the number is read.</span>
+        <span class="n">td_ang</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">teardrop</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">teardrop</span><span class="p">)</span>
         <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">eff_clip</span><span class="p">,</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">td_ang</span><span class="p">)</span>
 
     <span class="n">_check_rim_treatments</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">rounding1</span><span class="p">,</span> <span class="n">rounding2</span><span class="p">,</span> <span class="n">chamfer1</span><span class="p">,</span> <span class="n">chamfer2</span><span class="p">)</span>
