@@ -1857,8 +1857,64 @@ def _cuboid_flare_sdf(
     return d
 
 
+def _cuboid_at_corner(
+    p1: "Sequence[float]",
+    p2: "Sequence[float] | None",
+    size: "float | list[float] | None",
+    rounding: float,
+    chamfer: float,
+    edges: "EdgeAtom | list[EdgeAtom]",
+    except_edges: "list[EdgeAtom] | None",
+    res: int,
+    spin: float,
+    orient: "Anchor | Sequence[float]",
+) -> PyShape:
+    """Build a cuboid placed by its corner rather than by an anchor -- `cuboid(p1=, p2=)`.
+
+    Two opposing corners give the size and the position together, so *size* is ignored and the
+    corner does the anchoring -- as on the CSG side, where `p1=` forces BOTTOM_FRONT_LEFT rather
+    than composing with `anchor=`. With *p1* alone, *size* still says how big and *p1* only says
+    where.
+
+    Args:
+        p1: One corner.
+        p2: The opposing corner, or ``None``.
+        size: The size as passed, used only when *p2* is ``None``.
+        rounding: Rounding radius for the edges.
+        chamfer: Chamfer size for the edges.
+        edges: Which edges to treat.
+        except_edges: Which edges to leave alone.
+        res: Sampling resolution.
+        spin: Z-axis rotation in degrees.
+        orient: Direction to rotate the top towards.
+
+    Returns:
+        The placed cuboid.
+
+    """
+    corner = [float(v) for v in p1]
+    if p2 is not None:
+        low = [min(float(a), float(b)) for a, b in zip(p1, p2, strict=True)]
+        high = [max(float(a), float(b)) for a, b in zip(p1, p2, strict=True)]
+        size, corner = [high[i] - low[i] for i in range(3)], low
+    box = cuboid(
+        size=size,
+        rounding=rounding,
+        chamfer=chamfer,
+        edges=edges,
+        except_edges=except_edges,
+        res=res,
+        anchor=FRONT + LEFT + BOTTOM,
+        spin=spin,
+        orient=orient,
+    )
+    return box.translate(corner)
+
+
 def cuboid(
     size: float | list[float] | None = None,
+    p1: "Sequence[float] | None" = None,
+    p2: "Sequence[float] | None" = None,
     rounding: float = 0,
     chamfer: float = 0,
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
@@ -1883,6 +1939,10 @@ def cuboid(
 
     Args:
         size:         size of the cuboid, a number or length-3 vector
+        p1: Place the cuboid's corner here instead of anchoring it. Forces the anchor to
+            BOTTOM_FRONT_LEFT.
+        p2: With *p1*, the opposing corner -- the two together give the size and the position, so
+            *size* is ignored.
         rounding:     edge rounding radius applied to every selected edge (default: no rounding)
         chamfer:      edge chamfer size applied to every selected edge (default: no chamfer)
         edges:        edges to treat -- "ALL"/"NONE"/"X"/"Y"/"Z", a single edge vector (e.g.
@@ -1919,6 +1979,9 @@ def cuboid(
             shape.show()
 
     """
+    if p1 is not None:
+        return _cuboid_at_corner(p1, p2, size, rounding, chamfer, edges, except_edges, res, spin, orient)
+
     if size is None:
         size = [1, 1, 1]
     if rounding and chamfer:
@@ -2560,17 +2623,46 @@ def torus(
 # ---------------------------------------------------------------------------
 
 
-def _wall_line_sdf(rxy: LVTree, z: LVTree, radius1: float, radius2: float, hb: float) -> LVTree:
+def _wall_line_sdf(
+    rxy: LVTree,
+    z: LVTree,
+    radius1: float,
+    radius2: float,
+    hb: float,
+    inset1: float = 0.0,
+    inset2: float = 0.0,
+) -> LVTree:
     """Return the signed distance to the infinite line for the slanted wall of a cylinder/cone.
 
-    Goes through `(radius1, -hb)` and `(radius2, hb)` in the `(rxy, z)` half-plane -- exact for
-    the wall itself; intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps
-    it off, with the same corner-region approximation already documented for cuboid()'s per-axis
-    composition.
+    Goes through `(radius1, -hb + inset1)` and `(radius2, hb - inset2)` in the `(rxy, z)`
+    half-plane -- exact for the wall itself; intersecting (max()) with the top/bottom slabs (see
+    _cylinder_sdf()) caps it off, with the same corner-region approximation already documented for
+    cuboid()'s per-axis composition.
+
+    **The insets are where a treated rim actually leaves the wall**, and they matter only on a
+    taper. BOSL2's profile puts a chamfer's or a rounding's inner endpoint at the *nominal* end
+    radius and runs the wall from there to the other end's endpoint, so a chamfered cone's wall is
+    not the line through its two nominal corners. This backend measured the rim against that
+    nominal line until T42 and so built a different cone from the same call -- 0.39mm out on an
+    8-to-4 taper with a 2mm chamfer, and the same for a rounding. On a plain cylinder the line is
+    vertical and an axial inset cannot move it, which is why nothing noticed (SPEC PAR-5).
+
+    Args:
+        rxy: The radial coordinate.
+        z: The axial coordinate.
+        radius1: Radius at the negative end.
+        radius2: Radius at the positive end.
+        hb: Half the length.
+        inset1: How far up from the negative end the wall starts.
+        inset2: How far down from the positive end it ends.
+
+    Returns:
+        The signed distance to the wall line.
+
     """
-    dr, dz = radius2 - radius1, 2 * hb
+    dr, dz = radius2 - radius1, 2 * hb - inset1 - inset2
     nlen = math.hypot(dr, dz)
-    return ((rxy - radius1) * dz - (z + hb) * dr) / nlen
+    return ((rxy - radius1) * dz - (z + hb - inset1) * dr) / nlen
 
 
 def _cylinder_sdf(
@@ -2595,14 +2687,170 @@ def _cylinder_sdf(
     return lv.max(wall, slab)
 
 
+def chamfer_legs(amount: float, angle: float | None, from_end: bool) -> "tuple[float, float]":
+    """Return a chamfer's ``(dx, dy)`` -- how far it cuts in radially and along the axis.
+
+    BOSL2 states a chamfer two ways and both are in `cyl_profile`, which is where this comes from:
+    with ``from_end=False`` the *size* is the radial leg and the angle sets the axial one
+    (``dx = c``, ``dy = c * tan(angle)``); with ``from_end=True`` the size is the cut's own length
+    and the angle splits it (``dx = c * cos(angle)``, ``dy = c * sin(angle)``). At the default 45
+    degrees and ``from_end=False`` both legs are the size, which is the only case this backend
+    could express before.
+
+    Args:
+        amount: The chamfer size.
+        angle: The chamfer angle in degrees, or ``None`` for 45.
+        from_end: Measure along the end face rather than up the side.
+
+    Returns:
+        The ``(dx, dy)`` pair.
+
+    """
+    degrees = 45.0 if angle is None else float(angle)
+    if from_end:
+        return amount * math.cos(math.radians(degrees)), amount * math.sin(math.radians(degrees))
+    return amount, amount * math.tan(math.radians(degrees))
+
+
+def _rim_size(amount: "float | tuple[float, float]") -> float:
+    """Return how far a rim amount cuts, whether it is a radius or a chamfer's two legs.
+
+    Args:
+        amount: A rounding radius, or a chamfer's ``(dx, dy)``.
+
+    Returns:
+        The larger leg, or the radius. Zero means the rim is untreated.
+
+    """
+    return max(amount) if isinstance(amount, tuple) else amount
+
+
+#: An overall/bottom/top triple as BOSL2 states one: `(chamfer, chamfer1, chamfer2)`. Passing the
+#: three as a tuple rather than nine loose arguments is what keeps `cyl` and `_cyl_axis` from
+#: transcribing the same twelve names twice (SPEC B-3).
+_Triple = tuple[Any, Any, Any]
+
+
+def _per_end(triple: _Triple, dflt: Any = 0) -> "tuple[Any, Any]":
+    """Split an overall/bottom/top triple into the bottom and top values.
+
+    The specific one wins, then the general one, then *dflt* -- the rule every one of these
+    triples follows, written once.
+
+    Args:
+        triple: ``(overall, bottom, top)`` as passed.
+        dflt: What to use when neither was given.
+
+    Returns:
+        The ``(bottom, top)`` pair.
+
+    """
+    overall, first, second = triple
+    fallback = overall if overall is not None else dflt
+    return (
+        first if first is not None else fallback,
+        second if second is not None else fallback,
+    )
+
+
+def _rim_amounts(
+    rounding: _Triple,
+    chamfer: _Triple,
+    chamfer_angle: _Triple,
+    from_end: _Triple,
+) -> "tuple[EdgeMode, float | tuple[float, float], float | tuple[float, float]]":
+    """Resolve the rim triples into a mode and one amount per end.
+
+    Rounding and chamfer are mutually exclusive (SPEC G-7), and a chamfer's amount comes back as
+    the ``(dx, dy)`` pair :func:`chamfer_legs` computes, which is what lets `chamfer_angle=` and
+    `from_end=` cross.
+
+    Args:
+        rounding: The rounding radius triple.
+        chamfer: The chamfer size triple.
+        chamfer_angle: The chamfer angle triple, in degrees.
+        from_end: The from-end triple.
+
+    Returns:
+        The mode and the two amounts, each a radius or a ``(dx, dy)`` chamfer pair.
+
+    Raises:
+        Bosl2ValueError: if a rounding and a chamfer are both asked for.
+
+    """
+    r1v, r2v = _per_end(rounding)
+    c1v, c2v = _per_end(chamfer)
+    if (r1v or r2v) and (c1v or c2v):
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
+    if c1v or c2v:
+        a1, a2 = _per_end(chamfer_angle, None)
+        e1, e2 = _per_end(from_end, False)
+        return EdgeMode.CHAMFER, chamfer_legs(c1v, a1, e1), chamfer_legs(c2v, a2, e2)
+    return EdgeMode.ROUND, r1v, r2v
+
+
+def _with_extra(
+    sdf_fn: "Callable[[LVTree, LVTree, LVTree], LVTree]",
+    axis: int,
+    length: float,
+    radius1: float,
+    radius2: float,
+    extra: _Triple,
+    mn: list[float],
+    mx: list[float],
+) -> "tuple[Callable[[LVTree, LVTree, LVTree], LVTree], list[float], list[float]]":
+    """Return *sdf_fn* with a plain stub of each end's radius added past that end.
+
+    BOSL2's `extra=` grows the solid past its ends without changing its length or its anchoring,
+    so a difference() cuts cleanly through instead of leaving a skin. The CSG backend unions a
+    straight cylinder on; so does this, which is why the two agree exactly rather than nearly.
+
+    Args:
+        sdf_fn: The cylinder's own field.
+        axis: 0, 1 or 2 -- the coordinate the cylinder runs along.
+        length: Length of the cylinder.
+        radius1: Radius at the negative end.
+        radius2: Radius at the positive end.
+        extra: The extra-length triple.
+        mn: The box's low corner, widened here to hold the stubs.
+        mx: The box's high corner.
+
+    Returns:
+        The field with the stubs unioned on, and the widened box.
+
+    """
+    extra1, extra2 = (float(v) for v in _per_end(extra, 0.0))
+    if extra1 <= 0 and extra2 <= 0:
+        return sdf_fn, mn, mx
+    mn, mx = list(mn), list(mx)
+    mn[axis] -= max(0.0, extra1)
+    mx[axis] += max(0.0, extra2)
+
+    def with_extra(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        coords = [x, y, z]
+        axial = coords[axis]
+        others = [coords[i] for i in range(3) if i != axis]
+        radial = _lv_hypot(others[0], others[1])
+        field = sdf_fn(x, y, z)
+        for sign, radius, amount in ((-1.0, radius1, extra1), (1.0, radius2, extra2)):
+            if amount <= 0:
+                continue
+            near, far = sign * length / 2.0, sign * (length / 2.0 + amount)
+            stub = lv.max(radial - radius, lv.abs(axial - (near + far) / 2.0) - amount / 2.0)
+            field = lv.min(field, stub)
+        return field
+
+    return with_extra, mn, mx
+
+
 def _cyl_edge_sdf(
     axial: LVTree,
     radial: LVTree,
     h: float,
     radius1: float,
     radius2: float,
-    amt1: float,
-    amt2: float,
+    amt1: "float | tuple[float, float]",
+    amt2: "float | tuple[float, float]",
     mode: EdgeMode,
 ) -> LVTree:
     """Return _cylinder_sdf() plus independent rounding/chamfer treatment of the bottom and top rims.
@@ -2610,20 +2858,31 @@ def _cyl_edge_sdf(
     Uses the same per-candidate-quadrant masking technique as pybosl2.shapes3d.cuboid() (but
     only 2 candidates -- top/bottom -- since the radial coordinate has no sign ambiguity to
     select between, unlike a rectangle's 4 corners).
+
+    A chamfer amount may be a scalar (a symmetric 45-degree cut) or the ``(dx, dy)`` pair
+    :func:`chamfer_legs` returns, which is what lets `chamfer_angle=` and `from_end=` cross.
     """
     hb = h / 2
-    wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
+    insets = tuple(a[1] if isinstance(a, tuple) else a for a in (amt1, amt2))
+    wall = _wall_line_sdf(radial, axial, radius1, radius2, hb, insets[0], insets[1])
     candidates = []
     for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
         if mode == EdgeMode.ROUND:
+            assert not isinstance(a, tuple), "a rounding has one radius, not two legs"
             qu = radial - r_ref + a
             qv = lv.abs(axial) - hb + a
             base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
         else:
             assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
+            dx, dy = a if isinstance(a, tuple) else (a, a)
             qu = radial - r_ref
             qv = lv.abs(axial) - hb
-            base = lv.max(lv.max(qu, qv), (qu + qv + a) / _SQRT2)
+            # The cut runs from (-dx, 0) to (0, -dy) in the corner's own frame, so the plane is
+            # `qu/dx + qv/dy + 1 = 0`; multiplying up and normalising gives the signed distance
+            # below. With dx == dy == c it is `(qu + qv + c) / sqrt(2)`, the 45-degree form this
+            # was written as before generalising it.
+            leg = math.hypot(dx, dy) or 1.0
+            base = lv.max(lv.max(qu, qv), (qu * dy + qv * dx + dx * dy) / leg)
         mask = lv.max(0, -sz * axial)
         candidates.append(base + _PENALTY * mask)
     rim = lv.min(candidates[0], candidates[1])
@@ -2646,6 +2905,15 @@ def cylinder(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -2682,6 +2950,19 @@ def cylinder(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        chamfer_angle: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle1: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle2: Chamfer angle in degrees (overall/negative/positive), default 45.
+        from_end: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end1: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end2: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        extra: Extra length past the end (overall/negative/positive), so a difference cuts clean
+            through. It changes neither the length nor the anchoring.
+        extra1: Extra length past the end (overall/negative/positive).
+        extra2: Extra length past the end (overall/negative/positive).
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -2711,6 +2992,15 @@ def cylinder(
         rounding=rounding,
         rounding1=rounding1,
         rounding2=rounding2,
+        chamfer_angle=chamfer_angle,
+        chamfer_angle1=chamfer_angle1,
+        chamfer_angle2=chamfer_angle2,
+        from_end=from_end,
+        from_end1=from_end1,
+        from_end2=from_end2,
+        extra=extra,
+        extra1=extra1,
+        extra2=extra2,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -2786,6 +3076,15 @@ def cyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -2822,6 +3121,19 @@ def cyl(
         rounding: rounding radius on the end rims (overall/negative/positive)
         rounding1: rounding radius on the end rims (overall/negative/positive)
         rounding2: rounding radius on the end rims (overall/negative/positive)
+        chamfer_angle: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle1: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle2: Chamfer angle in degrees (overall/negative/positive), default 45.
+        from_end: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end1: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end2: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        extra: Extra length past the end (overall/negative/positive), so a difference cuts clean
+            through. It changes neither the length nor the anchoring.
+        extra1: Extra length past the end (overall/negative/positive).
+        extra2: Extra length past the end (overall/negative/positive).
         shift: X/Y offset for the positive end (shear) (default [0,0])
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -2849,20 +3161,17 @@ def cyl(
     if use_anchor is None:
         use_anchor = CENTER if center is None or center else BOTTOM
 
-    r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
-    r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
-    c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
-    c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
-    if (r1v or r2v) and (c1v or c2v):
-        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
-    mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
+    mode, amt1, amt2 = _rim_amounts(
+        (rounding, rounding1, rounding2),
+        (chamfer, chamfer1, chamfer2),
+        (chamfer_angle, chamfer_angle1, chamfer_angle2),
+        (from_end, from_end1, from_end2),
+    )
 
     if texture is not None and texture != "none":
         sdf_fn = _textured_cyl_sdf(length, rad1, rad2, texture, tex_size, tex_reps, tex_depth, tex_inset)
     elif shift is not None and (shift[0] or shift[1]):
-        if amt1:
-            raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
-        if amt2:
+        if any(_rim_size(amt) for amt in (amt1, amt2)):
             raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
         sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2, shift)  # noqa: E731
     else:
@@ -2883,7 +3192,8 @@ def cyl(
         for i in (0, 1):
             mn[i] = min(-shift[i] / 2 - rad1, shift[i] / 2 - rad2)
             mx[i] = max(-shift[i] / 2 + rad1, shift[i] / 2 + rad2)
-    shape = PyShape(sdf_fn, mn, mx, res)
+    field, mn, mx = _with_extra(sdf_fn, 2, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
+    shape = PyShape(field, mn, mx, res)
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
     return _place(shape, offset, spin, orient)
 
@@ -2961,6 +3271,15 @@ def _cyl_axis(
     rounding2: float | None,
     anchor: "Sequence[float]",
     res: int,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
     shift: "list[float] | None" = None,
@@ -2973,16 +3292,15 @@ def _cyl_axis(
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
-    r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
-    r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
-    c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
-    c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
-    if (r1v or r2v) and (c1v or c2v):
-        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
-    mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
+    mode, amt1, amt2 = _rim_amounts(
+        (rounding, rounding1, rounding2),
+        (chamfer, chamfer1, chamfer2),
+        (chamfer_angle, chamfer_angle1, chamfer_angle2),
+        (from_end, from_end1, from_end2),
+    )
 
     lean = _axis_shift(axis, shift)
-    if lean is not None and (amt1 or amt2):
+    if lean is not None and any(_rim_size(amt) for amt in (amt1, amt2)):
         raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
 
     textured = None
@@ -3015,7 +3333,8 @@ def _cyl_axis(
         for k, i in enumerate(i for i in range(3) if i != axis):
             mn[i] = min(-lean[k] / 2 - rad1, lean[k] / 2 - rad2)
             mx[i] = max(-lean[k] / 2 + rad1, lean[k] / 2 + rad2)
-    shape = PyShape(sdf_fn, mn, mx, res)
+    field, mn, mx = _with_extra(sdf_fn, axis, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
+    shape = PyShape(field, mn, mx, res)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=axis)
     return _place(shape, offset, spin, orient)
 
@@ -3035,6 +3354,15 @@ def xcyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3064,6 +3392,19 @@ def xcyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        chamfer_angle: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle1: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle2: Chamfer angle in degrees (overall/negative/positive), default 45.
+        from_end: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end1: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end2: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        extra: Extra length past the end (overall/negative/positive), so a difference cuts clean
+            through. It changes neither the length nor the anchoring.
+        extra1: Extra length past the end (overall/negative/positive).
+        extra2: Extra length past the end (overall/negative/positive).
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3100,6 +3441,15 @@ def xcyl(
         res,
         spin=spin,
         orient=orient,
+        chamfer_angle=chamfer_angle,
+        chamfer_angle1=chamfer_angle1,
+        chamfer_angle2=chamfer_angle2,
+        from_end=from_end,
+        from_end1=from_end1,
+        from_end2=from_end2,
+        extra=extra,
+        extra1=extra1,
+        extra2=extra2,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -3124,6 +3474,15 @@ def ycyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3153,6 +3512,19 @@ def ycyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        chamfer_angle: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle1: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle2: Chamfer angle in degrees (overall/negative/positive), default 45.
+        from_end: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end1: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end2: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        extra: Extra length past the end (overall/negative/positive), so a difference cuts clean
+            through. It changes neither the length nor the anchoring.
+        extra1: Extra length past the end (overall/negative/positive).
+        extra2: Extra length past the end (overall/negative/positive).
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3189,6 +3561,15 @@ def ycyl(
         res,
         spin=spin,
         orient=orient,
+        chamfer_angle=chamfer_angle,
+        chamfer_angle1=chamfer_angle1,
+        chamfer_angle2=chamfer_angle2,
+        from_end=from_end,
+        from_end1=from_end1,
+        from_end2=from_end2,
+        extra=extra,
+        extra1=extra1,
+        extra2=extra2,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -3213,6 +3594,15 @@ def zcyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3242,6 +3632,19 @@ def zcyl(
         rounding: Rounding radius on the end rims (overall/negative/positive)
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
+        chamfer_angle: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle1: Chamfer angle in degrees (overall/negative/positive), default 45.
+        chamfer_angle2: Chamfer angle in degrees (overall/negative/positive), default 45.
+        from_end: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end1: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        from_end2: Measure the chamfer along the end face rather than up the side
+            (overall/negative/positive).
+        extra: Extra length past the end (overall/negative/positive), so a difference cuts clean
+            through. It changes neither the length nor the anchoring.
+        extra1: Extra length past the end (overall/negative/positive).
+        extra2: Extra length past the end (overall/negative/positive).
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3273,6 +3676,15 @@ def zcyl(
         rounding=rounding,
         rounding1=rounding1,
         rounding2=rounding2,
+        chamfer_angle=chamfer_angle,
+        chamfer_angle1=chamfer_angle1,
+        chamfer_angle2=chamfer_angle2,
+        from_end=from_end,
+        from_end1=from_end1,
+        from_end2=from_end2,
+        extra=extra,
+        extra1=extra1,
+        extra2=extra2,
         shift=shift,
         texture=texture,
         tex_size=tex_size,

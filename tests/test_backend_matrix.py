@@ -468,19 +468,21 @@ def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
     the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
     error. Silence is the one outcome B-9 does not allow.
 
-    **The example had to change, and the reason is the point of the rule.** `spin=` was this
-    test's CSG-only option until T40 gave it to every SDF constructor -- it was never CSG-only,
-    just unwritten. `cuboid(p1=, p2=)` takes its place, and if that one is built too the test needs
-    another: what B-9 governs is the *refusal*, not any particular gap.
+    **The example has had to change twice, and that is the point of the rule.** `spin=` was this
+    test's CSG-only option until T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took its
+    place and T42 built that. Neither was ever CSG-only -- both were unwritten, and naming one here
+    quietly asserted otherwise. What B-9 governs is the *refusal*, not any particular gap, so the
+    example is chosen from whatever `tests/test_option_parity.py` still counts as a gap and is
+    expected to keep moving.
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    corners = {"p1": [0, 0, 0], "p2": [10, 20, 30]}
+    tapered = {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}
     with use_backend("csg"):
-        assert solid.cuboid(**corners).backend == "csg"  # type: ignore[attr-defined]
+        assert solid.rect_tube(**tapered).backend == "csg"  # type: ignore[attr-defined]
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="p1") as excinfo:
-        solid.cuboid(**corners)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="size1") as excinfo:
+        solid.rect_tube(**tapered)
     assert "use_backend" in str(excinfo.value)  # the message names the way forward
 
 
@@ -688,7 +690,7 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
 @pytest.mark.parametrize(
     ("shape", "kwargs", "expected"),
     [
-        ("cuboid", {"p1": [0, 0, 0], "p2": [10, 20, 30]}, (10, 20, 30)),
+        ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
         ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
         ("rect_tube", {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}, (20, 20, 10)),
         ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
