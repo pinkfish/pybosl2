@@ -28,6 +28,7 @@
 from __future__ import annotations
 
 import hashlib
+import posixpath
 import subprocess
 import sys
 from pathlib import Path
@@ -47,7 +48,11 @@ _REPO_ROOT = _DOCS_DIR.parent
 sys.path.insert(0, str(_REPO_ROOT / "tests"))
 
 from render_stl import find_pythonscad_binary, render_stl_script  # noqa: E402
-from stl_viewer import stl_viewer_html  # noqa: E402
+
+try:
+    from stl_viewer import stl_viewer_html
+except ImportError:
+    from docs._ext.stl_viewer import stl_viewer_html
 
 _logger = logging.getLogger(__name__)
 
@@ -105,8 +110,11 @@ class Bosl2ExampleDirective(Directive):
         out.append(code_node)
 
         # Show interactive 3-D STL viewer; if no STL (e.g. 2-D object), show source only.
-        stl_uri = self._render_stl(script, code_str)
-        if stl_uri is not None:
+        stl_rel_path = self._render_stl(script, code_str)
+        if stl_rel_path is not None:
+            env = getattr(self.state.document.settings, "env", None)
+            doc_dir = posixpath.dirname(env.docname) if env and hasattr(env, "docname") else ""
+            stl_uri = posixpath.relpath(stl_rel_path, doc_dir) if doc_dir else stl_rel_path
             out.append(nodes.raw("", stl_viewer_html(stl_uri), format="html"))
             para = nodes.paragraph()
             para += nodes.reference("", "⬇ Download STL mesh", refuri=stl_uri)

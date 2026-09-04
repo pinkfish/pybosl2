@@ -74,6 +74,7 @@ spec renumbers as items close, and all but S-46a have.
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
 | 18 | PAR-4 / PAR-5 / C-21 / B2-1 | [T46](#t46--the-teardrops-own-ends) ✅ | S |
 | 19 | PAR-4 / PAR-5 / B2-1 | [T47](#t47--trimcorners-and-the-instrument-that-was-there-all-along) ✅ | S |
+| 20 | PAR-4 / PAR-5 / S-2b | [T48](#t48--the-last-option-gap) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1395,6 +1396,65 @@ reading what the CSG backend actually does, which more often than not turned out
 to something simple and then build that". The three left are `regular_prism`'s `shift`, and
 `cuboid`/`cube`'s `teardrop` — which raises `Bosl2NotImplementedError` on the CSG backend too, so
 it is a feature neither backend has rather than a parity gap.
+
+
+## T48 — The last option gap ✅
+
+**§12.2 item 20. PAR-4, PAR-5, S-2b. 3 → 2, and neither of the two is a parity gap.**
+
+`regular_prism(shift=)` was not a port of the shear — it *is* the shear: the same 4×4 matrix the
+CSG backend applies, to a shape in the same frame. What needed reading was **which convention**:
+
+| shape | shear about |
+|---|---|
+| `cyl`, `regular_prism` | the **mid-plane** — bottom `−shift/2`, top `+shift/2` |
+| `prismoid`, `rect_tube` | the **bottom** — only the top moves |
+
+BOSL2 uses both, and the matrix is the only place that says which.
+
+### Two defects came out of it, and neither was about the shear
+
+**The box.** `multmatrix` recomputes it as the transform of the *old box* — the old corners
+carried along. Right for a plain prism, too wide for one whose rims are treated: a rounded prism
+does not reach full radius at its end faces, and those are exactly the points a shear carries
+furthest. 14 wide for a solid 13.2 wide. A loose box is **safe** — it contains the solid, and an
+SDF's box is the domain it gets meshed over — which is why it had to be asked about rather than
+waited for.
+
+**The anchor, which was measured on the wrong thing entirely.** This backend anchored a regular
+prism on its *polygon hull*; the CSG backend anchors it on its **circumscribed cylinder**. So
+`regular_prism(sides=6, anchor=BACK)` placed the shape 0.67 mm apart on the two. A hexagon reaches
+its circumradius towards a vertex and less towards a face, and BOSL2 anchors a regular prism the
+way it anchors the cylinder it is cut from (B2-3).
+
+Pre-existing, nothing to do with `shift` — and **invisible until a test used an anchor other than
+`CENTER`.** A sheared hull is still symmetric about the origin, so the centre anchor cannot tell
+the two measurements apart. It was the fifth of six negative controls that exposed it: planting
+"the anchor follows the shear" left the suite green.
+
+### 176 → 2
+
+The parity measure that opened this run found 176 options one backend had and the other did not.
+Two are left, and **neither is something one backend can do and the other cannot**:
+`cuboid`/`cube`'s `teardrop` raises `Bosl2NotImplementedError` on the CSG backend as well.
+
+That empties `tests/test_backend_matrix.py`'s refusal examples, exactly as T45 predicted when it
+added the staleness guard — and this commit acts on it rather than repointing them a seventh time.
+
+| was | is |
+|---|---|
+| `test_an_argument_the_backend_cannot_honour_is_refused_not_dropped`, on a real CSG-only option | a test of `refuse_unhonoured` itself, on a synthetic constructor |
+| `test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf`, parametrised over gaps | `test_no_option_is_left_that_one_backend_builds_and_the_other_refuses` |
+| `test_the_examples_here_are_still_gaps` | deleted — nothing left to go stale |
+
+The examples went stale **six** times (`spin=`, `cuboid(p1=)`, `rect_tube(size1=)`,
+`cyl(teardrop=)`, `cuboid(trimcorners=)`, `regular_prism(shift=)`) and **not one of the six was
+ever CSG-only** — every one was simply unwritten. The rule was always about the refusal; the
+examples were illustrations, and the illustrations kept turning out to be wrong.
+
+The new test does not take "neither backend does it" on trust either: it *calls* `cuboid(teardrop=)`
+and requires `Bosl2NotImplementedError`, because that is exactly the kind of claim that quietly
+stops being true.
 
 
 ## Keeping this file honest

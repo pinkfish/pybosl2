@@ -159,3 +159,80 @@ def test_a_rounded_box_ignores_the_flag_because_the_csg_backend_does(fn: int | N
         )
         fields[trim] = [round(float(tree(*v)), 9) for v in meshes[True]]
     assert fields[True] == fields[False], "and neither may the SDF backend"
+
+
+SHEARS = [
+    ("along X", {"shift": [4, 0]}),
+    ("along Y", {"shift": [0, 3]}),
+    ("both ways", {"shift": [3, -2]}),
+    ("with a rounded rim", {"shift": [4, 0], "rounding": 1}),
+    ("with a chamfered rim", {"shift": [4, 0], "chamfer": 1}),
+    ("a big rounding across the shear", {"shift": [0, 3], "rounding": 2}),
+]
+
+
+@needs_meshing
+@pytest.mark.parametrize(("label", "kwargs"), SHEARS)
+def test_a_sheared_prism_matches_the_csg_mesh(label: str, kwargs: dict[str, object]) -> None:
+    """The last option one backend built and the other refused (SPEC PAR-4).
+
+    It is not a port of the shear -- it is the shear: the same 4x4 matrix the CSG backend applies,
+    to a shape in the same frame. What needed reading was *which* convention it uses.
+    `regular_prism` shears about the **mid-plane**, so the bottom moves by `-shift/2` and the top
+    by `+shift/2`; `prismoid` moves only its top. BOSL2 uses both, and the matrix is the only
+    place that says which.
+
+    An untreated prism meshes exactly on the CSG side, so this is an equality there. A treated rim
+    does not: it is a *polygonal* arc, and its vertices land either side of the exact one by an
+    amount that grows with the rim -- 0.028 at `rounding=1`, 0.056 at 2, 0.095 at `chamfer=1`.
+
+    Rather than pick a tolerance to cover that, the assertion is that **the shear changes
+    nothing**: the worst residual with it equals the worst without it, to the last bit. That is
+    the whole claim this test has to make, it needs no magic number, and it would fail for a shear
+    that was subtly wrong in a way a loose tolerance would have swallowed.
+    """
+
+    def worst_residual(**extra: object) -> float:
+        vertices = _csg_vertices("regular_prism", sides=6, height=10, radius=5, **extra)
+        tree = sdf.regular_prism(num_sides=6, height=10, radius=5, anchor=[0, 0, 0], **extra)._sdf_fn(
+            lv.x(), lv.y(), lv.z()
+        )
+        return max(abs(float(tree(*v))) for v in vertices)
+
+    rim = {k: v for k, v in kwargs.items() if k != "shift"}
+    assert worst_residual(**kwargs) == pytest.approx(worst_residual(**rim), abs=1e-12), (
+        f"{label}: the shear moved the field away from the CSG mesh"
+    )
+    if not rim:
+        assert worst_residual(**kwargs) == pytest.approx(0.0, abs=1e-9), "an untreated prism meshes exactly"
+
+
+@needs_meshing
+@pytest.mark.parametrize(("label", "kwargs"), SHEARS)
+def test_a_sheared_prism_reports_the_box_it_fills(label: str, kwargs: dict[str, object]) -> None:
+    """A shear carries the *end faces* furthest, and a treated rim does not reach full radius there.
+
+    `multmatrix` recomputes the box as the transform of the old box -- the old box's own corners
+    carried along, which is right for a plain prism and too wide for one whose rims are treated. A
+    6-sided prism of radius 5 with a 1 mm rounding and `shift=[4, 0]` is 13.2 wide; the corner box
+    said 14.
+
+    A loose box is *safe* (it contains the solid, and an SDF's box is the domain it is meshed
+    over), which is why this needed asking about rather than waiting to break something. PAR-5
+    asks the two backends to agree on `bounds()`, and 14 against 13.2 is a disagreement whichever
+    way it leans.
+    """
+    from pybosl2 import Anchor
+
+    # Off-centre anchors as well as the default. A sheared hull is still symmetric about the
+    # origin, so `anchor=CENTER` cannot tell whether the anchor was measured on the sheared shape
+    # or the unsheared one -- and it has to be the unsheared one, because that is what the CSG
+    # backend measures (`_anchor_offset_cyl`, with no shift in it). Planting the sheared version
+    # left this test green until these anchors were added.
+    for anchor in (Anchor.CENTER, Anchor.RIGHT, Anchor.TOP, Anchor.BACK):
+        boxes = {}
+        for backend in ("csg", "sdf"):
+            with use_backend(backend):
+                box = facade.regular_prism(sides=6, height=10, radius=5, anchor=anchor, **kwargs).bounds()
+                boxes[backend] = [round(v, 2) for v in (*box.size, *box.center)]
+        assert boxes["csg"] == pytest.approx(boxes["sdf"], abs=0.05), f"{label} at {anchor}: {boxes}"

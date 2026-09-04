@@ -2153,7 +2153,7 @@ The façade exposes the **union** of what the backends can build, not the inters
 enforced_by = [
     "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
     "tests/test_backend_matrix.py::test_turning_something_off_is_a_request_the_backend_has_to_honour",
-    "tests/test_backend_matrix.py::test_the_examples_here_are_still_gaps",
+    "tests/test_backend_matrix.py::test_no_option_is_left_that_one_backend_builds_and_the_other_refuses",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",
@@ -2167,7 +2167,9 @@ status = "enforced"
 note = '''
 The carve-out for a value that asks for nothing had a hole in it, found in T40. An explicit zero rounding is "no rounding" and refusing it was a false alarm (`RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`) -- but where the façade's default is `True`, passing `False` is the caller turning something **off**, which is a request. `cuboid(trimcorners=False)` leaves the chamfer running past the corners; the SDF backend trims them regardless, and the argument was being dropped in silence. The wrong answer arrived *through* the guard against false alarms rather than around it. `_is_no_op` now takes the façade's default and calls a falsy value nothing only when the default is falsy too. Two parameters in the whole façade have a truthy default a backend lacks, and both of them are this one.
 
-This rule's own worked example has now gone stale **four times**: `cube(10, spin=45)` until T40 built `spin`, `cuboid(p1=, p2=)` until T42, `rect_tube(size1=)` until T44, `cyl(teardrop=)` until T45. Each carried an implicit claim -- that the option was CSG-only -- and not one of the four was ever true; all four were unwritten. What the rule governs is the refusal, not any particular gap. `tests/test_backend_matrix.py::test_the_examples_here_are_still_gaps` reads the measured gap table now and says which example was built, because four times it surfaced instead as a `DID NOT RAISE` three tests away from the change that caused it.
+This rule's own worked example went stale **six times**: `cube(10, spin=45)` until T40 built `spin`, then `cuboid(p1=, p2=)` (T42), `rect_tube(size1=)` (T44), `cyl(teardrop=)` (T45), `cuboid(trimcorners=)` (T47) and `regular_prism(shift=)` (T48). Each carried an implicit claim -- that the option was CSG-only -- and **not one of the six was ever true**; every one was simply unwritten. What the rule governs is the refusal, not any particular gap.
+
+T48 closed the last of them, so there is no example left to draw on and the tests are retired rather than repointed a seventh time: the worked example is a test of `refuse_unhonoured` itself on a synthetic constructor, and the parametrised refusal is an assertion that the measured gap table is empty -- one that *calls* `cuboid(teardrop=)` to check the two remaining entries really are unbuilt on both backends, rather than taking it on trust. If a CSG-only option is ever added, that assertion fails and the refusal test comes back with it, which is the right time for it to exist.
 '''
 
 [[requirement]]
@@ -2298,6 +2300,8 @@ enforced_by = [
     "tests/test_sdf_corners.py::test_the_field_passes_through_every_vertex_of_the_csg_mesh",
     "tests/test_sdf_corners.py::test_trimming_is_the_one_vertex_that_tells_them_apart",
     "tests/test_sdf_corners.py::test_a_rounded_box_ignores_the_flag_because_the_csg_backend_does",
+    "tests/test_sdf_corners.py::test_a_sheared_prism_matches_the_csg_mesh",
+    "tests/test_sdf_corners.py::test_a_sheared_prism_reports_the_box_it_fills",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
@@ -2317,6 +2321,8 @@ note = '''
 * **`_AXIS_LEAN`, which carries `shift` through the rotation that turns a `cyl` into an `xcyl`, had every sign inverted** in its first version. `shift=[3, 3]` on a symmetric cone passes with the signs backwards, so the tests use an asymmetric shift on each axis.
 
 **T42 found a third way the two can disagree, and a third instrument for seeing it.** The CSG backend states a cylinder's rim as a 2-D *profile* it revolves, so there is an exact question available: is the field zero at every vertex of that profile? On a taper it was not. BOSL2 puts a treated rim's inner endpoint at the **nominal** end radius and runs the wall from there to the other end's endpoint, so a chamfered cone's wall is not the line through its two nominal corners; this backend measured against that nominal line and built a different cone from the same call -- 0.39mm out on an 8-to-4 taper with a 2mm chamfer, and the same for a rounding. Wrong since the rim treatment was written. Neither of the other two instruments could have found it: on a plain cylinder the two constructions coincide, and the bounding box is set by the widest ring, which the wall between the rims never touches. Three defects, three instruments, and each was invisible to the other two -- which is the argument for asking what a check *cannot* see before trusting that it passed.
+
+**T48 closed the last of them, and found two defects that had nothing to do with the option it was closing.** The box `multmatrix` computes after a shear is the *old box's corners carried along*, which is too wide for a prism whose rims are treated -- 14 for a solid 13.2 wide. And the anchor was measured on the polygon hull where the CSG backend measures it on the **circumscribed cylinder**, putting `regular_prism(sides=6, anchor=BACK)` 0.67mm apart on the two backends. That second one was pre-existing, unrelated to `shift`, and invisible until a test used an anchor other than `CENTER`: a sheared hull is still symmetric about the origin, so the centre anchor cannot tell the two measurements apart. **176 option gaps to 2, and neither of the two is something one backend can do and the other cannot.**
 
 **And there was a better instrument available the whole time.** `PyOpenSCAD.mesh()` returns real vertices, so "is the field zero at every vertex of the mesh the other backend builds" was always askable, and it is strictly stronger than either of the two used through T40-T46 -- a box cannot see the shape inside it, and a CSG-side geometry builder cannot see what the backend does with what it builds. T47 found it while chasing `trimcorners`, which no box could settle: the trimmed and untrimmed chamfered cubes have the same bounding box and differ by one vertex out of 24. The mesh also corrected a wrong guess in the same sitting -- that the flag applies to a rounding, which the CSG backend's own byte-identical meshes say it does not.
 

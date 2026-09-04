@@ -4936,6 +4936,48 @@ def heightfield(
 # ---------------------------------------------------------------------------
 
 
+def _shear_bounds(
+    shape: PyShape, corners: "list[list[float]]", shift: list[float], length: float, treatment: float
+) -> PyShape:
+    """Return *shape* with a box measured from its sheared silhouette rather than its corner box.
+
+    `multmatrix` recomputes the box as the transform of the *old box*, which for a shear is the
+    old box's own corners carried along -- correct for a plain prism, and too wide for one whose
+    rims are treated. A rounded prism does not reach its full radius at the end faces, and those
+    are exactly the points the shear carries furthest: a 6-sided prism of radius 5 with a 1mm rim
+    rounding and `shift=[4, 0]` is 13.2 wide, and the corner box says 14.
+
+    A loose box is safe -- it contains the solid, and an SDF's box is the domain it is meshed over
+    -- but PAR-5 asks the two backends to agree on `bounds()`, and 14 against 13.2 is a
+    disagreement whatever its direction. The widest ring is at the end of the treatment rather
+    than at the end face, so both are offered as candidates and the wider wins.
+
+    Args:
+        shape: The sheared prism.
+        corners: The unsheared hull points, at both end planes.
+        shift: The ``[X, Y]`` offset between the ends.
+        length: Length along the axis.
+        treatment: The largest rim rounding or chamfer, which is how far the end faces are drawn in.
+
+    Returns:
+        The prism with a tighter box. The field is untouched.
+
+    """
+    inset = min(abs(treatment), length / 2)
+    rings: list[list[float]] = []
+    for point in corners:
+        z = point[2]
+        near = length / 2 - inset if z > 0 else -(length / 2 - inset)
+        rings.append([point[0], point[1], near])
+        if inset:
+            pulled = 1.0 - inset / max(math.hypot(point[0], point[1]), 1e-12)
+            rings.append([point[0] * pulled, point[1] * pulled, z])
+    sheared = [[p[0] + shift[0] * p[2] / length, p[1] + shift[1] * p[2] / length, p[2]] for p in rings]
+    mn = [min(p[i] for p in sheared) for i in range(3)]
+    mx = [max(p[i] for p in sheared) for i in range(3)]
+    return PyShape(shape._sdf_fn, mn, mx, shape.res)
+
+
 def regular_prism(
     num_sides: int = 6,
     height: float | None = None,
@@ -4955,6 +4997,7 @@ def regular_prism(
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
+    shift: list[float] | None = None,
     realign: bool = False,
     center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
@@ -4981,6 +5024,9 @@ def regular_prism(
         inner_radius:                 inner radius (apothem to face centres)
         inner_diameter:               inner diameter
         side:                         length of each side
+        shift: [X,Y] offset between the two ends, sheared about the mid-plane -- the bottom
+            moves by half of it and the top by the other half, as `cyl` does and unlike
+            `prismoid`, which moves only its top.
         realign:                      rotate so a face centre (not vertex) faces +X (default False)
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
@@ -5065,14 +5111,36 @@ def regular_prism(
     # where CENTER belonged. The CSG twin anchors correctly, so the same call placed the shape
     # differently on the two backends (SPEC B-3).
     prism = prism.translate([0.0, 0.0, -length / 2])
-    # `pts` is the cross-section at `rad`; a taper's widest end may differ, and the anchor has to
-    # be measured against the box the solid actually fills.
+    if shift is not None and (shift[0] or shift[1]):
+        # The same 4x4 the CSG backend applies, to a shape in the same frame -- so this is not a
+        # port of the shear, it is the shear. `regular_prism` takes it about the **mid-plane**
+        # (the bottom moves by -shift/2 and the top by +shift/2), which is `cyl`'s convention and
+        # not `prismoid`'s; BOSL2 uses both, and the only way to know which is to read the matrix.
+        prism = prism.multmatrix(
+            [
+                [1, 0, shift[0] / length, 0],
+                [0, 1, shift[1] / length, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
     widest = max(radius1 if radius1 is not None else rad, radius2 if radius2 is not None else rad) / rad
     hull = [[p[0] * widest, p[1] * widest] for p in pts]
-    offset = _anchor_offset_hull3(
-        [[p[0], p[1], -length / 2] for p in hull] + [[p[0], p[1], length / 2] for p in hull],
+    corners = [[p[0], p[1], -length / 2] for p in hull] + [[p[0], p[1], length / 2] for p in hull]
+    # Anchored on the **circumscribed cylinder**, not on the polygon, and *unsheared* -- because
+    # that is what the CSG backend does: `_anchor_offset_cyl(rad1, rad2, prism_len, use_anchor)`,
+    # with the circumradius and no shift in it. This measured the polygon hull until T48, so
+    # `regular_prism(sides=6, anchor=BACK)` came out 0.67mm apart on the two backends: a hexagon
+    # reaches its circumradius towards a vertex and less towards a face, and BOSL2 anchors a
+    # regular prism the way it anchors the cylinder it is cut from (SPEC B2-3, PAR-5).
+    offset = _anchor_offset_cyl(
+        radius1 if radius1 is not None else rad,
+        radius2 if radius2 is not None else rad,
+        length,
         anchor,
     )
+    if shift is not None and (shift[0] or shift[1]):
+        prism = _shear_bounds(prism, corners, list(shift), length, max(r1v, r2v, c1v, c2v))
     return _place(prism, offset, spin, orient)
 
 

@@ -31,6 +31,7 @@
 from __future__ import annotations
 
 import json
+import posixpath
 from html import escape
 
 from docutils import nodes
@@ -95,8 +96,14 @@ class STLDirective(Directive):
     }
 
     def run(self) -> list[nodes.Node]:
+        uri = self.arguments[0]
+        if "://" not in uri and not uri.startswith("/") and uri.startswith("_stl/"):
+            env = getattr(self.state.document.settings, "env", None)
+            doc_dir = posixpath.dirname(env.docname) if env and hasattr(env, "docname") else ""
+            if doc_dir:
+                uri = posixpath.relpath(uri, doc_dir)
         html = stl_viewer_html(
-            self.arguments[0],
+            uri,
             width=self.options.get("width", "100%"),
             height=self.options.get("height", "360px"),
             color=self.options.get("color", "#6f9ac9"),

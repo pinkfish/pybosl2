@@ -38,12 +38,11 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
    about: the total double-counted an alias and the claim had not been rerun since parts were
    ported.*
-3. **3 options one backend takes and the other does not.** Parity is measured per option, not
+3. **2 options one backend takes and the other does not**, and neither is a gap in the usual sense. Parity is measured per option, not
    per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
-   named rather than dropped (B-9). What remains after T47 is `regular_prism`'s
-   `shift` (1, which needs shear in `polygon_prism`) and `cuboid`/`cube`'s `teardrop` (2) --
-   which raises `Bosl2NotImplementedError` on the CSG backend too, so it is a feature neither
-   backend has rather than a parity gap.
+   named rather than dropped (B-9). What remains after T48 is `cuboid`/`cube`'s
+   `teardrop` (2), which raises `Bosl2NotImplementedError` on the CSG backend too -- a feature
+   neither backend has rather than something one can do and the other cannot.
 
    Down from 176 when the measurement was first taken. What closed them was almost never a
    distance field somebody had to invent: it was reading what the CSG backend actually does, which
