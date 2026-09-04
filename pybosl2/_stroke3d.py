@@ -29,6 +29,7 @@ from pybosl2.shapes3d import sphere as _sphere
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -91,7 +92,7 @@ def endcap_geometry_3d(
 
 
 def stroke_3d(
-    path: Any,
+    path: "PathLike",
     width: float = 1,
     closed: bool | None = None,
     endcap1: CapSpec | None = None,
@@ -119,7 +120,7 @@ def stroke_3d(
 
 @builds_with("csg")
 def _stroke_3d_csg(
-    path: Any,
+    path: "PathLike",
     width: float,
     closed: bool | None,
     endcap1: CapSpec | None,
@@ -172,7 +173,7 @@ def _stroke_3d_csg(
 
 @builds_with("csg")
 def dashed_stroke_3d(
-    path: Any,
+    path: "PathLike",
     dashpat: Sequence[float] | None = None,
     closed: bool | None = None,
     fit: bool = True,

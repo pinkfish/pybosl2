@@ -214,11 +214,19 @@ def test_the_debt_lists_are_not_stale() -> None:
     reads the right table and asks it the wrong question.
     """
     live = {edge.name for edge in UPWARD if edge.kind != "typing"}
-    overlap = sorted(set(MODEL["known_violations"]) & set(MODEL["capability_edges"]))
-    assert not overlap, (
-        f"these are listed as both debt and architecture: {overlap}. An edge is one or the other, "
-        f"and counting it twice is how a debt figure stops meaning anything."
-    )
+    # Every pair of sections, not just the two T55 thought of. An edge listed twice is counted
+    # twice, and three were: `_helpers -> shapes2d`, `_helpers -> shapes3d` and
+    # `vnf -> isosurface` sat in `known_violations` *and* `allowed_deferred`, each with a debt row
+    # claiming a module-level import that no longer existed. T55 added this check for
+    # `capability_edges` alone and missed them, which is what a check aimed at one pair does.
+    sections = ("known_violations", "allowed_deferred", "facade_bridges", "capability_edges")
+    for i, first in enumerate(sections):
+        for second in sections[i + 1 :]:
+            overlap = sorted(set(MODEL[first]) & set(MODEL[second]))
+            assert not overlap, (
+                f"these are listed in both {first} and {second}: {overlap}. An edge is one thing, "
+                f"and counting it twice is how a debt figure stops meaning anything."
+            )
     deferred = {edge.name for edge in UPWARD if edge.kind == "deferred"}
     stale = sorted(set(MODEL["known_violations"]) - live)
     assert not stale, (
@@ -245,7 +253,7 @@ def test_a_facade_bridge_really_targets_the_facade(name: str) -> None:
 
 def test_the_known_violation_count_only_shrinks() -> None:
     """The ratchet. Fixing an edge means deleting its row; nothing may add one."""
-    budget = 8
+    budget = 4
     count = len(MODEL["known_violations"])
     assert count <= budget, f"{count} known violations, budget {budget}"
     if count < budget:
