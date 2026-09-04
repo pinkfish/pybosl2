@@ -1566,14 +1566,28 @@ Nothing was going to find this while a helper three modules away was answering f
 
 ### What remains
 
-12 violations, of which **four are runtime module-level** and the rest deferred-but-not-cycles:
+### `arc` moved to the layer it belongs in
+
+`turtle2d -> shapes2d` existed because the turtle needs an arc, and the arc lived in a backend
+module. It is path geometry, so it moved to `pybosl2.path2d`, taking `circle_from_corner`, `det2`
+and `sign` down to `_helpers` with it. Nothing was left to reach up for. **12 → 11.**
+
+`pybosl2.shapes2d` re-exports it: BOSL2 puts `arc()` there, and B2-3 says a reader following BOSL2
+should find it where BOSL2 says it is. All three spellings — `pybosl2.arc`, `pybosl2.shapes2d.arc`,
+`pybosl2.path2d.arc` — are the same object.
+
+The per-file budgets moved with it rather than growing: `path2d.py` +1 over-long function and one
+more positional tier parameter, `shapes2d/circle.py` −1 of each. **A move is not new debt, and the
+totals say so** — which is why these are per-file counts with a checked total rather than one
+number that a move could quietly inflate.
+
+### What remains
+
+11 violations, of which **three are runtime module-level** and the rest deferred-but-not-cycles:
 
 * `path2d -> miscellaneous` and `path3d -> miscellaneous` — the `Extrudable` mixin lives in L3 and
   is inherited by L2 types;
-* `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10);
-* `turtle2d -> shapes2d` — the turtle takes `arc`, which is now neutral but still lives in L3.
-  Moving it to L2 closes the edge, and needs `_circle_from_corner`, `_det2` and `_sign` to move
-  with it.
+* `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10).
 
 
 ## Keeping this file honest

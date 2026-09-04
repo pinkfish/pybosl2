@@ -111,16 +111,6 @@ def _arc_through_3(
     return _arc_points(count, radius, a0, delta, center, endpoint=endpoint)
 
 
-def _circle_from_corner(corner: Sequence[Sequence[float]], radius: float) -> list[float]:
-    p0, p1, p2 = corner
-    v1 = unit([p0[0] - p1[0], p0[1] - p1[1]])
-    v2 = unit([p2[0] - p1[0], p2[1] - p1[1]])
-    bis = unit([v1[0] + v2[0], v1[1] + v2[1]])
-    half_ang = math.acos(max(-1.0, min(1.0, v1[0] * bis[0] + v1[1] * bis[1])))
-    dist = radius / math.sin(half_ang)
-    return [p1[0] + bis[0] * dist, p1[1] + bis[1] * dist]
-
-
 def _circle_circle_intersection(
     radius1: float, center1: Sequence[float], radius2: float, center2: Sequence[float]
 ) -> list[list[float]]:
@@ -149,16 +139,6 @@ def _adjacent_angle_to_opposite(adjacent: float, angle: float) -> float:
 
 def _opposite_angle_to_adjacent(opposite: float, angle: float) -> float:
     return opposite / math.tan(math.radians(angle))
-
-
-def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
-    """Return the 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
-    return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
-
-
-def _sign(value: float) -> int:
-    value = float(value)
-    return (value > 0) - (value < 0)
 
 
 @backend_only("csg")

@@ -105,3 +105,41 @@ def test_the_partition_masks_refuse_for_their_own_reason(name: str) -> None:
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
         getattr(pybosl2, name)()
     assert name in str(excinfo.value), "the refusal names the function that cannot honour the backend"
+
+
+def test_arc_is_reachable_by_every_spelling_it_had() -> None:
+    """Moving a function to the layer it belongs in must not move it out from under its callers.
+
+    `arc` is path geometry -- 205 lines of plane trigonometry returning a `Path2D` -- so it lives
+    in `pybosl2.path2d` now rather than in a backend module. But BOSL2 puts it in `shapes2d`, and
+    B2-3 says a caller reading BOSL2 should find it where BOSL2 says it is, so `shapes2d`
+    re-exports it and the top-level name is unchanged.
+    """
+    import pybosl2
+    import pybosl2.path2d
+    import pybosl2.shapes2d
+
+    assert pybosl2.arc is pybosl2.path2d.arc
+    assert pybosl2.shapes2d.arc is pybosl2.path2d.arc
+    assert pybosl2.path2d.arc.__module__ == "pybosl2.path2d", "it is defined where it lives"
+
+
+def test_the_turtle_takes_its_arc_from_the_geometry_layer() -> None:
+    """The layering edge this move closed, checked at the import rather than in the model file.
+
+    `pybosl2.turtle.turtle2d` is L2 and was importing `pybosl2.shapes2d`, which is L3 -- a runtime
+    upward edge, listed as debt since the model was written. The turtle needs an *arc path*, not a
+    shape; once the arc lived in the geometry layer there was nothing left to reach up for.
+    """
+    import ast
+
+    source = (ROOT / "pybosl2" / "turtle" / "turtle2d.py").read_text()
+    reached = {
+        node.module
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.ImportFrom) and node.module and node.col_offset == 0
+    }
+    assert "pybosl2.path2d" in reached, "the turtle should take its arc from the geometry layer"
+    assert not any(m.startswith("pybosl2.shapes2d") for m in reached), (
+        f"turtle2d reaches a backend module at import time: {sorted(m for m in reached if 'shapes' in m)}"
+    )
