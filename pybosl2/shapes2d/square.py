@@ -186,7 +186,6 @@ def rect(
     return _finish(shape, offset, spin, size=sz, anchor=anchor)
 
 
-@backend_only("csg")
 def rect_path(
     size: float | Sequence[float] = 1,
     rounding: float | Sequence[float] = 0,

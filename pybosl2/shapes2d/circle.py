@@ -142,7 +142,6 @@ def circle(
     return _finish(shape, offset, spin, size=[2 * rad, 2 * rad], anchor=anchor)
 
 
-@backend_only("csg")
 def arc(
     count: int | None = None,
     radius: float | None = None,

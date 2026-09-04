@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.enums import PartitionCutType
@@ -593,6 +594,7 @@ def _partition_mask_shape(
     return poly.linear_extrude(height=h, center=True)
 
 
+@backend_only("csg")
 def partition_mask(
     length: float = 100,
     w: float = 100,
@@ -658,6 +660,7 @@ def partition_mask(
     )
 
 
+@backend_only("csg")
 def partition_cut_mask(
     length: float = 100,
     height: float = 100,

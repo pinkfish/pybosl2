@@ -201,11 +201,22 @@ def test_an_allowed_deferred_edge_really_is_a_cycle(name: str) -> None:
 
 
 def test_the_debt_lists_are_not_stale() -> None:
-    """An entry for an edge that no longer exists makes the list look worse than the code is."""
-    live = {edge.name for edge in UPWARD}
+    """An entry for an edge that no longer exists makes the list look worse than the code is.
+
+    Or for an edge of the wrong *kind*, which is how four entries sat in `known_violations` that
+    had never belonged there: `color -> _shape`, `distributors -> _shape`, `path3d -> shapes3d`
+    and `turtle3d -> shapes3d` exist only under `if TYPE_CHECKING`, which the model calls allowed
+    and unlisted. This asked whether the edge existed and got "yes" for all four -- a check that
+    reads the right table and asks it the wrong question.
+    """
+    live = {edge.name for edge in UPWARD if edge.kind != "typing"}
     deferred = {edge.name for edge in UPWARD if edge.kind == "deferred"}
     stale = sorted(set(MODEL["known_violations"]) - live)
-    assert not stale, f"spec/layers.toml [known_violations] lists edges that no longer exist: {stale}"
+    assert not stale, (
+        f"spec/layers.toml [known_violations] lists edges that are not debt: {stale}. Either they "
+        f"no longer exist, or they exist only under `if TYPE_CHECKING`, which creates no runtime "
+        f"dependency and is allowed unlisted."
+    )
     stale = sorted(set(MODEL["allowed_deferred"]) - deferred)
     assert not stale, f"spec/layers.toml [allowed_deferred] lists edges that are no longer deferred: {stale}"
     stale = sorted(set(MODEL["facade_bridges"]) - deferred)
@@ -225,7 +236,7 @@ def test_a_facade_bridge_really_targets_the_facade(name: str) -> None:
 
 def test_the_known_violation_count_only_shrinks() -> None:
     """The ratchet. Fixing an edge means deleting its row; nothing may add one."""
-    budget = 16
+    budget = 12
     count = len(MODEL["known_violations"])
     assert count <= budget, f"{count} known violations, budget {budget}"
     if count < budget:

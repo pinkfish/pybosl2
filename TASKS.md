@@ -76,6 +76,7 @@ spec renumbers as items close, and all but S-46a have.
 | 19 | PAR-4 / PAR-5 / B2-1 | [T47](#t47--trimcorners-and-the-instrument-that-was-there-all-along) ✅ | S |
 | 20 | PAR-4 / PAR-5 / S-2b | [T48](#t48--the-last-option-gap) ✅ | S |
 | 21 | S-2b / PAR-5 | [T49](#t49--measure-the-bounds-instead-of-writing-them) ✅ | M |
+| 22 | A-1 / PAR-1 / B-4 | [T50](#t50--audit-the-layering-debt) 🔶 | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1514,6 +1515,65 @@ assert spun[0] > plain[0], (
 
 It fired, and all three went. The round shapes are compared on `spin` as well as `orient` now,
 which is what the exclusion existed to wait for.
+
+
+## T50 — Audit the layering debt 🔶
+
+**§12.2 item 22. A-1, PAR-1, B-4. 16 → 12 known violations.**
+
+### A quarter of the debt was not debt
+
+`color -> _shape`, `distributors -> _shape`, `path3d -> shapes3d` and `turtle3d -> shapes3d` exist
+**only** under `if TYPE_CHECKING`, which the model itself calls *"allowed and unlisted"*. They had
+been counted as violations, making the debt look a quarter worse than the code was — which is
+precisely what `test_the_debt_lists_are_not_stale` says it exists to prevent.
+
+That test could not see it. It asked whether the edge **existed**:
+
+```python
+live = {edge.name for edge in UPWARD}  # every upward edge, of any kind
+```
+
+and got "yes" for all four. It asks whether the edge is the right *kind* now. **A check that reads
+the right table and asks it the wrong question passes for the wrong reason** — the same shape as
+T46's stations and T49's escape half.
+
+### Three functions gated on where they live, not what they do
+
+Measuring the rest turned up something else. `pybosl2.shapes2d` has three `@backend_only("csg")`
+functions that build no geometry at all:
+
+| | returns |
+|---|---|
+| `arc()` | a `Path2D` — 205 lines of plane trigonometry, no native call in it |
+| `rect_path()` | a list of points |
+| `jittered_poly()` | a list of points |
+
+All three refused under `use_backend("sdf")`. The marker had followed the **module** rather than
+the function: they live in `shapes2d` because that is where BOSL2 puts them (B2-3).
+
+### And the false refusal was hiding a real one
+
+`partition_mask` and `partition_cut_mask` call `arc()` for their cut path, so they refused too —
+and **looked correctly backend-isolated**. They are not. They build with `pythonscad.polygon`,
+`.offset(delta=)` and `.linear_extrude`, and handed back a `CsgSolid` **inside an `sdf` block** the
+moment `arc` stopped refusing on their behalf.
+
+They carry the marker themselves now, which is where the reason is true.
+
+**A wrong refusal is worse than no refusal, because it looks like the thing that is missing.**
+Nothing was going to find this while a helper three modules away was answering for them.
+
+### What remains
+
+12 violations, of which **four are runtime module-level** and the rest deferred-but-not-cycles:
+
+* `path2d -> miscellaneous` and `path3d -> miscellaneous` — the `Extrudable` mixin lives in L3 and
+  is inherited by L2 types;
+* `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10);
+* `turtle2d -> shapes2d` — the turtle takes `arc`, which is now neutral but still lives in L3.
+  Moving it to L2 closes the edge, and needs `_circle_from_corner`, `_det2` and `_sign` to move
+  with it.
 
 
 ## Keeping this file honest
