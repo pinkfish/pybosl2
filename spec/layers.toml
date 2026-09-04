@@ -79,9 +79,32 @@ L5_parts = ["parts"]
 "_helpers -> _native" = "Deferred, but not a cycle: _native does not import the helpers."
 "beziers -> shapes3d" = "A Bezier builds a solid through the CSG module rather than the façade (A-10). Module level and deferred, and not a cycle."
 "masking -> solid" = "Deferred, but not a cycle: the façade does not import masking."
-"path2d -> miscellaneous" = "`Extrudable` composes *native* primitives -- `pythonscad.cube`, `pythonscad.square` -- so it must reach L3 to return a `Bosl2Solid`, and an L2 path type inherits it. Its two sibling mixins are at L2 because they build a neutral `VNF` and call `.polyhedron()` on it, which needs no backend import; T51 tried moving `Extrudable` to L2 the same way and found it cannot, because the backend protocol has no way to adopt an already-composed native object. T54 then measured the rewrite and it is worse than that: **a feature removal.** A VNF sweep needs the cross-section as *points*, and these two exist precisely to take a profile that is not one -- `path_extrude`'s docstring says so, and a disjoint two-part profile builds here and is refused by `path_sweep`. The point-list subset cannot be delegated either: `path_extrude` mitres and `path_sweep` uses a rotation-minimising frame, and they build different geometry for the same profile. So this edge is the price of a capability, not deferred tidying."
-"path3d -> miscellaneous" = "Extrudable, as above."
 "path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
-"regions -> shapes3d" = "`Region.debug_region(vertices=True)` labels each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose, and 22 CSG-only names are exported top-level outside it. Deferred since T53 -- importing `pybosl2.regions` no longer drags in a backend module for a debug helper -- and the call refuses under its own name rather than letting `text3d`'s surface from three frames down. Closing it means the label feature not living on an L2 geometry type."
 "skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
 "vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."
+
+# Upward edges that buy a capability the layer below cannot have. Unlike `known_violations` these
+# are not going away, and saying so is more useful than a list that never shrinks: a reader of the
+# debt list should be looking at things somebody could act on.
+#
+# What stops this becoming a dumping ground is `pinned_by`. Every entry names a test that holds the
+# capability in place -- so the claim "this edge buys something" is checked rather than asserted,
+# and anyone who thinks the edge is removable finds out what it costs before they try. That test
+# must exist and must mention the edge's source; `tests/test_layering.py` verifies both.
+#
+# Three tasks of measurement produced these. Each had a *different* stated reason in
+# `known_violations` first, and all three were wrong -- see SPEC 12.2 items 22 and the T50/T52/T53/T54
+# entries in TASKS.md.
+[capability_edges]
+
+[capability_edges."path2d -> miscellaneous"]
+reason = "`Extrudable` composes *native* primitives, so it is backend machinery, and `Path2D` inherits it. Its two sibling mixins are at L2 because they build a neutral `VNF` and call `.polyhedron()`; this one cannot, because a VNF sweep needs the cross-section as points and these methods exist precisely to take a profile that is not one -- a disjoint multi-part shape, or rendered text. Rewriting them to build a VNF removes that."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+
+[capability_edges."path3d -> miscellaneous"]
+reason = "`Extrudable` on `Path3D`, as above."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+
+[capability_edges."regions -> shapes3d"]
+reason = "`Region.debug_region(vertices=True)` numbers each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose. Deferred, so importing `pybosl2.regions` does not pull a backend module in, and the labels refuse under their own name."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on"

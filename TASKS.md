@@ -1617,7 +1617,8 @@ class, two spellings of one shared parameter (C-17, C-21).
 
 ### What remains
 
-11 violations, of which **three are runtime module-level** and the rest deferred-but-not-cycles:
+8 violations, of which **one is runtime module-level** and the rest deferred-but-not-cycles.
+The three that are not going away moved to `[capability_edges]` in T55:
 
 * `path2d -> miscellaneous` and `path3d -> miscellaneous` — see below; the reason is measured now,
   and it is neither of the two things it looked like.
@@ -1758,6 +1759,53 @@ disagree, so if they ever converge the note gets re-measured rather than trusted
 edges; T52 found "lives in an L3 module" was an accident-of-filing reading of something structural;
 T54 found T52's own replacement reason understated the cost. The list is worth much more than it
 was, and none of that came from moving code.
+
+
+## T55 — Architecture is not debt ✅
+
+**§12.2 item 22, closed. A-1. 11 known violations → 8.**
+
+Three upward edges are not going away, because removing them removes something the library can do.
+Leaving them on a list called `known_violations` — a list whose whole contract is *"only shrinks"*
+— makes the number mean less every time someone reads it and finds a row nobody intends to fix.
+
+`spec/layers.toml` has a `[capability_edges]` section now:
+
+| edge | buys |
+|---|---|
+| `path2d -> miscellaneous` | `Extrudable`, which takes a profile that is not a point list |
+| `path3d -> miscellaneous` | the same, on `Path3D` |
+| `regions -> shapes3d` | `text3d` vertex labels, which render a font |
+
+### `pinned_by` is what stops it being a dumping ground
+
+Every entry names a **test that holds the capability in place**:
+
+```toml
+[capability_edges."path2d -> miscellaneous"]
+reason = "..."
+pinned_by = "tests/...::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+```
+
+So "this edge buys something" is checked rather than asserted, and the next person who thinks it is
+removable finds out what it costs before they try. The check requires the named test to **exist**
+and to **mention the edge's source** — a pin that never touches the module cannot be holding
+anything. And an edge may not sit in both sections: counting it as debt *and* architecture is how a
+figure stops meaning anything.
+
+Every one of these was in `known_violations` first, each with a different stated reason, and all
+three reasons were wrong. **The bar for leaving the debt list is a pinned capability, not that
+somebody found the edge hard to fix.**
+
+### Where the number went
+
+| | |
+|---|---|
+| 16 | as first measured |
+| −4 | never debt — `if TYPE_CHECKING` edges the model itself calls allowed (T50) |
+| −1 | fixed — `arc` moved to the layer it belonged in (T50) |
+| −3 | architecture, with the receipts (T55) |
+| **8** | actual debt, one of it runtime |
 
 
 ## Keeping this file honest
