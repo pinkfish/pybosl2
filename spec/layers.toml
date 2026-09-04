@@ -82,6 +82,6 @@ L5_parts = ["parts"]
 "path2d -> miscellaneous" = "`Extrudable` composes *native* primitives -- `pythonscad.cube`, `pythonscad.square` -- so it must reach L3 to return a `Bosl2Solid`, and an L2 path type inherits it. Its two sibling mixins are at L2 because they build a neutral `VNF` and call `.polyhedron()` on it, which needs no backend import; T51 tried moving `Extrudable` to L2 the same way and found it cannot, because the backend protocol has no way to adopt an already-composed native object. Closing this means rewriting it to produce a VNF, which is a geometry rewrite rather than a move."
 "path3d -> miscellaneous" = "Extrudable, as above."
 "path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
-"regions -> shapes3d" = "Region.text3d reaches the CSG module directly (A-10)."
+"regions -> shapes3d" = "`Region.debug_region(vertices=True)` labels each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose, and 22 CSG-only names are exported top-level outside it. Deferred since T53 -- importing `pybosl2.regions` no longer drags in a backend module for a debug helper -- and the call refuses under its own name rather than letting `text3d`'s surface from three frames down. Closing it means the label feature not living on an L2 geometry type."
 "skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
 "vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."

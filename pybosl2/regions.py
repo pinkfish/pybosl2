@@ -25,7 +25,6 @@ from pybosl2.caps import CapSpec, CapType
 from pybosl2.enums import RoundingMethod
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path2d import Path2D
-from pybosl2.shapes3d import text3d
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
     from collections.abc import Iterator, Sequence
@@ -1089,6 +1088,15 @@ class Region:
         solid = self.geometry().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
+        # `text3d` is CSG-only -- it renders a font, which the SDF backend has no equivalent for --
+        # and it is imported *here* rather than at the top of the module so that importing
+        # `pybosl2.regions` does not drag a backend module in for a debug helper most callers never
+        # use. The refusal below names this call rather than letting `text3d`'s own name surface
+        # from three frames down, which is what a caller can act on (SPEC B-9, E-5).
+        from pybosl2._helpers import refuse_text_labels
+        from pybosl2.shapes3d import text3d
+
+        refuse_text_labels("Region.debug_region(vertices=True)")
         labels = [
             text3d(
                 f"{chr(97 + j)}{i}",

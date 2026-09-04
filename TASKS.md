@@ -1621,7 +1621,7 @@ class, two spellings of one shared parameter (C-17, C-21).
 
 * `path2d -> miscellaneous` and `path3d -> miscellaneous` — see below; the reason is measured now,
   and it is neither of the two things it looked like.
-* `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10).
+* `regions -> shapes3d` — deferred since T53; see below.
 
 
 ## T52 — `Extrudable` cannot move, and now we know why 🔶
@@ -1666,6 +1666,48 @@ That is a considerably better thing to have on a debt list than a guess, and it 
 result of this task. **A plan that survives being written and dies on being measured is still worth
 the measuring** — the alternative was shipping a move that raises the count while looking like
 progress.
+
+
+## T53 — The vertex labels say what they are ✅
+
+**§12.2 item 22, continued. A-1, B-9, E-5. 11 violations, three runtime edges down to one.**
+
+`regions -> shapes3d` does not close either — and for a **third** distinct reason, which is worth
+setting beside the other two:
+
+| edge | why it cannot close |
+|---|---|
+| `turtle2d -> shapes2d` (T50) | *closed* — `arc` was path geometry filed in a backend module |
+| `path2d/3d -> miscellaneous` (T52) | `Extrudable` composes native primitives; the backend protocol cannot adopt one |
+| `regions -> shapes3d` (T53) | `text3d` is CSG-only, and the façade is **by design** only what *both* backends expose |
+
+That last one matters: `pybosl2.solid`'s own docstring says it carries "the 3-D primitives BOTH
+backends expose", and **22 CSG-only names are exported top-level outside it**. Adding `text3d`
+would make the façade mean something else.
+
+### What was actually wrong
+
+`Region.debug_region()` builds its outline through the façade and works on either backend. Only
+`vertices=True` needs `text3d` — and it surfaced:
+
+```
+'pybosl2.shapes3d.extrusions.text3d' is not supported by the 'sdf' backend
+```
+
+An internal path three frames down, from a call the caller spelled `debug_region(vertices=True)`.
+It refuses on the **option** now, under its own name, the way `cyl(teardrop=)` does (B-9), and says
+`vertices=False` gets the outline alone. The import moved into the branch too, so
+`import pybosl2.regions` no longer drags a backend module in for a debug helper most callers never
+touch — which is what turned the edge from runtime into deferred.
+
+### The same feature was written twice
+
+`Region.debug_region` and `Path2D.debug_polygon` are the same thing, and **a one-path region
+delegates to the second**. Fixing only the first left the commonest case still reporting the old
+message — caught because the test used a one-path region and the guard did not fire.
+
+One shared rule now (`_helpers.refuse_text_labels`), which is the fourth time this session that
+writing a rule once was the fix rather than a tidy-up.
 
 
 ## Keeping this file honest

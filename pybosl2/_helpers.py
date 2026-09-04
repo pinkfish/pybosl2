@@ -1107,3 +1107,40 @@ def sign(value: float) -> int:
     """
     value = float(value)
     return (value > 0) - (value < 0)
+
+
+def refuse_text_labels(call: str) -> None:
+    """Refuse a debug helper's text labels when the active backend cannot render a font.
+
+    `Path2D.debug_polygon` and `Region.debug_region` both draw their outline through the façade --
+    so it builds on either backend -- and then number the vertices with `text3d`, which renders a
+    font and is CSG-only. The refusal belongs on the *option*, the way `cyl(teardrop=)` refuses on
+    the option rather than the shape (SPEC B-9), and it has to name the call the caller made:
+    letting `text3d`'s own guard fire surfaces `'pybosl2.shapes3d.extrusions.text3d' is not
+    supported`, an internal path three frames down (SPEC E-5).
+
+    It is one function because it is one rule. The two helpers are the same feature written twice,
+    and `Region.debug_region` *delegates* to `Path2D.debug_polygon` for a single-path region -- so
+    fixing one and not the other left the most common case still reporting the old message.
+
+    Args:
+        call: How the caller spelled it, for the message.
+
+    Raises:
+        UnsupportedByBackendError: if the active backend is not the CSG one.
+
+    """
+    from pybosl2._backend import current_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    backend = current_backend()
+    if backend != "csg":
+        raise UnsupportedByBackendError(
+            call,
+            backend,
+            hint=(
+                "the vertex labels are rendered text, which is a csg-backend feature. Call it "
+                "with vertices=False for the outline alone, or build it inside "
+                '`with use_backend("csg")`.'
+            ),
+        )

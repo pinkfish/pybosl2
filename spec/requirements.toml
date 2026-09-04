@@ -2192,6 +2192,8 @@ enforced_by = [
     "tests/test_neutral_geometry_is_not_gated.py::test_the_turtle_takes_its_arc_from_the_geometry_layer",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_refuse_rather_than_failing_from_inside",
     "tests/test_neutral_geometry_is_not_gated.py::test_convexity_is_accepted_by_every_extrude_on_both_backends",
+    "tests/test_neutral_geometry_is_not_gated.py::test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on",
+    "tests/test_neutral_geometry_is_not_gated.py::test_importing_regions_does_not_drag_in_a_backend_module",
 ]
 candidates = [
     "tests/test_dimension_validation.py",
