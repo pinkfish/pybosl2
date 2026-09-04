@@ -41,6 +41,11 @@ both backends, so once T43 landed there was nothing left to write but the subtra
 somewhere shared to put the eighty lines of rule that get from its twenty-odd arguments to those
 two shapes (`pybosl2._helpers.resolve_rect_tube`).
 
+T45, `teardrop=` and `clip_angle=` on the five cylinder spellings -- the first gap here that was
+different in kind. A fillet clipped at an angle is a **non-convex** corner, so it is a union rather
+than an intersection: the full fillet `min`-ed with the wedge between the chord and the end face.
+Everything closed before it was an intersection of convex pieces. See `tests/test_sdf_rim.py`.
+
 Two things this separates, because they are different defects:
 
 * **A missing option** is honest parity debt. A caller who passes it gets
@@ -71,13 +76,8 @@ TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 OPTION_GAPS: dict[str, int] = {
     "cube": 2,
     "cuboid": 2,
-    "cyl": 2,
-    "cylinder": 2,
     "regular_prism": 1,
     "teardrop": 5,
-    "xcyl": 2,
-    "ycyl": 2,
-    "zcyl": 2,
 }
 
 

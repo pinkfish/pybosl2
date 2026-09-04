@@ -15,6 +15,8 @@ A coverage guard asserts the table matches ``solid._SHARED_3D`` exactly, so addi
 constructor without a matrix row (or vice-versa) fails loudly instead of silently going untested.
 """
 
+import pathlib
+
 import pytest
 
 from pybosl2 import solid
@@ -468,24 +470,23 @@ def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
     the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
     error. Silence is the one outcome B-9 does not allow.
 
-    **The example has had to change three times, and that is the point of the rule.** `spin=` was
+    **The example has had to change four times, and that is the point of the rule.** `spin=` was
     this test's CSG-only option until T40 gave it to every SDF constructor; `cuboid(p1=, p2=)` took
-    its place and T42 built that; `rect_tube(size1=)` took *its* place and T44 built that. Not one
-    of the three was ever CSG-only -- all three were unwritten, and naming one here quietly
-    asserted otherwise. What B-9 governs is the *refusal*, not any particular gap, so the example
-    is chosen from whatever `tests/test_option_parity.py` still counts and is expected to keep
-    moving. `teardrop=` is the current one, and it is the last kind left: a rounding clipped at an
-    angle is a non-convex corner, so it is the first gap here whose reason is about the field
-    rather than about nobody having written it.
+    its place and T42 built that; `rect_tube(size1=)` took *its* place and T44 built that;
+    `cyl(teardrop=)` took that one and T45 built it. **Not one of the four was ever CSG-only** --
+    all four were unwritten, and naming one here quietly asserted otherwise. What B-9 governs is
+    the *refusal*, not any particular gap, so the example is drawn from whatever
+    `tests/test_option_parity.py` still counts, and `test_the_examples_here_are_still_gaps` fails
+    with that in the message the next time one is built.
     """
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    printable = {"height": 20, "radius": 5, "teardrop": True}
+    sheared = {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}
     with use_backend("csg"):
-        assert solid.cyl(**printable).backend == "csg"  # type: ignore[attr-defined]
+        assert solid.regular_prism(**sheared).backend == "csg"  # type: ignore[attr-defined]
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="teardrop") as excinfo:
-        solid.cyl(**printable)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="shift") as excinfo:
+        solid.regular_prism(**sheared)
     assert "use_backend" in str(excinfo.value)  # the message names the way forward
 
 
@@ -705,9 +706,8 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     [
         ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
         ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
-        ("cyl", {"height": 20, "radius": 5, "clip_angle": 40}, (10, 10, 20)),
         ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
-        ("cyl", {"height": 20, "radius": 5, "teardrop": True}, (10, 10, 20)),
+        ("teardrop", {"height": 10, "radius": 5, "chamfer": 1}, (10, None, None)),
     ],
 )
 def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
@@ -715,7 +715,13 @@ def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
     kwargs: dict[str, object],
     expected: tuple[float | None, float | None, float | None],
 ) -> None:
-    """Reachable is not the claim -- honoured on one backend and refused on the other is."""
+    """Reachable is not the claim -- honoured on one backend and refused on the other is.
+
+    Every example here is drawn from what `tests/test_option_parity.py` still counts as a gap, and
+    `test_the_examples_here_are_still_gaps` says so out loud: this list has gone stale four times
+    as the gaps closed (T40, T42, T44, T45), each time as a confusing DID NOT RAISE rather than as
+    "your example was built".
+    """
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with use_backend("csg"):
@@ -750,3 +756,29 @@ def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
     assert sizes["csg"][2] == pytest.approx(10, abs=0.2)
     assert sizes["sdf"][2] == pytest.approx(10, abs=0.2)
     assert sizes["sdf"][0] == pytest.approx(sizes["csg"][0], abs=0.3), sizes
+
+
+def test_the_examples_here_are_still_gaps() -> None:
+    """The refusal examples above are only examples while they are still refused.
+
+    They have gone stale four times as the parity gaps closed, each time surfacing as a confusing
+    `DID NOT RAISE` three tests away from the thing that changed. This says it plainly: the option
+    is built now, pick another from the budget. The budget is the authority on what is left, so
+    this reads it rather than keeping a second list beside it (SPEC B2-1).
+    """
+    import sys
+
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from test_option_parity import GAPS
+
+    examples = {
+        ("regular_prism", "shift"),
+        ("cube", "trimcorners"),
+        ("teardrop", "cap_h1"),
+        ("teardrop", "chamfer"),
+    }
+    built = sorted(f"{shape}({option}=)" for shape, option in examples if option not in GAPS.get(shape, ()))
+    assert not built, (
+        "these are used above as options one backend cannot honour, and both backends build them "
+        f"now: {built}. Pick another from tests/test_option_parity.py's budget."
+    )

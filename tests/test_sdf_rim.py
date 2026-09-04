@@ -53,10 +53,19 @@ def _worst_on_profile(
     shape = builder(height=height, radius1=radius1, radius2=radius2, anchor=[0, 0, 0], **rim)
     tree = shape._sdf_fn(lv.x(), lv.y(), lv.z())
 
+    points = [(r, z) for r, z in profile if r > 1e-9]  # the two on the axis are interior
+    # Midpoints of the *straight* segments too, not only the vertices. A chord of the arc would
+    # sit slightly inside the true circle, which is faceting rather than a defect, so only
+    # axis-aligned segments qualify -- the end faces, the wall, and the flat a clipped fillet ends
+    # in. That flat is why: everything about it except its two endpoints lives in its interior, so
+    # a vertex-only probe passed with the clipped fillet's depth wrong *and* with its union turned
+    # into an intersection.
+    for (r1, z1), (r2, z2) in zip(points, points[1:], strict=False):
+        if math.isclose(r1, r2, abs_tol=1e-9) or math.isclose(z1, z2, abs_tol=1e-9):
+            points.append(((r1 + r2) / 2, (z1 + z2) / 2))
+
     worst, sampled = 0.0, 0
-    for r, z in profile:
-        if r <= 1e-9:  # the two points on the axis are interior, not on the surface
-            continue
+    for r, z in points:
         for angle in (0.0, 1.0, 2.5):
             worst = max(worst, abs(float(tree(*TO_WORLD[axis](r * math.cos(angle), r * math.sin(angle), z)))))
             sampled += 1
@@ -194,3 +203,74 @@ def test_two_corners_place_a_cuboid_the_same_way_on_both_backends(corners: dict[
             box = facade.cuboid(**corners).bounds()
             boxes[backend] = [round(v, 2) for v in (*box.size, *box.center)]
     assert boxes["csg"] == pytest.approx(boxes["sdf"], abs=0.05), f"{corners}: {boxes}"
+
+
+@pytest.mark.parametrize(
+    ("label", "rim"),
+    [
+        ("no clip at all", {"rounding1": 2, "rounding2": 2}),
+        ("clipped at 45", {"rounding1": 2, "rounding2": 2, "clip_angle": 45}),
+        ("clipped at 30", {"rounding1": 2, "rounding2": 2, "clip_angle": 30}),
+        ("clipped at 60", {"rounding1": 2, "rounding2": 2, "clip_angle": 60}),
+        ("a teardrop", {"rounding1": 2, "rounding2": 2, "teardrop": True}),
+        ("a teardrop at 30", {"rounding1": 2, "rounding2": 2, "teardrop": 30}),
+        ("a different rounding at each end", {"rounding1": 1, "rounding2": 3, "clip_angle": 45}),
+    ],
+)
+def test_a_clipped_fillet_follows_the_profile_csg_revolves(label: str, rim: dict[str, object]) -> None:
+    """The last parity gap that was different in kind, and the first non-convex one.
+
+    Everything closed on this backend before now was an intersection of convex pieces. A clipped
+    fillet is not: the arc runs from the wall down to the clip angle and then goes **straight** to
+    the end face, which leaves a concave vertex where the two meet. It is the full fillet
+    *unioned* with the wedge between the chord and the end face -- `min` of two expressions rather
+    than `max` of several.
+
+    The profile check discriminates both ways here, which it does not always. A field that ignored
+    the clip would put the flat's outer point outside itself; a field that clipped when it should
+    not would put the plain fillet's start inside.
+    """
+    worst = _worst_on_profile(sdf.cyl, 2, **rim)
+    assert worst == pytest.approx(0.0, abs=1e-9), f"{label}: worst |field| on the profile is {worst}"
+
+
+@pytest.mark.parametrize("radius2", [8.0, 5.0])
+@pytest.mark.parametrize("name", ["cyl", "cylinder", "zcyl", "xcyl", "ycyl"])
+def test_every_cylinder_spelling_clips_its_fillet(name: str, radius2: float) -> None:
+    """Ten of the twenty gaps left after T44 were this option pair on these five names."""
+    worst = _worst_on_profile(
+        getattr(sdf, name),
+        {"cyl": 2, "cylinder": 2, "zcyl": 2, "xcyl": 0, "ycyl": 1}[name],
+        radius2=radius2,
+        rounding1=2,
+        rounding2=2,
+        clip_angle=45,
+    )
+    assert worst == pytest.approx(0.0, abs=1e-9), f"{name}: worst |field| on the profile is {worst}"
+
+
+def test_a_boolean_teardrop_means_forty_five_degrees_not_one() -> None:
+    """`bool` is a subclass of `int`, and reading the number first takes True as one degree.
+
+    `teardrop=True` is the flag form of `teardrop=45`: clip the fillet so the overhang stays
+    printable. The CSG backend tested `isinstance(teardrop, (int, float))` before ruling the flag
+    out, so `True` was read as the angle itself -- a **1 degree** teardrop, which is a rounding
+    with a flat too small to see, and silently not the thing the flag is for.
+
+    Nothing caught it because the shape still builds, still looks round, and its bounding box is
+    the same either way. `pybosl2.sdf.shapes3d.effective_clip` is the one place that rule lives
+    now, and both backends read it.
+    """
+    from pybosl2.sdf.shapes3d import effective_clip
+    from pybosl2.shapes3d.cylinder import cyl_profile
+
+    assert effective_clip(90.0, True) == pytest.approx(45.0)
+    assert effective_clip(90.0, 30) == pytest.approx(60.0)
+    assert effective_clip(40.0, True) == pytest.approx(40.0), "the tighter of the two wins"
+    assert effective_clip(90.0, False) == pytest.approx(90.0)
+
+    flag = cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=True, fn=8)[1]
+    angle = cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=45, fn=8)[1]
+    one = cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=1, fn=8)[1]
+    assert flag == pytest.approx(angle), "teardrop=True is teardrop=45"
+    assert flag != pytest.approx(one), "and is not teardrop=1, which is what `bool < int` made it"
