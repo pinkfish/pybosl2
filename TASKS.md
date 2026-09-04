@@ -69,6 +69,7 @@ spec renumbers as items close, and all but S-46a have.
 | 12 | PAR-4 / PAR-5 / S-34 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | M |
 | 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
 | 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
+| 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1080,6 +1081,65 @@ chamfer (5), `teardrop`/`clip_angle` on the cylinders (10), `trimcorners` (2), `
 too). `teardrop`/`clip_angle` is the interesting one: a rounding clipped at an angle is a
 **non-convex** corner — the arc runs to the clip angle and then goes straight to the cap — so it is
 a union of two regions rather than one expression, unlike everything closed so far.
+
+
+## T43 — Give `prismoid` its edge treatments ✅
+
+**§12.2 item 15. PAR-4, PAR-5, S-2b.**
+
+Six options, refused with a docstring caveat saying that "deriving an exact SDF for a *tapered*
+box's independently-radiused vertical edges was out of scope".
+
+**No derivation was needed, because the CSG backend does not derive one either.** It builds the
+two end cross-sections and takes their **convex hull** — and a hull's slice at height *t* is the
+Minkowski blend `(1−t)A ⊕ tB`. For these shapes that blend is the same shape again:
+
+* a rounded rectangle is `box ⊕ disc`, and Minkowski addition distributes → the slice is a rounded
+  rectangle with the half-size **and** the corner radius each linearly interpolated;
+* a chamfered rectangle is an octagon whose support function is linear in the size and the
+  chamfer → likewise.
+
+So the cross-section is *exact*. The only approximation left is the one this function already
+carried: measuring across a taper is not the Euclidean distance to it, though the zero set is
+right. **A caveat that says a thing is out of scope is a claim like any other**, and this one had
+never been checked against the code it was deferring to.
+
+### The bound was wrong again, in the same way
+
+`shift` moves the **top** section only, and the bound added it to the **bottom** half-size —
+reporting a 28-wide box for a solid 20 wide. That is the defect `cyl` carried until T40, in a
+second shape. Twice is a pattern, and the cause is structural: every SDF constructor writes its
+bound *beside* its field by hand rather than measuring one from the other, so a bound is only as
+good as whoever last read the formula next to it.
+
+### Three of five negative controls went green
+
+The first test asked whether every point of the hull's own cross-section is inside the field, and
+whether the field's boundary touches it. Both pass **with `rounding=` ignored altogether** — a
+plain box contains every rounded version of itself, and the rounded shape touches the box along
+its flat edges, which is where the "boundary is touched" check lands. The rounded corners are
+interior, and interior points were exactly what the test skipped.
+
+What separates them is the **sharp corner the treatment cuts away**, whose distance outside is
+known in closed form: `r(√2 − 1)` for a rounding, `c/√2` for a chamfer. Both linear in the amount,
+so asserting the *value* rather than the sign also pins the interpolation between the two ends —
+which is what caught the two "not interpolated" controls.
+
+**Containing the right shape is easy if you are simply too big.** Every parity check of this kind
+needs the other half, and it is not the half that comes to mind first.
+
+### And four tests asserted the gap as correct behaviour
+
+The fifth instance this session. `test_the_facade_carries_prismoid_edge_treatments_and_refuses_them_on_sdf`
+did what its name says, with the docstring *"The SDF prismoid has no exact form for a tapered box's
+radiused vertical edges"* — the same claim the constructor's own caveat made, and wrong for the
+same reason. **A test that pins a gap in place is only as good as the reason it cites**, and this
+one outlived its.
+
+`test_a_real_treatment_is_still_refused` was the other half of B-9's zero-is-not-a-request pairing
+and used `prismoid(rounding=5)` as its still-refused example. Like B-9's own worked example, it now
+takes one from whatever the parity budget still counts — the third such example to go stale as the
+gaps close, which is what it looks like when a suite's examples are drawn from a shrinking list.
 
 
 ## Keeping this file honest

@@ -576,17 +576,22 @@ def test_circumscribe_is_geometry_not_tessellation() -> None:
         solid.regular_prism(6, height=10, radius=8, circumscribe=True)  # type: ignore[attr-defined]
 
 
-def test_the_facade_carries_prismoid_edge_treatments_and_refuses_them_on_sdf() -> None:
-    """The SDF prismoid has no exact form for a tapered box's radiused vertical edges."""
-    from pybosl2.exceptions import UnsupportedByBackendError
+def test_the_facade_carries_prismoid_edge_treatments_to_both_backends() -> None:
+    """This asserted the *refusal* until T43, on a reason that had never been checked.
 
-    with use_backend("csg"):
-        rounded = solid.prismoid([40, 40], [20, 20], height=30, rounding=5)  # type: ignore[attr-defined]
-    assert rounded.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
-
+    "The SDF prismoid has no exact form for a tapered box's radiused vertical edges" was the
+    docstring, and it was wrong: the CSG backend has no such form either. It hulls the two end
+    cross-sections, and a hull's slice is the Minkowski blend of them -- which for a rounded or
+    chamfered rectangle is the same shape with its size and its amount interpolated. A test that
+    pins a gap in place is only as good as the reason it cites, and this one outlived its.
+    """
     for kwargs in ({"rounding": 5}, {"chamfer": 5}, {"rounding1": 5}, {"chamfer2": 5}):
-        with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-            solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+        sizes = {}
+        for backend in ("csg", "sdf"):
+            with use_backend(backend):
+                built = solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+                sizes[backend] = [round(v, 2) for v in built.bounds().size]
+        assert sizes["csg"] == pytest.approx(sizes["sdf"], abs=0.4), f"{kwargs}: {sizes}"
 
 
 def test_no_part_needs_a_shape_argument_the_facade_cannot_carry() -> None:
@@ -648,13 +653,18 @@ def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) 
     assert built.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
 
 
-@pytest.mark.parametrize("kwargs", [{"rounding": 5}, {"chamfer": 3}, {"rounding1": 2}])
-def test_a_real_treatment_is_still_refused(kwargs: dict[str, object]) -> None:
-    """The other half: a non-zero request the SDF prismoid cannot honour still has to be refused."""
+@pytest.mark.parametrize("kwargs", [{"teardrop": True}, {"trimcorners": False}])
+def test_a_real_request_the_backend_cannot_honour_is_still_refused(kwargs: dict[str, object]) -> None:
+    """The other half of the zero-is-not-a-request rule, on a gap that is still a gap.
+
+    This used `prismoid(rounding=5)` until T43 built it. The pairing is what matters -- an
+    explicit zero passes quietly and a real request does not -- so the example moves to whatever
+    the parity budget still counts, the same way B-9's worked example does.
+    """
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+        solid.cuboid(size=[40, 40, 30], **kwargs)  # type: ignore[attr-defined]
 
 
 def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:

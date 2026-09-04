@@ -31,6 +31,11 @@ that are one field), and `cuboid`'s two-corner form. The CSG backend states the 
 profile** it revolves, which gives an exact thing to check -- the field is zero at every vertex of
 it. See `tests/test_sdf_rim.py`.
 
+T43, `prismoid`'s six edge treatments, which this backend's own docstring called out of scope. The
+CSG backend derives nothing either: it hulls the two end cross-sections, and a hull's slice is the
+Minkowski blend `(1-t)A + tB`, which for a rounded or chamfered rectangle is the same shape with
+its size and its amount interpolated. See `tests/test_sdf_prismoid.py`.
+
 Two things this separates, because they are different defects:
 
 * **A missing option** is honest parity debt. A caller who passes it gets
@@ -63,7 +68,6 @@ OPTION_GAPS: dict[str, int] = {
     "cuboid": 2,
     "cyl": 2,
     "cylinder": 2,
-    "prismoid": 6,
     "rect_tube": 15,
     "regular_prism": 1,
     "teardrop": 5,
