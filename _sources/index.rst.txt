@@ -151,6 +151,12 @@ For how far the port goes, see the :doc:`BOSL2 coverage table <bosl2_coverage>`:
 
 .. toctree::
    :maxdepth: 1
+   :caption: Start here
+
+   getting_started
+
+.. toctree::
+   :maxdepth: 1
    :caption: Solid backends
    :glob:
 

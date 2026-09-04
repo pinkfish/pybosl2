@@ -1,0 +1,3130 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../_static/favicon.png">
+    
+    
+      
+        <title>pybosl2.groups - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=abc98148" />
+        <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+      <img src="../../_static/logo.png" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.12 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pybosl2.groups
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+      <img src="../../_static/logo.png" alt="logo">
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.12 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Start here</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Start here</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting started</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Color</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Mesh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/textures.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Beziers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Skin</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../paths/vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Coverage</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Coverage</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bosl2_coverage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>BOSL2 coverage</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1>Source code for pybosl2.groups</h1><div class="highlight"><pre>
+<span></span><code><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+
+<span class="c1"># LibFile: pybosl2/groups.py</span>
+<span class="c1">#    Argument groups -- the parameter families that always travel together.</span>
+<span class="c1">#</span>
+<span class="c1">#    Some parameters are never really independent. A shape's placement is three of them</span>
+<span class="c1">#    (``anchor``, ``spin``, ``orient``) and they are passed as a unit, restated at every level of</span>
+<span class="c1">#    every call chain, and re-declared by every constructor that forwards them. A group makes the</span>
+<span class="c1">#    unit a value:</span>
+<span class="c1">#</span>
+<span class="c1">#        from pybosl2 import Placement, Anchor, cuboid, cyl</span>
+<span class="c1">#</span>
+<span class="c1">#        upright = Placement(anchor=Anchor.BOTTOM, orient=Anchor.TOP)</span>
+<span class="c1">#        plate = cuboid([60, 40, 8], placement=upright)</span>
+<span class="c1">#        boss = cyl(height=10, radius=4, placement=upright)</span>
+<span class="c1">#</span>
+<span class="c1">#    The loose spellings still work and are still the common case (SPEC G-3) -- ``cuboid([60, 40,</span>
+<span class="c1">#    8], anchor=Anchor.BOTTOM)`` reads better than wrapping one value in a group. What a group is</span>
+<span class="c1">#    for is a placement used more than once, or threaded through code of your own.</span>
+<span class="c1">#</span>
+<span class="c1">#    Giving both a group and one of its members raises, the way a radius and its own diameter do</span>
+<span class="c1">#    (SPEC D-5): the call cannot mean two things at once.</span>
+<span class="c1">#</span>
+<span class="c1">#    ``Facets`` is the same idea for curve resolution, and is mostly *internal*. Resolution has a</span>
+<span class="c1">#    better public answer already -- ``use_defaults(fn=64)`` sets it for a block without threading</span>
+<span class="c1">#    anything through any call (SPEC R-4) -- so the group exists to carry the four values down the</span>
+<span class="c1">#    plumbing as one, not to be typed at a call site.</span>
+<span class="c1">#</span>
+<span class="c1"># FileSummary: Frozen argument groups (Placement, Facets) for parameters that travel together.</span>
+<span class="c1"># DocCategory: Foundational</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="sd">"""Frozen argument groups (Placement, Facets) for parameters that travel together."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">EdgeTreatmentKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Placement"</span><span class="p">,</span>
+    <span class="s2">"Facets"</span><span class="p">,</span>
+    <span class="s2">"EdgeTreatment"</span><span class="p">,</span>
+    <span class="s2">"EdgeSelection"</span><span class="p">,</span>
+    <span class="s2">"Texturing"</span><span class="p">,</span>
+    <span class="s2">"resolve_center_anchor"</span><span class="p">,</span>
+    <span class="s2">"resolve_placement"</span><span class="p">,</span>
+    <span class="s2">"resolve_placement_2d"</span><span class="p">,</span>
+    <span class="s2">"resolve_edge_treatment"</span><span class="p">,</span>
+    <span class="s2">"resolve_edge_selection"</span><span class="p">,</span>
+    <span class="s2">"resolve_texturing"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: What an unset member looks like, so "not given" is distinguishable from "given the default".</span>
+<span class="n">_UNSET</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Placement">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Placement">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Placement</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Where a shape sits: its anchor, its spin about Z, and the direction it faces.</span>
+
+<span class="sd">    The three always travel together (SPEC G-1), so they can be one value that is built once and</span>
+<span class="sd">    reused. Frozen, like every group: :meth:`with_` returns a new one.</span>
+
+<span class="sd">    **A placement reads in two dimensions as well as three.** In the plane a shape has an anchor</span>
+<span class="sd">    and a spin but nothing to orient -- there is no third axis to turn a face towards -- so a 2-D</span>
+<span class="sd">    constructor honours those two. One placement can therefore serve a 2-D outline and the solid</span>
+<span class="sd">    extruded from it, which is the case worth having. What it must not do is *quietly* honour two</span>
+<span class="sd">    of the three: a placement carrying a real ``orient`` asks for something the plane cannot do, so</span>
+<span class="sd">    passing one to a 2-D constructor raises rather than silently dropping it (SPEC E-5). The</span>
+<span class="sd">    default ``orient`` is not "a real one" -- ``Placement()`` and ``Placement(anchor=...)`` are</span>
+<span class="sd">    dimension-neutral and pass anywhere.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Anchor, Placement, cuboid</span>
+
+<span class="sd">            upright = Placement(anchor=Anchor.BOTTOM)</span>
+<span class="sd">            cuboid([40, 30, 20], placement=upright).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1">#: The point on the shape that lands at the origin.</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float]"</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span>
+    <span class="c1">#: Rotation about Z in degrees, applied after anchoring.</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="c1">#: The direction the shape's top is rotated towards.</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float]"</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span>
+
+<div class="viewcode-block" id="Placement.with_">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Placement.with_">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Placement"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy with the given members replaced.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            anchor: New anchor, or ``None`` to keep this one's.</span>
+<span class="sd">            spin: New spin in degrees, or ``None`` to keep this one's.</span>
+<span class="sd">            orient: New orientation, or ``None`` to keep this one's.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new :class:`Placement`; this one is unchanged.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2 import Anchor, Placement</span>
+<span class="sd">            &gt;&gt;&gt; Placement(anchor=Anchor.BOTTOM).with_(spin=45).spin</span>
+<span class="sd">            45.0</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">anchor</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">anchor</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="k">if</span> <span class="n">spin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">spin</span><span class="p">),</span>
+            <span class="n">orient</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="k">if</span> <span class="n">orient</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">orient</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Placement.orients">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Placement.orients">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">orients</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether this placement asks for an orientation the plane cannot give.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``True`` when ``orient`` differs from the default, which is what makes a placement</span>
+<span class="sd">            three-dimensional. A placement that only anchors and spins reads in either dimension.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2 import Anchor, Placement</span>
+<span class="sd">            &gt;&gt;&gt; Placement(anchor=Anchor.BOTTOM).orients()</span>
+<span class="sd">            False</span>
+<span class="sd">            &gt;&gt;&gt; Placement(orient=Anchor.RIGHT).orients()</span>
+<span class="sd">            True</span>
+
+<span class="sd">        """</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">Placement</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">[</span><span class="s2">"orient"</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span> <span class="o">!=</span> <span class="n">default</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Placement.as_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Placement.as_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the three members as keyword arguments.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping with ``anchor``, ``spin`` and ``orient``.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"anchor"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="s2">"spin"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span> <span class="s2">"orient"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">orient</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Placement.as_plane_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Placement.as_plane_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_plane_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the members a 2-D constructor can honour.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping with ``anchor`` and ``spin``. ``orient`` is absent because the plane has no</span>
+<span class="sd">            third axis to turn a face towards; :meth:`orients` says whether dropping it would lose</span>
+<span class="sd">            anything, and :func:`resolve_placement_2d` refuses rather than drop it.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"anchor"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="s2">"spin"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Facets">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Facets">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Facets</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The curve-resolution controls, carried as one value.</span>
+
+<span class="sd">    Mostly internal. SPEC R-1 requires every construction that approximates a curve to accept</span>
+<span class="sd">    ``fn``/``fa``/``fs`` (or ``res``) *and pass them to everything it builds*, and the rule is</span>
+<span class="sd">    broken most often by a function that simply forgets to forward one of the four. One value is</span>
+<span class="sd">    harder to drop than four parameters.</span>
+
+<span class="sd">    Callers wanting to set resolution should reach for :func:`~pybosl2.defaults.use_defaults`</span>
+<span class="sd">    instead, which sets it for a whole block without threading anything through any call</span>
+<span class="sd">    (SPEC R-4). ``None`` in any member means "not given, decide for me" (SPEC D-4).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pybosl2.groups import Facets</span>
+<span class="sd">        &gt;&gt;&gt; Facets(fn=64).as_kwargs()</span>
+<span class="sd">        {'fn': 64}</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1">#: Fixed fragment count for a full circle.</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Minimum fragment angle in degrees.</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Minimum fragment size in millimetres.</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Sampling resolution for the SDF backend.</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Facets.ambient">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Facets.ambient">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ambient</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Facets"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the values :func:`~pybosl2.defaults.use_defaults` currently has in force.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`Facets` holding the ambient values, each ``None`` where nothing is set.</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_defaults</span>
+
+        <span class="n">active</span> <span class="o">=</span> <span class="n">current_defaults</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">active</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">active</span><span class="o">.</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">active</span><span class="o">.</span><span class="n">fs</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">active</span><span class="o">.</span><span class="n">res</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Facets.resolved">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Facets.resolved">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolved</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Facets"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the values to actually use: what the caller passed, over the ambient defaults.</span>
+
+<span class="sd">        This is the one place the rule lives (SPEC R-5: an explicit value always wins over an</span>
+<span class="sd">        ambient one). :func:`~pybosl2.defaults.resolve_facets` and</span>
+<span class="sd">        :func:`~pybosl2.defaults.resolve_res` both go through it, so the CSG facet controls and</span>
+<span class="sd">        the SDF resolution cannot drift into resolving differently -- they were two</span>
+<span class="sd">        implementations of one rule before.</span>
+
+<span class="sd">        ``fn=0`` passes through unchanged: it is the caller opting *out* of an ambient ``fn``, and</span>
+<span class="sd">        :func:`~pybosl2._helpers.frag_count` reads any ``fn`` below 3 as "use fa/fs" (SPEC R-5).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fn: Caller-supplied fragment count, or ``None``. Omitted, the ambient ``use_defaults(fn=...)`` value</span>
+<span class="sd">                applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Caller-supplied fragment angle, or ``None``. Omitted, the ambient ``use_defaults(fa=...)`` value</span>
+<span class="sd">                applies.</span>
+<span class="sd">            fs: Caller-supplied fragment size, or ``None``. Omitted, the ambient ``use_defaults(fs=...)`` value</span>
+<span class="sd">                applies.</span>
+<span class="sd">            res: Caller-supplied SDF resolution, or ``None``. Omitted, the ambient ``use_defaults(res=...)`` value</span>
+<span class="sd">                applies.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`Facets` with each member filled from the ambient default where the caller</span>
+<span class="sd">            gave nothing, and still ``None`` where nothing is set anywhere.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2 import use_defaults</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2.groups import Facets</span>
+<span class="sd">            &gt;&gt;&gt; with use_defaults(fn=64):</span>
+<span class="sd">            ...     Facets.resolved(fa=6).as_kwargs()</span>
+<span class="sd">            {'fn': 64, 'fa': 6}</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ambient</span><span class="p">()</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Facets.merge">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Facets.merge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Facets"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Facets"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return these values with *other*'s non-``None`` members taking precedence.</span>
+
+<span class="sd">        An explicitly passed value always beats an ambient one (SPEC R-5), so the caller's</span>
+<span class="sd">        `Facets` is the one passed as *other*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The values that win where they are set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new :class:`Facets`.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">Facets</span><span class="p">(</span>
+            <span class="n">fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fn</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">fn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fa</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">fa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fs</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">fs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">fs</span><span class="p">,</span>
+            <span class="n">res</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">res</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">res</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Facets.as_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Facets.as_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return just the members that are set, as keyword arguments.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping of the non-``None`` members, so it can be splatted into a callee that</span>
+<span class="sd">            declares only some of them.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"fn"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">),</span> <span class="p">(</span><span class="s2">"fa"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fa</span><span class="p">),</span> <span class="p">(</span><span class="s2">"fs"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fs</span><span class="p">),</span> <span class="p">(</span><span class="s2">"res"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="c1">#: Every anchor `resolve_center_anchor` sees, as one variable rather than three, so the resolver</span>
+<span class="c1">#: hands back exactly the vocabulary it was given: the CSG backend passes `Anchor` members and the</span>
+<span class="c1">#: SDF backend passes raw `Vec3` direction vectors, and a return type widened to the union of both</span>
+<span class="c1">#: would make every SDF call site fail the checker for an `Anchor` it can never receive.</span>
+<span class="n">_CenterAnchorT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_CenterAnchorT"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_center_anchor">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_center_anchor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_center_anchor</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">_CenterAnchorT</span><span class="p">,</span>
+    <span class="n">centred</span><span class="p">:</span> <span class="n">_CenterAnchorT</span><span class="p">,</span>
+    <span class="n">uncentred</span><span class="p">:</span> <span class="n">_CenterAnchorT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CenterAnchorT</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fold BOSL2's ``center=`` shorthand into the anchor language (SPEC G-1, B2-3).</span>
+
+<span class="sd">    ``center=`` is a placement option wearing a boolean: True means "sit on the origin", False</span>
+<span class="sd">    means "sit on the shape's own base". BOSL2 gives it precedence over ``anchor=`` --</span>
+<span class="sd">    ``anchor = center==true ? CENTER : center==false ? uncentred : anchor`` -- and this is the one</span>
+<span class="sd">    place that rule is written.</span>
+
+<span class="sd">    It was written in **eleven** places before T40, in three spellings and *two contradicting</span>
+<span class="sd">    precedences*. Seven gave ``center`` precedence, which is right. The other four spelled it</span>
+<span class="sd">    inline as ``use_anchor = anchor; if use_anchor is None: use_anchor = CENTER if center is None</span>
+<span class="sd">    or center else BOTTOM``, which lets ``anchor`` win — while their own docstrings said "center:</span>
+<span class="sd">    if given, overrides anchor". ``cyl(height=10, radius=5, anchor=TOP, center=False)`` sat on its</span>
+<span class="sd">    top face, and the documentation next to it said it would sit on the bottom one. That is E-5's</span>
+<span class="sd">    silent wrong answer, and it survived because the rule had no single home to be right in.</span>
+
+<span class="sd">    Both are named at the call site rather than defaulted, because each backend anchors in its own</span>
+<span class="sd">    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend</span>
+<span class="sd">    passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all</span>
+<span class="sd">    three anchors so the resolver hands back exactly what it was given.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        center: True for a centred anchor, False for *uncentred*, ``None`` to leave *anchor* be.</span>
+<span class="sd">        anchor: The anchor as passed, used only when *center* is ``None``.</span>
+<span class="sd">        centred: What ``center=True`` means for this shape.</span>
+<span class="sd">        uncentred: What ``center=False`` means -- ``BOTTOM`` for the cylinders,</span>
+<span class="sd">            ``BOTTOM_FRONT_LEFT`` for the boxes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The anchor to place with. ``None`` propagates, so a constructor whose own default depends</span>
+<span class="sd">        on more than this (SPEC D-4) still gets to compute it.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">centred</span> <span class="k">if</span> <span class="n">center</span> <span class="k">else</span> <span class="n">uncentred</span>
+    <span class="k">return</span> <span class="n">anchor</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_placement">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement</span><span class="p">(</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve a placement group against the loose members, refusing a call that gives both.</span>
+
+<span class="sd">    SPEC G-3: the loose spellings survive, and supplying a group *and* one of its members is an</span>
+<span class="sd">    error rather than a silent preference -- the same rule a radius and its own diameter follow</span>
+<span class="sd">    (SPEC D-5), for the same reason: the call cannot mean two things at once.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        placement: The group, or ``None``.</span>
+<span class="sd">        anchor: The loose ``anchor`` as passed.</span>
+<span class="sd">        spin: The loose ``spin`` as passed.</span>
+<span class="sd">        orient: The loose ``orient`` as passed.</span>
+<span class="sd">        function: Name of the calling function, for the error message.</span>
+<span class="sd">        defaults: What the loose members default to, so "given" can be told from "left alone".</span>
+<span class="sd">            Defaults to :class:`Placement`'s own defaults.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The three values to use.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if *placement* is given together with any of the loose members.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">Placement</span><span class="p">()</span> <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">defaults</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"anchor"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">anchor</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"spin"</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">spin</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"orient"</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">orient</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">default</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">given</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both placement= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. "</span>
+            <span class="sa">f</span><span class="s2">"A placement carries anchor, spin and orient together, so passing one of them "</span>
+            <span class="sa">f</span><span class="s2">"beside it cannot mean two things -- pass placement=Placement(</span><span class="si">{</span><span class="n">given</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">=...), "</span>
+            <span class="sa">f</span><span class="s2">"or drop placement= and pass the loose arguments."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">placement</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="n">placement</span><span class="o">.</span><span class="n">spin</span><span class="p">,</span> <span class="n">placement</span><span class="o">.</span><span class="n">orient</span></div>
+
+
+
+<span class="c1">#: An edge size as the constructors spell it: one value, or one per corner. Two variables, not</span>
+<span class="c1">#: one, because a constructor may spell its two differently -- `rect_tube` takes a per-corner</span>
+<span class="c1">#: `rounding` and a scalar `chamfer` -- and a single variable could not bind to both.</span>
+<span class="n">_RoundingT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_RoundingT"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"float | Sequence[float] | None"</span><span class="p">)</span>
+<span class="n">_ChamferT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_ChamferT"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"float | Sequence[float] | None"</span><span class="p">)</span>
+
+<span class="c1">#: The two placement members a 2-D constructor honours, typed so the resolver hands back exactly</span>
+<span class="c1">#: what it was given: `flat.py` declares them non-optional (`anchor: Anchor | Sequence[float]`)</span>
+<span class="c1">#: while `solid.py` declares them `| None`, and a resolver that widened would make every 2-D call</span>
+<span class="c1">#: site fail the checker for a value it can never actually receive.</span>
+<span class="n">_AnchorT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_AnchorT"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">)</span>
+<span class="n">_SpinT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_SpinT"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"float | None"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_placement_2d">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement_2d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement_2d</span><span class="p">(</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">_AnchorT</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="n">_SpinT</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[_AnchorT | Anchor | Sequence[float], _SpinT | float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resolve a placement for a 2-D constructor, which has an anchor and a spin but no orient.</span>
+
+<span class="sd">    A separate function rather than a flag on :func:`resolve_placement`, because a boolean that</span>
+<span class="sd">    selects how many values come back is a second function wearing the first one's name</span>
+<span class="sd">    (SPEC S-19b).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        placement: The group, or ``None``.</span>
+<span class="sd">        anchor: The loose ``anchor`` as passed.</span>
+<span class="sd">        spin: The loose ``spin`` as passed.</span>
+<span class="sd">        function: Name of the calling function, for the error message.</span>
+<span class="sd">        defaults: What the loose members default to, so "given" can be told from "left alone".</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The anchor and spin to use.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if *placement* is given together with either loose member (SPEC G-3), or</span>
+<span class="sd">            if it carries a real ``orient``, which the plane cannot honour (SPEC E-5).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span>
+    <span class="k">if</span> <span class="n">placement</span><span class="o">.</span><span class="n">orients</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): the placement sets orient=</span><span class="si">{</span><span class="n">placement</span><span class="o">.</span><span class="n">orient</span><span class="si">!r}</span><span class="s2">, which a 2-D shape "</span>
+            <span class="sa">f</span><span class="s2">"cannot honour -- there is no third axis to turn a face towards. Drop the orient "</span>
+            <span class="sa">f</span><span class="s2">"(`placement.with_(orient=Anchor.TOP)`), or apply it to the solid after extruding."</span>
+        <span class="p">)</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">Placement</span><span class="p">()</span> <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">defaults</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"anchor"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">anchor</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"spin"</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">baseline</span><span class="o">.</span><span class="n">spin</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">default</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">given</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both placement= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. A placement carries "</span>
+            <span class="sa">f</span><span class="s2">"anchor and spin together, so passing one of them beside it cannot mean two things "</span>
+            <span class="sa">f</span><span class="s2">"-- pass placement=Placement(</span><span class="si">{</span><span class="n">given</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">=...), or drop placement= and pass the loose "</span>
+            <span class="sa">f</span><span class="s2">"arguments."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">placement</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="n">placement</span><span class="o">.</span><span class="n">spin</span></div>
+
+
+
+<div class="viewcode-block" id="EdgeTreatment">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeTreatment">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeTreatment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What happens to an edge: a rounding of some radius, a chamfer of some size, or nothing.</span>
+
+<span class="sd">    Rounding and chamfer are **mutually exclusive on one edge** -- an edge is rounded or chamfered,</span>
+<span class="sd">    never both -- and the library checked that in six places with six different wordings, none of</span>
+<span class="sd">    which said what to do instead. As one value the conflict is not checkable, it is</span>
+<span class="sd">    *unrepresentable*: there is one size and one kind, so there is nothing to disagree.</span>
+
+<span class="sd">    Build one with :meth:`rounding` or :meth:`chamfer` rather than the constructor, so the kind and</span>
+<span class="sd">    the size are set together.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import EdgeTreatment, cuboid</span>
+
+<span class="sd">            cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4)).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1">#: Which treatment, or :attr:`~pybosl2.enums.EdgeTreatmentKind.NONE`.</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">EdgeTreatmentKind</span> <span class="o">=</span> <span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">NONE</span>
+    <span class="c1">#: The radius (rounding) or inset (chamfer). Negative rounds outward, as BOSL2's does.</span>
+    <span class="c1">#: A sequence gives a size per corner, which the 2-D constructors accept.</span>
+    <span class="n">size</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<div class="viewcode-block" id="EdgeTreatment.rounding">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeTreatment.rounding">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rounding</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"EdgeTreatment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a rounding treatment of radius *size*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: The rounding radius, or one radius per corner.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An :class:`EdgeTreatment`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2 import EdgeTreatment</span>
+<span class="sd">            &gt;&gt;&gt; EdgeTreatment.rounding(4).as_kwargs()</span>
+<span class="sd">            {'rounding': 4.0}</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">ROUNDING</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="EdgeTreatment.chamfer">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeTreatment.chamfer">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chamfer</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"EdgeTreatment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a chamfer treatment of inset *size*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: The chamfer size, inset from the sides, or one per corner.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An :class:`EdgeTreatment`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; from pybosl2 import EdgeTreatment</span>
+<span class="sd">            &gt;&gt;&gt; EdgeTreatment.chamfer(2).as_kwargs()</span>
+<span class="sd">            {'chamfer': 2.0}</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="EdgeTreatment.none">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeTreatment.none">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">none</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"EdgeTreatment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the treatment that leaves edges sharp.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An :class:`EdgeTreatment` that contributes no arguments.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EdgeTreatment.as_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeTreatment.as_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the treatment as the keyword argument a constructor declares.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``{"rounding": size}``, ``{"chamfer": size}``, or ``{}`` for no treatment -- so it can</span>
+<span class="sd">            be splatted into a constructor that names the two separately.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">ROUNDING</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"rounding"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"chamfer"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">refuse_rounding_and_chamfer</span><span class="p">(</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse a call that asks for a rounding and a chamfer on the same edge.</span>
+
+<span class="sd">    One rule, one place (SPEC G-5). It was written six times with six wordings -- "Cannot set both</span>
+<span class="sd">    rounding and chamfer at the same time.", "Cannot specify nonzero value for both chamfer and</span>
+<span class="sd">    rounding", and four more -- and not one of them said what to do instead, which is what E-4 asks</span>
+<span class="sd">    of a refusal.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rounding: The rounding as passed, or ``None``.</span>
+<span class="sd">        chamfer: The chamfer as passed, or ``None``.</span>
+<span class="sd">        function: Name of the calling function, for the message.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if both are given and neither is zero.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">rounding</span> <span class="ow">and</span> <span class="n">chamfer</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given rounding=</span><span class="si">{</span><span class="n">rounding</span><span class="si">}</span><span class="s2"> and chamfer=</span><span class="si">{</span><span class="n">chamfer</span><span class="si">}</span><span class="s2">. An edge is rounded "</span>
+            <span class="sa">f</span><span class="s2">"or chamfered, never both -- pass one of them, or "</span>
+            <span class="sa">f</span><span class="s2">"treatment=EdgeTreatment.rounding(</span><span class="si">{</span><span class="n">rounding</span><span class="si">}</span><span class="s2">) / EdgeTreatment.chamfer(</span><span class="si">{</span><span class="n">chamfer</span><span class="si">}</span><span class="s2">) to "</span>
+            <span class="sa">f</span><span class="s2">"say which."</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_edge_treatment">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_edge_treatment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_edge_treatment</span><span class="p">(</span>
+    <span class="n">treatment</span><span class="p">:</span> <span class="s2">"EdgeTreatment | None"</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="n">_RoundingT</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="n">_ChamferT</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">per_corner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_RoundingT</span><span class="p">,</span> <span class="n">_ChamferT</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve an edge-treatment group against the loose ``rounding``/``chamfer``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        treatment: The group, or ``None``.</span>
+<span class="sd">        rounding: The loose ``rounding`` as passed.</span>
+<span class="sd">        chamfer: The loose ``chamfer`` as passed.</span>
+<span class="sd">        function: Name of the calling function, for the error message.</span>
+<span class="sd">        per_corner: Whether this constructor takes a size per corner. A 3-D primitive takes one</span>
+<span class="sd">            size for the whole solid, so a per-corner group handed to it is refused here rather</span>
+<span class="sd">            than left to fail as a ``TypeError`` from inside the backend (SPEC E-1, E-4).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``rounding`` and ``chamfer`` to use, at most one of them set. Where a group decides</span>
+<span class="sd">        the answer, the other comes back as ``0`` -- "off" -- rather than ``None``, because ``None``</span>
+<span class="sd">        means "decide for me" and the group has just decided (SPEC D-4).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if the group is given beside either loose member (SPEC G-3), if both</span>
+<span class="sd">            loose members are given (the rule above), or if a per-corner group is given to a</span>
+<span class="sd">            constructor that takes one size.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">treatment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">refuse_rounding_and_chamfer</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"rounding"</span><span class="p">,</span> <span class="n">rounding</span><span class="p">),</span> <span class="p">(</span><span class="s2">"chamfer"</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">))</span> <span class="k">if</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">given</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both treatment= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. An EdgeTreatment "</span>
+            <span class="sa">f</span><span class="s2">"already says which treatment and what size, so passing one beside it cannot mean "</span>
+            <span class="sa">f</span><span class="s2">"two things -- drop treatment=, or drop the loose argument."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">per_corner</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">treatment</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): the treatment gives a size per corner (</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">treatment</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="si">}</span><span class="s2">), but "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">() applies one size to the whole shape. Pass a single number -- "</span>
+            <span class="sa">f</span><span class="s2">"EdgeTreatment.</span><span class="si">{</span><span class="n">treatment</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">treatment</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) -- or use a 2-D "</span>
+            <span class="sa">f</span><span class="s2">"constructor, which does take one size per corner."</span>
+        <span class="p">)</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">treatment</span><span class="o">.</span><span class="n">as_kwargs</span><span class="p">()</span>
+    <span class="c1"># The group's size is whatever `EdgeTreatment.rounding()` was handed, and the caller built it</span>
+    <span class="c1"># for the constructor it is passing it to, so it matches that constructor's own spelling of</span>
+    <span class="c1"># the parameter. The one case the checker cannot see is a *per-corner* group given to a</span>
+    <span class="c1"># constructor that takes a scalar; that reaches the backend and is refused there, where the</span>
+    <span class="c1"># loose spelling would have been refused statically -- so `per_corner=False` catches it above.</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">cast</span><span class="p">(</span><span class="s2">"_RoundingT"</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"rounding"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="n">cast</span><span class="p">(</span><span class="s2">"_ChamferT"</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"chamfer"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EdgeSelection">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeSelection">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeSelection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Which edges a treatment applies to, and which are spared.</span>
+
+<span class="sd">    The pair travels together on 15 callables and neither member means much alone: `edges` without</span>
+<span class="sd">    `except_edges` is the common case, and `except_edges` without `edges` reads as "all of them</span>
+<span class="sd">    but these", which is what the default makes it. Unlike :class:`EdgeTreatment` the two are not</span>
+<span class="sd">    exclusive -- they compose, the second narrowing the first.</span>
+
+<span class="sd">    Both are expressed in the anchor language (SPEC C-10, O-6b), never as strings.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Anchor, EdgeSelection, EdgeTreatment, cuboid</span>
+
+<span class="sd">            top_only = EdgeSelection(edges=Anchor.TOP)</span>
+<span class="sd">            cuboid([40, 30, 20], treatment=EdgeTreatment.rounding(4), selection=top_only).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1">#: The edges to treat. Defaults to every edge.</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span>
+    <span class="c1">#: The edges to spare, spelled ``except_edges`` at a call site because ``except`` is</span>
+    <span class="c1">#: a Python keyword (SPEC B2-3).</span>
+    <span class="n">excepted</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="EdgeSelection.as_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.EdgeSelection.as_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the pair as the keyword arguments a constructor declares.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping with ``edges`` and, when one is set, ``except_edges``.</span>
+
+<span class="sd">        """</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"edges"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">excepted</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">"except_edges"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">excepted</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="resolve_edge_selection">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_edge_selection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_edge_selection</span><span class="p">(</span>
+    <span class="n">selection</span><span class="p">:</span> <span class="s2">"EdgeSelection | None"</span><span class="p">,</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">except_edges</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve an edge-selection group against the loose ``edges``/``except_edges``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        selection: The group, or ``None``.</span>
+<span class="sd">        edges: The loose ``edges`` as passed.</span>
+<span class="sd">        except_edges: The loose ``except_edges`` as passed.</span>
+<span class="sd">        function: Name of the calling function, for the error message.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``edges`` and ``except_edges`` to use.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if the group is given beside either loose member (SPEC G-3).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">selection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"edges"</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span><span class="p">),</span> <span class="p">(</span><span class="s2">"except_edges"</span><span class="p">,</span> <span class="n">except_edges</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">default</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">default</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">given</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both selection= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. An EdgeSelection "</span>
+            <span class="sa">f</span><span class="s2">"already says which edges and which are spared, so passing one beside it cannot mean "</span>
+            <span class="sa">f</span><span class="s2">"two things -- drop selection=, or drop the loose argument."</span>
+        <span class="p">)</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">as_kwargs</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">resolved</span><span class="p">[</span><span class="s2">"edges"</span><span class="p">],</span> <span class="n">resolved</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"except_edges"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Texturing">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Texturing">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Texturing</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A surface texture and how it is applied: the five parameters that always travel together.</span>
+
+<span class="sd">    They travel together on all 11 callables that take more than one of them, which is the</span>
+<span class="sd">    cleanest group in the library by that measure. It could not be built until there was something</span>
+<span class="sd">    to group -- every one of those parameters refused until T37 built the application half of the</span>
+<span class="sd">    texture subsystem (SPEC S-34, S-35).</span>
+
+<span class="sd">    *size* and *reps* are alternatives, and the group holds at most one, so the pair cannot</span>
+<span class="sd">    disagree (SPEC G-7): give the tile's size in millimetres, or how many times it repeats.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Texturing, cyl</span>
+
+<span class="sd">            cyl(height=30, radius=12, texturing=Texturing("ribs", reps=[16, 1], depth=1.5)).show()</span>
+
+<span class="sd">    """</span>
+
+    <span class="c1">#: The texture, by name or already built.</span>
+    <span class="n">texture</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Size of one tile as ``[around, along]`` in millimetres.</span>
+    <span class="n">size</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Repeat counts as ``[around, along]``, instead of *size*.</span>
+    <span class="n">reps</span><span class="p">:</span> <span class="s2">"int | Sequence[int] | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: How far the texture displaces the surface. Negative sinks it in.</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="c1">#: How far the surface is sunk before the texture is added. ``True`` means one depth.</span>
+    <span class="n">inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Refuse a tile that is both sized and counted (SPEC G-7).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: if *size* and *reps* are both given.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Texturing(): given size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">!r}</span><span class="s2"> and reps=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reps</span><span class="si">!r}</span><span class="s2">. A tile is sized "</span>
+                <span class="sa">f</span><span class="s2">"or counted, not both -- size says how big one tile is in millimetres, reps says "</span>
+                <span class="sa">f</span><span class="s2">"how many of them there are."</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Texturing.as_kwargs">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.Texturing.as_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the group as the keyword arguments a constructor declares.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping with ``texture``, ``tex_depth`` and ``tex_inset``, plus whichever of</span>
+<span class="sd">            ``tex_size``/``tex_reps`` is set.</span>
+
+<span class="sd">        """</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"texture"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span>
+            <span class="s2">"tex_depth"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+            <span class="s2">"tex_inset"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inset</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">"tex_size"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="s2">"tex_reps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reps</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="resolve_texturing">
+<a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_texturing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_texturing</span><span class="p">(</span>
+    <span class="n">texturing</span><span class="p">:</span> <span class="s2">"Texturing | None"</span><span class="p">,</span>
+    <span class="n">texture</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">tex_size</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">tex_reps</span><span class="p">:</span> <span class="s2">"int | Sequence[int] | None"</span><span class="p">,</span>
+    <span class="n">tex_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[Any, float | Sequence[float] | None, int | Sequence[int] | None, float | None, float | bool | None]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resolve a texturing group against the loose ``tex_*`` arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        texturing: The group, or ``None``.</span>
+<span class="sd">        texture: The loose ``texture`` as passed.</span>
+<span class="sd">        tex_size: The loose ``tex_size`` as passed.</span>
+<span class="sd">        tex_reps: The loose ``tex_reps`` as passed.</span>
+<span class="sd">        tex_depth: The loose ``tex_depth`` as passed.</span>
+<span class="sd">        tex_inset: The loose ``tex_inset`` as passed.</span>
+<span class="sd">        function: Name of the calling function, for the error message.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(texture, tex_size, tex_reps, tex_depth, tex_inset)`` to use.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if the group is given beside any loose member (SPEC G-3).</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">texturing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">texture</span><span class="p">,</span> <span class="n">tex_size</span><span class="p">,</span> <span class="n">tex_reps</span><span class="p">,</span> <span class="n">tex_depth</span><span class="p">,</span> <span class="n">tex_inset</span>
+    <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"texture"</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"tex_size"</span><span class="p">,</span> <span class="n">tex_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"tex_reps"</span><span class="p">,</span> <span class="n">tex_reps</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"tex_depth"</span><span class="p">,</span> <span class="n">tex_depth</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"tex_inset"</span><span class="p">,</span> <span class="n">tex_inset</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">default</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">given</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both texturing= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. A Texturing already "</span>
+            <span class="sa">f</span><span class="s2">"says which texture and how it is applied, so passing one beside it cannot mean two "</span>
+            <span class="sa">f</span><span class="s2">"things -- drop texturing=, or drop the loose argument."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">texturing</span><span class="o">.</span><span class="n">texture</span><span class="p">,</span> <span class="n">texturing</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">texturing</span><span class="o">.</span><span class="n">reps</span><span class="p">,</span> <span class="n">texturing</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="n">texturing</span><span class="o">.</span><span class="n">inset</span></div>
+
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    9.1.0.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
+    
+  </body>
+</html>
