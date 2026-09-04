@@ -18,7 +18,7 @@ import math
 import operator
 from enum import Enum
 from functools import reduce
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeVar
 
 from pybosl2._edges_lang import Anchor
 from pybosl2.defaults import resolve_facets
@@ -725,4 +725,269 @@ def _reject_anchor(anchor: object, parameter: str, hint: str) -> Anchor:
         f"{parameter} must be an Anchor member, not {type(anchor).__name__} ({anchor!r})."
         f"{hint} Anchors name a face to mate against -- a direction vector is accepted by "
         f"`anchor=` on the shape constructors, but not here."
+    )
+
+
+class RectTube(NamedTuple):
+    """A `rect_tube` call resolved into the two prismoids it is built from.
+
+    `rect_tube` is an outer prismoid with an inner one taken out of it, on both backends -- but
+    getting from its twenty-odd arguments to those two shapes is eighty lines of rule: an outer
+    size or a bore plus a wall, either of which derives the other; per-end sizes that fall back to
+    the overall one; and inner roundings that are derived from the outer ones minus the wall
+    unless the caller named them, with a chamfer on the same corner cancelling them.
+
+    This lives here because both backends need every line of it and neither owns it. Writing it
+    twice is how `center=` came to be spelled in two contradicting precedences (T40) and how
+    `default_tex_reps` came to answer one undecorated call two ways (T41); this is the third time
+    the same shape of duplication was about to be created, and the third time it was not
+    (SPEC C-21, PAR-5).
+    """
+
+    size1: list[float]
+    size2: list[float]
+    isize1: list[float]
+    isize2: list[float]
+    rounding1: list[float]
+    rounding2: list[float]
+    chamfer1: list[float]
+    chamfer2: list[float]
+    inner_rounding1: list[float]
+    inner_rounding2: list[float]
+    inner_chamfer1: list[float]
+    inner_chamfer2: list[float]
+
+
+def _rect_tube_inner(
+    factor: float,
+    inner_radius: "Sequence[float | None]",
+    radius: "Sequence[float | None]",
+    alternative: "Sequence[float | None]",
+    size: "Sequence[float]",
+    isize: "Sequence[float]",
+) -> list[float]:
+    """Return the bore's corner treatment: the caller's, or the outer one set back by the wall.
+
+    Args:
+        factor: 1 for a rounding, 1/sqrt(2) for a chamfer -- how much of the wall it eats.
+        inner_radius: What the caller asked for on the bore, per corner, or ``None``.
+        radius: The outer treatment, per corner.
+        alternative: The other kind on the bore; a corner that has one gets no treatment here.
+        size: The outer size.
+        isize: The bore size.
+
+    Returns:
+        The four corner amounts.
+
+    """
+    wall = min(size[0] - isize[0], size[1] - isize[1]) / 2 * factor
+    return [
+        iri
+        if iri is not None
+        else (max(0.0, (ri if ri is not None else 0.0) - wall) if alternative[i] is None else 0.0)
+        for i, (iri, ri) in enumerate(zip(inner_radius, radius, strict=False))
+    ]
+
+
+#: `rect_tube` states most of its arguments three ways -- one number, one per axis, or one per
+#: corner -- and the resolution below needs each of them in one shape. These three do that
+#: normalising, and nothing else.
+def _as2(v: "float | Sequence[float] | None") -> "list[float] | None":
+    """Return *v* as ``[x, y]``, or ``None``."""
+    if v is None:
+        return None
+    return [float(v), float(v)] if isinstance(v, (int, float)) else [float(x) for x in v]
+
+
+def _force4(v: "float | Sequence[float] | None") -> "list[float | None]":
+    """Return *v* as four corner values, or four ``None``s."""
+    if v is None:
+        return [None, None, None, None]
+    return [float(v)] * 4 if isinstance(v, (int, float)) else [float(x) for x in v]
+
+
+def _force4f(v: "float | Sequence[float]") -> list[float]:
+    """Return *v* as four corner values."""
+    return [float(v)] * 4 if isinstance(v, (int, float)) else [float(x) for x in v]
+
+
+def _override_or_none(
+    specific: "float | Sequence[float] | None", general: "float | Sequence[float]"
+) -> "float | Sequence[float] | None":
+    """Return the specific value, else the general one when it asks for anything.
+
+    `inner_rounding`/`inner_chamfer` default to 0 rather than None in this port's signature, so a
+    bare 0 means "not specified" and inherits from `rounding`/`chamfer`. Pass `inner_rounding1=`
+    and friends, which do default to None, to force an explicit zero.
+
+    Args:
+        specific: The per-end value, or ``None``.
+        general: The overall value.
+
+    Returns:
+        The value to use, or ``None`` for "nothing asked".
+
+    """
+    if specific is not None:
+        return specific
+    return general if general else None
+
+
+def _rect_tube_sizes(
+    size: "float | Sequence[float] | None",
+    isize: "float | Sequence[float] | None",
+    wall: float | None,
+    size1: "float | Sequence[float] | None",
+    size2: "float | Sequence[float] | None",
+    isize1: "float | Sequence[float] | None",
+    isize2: "float | Sequence[float] | None",
+) -> "tuple[list[float], list[float], list[float], list[float]]":
+    """Resolve a `rect_tube`'s outer size and bore at each end.
+
+    Either the outer size or the bore may be given, with a wall thickness deriving the other; an
+    outer size with nothing said about the bore means "just make it a tube", and a 1 mm wall is
+    assumed rather than making the caller state the obvious (SPEC P-3).
+
+    Args:
+        size: Outer size for both ends.
+        isize: Bore size for both ends.
+        wall: Wall thickness.
+        size1: Outer size at the bottom.
+        size2: Outer size at the top.
+        isize1: Bore size at the bottom.
+        isize2: Bore size at the top.
+
+    Returns:
+        The bottom and top outer sizes, then the bottom and top bore sizes.
+
+    Raises:
+        Bosl2ValueError: if either cannot be worked out, or the bore is not smaller.
+
+    """
+    s1 = _as2(size1) if size1 is not None else _as2(size)
+    s2 = _as2(size2) if size2 is not None else _as2(size)
+    i1 = _as2(isize1) if isize1 is not None else _as2(isize)
+    i2 = _as2(isize2) if isize2 is not None else _as2(isize)
+    # An outer size with nothing said about the bore means "just make it a tube": derive the
+    # hole from a 1 mm wall rather than making the caller state the obvious (SPEC.md P-3).
+    if wall is None and i1 is None and i2 is None:
+        wall = 1.0
+    size1_v = (
+        s1
+        if s1 is not None
+        else ([i1[0] + 2 * wall, i1[1] + 2 * wall] if (wall is not None and i1 is not None) else None)
+    )
+    size2_v = (
+        s2
+        if s2 is not None
+        else ([i2[0] + 2 * wall, i2[1] + 2 * wall] if (wall is not None and i2 is not None) else None)
+    )
+    isize1_v = (
+        i1
+        if i1 is not None
+        else ([s1[0] - 2 * wall, s1[1] - 2 * wall] if (wall is not None and s1 is not None) else None)
+    )
+    isize2_v = (
+        i2
+        if i2 is not None
+        else ([s2[0] - 2 * wall, s2[1] - 2 * wall] if (wall is not None and s2 is not None) else None)
+    )
+    if size1_v is None or size2_v is None:
+        raise Bosl2ValueError(
+            "rect_tube(): needs an outer size -- give size (or size1/size2), or an inner size with a wall thickness."
+        )
+    if isize1_v is None or isize2_v is None:
+        raise Bosl2ValueError(
+            "rect_tube(): needs a bore -- give isize (or isize1/isize2), or a wall thickness to "
+            "derive it from the outer size."
+        )
+    if isize1_v[0] >= size1_v[0] or isize1_v[1] >= size1_v[1]:
+        raise Bosl2ValueError(
+            f"rect_tube(): bore {isize1_v} is not smaller than the outer size {size1_v} at the bottom."
+        )
+    if isize2_v[0] >= size2_v[0] or isize2_v[1] >= size2_v[1]:
+        raise Bosl2ValueError(f"rect_tube(): bore {isize2_v} is not smaller than the outer size {size2_v} at the top.")
+    return size1_v, size2_v, isize1_v, isize2_v
+
+
+def resolve_rect_tube(
+    size: "float | Sequence[float] | None",
+    isize: "float | Sequence[float] | None",
+    wall: float | None,
+    size1: "float | Sequence[float] | None",
+    size2: "float | Sequence[float] | None",
+    isize1: "float | Sequence[float] | None",
+    isize2: "float | Sequence[float] | None",
+    rounding: "float | Sequence[float]",
+    rounding1: "float | Sequence[float] | None",
+    rounding2: "float | Sequence[float] | None",
+    inner_rounding: "float | Sequence[float]",
+    inner_rounding1: "float | Sequence[float] | None",
+    inner_rounding2: "float | Sequence[float] | None",
+    chamfer: "float | Sequence[float]",
+    chamfer1: "float | Sequence[float] | None",
+    chamfer2: "float | Sequence[float] | None",
+    inner_chamfer: "float | Sequence[float]",
+    inner_chamfer1: "float | Sequence[float] | None",
+    inner_chamfer2: "float | Sequence[float] | None",
+) -> RectTube:
+    """Resolve a `rect_tube` call into the outer and inner prismoids it is built from.
+
+    Args:
+        size: Outer size for both ends.
+        isize: Bore size for both ends.
+        wall: Wall thickness, deriving whichever of the two was not given.
+        size1: Outer size at the bottom.
+        size2: Outer size at the top.
+        isize1: Bore size at the bottom.
+        isize2: Bore size at the top.
+        rounding: Outer corner rounding for both ends.
+        rounding1: Outer corner rounding at the bottom.
+        rounding2: Outer corner rounding at the top.
+        inner_rounding: Bore corner rounding for both ends.
+        inner_rounding1: Bore corner rounding at the bottom.
+        inner_rounding2: Bore corner rounding at the top.
+        chamfer: Outer corner chamfer for both ends.
+        chamfer1: Outer corner chamfer at the bottom.
+        chamfer2: Outer corner chamfer at the top.
+        inner_chamfer: Bore corner chamfer for both ends.
+        inner_chamfer1: Bore corner chamfer at the bottom.
+        inner_chamfer2: Bore corner chamfer at the top.
+
+    Returns:
+        The resolved sizes and per-corner treatments.
+
+    Raises:
+        Bosl2ValueError: if the outer size or the bore cannot be worked out, or the bore is not
+            smaller than the outer size.
+
+    """
+    size1_v, size2_v, isize1_v, isize2_v = _rect_tube_sizes(size, isize, wall, size1, size2, isize1, isize2)
+
+    rounding1_v = _force4f(rounding1 if rounding1 is not None else rounding)
+    rounding2_v = _force4f(rounding2 if rounding2 is not None else rounding)
+    chamfer1_v = _force4f(chamfer1 if chamfer1 is not None else chamfer)
+    chamfer2_v = _force4f(chamfer2 if chamfer2 is not None else chamfer)
+    irounding1_t = _force4(_override_or_none(inner_rounding1, inner_rounding))
+    irounding2_t = _force4(_override_or_none(inner_rounding2, inner_rounding))
+    ichamfer1_t = _force4(_override_or_none(inner_chamfer1, inner_chamfer))
+    ichamfer2_t = _force4(_override_or_none(inner_chamfer2, inner_chamfer))
+
+    irounding1_v = _rect_tube_inner(1.0, irounding1_t, rounding1_v, ichamfer1_t, size1_v, isize1_v)
+    irounding2_v = _rect_tube_inner(1.0, irounding2_t, rounding2_v, ichamfer2_t, size2_v, isize2_v)
+    ichamfer1_v = _rect_tube_inner(1 / math.sqrt(2), ichamfer1_t, chamfer1_v, irounding1_t, size1_v, isize1_v)
+    ichamfer2_v = _rect_tube_inner(1 / math.sqrt(2), ichamfer2_t, chamfer2_v, irounding2_t, size2_v, isize2_v)
+    return RectTube(
+        size1_v,
+        size2_v,
+        isize1_v,
+        isize2_v,
+        rounding1_v,
+        rounding2_v,
+        chamfer1_v,
+        chamfer2_v,
+        irounding1_v,
+        irounding2_v,
+        ichamfer1_v,
+        ichamfer2_v,
     )

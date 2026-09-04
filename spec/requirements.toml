@@ -556,6 +556,8 @@ status = "enforced"
 note = '''
 Closed on the shape surface in T17 and open everywhere the test did not look: Path2D and Path3D each carried three synonym pairs until T32 — deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. The check now walks every public class reachable from the top level, not one class family.
 
+**The third instance was caught before it existed.** T44 needed eighty lines of `rect_tube` argument resolution on the SDF side -- outer size or bore plus wall, per-end fallbacks, bore roundings set back by the wall -- and it went to `pybosl2._helpers.resolve_rect_tube` rather than being copied, because the two previous instances say what copying it costs.
+
 **And one about which of two things a name reaches.** `texture` was a top-level export *and* a submodule, and Python binds a submodule onto its package when imported -- winning over the package's own lazy export table. `from pybosl2 import texture` therefore returned the function or the module depending on import order, which is why it survived every test that imported one way and surfaced only when a new test module imported the other. T41 renamed the module to `pybosl2.textures`; the function keeps BOSL2's spelling (B2-3), being the half a caller reads. Exactly one name in the package collided, so `tests/test_declared_surface.py::test_no_exported_name_is_also_a_submodule_name` asserts rather than budgets.
 
 **One concept, one name is a rule about *rules* as much as about names.** T40 found `center=` resolved into an anchor in **eleven** places across the CSG backend, in three spellings and **two contradicting precedences**. Seven gave `center` precedence, which is BOSL2's rule -- six through a private helper and one spelling the same thing out. The other four spelled it inline in a form that lets `anchor` win — while their own docstrings said "center: if given, overrides anchor". `cyl(height=10, radius=5, anchor=TOP, center=False)` sat on its top face with the documentation beside it saying it would sit on the bottom one (E-5). Nothing here compares two implementations of one rule, which is why this went unseen while the *names* were being deduplicated; what closed it was needing the rule a twelfth time, for the SDF backend, and putting it in `pybosl2.groups.resolve_center_anchor` instead.
@@ -983,7 +985,7 @@ status = "enforced"
 note = '''
 The rule is about the box's *type*, and one thing about its *value* is recorded here because T40 made it reachable. A shape that is round about Z reports a **looser box after a spin that cannot move it** -- `sphere(spin=30)` says 27.3 across where it is still 20 -- because `PyShape.rotate` recomputes the bound as the axis-aligned box of the rotated *corner box*: exact for a cuboid, loose for a disc. The field is untouched (rotating `|p| - r` gives back `|p| - r`); only the stored bound grew. Pre-existing in `rotate`, and invisible until T40 gave the SDF constructors `spin`. `ROUND_ABOUT_Z` in `tests/test_option_parity.py` lists the shapes and a test fails if the list goes stale, so one comes off it rather than sitting there as an excuse. Fixing it means giving `rotate` a bound that tracks the shape rather than its corner box, which touches every rotated shape and is its own task.
 
-T43 then found the *same* bound defect in a second shape: `prismoid` added the whole `shift` to its bottom half-size, reporting a 28-wide box for a solid 20 wide, exactly as `cyl` did until T40. Twice is a pattern rather than a slip, and the cause is structural -- every SDF constructor writes its bound beside its field by hand rather than measuring one from the other, so a bound is only as good as whoever last read the formula next to it.
+T43 then found the *same* bound defect in a second shape: `prismoid` added the whole `shift` to its bottom half-size, reporting a 28-wide box for a solid 20 wide, exactly as `cyl` did until T40. **And T43's fix was itself wrong**, in a new way: it corrected the magnitude and left the box *symmetric*, which holds only when one end dominates in both directions -- which is what T43's own tests happened to use. Three attempts, two of them wrong, at a formula that is four lines. The cause is structural: every SDF constructor writes its bound beside its field by hand rather than measuring one from the other, so a bound is only as good as whoever last read the formula next to it. `prismoid` and `rect_tube` take theirs from the eight corners now, and their anchor with it.
 
 The general point is worth more than the case: an SDF shape's `bounds()` is the box it **declares**, not a measurement of its field. A cross-backend bounds comparison therefore cannot see a defect that moves the geometry and leaves the declaration alone -- T40 found one (the `shift` shear plane, PAR-5) that a bounds test passes with the defect put back.
 '''
@@ -2283,6 +2285,9 @@ enforced_by = [
     "tests/test_sdf_rim.py::test_the_chamfer_is_the_profile_csg_revolves",
     "tests/test_sdf_prismoid.py::test_no_part_of_the_hull_is_missing_from_the_field",
     "tests/test_sdf_prismoid.py::test_the_treated_corner_is_actually_cut_away",
+    "tests/test_sdf_prismoid.py::test_a_sheared_solid_is_not_centred_on_the_origin",
+    "tests/test_sdf_prismoid.py::test_the_bore_corner_is_the_outer_one_set_back_by_the_wall",
+    "tests/test_sdf_prismoid.py::test_the_bore_goes_all_the_way_through",
 ]
 candidates = [
     "tests/test_backend_matrix.py",

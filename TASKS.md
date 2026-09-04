@@ -70,6 +70,7 @@ spec renumbers as items close, and all but S-46a have.
 | 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
 | 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
+| 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1140,6 +1141,64 @@ one outlived its.
 and used `prismoid(rounding=5)` as its still-refused example. Like B-9's own worked example, it now
 takes one from whatever the parity budget still counts — the third such example to go stale as the
 gaps close, which is what it looks like when a suite's examples are drawn from a shrinking list.
+
+
+## T44 — Build `rect_tube` from the two prismoids it is ✅
+
+**§12.2 item 16. PAR-4, PAR-5, S-2b, C-21. 35 → 20.**
+
+Fifteen arguments, and **every one an argument of the two prismoids the shape is made of.**
+`rect_tube` is an outer prismoid with an inner one taken out of it — on both backends — so once
+T43 gave the prismoid its taper, shear and edge treatments, there was nothing left to write but
+the subtraction.
+
+What there *was* to write was somewhere to put the eighty lines of rule that get from its
+twenty-odd arguments to those two shapes: an outer size or a bore plus a wall, either deriving the
+other; per-end sizes falling back to the overall one; bore roundings derived from the outer ones
+set back by the wall unless named, and cancelled by a chamfer on the same corner.
+
+**This was the third time the same duplication was about to be created.** `center=` ended up in two
+contradicting precedences (T40); `default_tex_reps` answered one undecorated call two ways (T41).
+It went to `pybosl2._helpers.resolve_rect_tube` instead.
+
+### The bound was wrong for the third time — and the second attempt was wrong in a new way
+
+| attempt | what it said | why it was wrong |
+|---|---|---|
+| original | bottom half-size + the whole shift | 28 wide for a solid 20 wide |
+| T43 | the wider end, symmetric about the origin | a sheared solid is not centred |
+| T44 | measured from the eight corners | — |
+
+T43's fix corrected the magnitude and kept the box **symmetric**, which holds only when one end
+dominates in both directions — and T43's own tests used exactly that case, so they passed. Three
+attempts at a four-line formula, two of them wrong. The cause is structural: every SDF constructor
+writes its bound *beside* its field by hand rather than measuring one from the other.
+
+### Two of six negative controls went green, for one reason
+
+Building the bore **without the shear**, and deriving the bore's rounding **without the wall
+set-back**, both left the suite green. Both are invisible to a bounding box (which is the outer
+prismoid's), to a wall probe on the axis (the shifted centre stays inside the bore either way),
+and to anything that never asks about the hole's own corner.
+
+**The tests were all looking at the outside of a shape whose subject is the inside.**
+
+### And two more tests asserted a gap as correct behaviour
+
+`rect_tube(size=20)` with nothing said about the bore raised on the SDF backend and has always
+built on CSG — an outer size alone means "just make it a tube", with a 1 mm wall assumed (P-3).
+`test_sdf_solid_rejections_say_what_to_pass` asserted the refusal. Sharing the resolver fixed it
+by construction; the test had to be repointed.
+
+And B-9's worked example went stale for the **third** time: `spin=` (T40), `cuboid(p1=, p2=)`
+(T42), `rect_tube(size1=)` (T44). Not one of the three was ever CSG-only — all three were
+unwritten, and naming one in a test quietly asserted otherwise. It is `cyl(teardrop=)` now, and
+that is the last kind left: a rounding clipped at an angle is a non-convex corner, so it is the
+first gap on that list whose reason is about the field rather than about nobody having written it. Closing them
+took a probe at the bore's edge on the side the shear moves it toward, and one at the bore's own
+sharp corner — the latter asserted against `max(outer, −bore)` from both closed forms, because
+with a thin wall the *outer* surface is the nearer of the two there and an assertion naming only
+the bore would have been checking the wrong number.
 
 
 ## Keeping this file honest

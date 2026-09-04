@@ -68,6 +68,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
 
     from pybosl2._edges_lang import EdgeAtom
+    from pybosl2._helpers import RectTube
     from pybosl2.caps import CapSpec
     from pybosl2.textures import TextureData, TextureType
     from pybosl2.vnf import VNF
@@ -3899,6 +3900,116 @@ def pie_slice(
 # ---------------------------------------------------------------------------
 
 
+def _uniform(values: "float | Sequence[float]", what: str) -> float:
+    """Return a per-corner treatment as one number, refusing a genuinely per-corner one.
+
+    The cross-section here is built from one amount, so four different corner amounts have no
+    expression to go into. A caller who asks for them is told which argument and what to do
+    instead, rather than getting the first corner's value applied to all four (SPEC B-9, E-5).
+
+    Args:
+        values: A number, or one per corner.
+        what: The argument's name, for the message.
+
+    Returns:
+        The single amount.
+
+    Raises:
+        Bosl2ValueError: if the four corners do not agree.
+
+    """
+    if isinstance(values, (int, float)):
+        return float(values)
+    corners = [float(v) for v in values]
+    if len(set(corners)) > 1:
+        raise Bosl2ValueError(
+            f"{what}=: this backend rounds or chamfers all four corners alike, and {corners} asks "
+            f"for four different ones. Pass a single number, or build it inside "
+            f'`with use_backend("csg")`.'
+        )
+    return corners[0] if corners else 0.0
+
+
+def _prismoid_corners(
+    half1: list[float], half2: list[float], shift: "Sequence[float]", height: float
+) -> list[list[float]]:
+    """Return the eight corners of a prismoid's two end cross-sections.
+
+    A rounding or a chamfer takes material out of a corner without moving the flats, so the box
+    these span is the box the solid fills either way -- which is why the CSG backend measures its
+    anchor against the same eight points regardless of the treatment.
+
+    Args:
+        half1: Half-size of the bottom cross-section.
+        half2: Half-size of the top cross-section.
+        shift: ``[X, Y]`` offset of the top section's centre.
+        height: Height of the prismoid.
+
+    Returns:
+        The corner points.
+
+    """
+    hb = height / 2
+    return [
+        [sx * half[0] + dx, sy * half[1] + dy, z]
+        for half, (dx, dy), z in (
+            (half1, (0.0, 0.0), -hb),
+            (half2, (float(shift[0]), float(shift[1])), hb),
+        )
+        for sx in (-1, 1)
+        for sy in (-1, 1)
+    ]
+
+
+def _prismoid_field(
+    half1: list[float],
+    half2: list[float],
+    shift: list[float],
+    height: float,
+    rounding: "tuple[float, float]",
+    chamfer: "tuple[float, float]",
+) -> "Callable[[LVTree, LVTree, LVTree], LVTree]":
+    """Return the field of a prismoid: the hull of two rounded or chamfered rectangles.
+
+    A hull's slice at height *t* is the Minkowski blend `(1-t)A + tB` of its two ends, and for
+    these shapes that blend is the same shape with its half-size and its corner amount each
+    interpolated -- see :func:`prismoid` for why. Shared with `rect_tube`, which is an outer
+    prismoid with an inner one taken out of it on both backends.
+
+    Args:
+        half1: Half-size of the bottom cross-section.
+        half2: Half-size of the top cross-section.
+        shift: ``[X, Y]`` offset of the top section's centre.
+        height: Height of the prismoid.
+        rounding: Corner rounding at the bottom and the top.
+        chamfer: Corner chamfer at the bottom and the top.
+
+    Returns:
+        The SDF closure.
+
+    """
+    (bx1, by1), (bx2, by2) = half1, half2
+    (r1, r2), (c1, c2) = rounding, chamfer
+    hb = height / 2
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        t = lv.min(lv.max((z + hb) / height, 0), 1)
+        bx = bx1 + (bx2 - bx1) * t
+        by = by1 + (by2 - by1) * t
+        qx = lv.abs(x - shift[0] * t)
+        qy = lv.abs(y - shift[1] * t)
+        if c1 or c2:
+            cut = c1 + (c2 - c1) * t
+            d2d = lv.max(lv.max(qx - bx, qy - by), (qx - bx + qy - by + cut) / _SQRT2)
+        else:
+            radius = r1 + (r2 - r1) * t
+            ex, ey = qx - (bx - radius), qy - (by - radius)
+            d2d = lv.min(lv.max(ex, ey), 0) + _lv_hypot(lv.max(ex, 0), lv.max(ey, 0)) - radius
+        return lv.max(d2d, lv.abs(z) - hb)
+
+    return sdf_fn
+
+
 def prismoid(
     size1: list[float],
     size2: list[float],
@@ -3965,46 +4076,109 @@ def prismoid(
     height = height if height is not None else (length if length is not None else 1)
     bx1, by1 = size1[0] / 2, size1[1] / 2
     bx2, by2 = size2[0] / 2, size2[1] / 2
-    hb = height / 2
 
     r1, r2 = _per_end((rounding, rounding1, rounding2))
     c1, c2 = _per_end((chamfer, chamfer1, chamfer2))
     if (r1 or r2) and (c1 or c2):
         raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
-    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
-        t = lv.min(lv.max((z + hb) / height, 0), 1)
-        bx = bx1 + (bx2 - bx1) * t
-        by = by1 + (by2 - by1) * t
-        qx = lv.abs(x - shift[0] * t)
-        qy = lv.abs(y - shift[1] * t)
-        if c1 or c2:
-            cut = c1 + (c2 - c1) * t
-            d2d = lv.max(lv.max(qx - bx, qy - by), (qx - bx + qy - by + cut) / _SQRT2)
-        else:
-            radius = r1 + (r2 - r1) * t
-            ex, ey = qx - (bx - radius), qy - (by - radius)
-            d2d = lv.min(lv.max(ex, ey), 0) + _lv_hypot(lv.max(ex, 0), lv.max(ey, 0)) - radius
-        return lv.max(d2d, lv.abs(z) - hb)
+    sdf_fn = _prismoid_field([bx1, by1], [bx2, by2], list(shift), height, (r1, r2), (c1, c2))
 
-    # The shift moves the *top* section only, so the widest point in each direction is whichever
-    # end reaches furthest -- not either end plus the whole shift. Adding it to the bottom
-    # reported a 28-wide box for a solid 20 wide, the same defect `cyl` carried until T40 and in
-    # the same place: a bound written beside the field rather than measured from it.
-    maxx = max(bx1, bx2 + abs(shift[0]))
-    maxy = max(by1, by2 + abs(shift[1]))
-    shape = PyShape(sdf_fn, [-maxx, -maxy, -hb], [maxx, maxy, hb], res)
-    offset = _anchor_offset_box3([maxx * 2, maxy * 2, height], [int(a) for a in anchor])
-    return _place(shape, offset, spin, orient)
+    # A sheared prismoid's box is not centred on the origin, so it is measured from the corners
+    # rather than written out beside the field. Two earlier attempts at that formula were wrong in
+    # two different ways -- the first added the whole shift to the *bottom* half-size (28 wide for
+    # a solid 20 wide), the second got the width right and kept the box symmetric, which is only
+    # true when one end dominates in both directions. Both are the class of defect S-2b records:
+    # a bound is a claim, and one written by hand beside a field is a claim nothing checked.
+    corners = _prismoid_corners([bx1, by1], [bx2, by2], shift, height)
+    mn = [min(c[i] for c in corners) for i in range(3)]
+    mx = [max(c[i] for c in corners) for i in range(3)]
+    shape = PyShape(sdf_fn, mn, mx, res)
+    return _place(shape, _anchor_offset_hull3(corners, anchor), spin, orient)
+
+
+def _tube_wall_field(
+    box: "RectTube",
+    half: list[list[float]],
+    shift: "Sequence[float]",
+    length: float,
+) -> "Callable[[LVTree, LVTree, LVTree], LVTree]":
+    """Return the field of an outer prismoid with an inner one taken out of it.
+
+    Args:
+        box: The resolved sizes and per-corner treatments.
+        half: The outer half-sizes at the two ends.
+        shift: ``[X, Y]`` offset of the top section's centre.
+        length: Height of the tube.
+
+    Returns:
+        The SDF closure.
+
+    Raises:
+        Bosl2ValueError: if a treatment differs corner to corner.
+
+    """
+    treat = {
+        name: _uniform(getattr(box, name), name)
+        for name in (
+            "rounding1",
+            "rounding2",
+            "chamfer1",
+            "chamfer2",
+            "inner_rounding1",
+            "inner_rounding2",
+            "inner_chamfer1",
+            "inner_chamfer2",
+        )
+    }
+    ihalf = [[v / 2 for v in box.isize1], [v / 2 for v in box.isize2]]
+    outer = _prismoid_field(
+        half[0],
+        half[1],
+        list(shift),
+        length,
+        (treat["rounding1"], treat["rounding2"]),
+        (treat["chamfer1"], treat["chamfer2"]),
+    )
+    # The bore is built a little taller so its ends do not coincide with the outer ones, as the
+    # CSG backend does for the same reason: a difference between coincident faces is undefined.
+    inner = _prismoid_field(
+        ihalf[0],
+        ihalf[1],
+        list(shift),
+        length + 0.02,
+        (treat["inner_rounding1"], treat["inner_rounding2"]),
+        (treat["inner_chamfer1"], treat["inner_chamfer2"]),
+    )
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        return lv.max(outer(x, y, z), -inner(x, y, z))
+
+    return sdf_fn
 
 
 def rect_tube(
     height: float | None = None,
-    size: float | list[float] | None = None,
-    isize: float | list[float] | None = None,
+    size: "float | Sequence[float] | None" = None,
+    isize: "float | Sequence[float] | None" = None,
     wall: float | None = None,
-    rounding: float = 0,
-    inner_rounding: float | None = None,
+    shift: "Sequence[float]" = (0, 0),
+    size1: "float | Sequence[float] | None" = None,
+    size2: "float | Sequence[float] | None" = None,
+    isize1: "float | Sequence[float] | None" = None,
+    isize2: "float | Sequence[float] | None" = None,
+    rounding: "float | Sequence[float]" = 0,
+    rounding1: "float | Sequence[float] | None" = None,
+    rounding2: "float | Sequence[float] | None" = None,
+    inner_rounding: "float | Sequence[float]" = 0,
+    inner_rounding1: "float | Sequence[float] | None" = None,
+    inner_rounding2: "float | Sequence[float] | None" = None,
+    chamfer: "float | Sequence[float]" = 0,
+    chamfer1: "float | Sequence[float] | None" = None,
+    chamfer2: "float | Sequence[float] | None" = None,
+    inner_chamfer: "float | Sequence[float]" = 0,
+    inner_chamfer1: "float | Sequence[float] | None" = None,
+    inner_chamfer2: "float | Sequence[float] | None" = None,
     length: float | None = None,
     center: bool | None = None,
     anchor: "Sequence[float]" = BOTTOM,
@@ -4012,56 +4186,85 @@ def rect_tube(
     orient: "Anchor | Sequence[float]" = TOP,
     res: int = 10,
 ) -> PyShape:
-    """Return a rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF.
+    """Return a rectangular tube -- an outer prismoid with an inner one taken out of it.
 
-    (outer rounded-rect-extrusion minus inner rounded-rect-extrusion, reusing
-    pybosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
-    ever rounded (`edges=Anchor.Z`, matching the "rounded rectangular tube" look BOSL2's own
-    rect_tube() produces) -- there's no per-edge selection here, just one outer radius and
-    one inner radius (default: same as the outer).
+    That is what it is on the CSG backend too, and once `prismoid` here could taper, shear and
+    treat its edges (T43) this became the same two calls. It had been the straight, untapered,
+    rounding-only case: fifteen of its arguments were refused, all of them arguments of the two
+    prismoids it is made of.
+
+    Getting from these twenty-odd arguments to those two shapes is eighty lines of rule, and it
+    lives in `pybosl2._helpers.resolve_rect_tube` rather than here, because both backends need
+    every line of it and neither owns it (SPEC C-21).
 
     Args:
-        height:       height/length of the tube (default 1)
-        length:       height/length of the tube (default 1)
-        size:      outer [X,Y] size of the tube
-        isize:     inner [X,Y] size of the tube
-        wall:      wall thickness (used with `size` if `isize` isn't given, or vice versa)
-        rounding:  outer vertical-edge rounding radius (default: no rounding)
-        inner_rounding: inner vertical-edge rounding radius (default: same as `rounding`)
+        height: Height of the tube.
+        size: Outer [X,Y] size for both ends.
+        isize: Bore [X,Y] size for both ends.
+        wall: Wall thickness, deriving whichever of the outer size and the bore was not given.
+        shift: [X,Y] offset of the top section's centre.
+        size1: Outer size at the bottom.
+        size2: Outer size at the top.
+        isize1: Bore size at the bottom.
+        isize2: Bore size at the top.
+        rounding: Outer vertical-edge rounding (overall/bottom/top).
+        rounding1: Outer vertical-edge rounding (overall/bottom/top).
+        rounding2: Outer vertical-edge rounding (overall/bottom/top).
+        inner_rounding: Bore vertical-edge rounding (overall/bottom/top); derived from the outer
+            one set back by the wall when not given.
+        inner_rounding1: Bore vertical-edge rounding (overall/bottom/top).
+        inner_rounding2: Bore vertical-edge rounding (overall/bottom/top).
+        chamfer: Outer vertical-edge chamfer (overall/bottom/top).
+        chamfer1: Outer vertical-edge chamfer (overall/bottom/top).
+        chamfer2: Outer vertical-edge chamfer (overall/bottom/top).
+        inner_chamfer: Bore vertical-edge chamfer (overall/bottom/top).
+        inner_chamfer1: Bore vertical-edge chamfer (overall/bottom/top).
+        inner_chamfer2: Bore vertical-edge chamfer (overall/bottom/top).
+        length: Height of the tube.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
-        anchor:    anchor point (default BOTTOM)
+        anchor: anchor point (default BOTTOM)
         spin: Z-axis rotation in degrees, applied after anchoring.
         orient: Direction to rotate the shape's top towards, applied last.
-        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
-            value applies.
+        res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient
+            ``use_defaults(res=...)`` value applies.
+
+    Raises:
+        Bosl2ValueError: if the sizes cannot be resolved, or a treatment differs corner to corner.
 
     """
+    from pybosl2._helpers import resolve_rect_tube
+
     anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
     length = height if height is not None else (length if length is not None else 1)
-    if size is None:
-        raise Bosl2ValueError("rect_tube(): needs an outer size -- give size=, or an inner size with a wall.")
-    sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 2
-    if isize is not None:
-        isz: list[float] = [float(v) for v in isize] if isinstance(isize, (list, tuple)) else [float(isize)] * 2
-    else:
-        if not (wall is not None):
-            raise Bosl2ValueError("rect_tube(): must give isize or wall.")
-        isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
-    irounding_v = inner_rounding if inner_rounding is not None else rounding
-    edge_set_z = resolve_edges(Anchor.Z, [])
-    o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, EdgeMode.ROUND)
-    i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, EdgeMode.ROUND)
-
-    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
-        outer = _cuboid_edge_sdf(x, y, z, [sz[0], sz[1], length], o_amounts, o_modes)
-        inner = _cuboid_edge_sdf(x, y, z, [isz[0], isz[1], length + 0.02], i_amounts, i_modes)
-        return lv.max(outer, -inner)
-
-    half = [sz[0] / 2, sz[1] / 2, length / 2]
-    shape = PyShape(sdf_fn, [-half[0], -half[1], -half[2]], half, res)
-    offset = _anchor_offset_box3([sz[0], sz[1], length], [int(a) for a in anchor])
-    return _place(shape, offset, spin, orient)
+    box = resolve_rect_tube(
+        size,
+        isize,
+        wall,
+        size1,
+        size2,
+        isize1,
+        isize2,
+        rounding,
+        rounding1,
+        rounding2,
+        inner_rounding,
+        inner_rounding1,
+        inner_rounding2,
+        chamfer,
+        chamfer1,
+        chamfer2,
+        inner_chamfer,
+        inner_chamfer1,
+        inner_chamfer2,
+    )
+    half = [[v / 2 for v in box.size1], [v / 2 for v in box.size2]]
+    sdf_fn = _tube_wall_field(box, half, shift, length)
+    corners = _prismoid_corners(half[0], half[1], shift, length)
+    mn = [min(c[i] for c in corners) for i in range(3)]
+    mx = [max(c[i] for c in corners) for i in range(3)]
+    shape = PyShape(sdf_fn, mn, mx, res)
+    return _place(shape, _anchor_offset_hull3(corners, anchor), spin, orient)
 
 
 # ---------------------------------------------------------------------------

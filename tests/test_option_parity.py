@@ -36,6 +36,11 @@ CSG backend derives nothing either: it hulls the two end cross-sections, and a h
 Minkowski blend `(1-t)A + tB`, which for a rounded or chamfered rectangle is the same shape with
 its size and its amount interpolated. See `tests/test_sdf_prismoid.py`.
 
+T44, `rect_tube`'s remaining fifteen. It is an outer prismoid with an inner one taken out of it on
+both backends, so once T43 landed there was nothing left to write but the subtraction -- and
+somewhere shared to put the eighty lines of rule that get from its twenty-odd arguments to those
+two shapes (`pybosl2._helpers.resolve_rect_tube`).
+
 Two things this separates, because they are different defects:
 
 * **A missing option** is honest parity debt. A caller who passes it gets
@@ -68,7 +73,6 @@ OPTION_GAPS: dict[str, int] = {
     "cuboid": 2,
     "cyl": 2,
     "cylinder": 2,
-    "rect_tube": 15,
     "regular_prism": 1,
     "teardrop": 5,
     "xcyl": 2,

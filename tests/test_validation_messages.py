@@ -313,7 +313,11 @@ SDF_3D_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdf3.cyl(height=10, radius=4, shift=[2, 0], rounding=1), "shift="),
     (lambda: sdf3.cyl(height=10, radius=4, rounding=1, chamfer=1), "both chamfer"),
     (lambda: sdf3.tube(height=10, outer_radius=6, wall=1, rounding=1, chamfer=1), "both chamfer"),
-    (lambda: sdf3.rect_tube(height=10, size=[20, 20]), "isize or wall"),
+    # `rect_tube(size=)` with nothing said about the bore is not an error on either backend any
+    # more: an outer size alone means "just make it a tube", and a 1mm wall is assumed (SPEC P-3).
+    # This asserted the SDF backend's refusal of a call the CSG backend has always built -- the
+    # sixth test this session found asserting a gap as correct behaviour (T44).
+    (lambda: sdf3.rect_tube(height=10, size=[20, 20], isize=[24, 24]), "not smaller"),
     # polygon_prism: the outline and the rim treatments both have to make sense
     (lambda: sdf3.polygon_prism([], 10), "must not be empty"),
     (lambda: sdf3.polygon_prism([SQUARE_OUTLINE], 5, rounding_bottom=9), "smaller than"),
