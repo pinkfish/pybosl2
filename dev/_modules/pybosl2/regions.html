@@ -2176,7 +2176,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoundingMethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># for the annotations only -- importing shapes2d here would be circular</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -3301,6 +3300,15 @@
         <span class="n">solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">vertices</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">solid</span>
+        <span class="c1"># `text3d` is CSG-only -- it renders a font, which the SDF backend has no equivalent for --</span>
+        <span class="c1"># and it is imported *here* rather than at the top of the module so that importing</span>
+        <span class="c1"># `pybosl2.regions` does not drag a backend module in for a debug helper most callers never</span>
+        <span class="c1"># use. The refusal below names this call rather than letting `text3d`'s own name surface</span>
+        <span class="c1"># from three frames down, which is what a caller can act on (SPEC B-9, E-5).</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">refuse_text_labels</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
+
+        <span class="n">refuse_text_labels</span><span class="p">(</span><span class="s2">"Region.debug_region(vertices=True)"</span><span class="p">)</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">text3d</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
