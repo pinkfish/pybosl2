@@ -199,15 +199,6 @@ def test_no_option_is_refused_that_is_only_spelled_differently() -> None:
     )
 
 
-#: Shapes whose cross-section is a disc, so a spin about Z cannot change the geometry -- and the
-#: SDF bound grows anyway. `PyShape.rotate` recomputes the bound as the axis-aligned box of the
-#: rotated *corner box*, which is exact for a cuboid and loose for a disc: `sphere(spin=30)`
-#: reports 27.3 across where it is still 20. The field is unchanged (rotating `|p| - r` gives back
-#: `|p| - r`); it is the stored box that is conservative. Pre-existing in `rotate`, and reachable
-#: only now that spin reaches these shapes (SPEC S-2b, recorded in §12.2).
-ROUND_ABOUT_Z = frozenset({"sphere", "spheroid", "cyl", "cylinder", "zcyl", "tube", "onion", "torus"})
-
-
 @pytest.mark.parametrize(
     ("shape", "kwargs"),
     [
@@ -226,40 +217,20 @@ def test_spin_and_orient_place_the_same_on_both_backends(shape: str, kwargs: dic
     nothing about a distance field made them hard. They are a rotation about Z and a rotation of
     +Z onto a direction, which a field expresses exactly; they had simply never been written.
 
-    A shape that is round about Z is compared on `orient` only: its *geometry* matches, but the
-    SDF box grows under a spin that cannot move it (see `ROUND_ABOUT_Z`).
+    Shapes that are round about Z were compared on `orient` only until T49: their geometry
+    matched, but the SDF box grew under a spin that could not move them, because `rotate`
+    recomputed it from the rotated *corner box*. They are compared on the spin too now, which is
+    what the exclusion existed to wait for.
     """
     from pybosl2 import Anchor, use_backend
     from pybosl2 import solid as facade
 
-    placements: list[dict[str, object]] = [{"orient": Anchor.RIGHT}]
-    if shape not in ROUND_ABOUT_Z:
-        placements += [{"spin": 45}, {"spin": 30, "orient": Anchor.BACK}]
-    for placement in placements:
+    for placement in ({"orient": Anchor.RIGHT}, {"spin": 45}, {"spin": 30, "orient": Anchor.BACK}):
         sizes = {}
         for backend in ("csg", "sdf"):
             with use_backend(backend):
                 sizes[backend] = [round(v, 1) for v in getattr(facade, shape)(**kwargs, **placement).bounds().size]
         assert sizes["csg"] == pytest.approx(sizes["sdf"], abs=0.2), f"{shape} {placement}: {sizes}"
-
-
-def test_a_spin_about_z_leaves_a_round_shape_where_it_was() -> None:
-    """The geometry is right even where the reported box is not -- and the box is what is wrong.
-
-    Kept as a live record of the defect in §12.2: if a shape stops reporting a looser box after a
-    spin, it comes off `ROUND_ABOUT_Z` rather than sitting there as a stale excuse.
-    """
-    from pybosl2 import solid as facade
-    from pybosl2 import use_backend
-
-    with use_backend("sdf"):
-        plain = facade.sphere(radius=10).bounds().size
-        spun = facade.sphere(radius=10, spin=30).bounds().size
-    assert plain[0] == pytest.approx(20.0, abs=0.2)
-    assert spun[0] > plain[0], (
-        "the SDF bound is no longer conservative after a spin -- delete ROUND_ABOUT_Z, this test, "
-        "and the §12.2 row that records it"
-    )
 
 
 @pytest.mark.parametrize(

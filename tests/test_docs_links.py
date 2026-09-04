@@ -392,6 +392,7 @@ def test_every_facade_example_runs() -> None:
 
 def test_stl_viewer_directive_resolves_relative_paths() -> None:
     """The STL viewer directive computes relative paths from the document's directory depth."""
+    pytest.importorskip("docutils")
     from unittest.mock import MagicMock
 
     from docs._ext.stl_viewer import STLDirective
@@ -419,6 +420,8 @@ def test_stl_viewer_directive_resolves_relative_paths() -> None:
 
 def test_pybosl2_example_directive_resolves_relative_paths() -> None:
     """The pythonscad-example directive computes relative paths from the document's directory depth."""
+    pytest.importorskip("docutils")
+    pytest.importorskip("sphinx")
     from unittest.mock import MagicMock
 
     from docs._ext.pybosl2_example import Bosl2ExampleDirective
