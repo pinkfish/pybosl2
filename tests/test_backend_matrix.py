@@ -706,8 +706,7 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     [
         ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
         ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
-        ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
-        ("teardrop", {"height": 10, "radius": 5, "chamfer": 1}, (10, None, None)),
+        ("cuboid", {"size": [40, 20, 10], "chamfer": 2, "trimcorners": False}, (40, 20, 10)),
     ],
 )
 def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
@@ -761,10 +760,15 @@ def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
 def test_the_examples_here_are_still_gaps() -> None:
     """The refusal examples above are only examples while they are still refused.
 
-    They have gone stale four times as the parity gaps closed, each time surfacing as a confusing
-    `DID NOT RAISE` three tests away from the thing that changed. This says it plainly: the option
-    is built now, pick another from the budget. The budget is the authority on what is left, so
+    They have gone stale five times as the parity gaps closed. The first four surfaced as a
+    confusing `DID NOT RAISE` three tests away from the thing that changed; the fifth surfaced
+    here, saying which two options had been built. The budget is the authority on what is left, so
     this reads it rather than keeping a second list beside it (SPEC B2-1).
+
+    **The pool is nearly empty**, which is the point of the exercise: three options are left that
+    one backend builds and the other refuses, and two more that neither builds. When the last one
+    goes, this test and the ones it guards have nothing to say and should be deleted rather than
+    kept limping -- B-9 will be enforced by there being nothing left to refuse.
     """
     import sys
 
@@ -774,8 +778,7 @@ def test_the_examples_here_are_still_gaps() -> None:
     examples = {
         ("regular_prism", "shift"),
         ("cube", "trimcorners"),
-        ("teardrop", "cap_h1"),
-        ("teardrop", "chamfer"),
+        ("cuboid", "trimcorners"),
     }
     built = sorted(f"{shape}({option}=)" for shape, option in examples if option not in GAPS.get(shape, ()))
     assert not built, (

@@ -38,12 +38,13 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
    about: the total double-counted an alias and the claim had not been rerun since parts were
    ported.*
-3. **10 options one backend takes and the other does not.** Parity is measured per option, not
+3. **5 options one backend takes and the other does not.** Parity is measured per option, not
    per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
-   named rather than dropped (B-9). What remains after T45 is the `teardrop`
-   shape's own cap and chamfer options (5), `trimcorners` (2), `regular_prism`'s `shift` (1), and
-   `cuboid`/`cube`'s `teardrop` (2) -- which raises `Bosl2NotImplementedError` on the CSG backend
-   too, so it is not a parity gap so much as a feature neither backend has. *This entry said the cylinder family's `texture`/`tex_*`
+   named rather than dropped (B-9). What remains after T46 is `trimcorners`
+   (2, per-corner edge selection on a chamfer), `regular_prism`'s `shift` (1, which needs shear in
+   `polygon_prism`), and `cuboid`/`cube`'s `teardrop` (2) -- which raises
+   `Bosl2NotImplementedError` on the CSG backend too, so it is a feature neither backend has
+   rather than a parity gap. *This entry said the cylinder family's `texture`/`tex_*`
    could not cross, "a textured field, not a mesh with a texture applied, so B-5 rules out the
    cheap route". That was wrong, and it was wrong the same day it was written: the CSG backend
    does not apply a texture to a mesh either — it reduces the texture to a grid of heights and

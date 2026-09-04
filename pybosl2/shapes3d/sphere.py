@@ -266,29 +266,28 @@ def teardrop(
     length = height if height is not None else 1.0
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
-    cap_h1v = cap_h1 if cap_h1 is not None else cap_height
-    cap_h2v = cap_h2 if cap_h2 is not None else cap_height
-    c1 = chamfer1 if chamfer1 else chamfer
-    c2 = chamfer2 if chamfer2 else chamfer
+    from pybosl2._helpers import teardrop_stations
+
     sides = _frag_count(max(rad1, rad2), fn, fa, fs)
-
-    def section(rad: float, cap_hv: float | None, y: float) -> list[list[float]]:
-        path = _teardrop2d_path(rad, angle, cap_hv, circumscribe, realign, sides)
-        return [[p[0], y, p[1]] for p in path]
-
-    front_y, back_y = -length / 2, length / 2
+    sin_a = math.sin(math.radians(angle))
+    stations = teardrop_stations(
+        length,
+        rad1,
+        rad2,
+        cap_h1 if cap_h1 is not None else cap_height,
+        cap_h2 if cap_h2 is not None else cap_height,
+        chamfer1 if chamfer1 else chamfer,
+        chamfer2 if chamfer2 else chamfer,
+        sin_a,
+    )
     slices = []
-    if c1:
-        cap_hv = (cap_h1v - c1) if cap_h1v is not None else None
-        slices.append(section(max(0.001, rad1 - c1), cap_hv, front_y))
-        front_y += abs(c1)
-    slices.append(section(rad1, cap_h1v, front_y))
-    if c2:
-        back_y -= abs(c2)
-    slices.append(section(rad2, cap_h2v, back_y))
-    if c2:
-        cap_hv = (cap_h2v - c2) if cap_h2v is not None else None
-        slices.append(section(max(0.001, rad2 - c2), cap_hv, back_y + abs(c2)))
+    for y, rad, cap in stations:
+        # `teardrop_stations` states "no cap" as a cap at the apex, which is the same shape and
+        # saves the SDF backend a `None` it has no way to interpolate towards. The outline builder
+        # wants the `None` back.
+        pointy = cap >= rad / sin_a - 1e-9
+        path = _teardrop2d_path(rad, angle, None if pointy else cap, circumscribe, realign, sides)
+        slices.append([[p[0], y, p[1]] for p in path])
 
     solids = [_opolyhedron(pts, [list(range(len(pts)))]) for pts in slices]
     shape = solids[0]

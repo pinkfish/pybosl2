@@ -72,6 +72,7 @@ spec renumbers as items close, and all but S-46a have.
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
+| 18 | PAR-4 / PAR-5 / C-21 / B2-1 | [T46](#t46--the-teardrops-own-ends) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1263,6 +1264,69 @@ shrinking set needs something that notices when the set moves out from under it.
 `regular_prism`'s `shift` (1), and `cuboid`/`cube`'s `teardrop` (2) — the last of which raises
 `Bosl2NotImplementedError` on the CSG backend too, so it is a feature neither backend has rather
 than a parity gap.
+
+
+## T46 — The teardrop's own ends ✅
+
+**§12.2 item 18. PAR-4, PAR-5, C-21, B2-1. 10 → 5.**
+
+`cap_h1`, `cap_h2`, `chamfer`, `chamfer1`, `chamfer2` on the `teardrop` shape — `prismoid`'s
+argument for the third time. The CSG backend hulls a chain of cross-sections, so the section runs
+**piecewise-linearly** along the axis, and a chamfered end is one more station in that chain: set
+in by the chamfer, and smaller by it in *both* the radius and the cap. That is what makes the end
+a bevel rather than a step.
+
+A teardrop section is convex, and each of its three features — the disc, the two roof planes, the
+cap — has a support function linear in the radius and the cap height, so the blend of two of them
+is another one with both interpolated. `teardrop_stations` is shared with the CSG backend, the
+fourth such rule after `resolve_center_anchor`, `default_tex_reps` and `resolve_rect_tube`.
+
+### The finding is a limit, not a slip
+
+The cross-section check verifies the field against the CSG backend's own outline builder — but **at
+the stations `teardrop_stations` computes.** A defect in the stations themselves is invisible to
+it: the expectation is derived from the thing under test.
+
+Planting *"the chamfer does not lower the cap"* left **every test green**, including the
+cross-backend box, because the middle station still carries the full cap and the box does not
+move.
+
+**And sharing the function does not fix it.** A shared defect moves both backends together, so no
+parity check can ever see it. That is the limit of the instrument this session has leaned on
+hardest.
+
+What covers it is one test that writes the rule out and asserts it directly:
+
+```
+front chamfer 1.5 → station at y=-10, radius 6.5, cap 5.5
+                    (set in by 1.5, smaller by 1.5 in both)
+```
+
+Not a derivation, just the rule — but it fails when the code stops obeying it, which is what a
+comparison between two things obeying the same wrong rule cannot do. **Every "both backends agree"
+check needs one of these beside it.**
+
+### The staleness guard earned its keep on its first outing
+
+T45 added `test_the_examples_here_are_still_gaps` because B-9's worked example had gone stale four
+times, each as a confusing `DID NOT RAISE` three tests away from the change. This run it fired for
+real and said which:
+
+```
+assert not ['teardrop(cap_h1=)', 'teardrop(chamfer=)']
+```
+
+**The pool is nearly empty now** — three options left that one backend builds and the other
+refuses, and two more that neither builds. When the last goes, that test and the ones it guards
+should be *deleted* rather than kept limping: B-9 will be enforced by there being nothing left to
+refuse.
+
+### What remains
+
+5 gaps, none of them "nobody wrote it": `trimcorners` (2, per-corner edge selection on a chamfer),
+`regular_prism`'s `shift` (1, needs shear in `polygon_prism`), and `cuboid`/`cube`'s `teardrop`
+(2), which raises `Bosl2NotImplementedError` on the **CSG** backend too — a feature neither backend
+has rather than a parity gap.
 
 
 ## Keeping this file honest

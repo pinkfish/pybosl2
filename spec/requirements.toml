@@ -556,6 +556,8 @@ status = "enforced"
 note = '''
 Closed on the shape surface in T17 and open everywhere the test did not look: Path2D and Path3D each carried three synonym pairs until T32 — deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. The check now walks every public class reachable from the top level, not one class family.
 
+**And a fourth, `teardrop_stations` (T46), shared for a different reason than the other three.** Sharing does not make that rule *right* -- a shared defect moves both backends together, and no parity check can see it. What it does is let one explicit assertion of the rule cover both, which is what a cross-backend comparison cannot supply and what the tests there had been leaning on it for.
+
 **The third instance was caught before it existed.** T44 needed eighty lines of `rect_tube` argument resolution on the SDF side -- outer size or bore plus wall, per-end fallbacks, bore roundings set back by the wall -- and it went to `pybosl2._helpers.resolve_rect_tube` rather than being copied, because the two previous instances say what copying it costs.
 
 **And one about which of two things a name reaches.** `texture` was a top-level export *and* a submodule, and Python binds a submodule onto its package when imported -- winning over the package's own lazy export table. `from pybosl2 import texture` therefore returned the function or the module depending on import order, which is why it survived every test that imported one way and surfaced only when a new test module imported the other. T41 renamed the module to `pybosl2.textures`; the function keeps BOSL2's spelling (B2-3), being the half a caller reads. Exactly one name in the package collided, so `tests/test_declared_surface.py::test_no_exported_name_is_also_a_submodule_name` asserts rather than budgets.
@@ -2291,6 +2293,8 @@ enforced_by = [
     "tests/test_sdf_prismoid.py::test_the_bore_goes_all_the_way_through",
     "tests/test_sdf_rim.py::test_a_clipped_fillet_follows_the_profile_csg_revolves",
     "tests/test_sdf_rim.py::test_a_boolean_teardrop_means_forty_five_degrees_not_one",
+    "tests/test_sdf_rim.py::test_a_teardrops_cross_sections_are_the_ones_csg_hulls",
+    "tests/test_sdf_rim.py::test_a_chamfered_end_sets_its_own_section_in_by_the_chamfer",
 ]
 candidates = [
     "tests/test_backend_matrix.py",

@@ -46,6 +46,15 @@ different in kind. A fillet clipped at an angle is a **non-convex** corner, so i
 than an intersection: the full fillet `min`-ed with the wedge between the chord and the end face.
 Everything closed before it was an intersection of convex pieces. See `tests/test_sdf_rim.py`.
 
+T46, the `teardrop` *shape*'s per-end caps and chamfers -- `prismoid`'s argument again: the CSG
+backend hulls a chain of cross-sections, so the section runs piecewise-linearly along the axis and
+a chamfered end is one more station in that chain.
+
+**Five remain**, and none of them is "nobody wrote it": `trimcorners` (2) is per-corner edge
+selection on a chamfer, `regular_prism`'s `shift` (1) needs shear in `polygon_prism`, and
+`cuboid`/`cube`'s `teardrop` (2) raises `Bosl2NotImplementedError` on the *CSG* backend too -- a
+feature neither backend has rather than a parity gap.
+
 Two things this separates, because they are different defects:
 
 * **A missing option** is honest parity debt. A caller who passes it gets
@@ -77,7 +86,6 @@ OPTION_GAPS: dict[str, int] = {
     "cube": 2,
     "cuboid": 2,
     "regular_prism": 1,
-    "teardrop": 5,
 }
 
 

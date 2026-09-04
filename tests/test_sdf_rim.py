@@ -274,3 +274,111 @@ def test_a_boolean_teardrop_means_forty_five_degrees_not_one() -> None:
     one = cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=1, fn=8)[1]
     assert flag == pytest.approx(angle), "teardrop=True is teardrop=45"
     assert flag != pytest.approx(one), "and is not teardrop=1, which is what `bool < int` made it"
+
+
+TEARDROPS = [
+    ("plain", {}),
+    ("tapered", {"radius2": 4.0}),
+    ("one cap height for both ends", {"cap_height": 6.0}),
+    ("a cap on one end only", {"cap_h1": 6.0}),
+    ("a different cap at each end", {"cap_h1": 6.0, "cap_h2": 7.0}),
+    ("chamfered at both ends", {"chamfer": 1.5}),
+    ("a different chamfer at each end", {"chamfer1": 1.0, "chamfer2": 2.0}),
+    ("chamfered and capped", {"chamfer": 1.5, "cap_height": 7.0}),
+    ("all of it", {"radius2": 5.0, "chamfer1": 1.0, "chamfer2": 2.0, "cap_h1": 7.0, "cap_h2": 6.0}),
+]
+
+
+@pytest.mark.parametrize(("label", "kwargs"), TEARDROPS)
+def test_a_teardrops_cross_sections_are_the_ones_csg_hulls(label: str, kwargs: dict[str, object]) -> None:
+    """The last five gaps, and the same argument as `prismoid`: a hull's slice is a linear blend.
+
+    The CSG backend hulls a chain of cross-sections along the axis -- two for a plain teardrop,
+    four when both ends are chamfered, since a chamfer is an extra section set in by its own size
+    and smaller by it in both the radius and the cap. A teardrop section is convex and each of its
+    three features (the disc, the roof planes, the cap) has a support function linear in the
+    radius and the cap height, so the blend of two of them is another one with both interpolated.
+
+    Checked against `_teardrop2d_path` -- the CSG backend's own outline builder -- at every
+    station, so nothing of this implementation's is reused to check it.
+    """
+    from pybosl2._helpers import teardrop_stations
+    from pybosl2.shapes3d.sphere import _teardrop2d_path
+
+    height, angle = 20.0, 45.0
+    kwargs = dict(kwargs)
+    radius1 = float(kwargs.pop("radius1", 8.0))  # type: ignore[arg-type]
+    radius2 = float(kwargs.pop("radius2", 8.0))  # type: ignore[arg-type]
+    sin_a = math.sin(math.radians(angle))
+    stations = teardrop_stations(
+        height,
+        radius1,
+        radius2,
+        kwargs.get("cap_h1", kwargs.get("cap_height")),  # type: ignore[arg-type]
+        kwargs.get("cap_h2", kwargs.get("cap_height")),  # type: ignore[arg-type]
+        kwargs.get("chamfer1") or kwargs.get("chamfer", 0),  # type: ignore[arg-type]
+        kwargs.get("chamfer2") or kwargs.get("chamfer", 0),  # type: ignore[arg-type]
+        sin_a,
+    )
+    tree = sdf.teardrop(
+        height=height, radius1=radius1, radius2=radius2, angle=angle, anchor=[0, 0, 0], **kwargs
+    )._sdf_fn(lv.x(), lv.y(), lv.z())
+
+    worst, sampled = 0.0, 0
+    for y, radius, cap in stations:
+        pointy = cap >= radius / sin_a - 1e-9
+        for px, pz in _teardrop2d_path(radius, angle, None if pointy else cap, False, False, 64):
+            worst = max(worst, abs(float(tree(px, y, pz))))
+            sampled += 1
+    assert sampled >= 50, f"only {sampled} outline points -- this measures nothing"
+    assert worst == pytest.approx(0.0, abs=1e-9), f"{label}: worst |field| on a cross-section is {worst}"
+
+
+@pytest.mark.parametrize(("label", "kwargs"), TEARDROPS)
+def test_a_teardrop_is_placed_and_sized_the_same_on_both_backends(label: str, kwargs: dict[str, object]) -> None:
+    """A chamfer and a cap both move the box, so this sees what the cross-section check cannot."""
+    from pybosl2 import solid as facade
+    from pybosl2 import use_backend
+
+    boxes = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            box = facade.teardrop(height=20, radius=8, **kwargs).bounds()
+            boxes[backend] = [round(v, 1) for v in (*box.size, *box.center)]
+    assert boxes["csg"] == pytest.approx(boxes["sdf"], abs=0.3), f"{label}: {boxes}"
+
+
+def test_a_chamfered_end_sets_its_own_section_in_by_the_chamfer() -> None:
+    """The one thing about the teardrop that **no parity check can make**, stated outright.
+
+    `test_a_teardrops_cross_sections_are_the_ones_csg_hulls` pins the field to the stations, and
+    `test_a_teardrop_is_placed_and_sized_the_same_on_both_backends` pins the box -- but the
+    stations are where the rule lives, and both tests take them from `teardrop_stations` itself.
+    Planting "the chamfer does not lower the cap" left every one of them green: the middle station
+    still carries the full cap, so the box does not move, and the cross-section check happily
+    verified the field against the wrong expectation.
+
+    A cross-backend check cannot help either, now the two backends share the function -- a shared
+    defect moves both together, which is the limit of parity testing and the reason this exists.
+    So the rule is written out: a chamfered end contributes a section set **in** along the axis by
+    the chamfer, and smaller by it in **both** the radius and the cap. That is what makes the end
+    a bevel rather than a step.
+    """
+    from pybosl2._helpers import teardrop_stations
+
+    sin_a = math.sin(math.radians(45.0))
+    stations = teardrop_stations(20.0, 8.0, 6.0, 7.0, 5.0, 1.5, 2.0, sin_a)
+    assert len(stations) == 4, "a chamfer at each end is four cross-sections"
+
+    (y0, r0, c0), (y1, r1, c1), (y2, r2, c2), (y3, r3, c3) = stations
+    assert (y0, y1) == pytest.approx((-10.0, -8.5)), "the front chamfer sets its section in by 1.5"
+    assert (y2, y3) == pytest.approx((8.0, 10.0)), "and the back one by 2.0"
+    assert (r0, r1) == pytest.approx((6.5, 8.0)), "the front section is smaller by the chamfer"
+    assert (r2, r3) == pytest.approx((6.0, 4.0)), "and the back one likewise"
+    assert (c0, c1) == pytest.approx((5.5, 7.0)), "the cap comes down by the chamfer too"
+    assert (c2, c3) == pytest.approx((5.0, 3.0)), "and at the back, from that end's own cap"
+
+    # No cap given is stated as a cap at the apex: the same shape, and a number to interpolate
+    # towards when the other end *is* truncated.
+    pointy = teardrop_stations(20.0, 8.0, 8.0, None, None, 0.0, 0.0, sin_a)
+    assert all(cap == pytest.approx(8.0 / sin_a) for _, _, cap in pointy)

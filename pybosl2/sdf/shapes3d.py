@@ -4654,6 +4654,29 @@ def polygon_prism(
     )
 
 
+def _piecewise(t: LVTree, stations: "list[tuple[float, float]]") -> LVTree:
+    """Return a piecewise-linear function of *t* through *stations*, as an expression.
+
+    Written as a running sum of clamped ramps -- `v0 + sum((v[i+1] - v[i]) * clamp01(...))` -- so
+    it needs no comparison operator, which libfive does not have. Exact at and between every
+    station, and flat outside the first and last.
+
+    Args:
+        t: The coordinate.
+        stations: ``(at, value)`` pairs in increasing order of *at*.
+
+    Returns:
+        The interpolated value.
+
+    """
+    total: LVTree = stations[0][1]
+    for (at0, v0), (at1, v1) in zip(stations, stations[1:], strict=False):
+        if at1 <= at0 or v1 == v0:
+            continue
+        total = total + (v1 - v0) * lv.min(lv.max((t - at0) / (at1 - at0), 0), 1)
+    return total
+
+
 def teardrop(
     height: float | None = None,
     radius: float | None = None,
@@ -4664,6 +4687,11 @@ def teardrop(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
+    cap_h1: float | None = None,
+    cap_h2: float | None = None,
+    chamfer: float = 0,
+    chamfer1: float = 0,
+    chamfer2: float = 0,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
@@ -4674,9 +4702,13 @@ def teardrop(
     union of a circle and a "roof" of two planes meeting at the apex, tangent to the circle,
     extruded along Y for thickness `h`.
 
-    CAVEAT: simplified relative to pybosl2.shapes3d.teardrop() -- no `chamfer=`/`circum=`/
-    `realign=` support. `cap_height` (truncation height) is supported since it's a plain top-slab
-    intersection.
+    The section's radius and its truncation height both run **piecewise-linearly** along the
+    axis, which is what a chamfered end is: the CSG backend hulls a chain of cross-sections, and a
+    hull's slice is the linear blend of the two it lies between. A teardrop section is convex and
+    each of its three features -- the disc, the two roof planes, the cap -- has a support function
+    linear in the radius and the cap height, so the blend of two of them is another one with both
+    interpolated. `circum=` and `realign=` are still CSG-only: both are about *facet placement* on
+    a polygon, and this backend's section is the exact curve rather than a polygon (SPEC B-9).
 
     Args:
         height: thickness of the teardrop (default 1)
@@ -4688,6 +4720,12 @@ def teardrop(
         diameter: diameter of the circular portion.
         diameter1: diameter of the front end.
         diameter2: diameter of the back end.
+        cap_h1: Truncation height at the front end, falling back to *cap_height*.
+        cap_h2: Truncation height at the back end, falling back to *cap_height*.
+        chamfer: Chamfer at the ends (overall/front/back): the end face is set in by this much and
+            the section shrinks by it, so the end is a bevel rather than a square edge.
+        chamfer1: Chamfer at the ends (overall/front/back).
+        chamfer2: Chamfer at the ends (overall/front/back).
         anchor: anchor point (default CENTER)
         spin: Z-axis rotation in degrees, applied after anchoring.
         orient: Direction to rotate the shape's top towards, applied last.
@@ -4707,30 +4745,36 @@ def teardrop(
     ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
+    from pybosl2._helpers import teardrop_stations
 
-    def profile_sdf(u: LVTree, v: LVTree, radius: float) -> LVTree:
+    stations = teardrop_stations(
+        length,
+        rad1,
+        rad2,
+        cap_h1 if cap_h1 is not None else cap_height,
+        cap_h2 if cap_h2 is not None else cap_height,
+        chamfer1 or chamfer,
+        chamfer2 or chamfer,
+        sin_a,
+    )
+
+    def profile_sdf(u: LVTree, v: LVTree, radius: LVTree, cap: LVTree) -> LVTree:
         circle = _lv_hypot(u, v) - radius
         right = u * sin_a + v * cos_a - radius
         left = -u * sin_a + v * cos_a - radius
         # The roof planes are only tangent to (and so only a valid boundary of) the circle
         # at v >= radius*cos_a (their tangent height); below that they cut into the disk, so
         # mask them out there and let the circle govern instead.
-        v_tangent = radius * cos_a
-        roof = lv.max(right, left) + _PENALTY * lv.max(0, v_tangent - v)
-        d = lv.min(circle, roof)
-        if cap_height is not None:
-            d = lv.max(d, v - cap_height)
-        return d
+        roof = lv.max(right, left) + _PENALTY * lv.max(0, radius * cos_a - v)
+        return lv.max(lv.min(circle, roof), v - cap)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
-        t = lv.min(lv.max((y + hb) / length, 0), 1)
-        rad = rad1 + (rad2 - rad1) * t
-        prof = profile_sdf(x, z, rad)
-        slab = lv.abs(y) - hb
-        return lv.max(prof, slab)
+        rad = _piecewise(y, [(at, r) for at, r, _ in stations])
+        cap = _piecewise(y, [(at, c) for at, _, c in stations])
+        return lv.max(profile_sdf(x, z, rad, cap), lv.abs(y) - hb)
 
-    maxr = max(rad1, rad2)
-    maxheight = maxr / sin_a if cap_height is None else min(cap_height, maxr / sin_a)
+    maxr = max(r for _, r, _ in stations)
+    maxheight = max(min(c, r / sin_a) for _, r, c in stations)
     shape = PyShape(sdf_fn, [-maxr, -hb, -maxr], [maxr, hb, maxheight], res)
     offset = (
         [
