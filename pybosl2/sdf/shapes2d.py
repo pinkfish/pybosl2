@@ -759,6 +759,7 @@ class SdfShape2D(Colorable, Distributable):
         rounding_top: float = 0,
         rounding_bottom: float = 0,
         center: bool = False,
+        convexity: int | None = None,  # noqa: ARG002 - a render hint; the field has no facets
         res: int | None = None,
     ) -> PyShape:
         """Extrude this 2-D shape to *height* along Z -- the `Flat` contract's spelling.
@@ -773,6 +774,12 @@ class SdfShape2D(Colorable, Distributable):
             rounding_top: Rim roundover at the top face.
             rounding_bottom: Rim roundover at the bottom face.
             center: Centre the result on z=0 rather than basing it there.
+            convexity: Accepted and ignored -- it is a *renderer* hint about how many times a ray
+                crosses the surface, which a distance field has no use for. Its sibling
+                :meth:`rotate_extrude` already took it that way, and this one did not: passing it
+                raised a bare ``TypeError`` from inside the backend rather than being ignored or
+                refused, which is how `Path2D.path_extrude2d` failed under `use_backend("sdf")`
+                (SPEC B-9's tessellation carve-out, C-21).
             res: Sampling resolution; the ambient default applies when omitted. Omitted, the ambient
                 ``use_defaults(res=...)`` value applies.
 

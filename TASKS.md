@@ -1581,13 +1581,91 @@ more positional tier parameter, `shapes2d/circle.py` −1 of each. **A move is n
 totals say so** — which is why these are per-file counts with a checked total rather than one
 number that a move could quietly inflate.
 
+### The plan for `Extrudable` was wrong, and measuring said so
+
+The intent was to route `path_extrude` and `path_extrude2d` through the façade, on the reading that
+they call a backend method that could be dispatched. **They do not.** `path_extrude` clips with
+`pythonscad.cube`; `path_extrude2d` takes its corner fillets from `_planar_half`, which cuts with
+`pythonscad.square`. Both are native CSG constructions, and no amount of dispatch changes that —
+routing them through the façade would mean *rewriting* them.
+
+What was actually wrong is that they said nothing about it. Under `use_backend("sdf")`:
+
+```
+AttributeError: 'openscad.PyOpenSCAD' object has no attribute '_sdf_fn'
+Bosl2ValueError: every argument must be a PyShape, got ['PyOpenSCAD']
+```
+
+Neither is a `Bosl2Error`, so the documented `except Bosl2Error` catches neither, and neither names
+the call the caller made. They are `@backend_only("csg")` now, which is simply the truth about
+them (E-1, E-6, B-9).
+
+### And a real portability defect came out of it
+
+`SdfShape2D.linear_extrude` did not accept `convexity`. Its own sibling `rotate_extrude` accepted
+and ignored it, and both CSG methods take it — three of four:
+
+| | `linear_extrude` | `rotate_extrude` |
+|---|---|---|
+| CSG | takes it | takes it |
+| SDF | **raised `TypeError`** | takes and ignores it |
+
+So `flat.square(...).linear_extrude(height=5, convexity=4)` worked on one backend and blew up on
+the other. It is a *renderer* hint about how many times a ray crosses the surface — a distance
+field has no use for it, and now ignores it, as B-9's tessellation carve-out says it may. One
+class, two spellings of one shared parameter (C-17, C-21).
+
 ### What remains
 
 11 violations, of which **three are runtime module-level** and the rest deferred-but-not-cycles:
 
-* `path2d -> miscellaneous` and `path3d -> miscellaneous` — the `Extrudable` mixin lives in L3 and
-  is inherited by L2 types;
+* `path2d -> miscellaneous` and `path3d -> miscellaneous` — see below; the reason is measured now,
+  and it is neither of the two things it looked like.
 * `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10).
+
+
+## T52 — `Extrudable` cannot move, and now we know why 🔶
+
+**§12.2 item 22, continued. A-1. No net change to the debt count; the *reason* changed.**
+
+The plan was to move the `Extrudable` mixin from `pybosl2.miscellaneous` (L3) to a new
+`pybosl2.extrusions` at L2, beside its two siblings, closing `path2d -> miscellaneous` and
+`path3d -> miscellaneous`. It was written, and then measured, and it does not work.
+
+### Why the siblings are at L2 and this one cannot be
+
+`Path2D` gets thirteen extrude/sweep methods from three mixins:
+
+| mixin | module | layer | how it returns a solid |
+|---|---|---|---|
+| `Sweepable` (6) | `pybosl2.skin` | L2 | builds a **`VNF`** and calls `.polyhedron()` on it |
+| `Roundable` (2) | `pybosl2.rounding` | L2 | same |
+| `Extrudable` (2) | `pybosl2.miscellaneous` | **L3** | composes **native primitives** and wraps them |
+
+`VNF` is neutral geometry that knows how to realise itself on the active backend, so `skin` needs
+no backend import at all — it has exactly one upward edge in the whole module, and `rounding` has
+none. `Extrudable` composes `pythonscad.cube` and `pythonscad.square` with booleans, so it needs
+`Bosl2Solid` to hand the result back.
+
+**And there is no way to adopt an already-composed native object from below.** The backend protocol
+offers `constructor`, `construct`, `polyhedron`, the booleans, the extrudes and `stroke` — all
+*building* operations. Nothing takes a native shape and returns a `Solid`.
+
+So the move relocated the violation rather than removing it: two runtime edges out, four unlisted
+deferred edges in. It was reverted.
+
+### What the debt list says now
+
+Not *"the mixin lives in an L3 module"* — which reads like an accident of filing — but the measured
+fact: **`Extrudable` composes native geometry, so it is backend machinery, and an L2 path type
+inherits backend machinery.** Closing it means rewriting the two methods to produce a VNF the way
+`Sweepable` does, which is a geometry rewrite (mitred segment unions and revolved fillets become
+mesh booleans) rather than a refactor.
+
+That is a considerably better thing to have on a debt list than a guess, and it is the whole
+result of this task. **A plan that survives being written and dies on being measured is still worth
+the measuring** — the alternative was shipping a move that raises the count while looking like
+progress.
 
 
 ## Keeping this file honest

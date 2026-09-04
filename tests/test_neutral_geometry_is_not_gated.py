@@ -143,3 +143,69 @@ def test_the_turtle_takes_its_arc_from_the_geometry_layer() -> None:
     assert not any(m.startswith("pybosl2.shapes2d") for m in reached), (
         f"turtle2d reaches a backend module at import time: {sorted(m for m in reached if 'shapes' in m)}"
     )
+
+
+@pytest.mark.parametrize("convexity", [None, 1, 4])
+def test_convexity_is_accepted_by_every_extrude_on_both_backends(convexity: int | None) -> None:
+    """`convexity` is a renderer hint, and three of the four extrude methods took it as one.
+
+    It tells a previewer how many times a ray can cross the surface. It changes no geometry, and a
+    distance field has no use for it at all -- which is why `SdfShape2D.rotate_extrude` already
+    accepted and ignored it. Its sibling `linear_extrude` did not accept it, so
+    `flat.square(...).linear_extrude(height=5, convexity=4)` raised a bare `TypeError` from inside
+    the backend: one class, two spellings of the same shared parameter (SPEC C-17, C-21, and B-9's
+    tessellation carve-out).
+    """
+    import inspect
+
+    from pybosl2 import flat
+    from pybosl2.sdf.shapes2d import SdfShape2D
+    from pybosl2.shapes2d.base import Bosl2Shape2D
+
+    for shape in (SdfShape2D, Bosl2Shape2D):
+        for method in ("linear_extrude", "rotate_extrude"):
+            assert "convexity" in inspect.signature(getattr(shape, method)).parameters, (
+                f"{shape.__name__}.{method} does not take convexity, so the same call is portable "
+                f"to one backend and not the other"
+            )
+
+    extra = {} if convexity is None else {"convexity": convexity}
+    sizes = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            built = flat.square(size=[10, 6]).linear_extrude(height=5, **extra)
+            sizes[backend] = [round(float(v), 2) for v in built.bounds().size]
+    assert sizes["csg"] == sizes["sdf"], f"convexity={convexity} changed the geometry: {sizes}"
+
+
+@pytest.mark.parametrize("method", ["path_extrude", "path_extrude2d"])
+def test_the_path_extrusions_refuse_rather_than_failing_from_inside(method: str) -> None:
+    """They are CSG-only in fact, and now in the contract (SPEC E-1, E-6, B-9).
+
+    Both are built out of native primitives -- `path_extrude` clips with `pythonscad.cube`, and
+    `path_extrude2d` takes its corner fillets from `_planar_half`, which cuts with
+    `pythonscad.square` -- so neither follows the active backend however the profile is dispatched.
+
+    Under `use_backend("sdf")` they used to fail *from inside*: `AttributeError: 'PyOpenSCAD'
+    object has no attribute '_sdf_fn'`, and `every argument must be a PyShape, got ['PyOpenSCAD']`.
+    Neither is a `Bosl2Error`, so the documented `except Bosl2Error` could not catch them, and
+    neither names the call the caller made.
+    """
+    from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
+
+    profile = Path2D([[0, 0], [4, 0], [4, 4], [0, 4]])
+    path = (
+        Path2D([[0, 0], [10, 0], [10, 8]])
+        if method == "path_extrude2d"
+        else Path3D([[0, 0, 0], [0, 0, 10], [6, 0, 16]])
+    )
+
+    with use_backend("csg"):
+        assert getattr(path, method)(profile=profile).backend == "csg"
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        getattr(path, method)(profile=profile)
+    assert isinstance(excinfo.value, Bosl2Error), "the documented `except Bosl2Error` has to catch it"
+    assert method in str(excinfo.value), "and it names the call, not an attribute inside the backend"
