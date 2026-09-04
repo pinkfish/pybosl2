@@ -26,6 +26,11 @@ T41, the 25 texture options, which looked like the hard ones and were not. The C
 *then* places vertices. The displacement map exists before either backend sees it, so building a
 field from it crosses nothing (B-5). See `tests/test_sdf_texture.py`.
 
+T42, 47 more: `chamfer_angle`, `from_end` and `extra` (nine options across five cylinder spellings
+that are one field), and `cuboid`'s two-corner form. The CSG backend states the rim as a **2-D
+profile** it revolves, which gives an exact thing to check -- the field is zero at every vertex of
+it. See `tests/test_sdf_rim.py`.
+
 Two things this separates, because they are different defects:
 
 * **A missing option** is honest parity debt. A caller who passes it gets
@@ -55,16 +60,16 @@ TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 #: parameter named (B-9) rather than silently dropped. Only shrinks.
 OPTION_GAPS: dict[str, int] = {
     "cube": 2,
-    "cuboid": 4,
-    "cyl": 11,
-    "cylinder": 11,
+    "cuboid": 2,
+    "cyl": 2,
+    "cylinder": 2,
     "prismoid": 6,
     "rect_tube": 15,
     "regular_prism": 1,
     "teardrop": 5,
-    "xcyl": 11,
-    "ycyl": 11,
-    "zcyl": 11,
+    "xcyl": 2,
+    "ycyl": 2,
+    "zcyl": 2,
 }
 
 
@@ -296,6 +301,13 @@ def test_an_oblique_cylinder_leans_the_same_way_on_both_backends(shape: str, shi
     assert boxes["csg"] == pytest.approx(boxes["sdf"], abs=0.15), f"{shape} shift={shift}: {boxes}"
 
 
+#: Options the aliased shape has and the alias is *right* not to: the CSG backend does not put
+#: them on the alias either, so carrying them here would be a reverse asymmetry rather than
+#: parity. `cube` is `cuboid` with one size (so no `size1`/`size2`, and no two-corner `p1`/`p2`
+#: form -- BOSL2 puts that on `cuboid` alone), and `center` is resolved before the delegation.
+_NOT_ON_THE_ALIAS = frozenset({"center", "size1", "size2", "p1", "p2"})
+
+
 def test_an_alias_offers_everything_the_shape_it_aliases_does() -> None:
     """`cube` is `cuboid`; `cylinder` and `zcyl` are `cyl`. An alias that drops options is a gap.
 
@@ -311,7 +323,7 @@ def test_an_alias_offers_everything_the_shape_it_aliases_does() -> None:
     for alias, aliased in (("cube", "cuboid"), ("cylinder", "cyl"), ("zcyl", "cyl")):
         offered = set(inspect.signature(getattr(shapes3d, alias)).parameters)
         available = set(inspect.signature(getattr(shapes3d, aliased)).parameters)
-        missing = available - offered - {"center", "size1", "size2"}
+        missing = available - offered - _NOT_ON_THE_ALIAS
         assert not missing, f"sdf.{alias} drops what sdf.{aliased} builds: {sorted(missing)}"
 
 

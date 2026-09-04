@@ -2160,7 +2160,7 @@ status = "enforced"
 note = '''
 The carve-out for a value that asks for nothing had a hole in it, found in T40. An explicit zero rounding is "no rounding" and refusing it was a false alarm (`RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`) -- but where the façade's default is `True`, passing `False` is the caller turning something **off**, which is a request. `cuboid(trimcorners=False)` leaves the chamfer running past the corners; the SDF backend trims them regardless, and the argument was being dropped in silence. The wrong answer arrived *through* the guard against false alarms rather than around it. `_is_no_op` now takes the façade's default and calls a falsy value nothing only when the default is falsy too. Two parameters in the whole façade have a truthy default a backend lacks, and both of them are this one.
 
-This rule's own worked example also went stale: `test_an_argument_the_backend_cannot_honour_is_refused_not_dropped` used `cube(10, spin=45)` as the CSG-only option until T40 built `spin` on the SDF backend. The example carried an implicit claim -- that `spin` was CSG-only -- which was never true; it was unwritten. What the rule governs is the refusal, not any particular gap.
+This rule's own worked example has now gone stale twice: `test_an_argument_the_backend_cannot_honour_is_refused_not_dropped` used `cube(10, spin=45)` until T40 built `spin`, then `cuboid(p1=, p2=)` until T42 built that. Each carried an implicit claim -- that the option was CSG-only -- which was never true of either; both were unwritten. What the rule governs is the refusal, not any particular gap, so the example is picked from whatever the parity budget still counts and is expected to keep moving.
 '''
 
 [[requirement]]
@@ -2244,6 +2244,7 @@ enforced_by = [
     "tests/test_option_parity.py::test_no_shape_grows_its_option_gap",
     "tests/test_option_parity.py::test_the_design_note_states_the_measured_gap",
     "tests/test_sdf_texture.py::test_the_field_is_zero_where_the_mesh_puts_a_vertex",
+    "tests/test_sdf_rim.py::test_all_five_spellings_build_the_same_rim",
 ]
 candidates = [
     "tests/test_partitions.py::test_partition_returns_two_pieces",
@@ -2276,6 +2277,8 @@ enforced_by = [
     "tests/test_option_parity.py::test_the_oblique_shear_is_taken_about_the_mid_plane",
     "tests/test_sdf_texture.py::test_a_turned_cylinder_wears_the_pattern_the_same_way_round",
     "tests/test_sdf_texture.py::test_the_repeat_counts_are_resolved_in_one_place",
+    "tests/test_sdf_rim.py::test_a_treated_rim_moves_the_wall_of_a_cone",
+    "tests/test_sdf_rim.py::test_the_chamfer_is_the_profile_csg_revolves",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
@@ -2293,6 +2296,8 @@ note = '''
 * **`shift` sheared from the wrong plane.** BOSL2's `shift` is the far end's offset *relative to* the near one, and CSG takes the shear about the mid-plane (`x' = x + shift_x * z / length`, on a cylinder spanning `-h/2 .. h/2`). The SDF backend interpolated from the bottom face, so it built the same lean half a shift from where CSG built it. The relative offset -- the thing anyone would check -- was right.
 * **`shift` widened the box by the whole shift at both ends**, when each end disc carries its own radius: a 13-wide box reported for a solid 10 wide. A bound rather than the geometry, but a bound is what every caller measuring a shape reads.
 * **`_AXIS_LEAN`, which carries `shift` through the rotation that turns a `cyl` into an `xcyl`, had every sign inverted** in its first version. `shift=[3, 3]` on a symmetric cone passes with the signs backwards, so the tests use an asymmetric shift on each axis.
+
+**T42 found a third way the two can disagree, and a third instrument for seeing it.** The CSG backend states a cylinder's rim as a 2-D *profile* it revolves, so there is an exact question available: is the field zero at every vertex of that profile? On a taper it was not. BOSL2 puts a treated rim's inner endpoint at the **nominal** end radius and runs the wall from there to the other end's endpoint, so a chamfered cone's wall is not the line through its two nominal corners; this backend measured against that nominal line and built a different cone from the same call -- 0.39mm out on an 8-to-4 taper with a 2mm chamfer, and the same for a rounding. Wrong since the rim treatment was written. Neither of the other two instruments could have found it: on a plain cylinder the two constructions coincide, and the bounding box is set by the widest ring, which the wall between the rims never touches. Three defects, three instruments, and each was invisible to the other two -- which is the argument for asking what a check *cannot* see before trusting that it passed.
 
 **A bounds comparison could only see two of the three.** An SDF shape's `bounds()` is the box it *declares*, not a measurement of its field, so the wrong shear plane moves the geometry and leaves the reported box alone -- planting that defect again leaves the cross-backend bounds test green. It took a test that asks the field where the material is (`test_the_oblique_shear_is_taken_about_the_mid_plane`, sampling either side of each end disc). That is a general limit on how far the cross-backend comparison can reach on this backend, not a fact about `shift`.
 '''

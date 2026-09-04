@@ -80,11 +80,6 @@ class Placement:
     default ``orient`` is not "a real one" -- ``Placement()`` and ``Placement(anchor=...)`` are
     dimension-neutral and pass anywhere.
 
-    Attributes:
-        anchor: The point on the shape that lands at the origin.
-        spin: Rotation about Z in degrees, applied after anchoring.
-        orient: The direction the shape's top is rotated towards.
-
     Examples:
         .. pythonscad-example::
 
@@ -95,8 +90,11 @@ class Placement:
 
     """
 
+    #: The point on the shape that lands at the origin.
     anchor: "Anchor | Sequence[float]" = Anchor.CENTER
+    #: Rotation about Z in degrees, applied after anchoring.
     spin: float = 0.0
+    #: The direction the shape's top is rotated towards.
     orient: "Anchor | Sequence[float]" = Anchor.TOP
 
     def with_(
@@ -181,12 +179,6 @@ class Facets:
     instead, which sets it for a whole block without threading anything through any call
     (SPEC R-4). ``None`` in any member means "not given, decide for me" (SPEC D-4).
 
-    Attributes:
-        fn: Fixed fragment count for a full circle.
-        fa: Minimum fragment angle in degrees.
-        fs: Minimum fragment size in millimetres.
-        res: Sampling resolution for the SDF backend.
-
     Examples:
         >>> from pybosl2.groups import Facets
         >>> Facets(fn=64).as_kwargs()
@@ -194,9 +186,13 @@ class Facets:
 
     """
 
+    #: Fixed fragment count for a full circle.
     fn: int | None = None
+    #: Minimum fragment angle in degrees.
     fa: float | None = None
+    #: Minimum fragment size in millimetres.
     fs: float | None = None
+    #: Sampling resolution for the SDF backend.
     res: int | None = None
 
     @classmethod
@@ -319,17 +315,17 @@ def resolve_center_anchor(
     top face, and the documentation next to it said it would sit on the bottom one. That is E-5's
     silent wrong answer, and it survived because the rule had no single home to be right in.
 
+    Both are named at the call site rather than defaulted, because each backend anchors in its own
+    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend
+    passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all
+    three anchors so the resolver hands back exactly what it was given.
+
     Args:
         center: True for a centred anchor, False for *uncentred*, ``None`` to leave *anchor* be.
         anchor: The anchor as passed, used only when *center* is ``None``.
         centred: What ``center=True`` means for this shape.
         uncentred: What ``center=False`` means -- ``BOTTOM`` for the cylinders,
             ``BOTTOM_FRONT_LEFT`` for the boxes.
-
-    Both are named at the call site rather than defaulted, because each backend anchors in its own
-    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend
-    passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all
-    three anchors so the resolver hands back exactly what it was given.
 
     Returns:
         The anchor to place with. ``None`` propagates, so a constructor whose own default depends
@@ -476,11 +472,6 @@ class EdgeTreatment:
     Build one with :meth:`rounding` or :meth:`chamfer` rather than the constructor, so the kind and
     the size are set together.
 
-    Attributes:
-        kind: Which treatment, or :attr:`~pybosl2.enums.EdgeTreatmentKind.NONE`.
-        size: The radius (rounding) or inset (chamfer). Negative rounds outward, as BOSL2's does.
-            A sequence gives a size per corner, which the 2-D constructors accept.
-
     Examples:
         .. pythonscad-example::
 
@@ -490,7 +481,10 @@ class EdgeTreatment:
 
     """
 
+    #: Which treatment, or :attr:`~pybosl2.enums.EdgeTreatmentKind.NONE`.
     kind: EdgeTreatmentKind = EdgeTreatmentKind.NONE
+    #: The radius (rounding) or inset (chamfer). Negative rounds outward, as BOSL2's does.
+    #: A sequence gives a size per corner, which the 2-D constructors accept.
     size: "float | Sequence[float]" = 0.0
 
     @classmethod
@@ -654,11 +648,6 @@ class EdgeSelection:
 
     Both are expressed in the anchor language (SPEC C-10, O-6b), never as strings.
 
-    Attributes:
-        edges: The edges to treat. Defaults to every edge.
-        excepted: The edges to spare, spelled ``except_edges`` at a call site because ``except`` is
-            a Python keyword (SPEC B2-3).
-
     Examples:
         .. pythonscad-example::
 
@@ -669,7 +658,10 @@ class EdgeSelection:
 
     """
 
+    #: The edges to treat. Defaults to every edge.
     edges: Any = Anchor.ALL
+    #: The edges to spare, spelled ``except_edges`` at a call site because ``except`` is
+    #: a Python keyword (SPEC B2-3).
     excepted: Any = None
 
     def as_kwargs(self) -> dict[str, Any]:
@@ -735,13 +727,6 @@ class Texturing:
     *size* and *reps* are alternatives, and the group holds at most one, so the pair cannot
     disagree (SPEC G-7): give the tile's size in millimetres, or how many times it repeats.
 
-    Attributes:
-        texture: The texture, by name or already built.
-        size: Size of one tile as ``[around, along]`` in millimetres.
-        reps: Repeat counts as ``[around, along]``, instead of *size*.
-        depth: How far the texture displaces the surface. Negative sinks it in.
-        inset: How far the surface is sunk before the texture is added. ``True`` means one depth.
-
     Examples:
         .. pythonscad-example::
 
@@ -751,10 +736,15 @@ class Texturing:
 
     """
 
+    #: The texture, by name or already built.
     texture: Any = None
+    #: Size of one tile as ``[around, along]`` in millimetres.
     size: "float | Sequence[float] | None" = None
+    #: Repeat counts as ``[around, along]``, instead of *size*.
     reps: "int | Sequence[int] | None" = None
+    #: How far the texture displaces the surface. Negative sinks it in.
     depth: float = 1.0
+    #: How far the surface is sunk before the texture is added. ``True`` means one depth.
     inset: float | bool = False
 
     def __post_init__(self) -> None:

@@ -38,11 +38,11 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
    about: the total double-counted an alias and the claim had not been rerun since parts were
    ported.*
-3. **88 options one backend takes and the other does not.** Parity is measured per option, not
+3. **41 options one backend takes and the other does not.** Parity is measured per option, not
    per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
-   named rather than dropped (B-9). What remains after T41 is the chamfer geometry variants —
-   `chamfer_angle`, `from_end`, `extra`, `clip_angle`, `teardrop` — plus `rect_tube`'s tapered
-   form and `prismoid`'s edge treatments. *This entry said the cylinder family's `texture`/`tex_*`
+   named rather than dropped (B-9). What remains after T42 is `rect_tube`'s tapered
+   form, `prismoid`'s edge treatments, `teardrop`/`clip_angle` (a rounding clipped at an angle,
+   which is a *non-convex* corner and so a union rather than one expression), and `trimcorners`. *This entry said the cylinder family's `texture`/`tex_*`
    could not cross, "a textured field, not a mesh with a texture applied, so B-5 rules out the
    cheap route". That was wrong, and it was wrong the same day it was written: the CSG backend
    does not apply a texture to a mesh either — it reduces the texture to a grid of heights and

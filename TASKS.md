@@ -68,6 +68,7 @@ spec renumbers as items close, and all but S-46a have.
 | 11 | C-21 / B2-3 | [T40](#t40--close-the-sdf-option-gaps) ✅ | S |
 | 12 | PAR-4 / PAR-5 / S-34 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | M |
 | 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
+| 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1021,6 +1022,64 @@ than the library.
 The module is `pybosl2.textures` now; the function keeps BOSL2's spelling (B2-3), it being the half
 a caller reads. Exactly one name in the package collided, which is why the guard is a plain
 assertion and not a budget.
+
+
+## T42 — Close the cylinder rim options 🔶
+
+**§12.2 item 14. PAR-4, PAR-5.**
+
+`chamfer_angle`, `from_end` and `extra` — each an overall/bottom/top triple — across the five
+cylinder spellings: **45 of the 88 gaps, and one implementation.** `cylinder` and `zcyl` *are*
+`cyl`; `xcyl` and `ycyl` are the same field about another axis. Counting per option and per shape
+is what made it look like 45 things to do. `cuboid(p1=, p2=)` followed, 2 more. **88 → 41.**
+
+The chamfer plane had been hard-coded to 45° — `(qu + qv + c)/√2`, with the angle nowhere in it.
+BOSL2 states a chamfer either as its radial leg with an angle (`from_end=False`) or as the cut's
+own length split by that angle (`from_end=True`); the general plane through `(−dx, 0)` and
+`(0, −dy)` covers both, and reduces to exactly the old expression when `dx == dy`, so the default
+case is unchanged by construction.
+
+`extra=` unions a straight stub of that end's radius past the end, the way CSG does — changing
+neither the length nor the anchoring, which is the part worth a test.
+
+### A third instrument, and a third defect
+
+The CSG backend states a cylinder's rim as a **2-D profile it revolves**, which gives an exact
+question: *is the field zero at every vertex of that profile?* On a taper it was not.
+
+**BOSL2 puts a treated rim's inner endpoint at the nominal end radius and runs the wall from there
+to the other end's endpoint.** So a chamfered cone's wall is not the line through its two nominal
+corners. This backend measured against that nominal line and built a different cone from the same
+call — 0.39 mm out on an 8→4 taper with a 2 mm chamfer, and the same for a rounding. It had been
+wrong since the rim treatment was written.
+
+Neither instrument used before could have found it:
+
+| | why it is blind here |
+|---|---|
+| cross-backend `bounds()` | the box is set by the widest ring; the wall between the rims never touches it |
+| the field-probe at mesh vertices (T41) | those are on the *texture*, not the rim, and every case was a plain cylinder |
+| a plain cylinder, any test | the wall is vertical and an axial inset cannot move it — the two constructions coincide |
+
+Three defects across T40–T42, three instruments, and **each was invisible to the other two.** That
+is the argument for asking what a check *cannot* see before trusting that it passed.
+
+### And the worked example went stale for the second time
+
+`test_an_argument_the_backend_cannot_honour_is_refused_not_dropped` used `cube(10, spin=45)` as
+its CSG-only option until T40 built `spin`; T40 repointed it at `cuboid(p1=, p2=)` and T42 built
+that. **Neither was ever CSG-only** — both were unwritten, and naming one in the test quietly
+asserted otherwise. What B-9 governs is the refusal, not any particular gap, so the example is now
+picked from whatever the parity budget still counts and is expected to keep moving.
+
+### What remains
+
+41 gaps: `rect_tube`'s tapered form (15), `prismoid`'s edge treatments (6), `teardrop`'s cap and
+chamfer (5), `teardrop`/`clip_angle` on the cylinders (10), `trimcorners` (2), `regular_prism`'s
+`shift` (1), and `cuboid`/`cube`'s `teardrop` (2, which raises `Bosl2NotImplementedError` on CSG
+too). `teardrop`/`clip_angle` is the interesting one: a rounding clipped at an angle is a
+**non-convex** corner — the arc runs to the clip angle and then goes straight to the cap — so it is
+a union of two regions rather than one expression, unlike everything closed so far.
 
 
 ## Keeping this file honest
