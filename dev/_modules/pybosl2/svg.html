@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2212,12 +2236,13 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the SVG.</span>
-<span class="sd">        fn: Minimum fragment count per curved segment.  When set (``&gt;= 3``) it gives an</span>
-<span class="sd">            absolute point count; otherwise points are derived from *fs*.</span>
-<span class="sd">        fa: Minimum angle in degrees between fragments (accepted for API parity; only</span>
-<span class="sd">            relevant for circular arcs).</span>
-<span class="sd">        fs: Minimum fragment size in SVG user units.  Each curved segment gets</span>
-<span class="sd">            ``max(3, ceil(length / fs))`` points.</span>
+<span class="sd">        fn: Minimum fragment count per curved segment.  When set (``&gt;= 3``) it gives an absolute point count;</span>
+<span class="sd">            otherwise points are derived from *fs*. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum angle in degrees between fragments (accepted for API parity; only relevant for circular arcs).</span>
+<span class="sd">            Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in SVG user units.  Each curved segment gets ``max(3, ceil(length / fs))`` points.</span>
+<span class="sd">            Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 <span class="sd">        flip_y: Negate Y. SVG's Y axis points DOWN and OpenSCAD's points UP, so without this</span>
 <span class="sd">            every imported drawing comes out mirrored.</span>
 
@@ -2291,9 +2316,12 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the SVG.</span>
-<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count).</span>
-<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).</span>
-<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``).</span>
+<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``</span>
+<span class="sd">            value applies.</span>
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).</span>
 <span class="sd">        color: When set, overrides every shape's fill colour with this hex string</span>
 <span class="sd">            (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.</span>
@@ -2609,9 +2637,12 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the SVG.</span>
-<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count).</span>
-<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).</span>
-<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``).</span>
+<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``</span>
+<span class="sd">            value applies.</span>
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored.</span>
 <span class="sd">        color: When set, every returned ring gets this colour instead of the SVG's</span>
 <span class="sd">            own fill colours.  Pass ``None`` (the default) to use the colours from the SVG.</span>
@@ -2713,6 +2744,18 @@
 <span class="sd">    The element each ring came from is NOT preserved -- use</span>
 <span class="sd">    :func:`svg_element_groups` when that matters (it does for compositing: nesting means</span>
 <span class="sd">    "hole" only WITHIN one element).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file: Path to the SVG file to read.</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        flip_y: Flip the Y axis, since SVG counts Y downwards and this library counts it up.</span>
+<span class="sd">        color: Colour to use for rings the file does not give one.</span>
+<span class="sd">        strokes: How to treat stroked-but-unfilled paths.</span>
+<span class="sd">        clip_to_viewbox: Drop anything outside the document's viewBox.</span>
+
 <span class="sd">    """</span>
     <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2843,9 +2886,12 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the SVG.</span>
-<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count).</span>
-<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`).</span>
-<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``).</span>
+<span class="sd">        fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum angle in degrees (accepted for API parity; see :func:`svg_outlines`). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient ``use_defaults(fs=...)``</span>
+<span class="sd">            value applies.</span>
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored.</span>
 <span class="sd">        color: When set, overrides every shape's fill colour with this hex string</span>
 <span class="sd">            (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.</span>

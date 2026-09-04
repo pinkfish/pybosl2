@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2150,13 +2174,14 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.texture</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextureType</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.textures</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextureType</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_center_anchor</span>
 
 <span class="c1"># Import base class and helper functions from shapes3d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2165,7 +2190,6 @@
     <span class="n">_finish3</span><span class="p">,</span>
     <span class="n">_ocylinder</span><span class="p">,</span>
     <span class="n">_osphere</span><span class="p">,</span>
-    <span class="n">_resolve_center_anchor</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
@@ -2271,9 +2295,10 @@
 <span class="sd">        anchor:         anchor point (default BOTTOM if center=False, otherwise CENTER)</span>
 <span class="sd">        spin:           Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:         direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:       arc smoothness overrides</span>
-<span class="sd">        fa:       arc smoothness overrides</span>
-<span class="sd">        fs:       arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 <span class="sd">        chamfer_angle: chamfer angle in degrees away from ends</span>
 <span class="sd">        chamfer_angle1: chamfer angle in degrees away from ends</span>
 <span class="sd">        chamfer_angle2: chamfer angle in degrees away from ends</span>
@@ -2362,9 +2387,91 @@
 
 
 
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.cyl"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_textured_cyl</span><span class="p">(</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tex</span><span class="p">:</span> <span class="s2">"str | TextureType"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tex_size</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">tex_reps</span><span class="p">:</span> <span class="s2">"int | Sequence[int] | None"</span><span class="p">,</span>
+    <span class="n">tex_depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tex_inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float]"</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float]"</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build a cylinder whose side carries *tex*, as a polyhedron (SPEC S-34, S-35).</span>
+
+<span class="sd">    The mesh is built in pure Python (:func:`~pybosl2.textures.textured_cylinder_vnf`) and crosses</span>
+<span class="sd">    to geometry once, at the end. When neither *tex_size* nor *tex_reps* is given the repeats are</span>
+<span class="sd">    derived from the facet count the cylinder would have had, so a textured cylinder is as smooth</span>
+<span class="sd">    as the plain one it replaces.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        length: Height of the cylinder.</span>
+<span class="sd">        radius1: Radius at the bottom.</span>
+<span class="sd">        radius2: Radius at the top.</span>
+<span class="sd">        tex: The texture, by name or already built.</span>
+<span class="sd">        tex_size: Size of one tile in millimetres.</span>
+<span class="sd">        tex_reps: Repeat counts, instead of *tex_size*.</span>
+<span class="sd">        tex_depth: How far the texture displaces the surface.</span>
+<span class="sd">        tex_inset: How far the surface is sunk before the texture is added.</span>
+<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
+<span class="sd">        orient: Direction to rotate the top towards, after spin.</span>
+<span class="sd">        fn: Fixed fragment count, used to derive the repeats when none are given.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The textured cylinder.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.textures</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_tex_reps</span><span class="p">,</span> <span class="n">textured_cylinder_vnf</span>
+
+    <span class="k">if</span> <span class="n">tex_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tex_reps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tex_reps</span> <span class="o">=</span> <span class="n">default_tex_reps</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">)</span>
+
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">textured_cylinder_vnf</span><span class="p">(</span>
+        <span class="n">length</span><span class="p">,</span>
+        <span class="n">radius1</span><span class="p">,</span>
+        <span class="n">radius2</span><span class="p">,</span>
+        <span class="n">tex</span><span class="p">,</span>
+        <span class="n">tex_size</span><span class="o">=</span><span class="n">tex_size</span><span class="p">,</span>
+        <span class="n">tex_reps</span><span class="o">=</span><span class="n">tex_reps</span><span class="p">,</span>
+        <span class="n">tex_depth</span><span class="o">=</span><span class="n">tex_depth</span><span class="p">,</span>
+        <span class="n">tex_inset</span><span class="o">=</span><span class="n">tex_inset</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">solid</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_cyl</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">Bosl2Solid</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">solid</span><span class="p">),</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cyl_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Anchor | Sequence[float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Resolve `center=`/`anchor=` for the cylinder family, which centres when given neither.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        center: The `center=` shorthand as passed.</span>
+<span class="sd">        anchor: The anchor as passed, or ``None``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The anchor to place with -- ``CENTER`` when the caller named neither (SPEC D-4).</span>
+
+<span class="sd">    """</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">CENTER</span> <span class="k">if</span> <span class="n">resolved</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">resolved</span>
+
+
 <div class="viewcode-block" id="cyl">
 <a class="viewcode-back" href="../../../foundational/shapes3d/cylinder.html#pybosl2.shapes3d.cylinder.cyl">[docs]</a>
-<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.cyl"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">cyl</span><span class="p">(</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2441,9 +2548,10 @@
 <span class="sd">        anchor:       anchor point (default CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:       direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:     arc smoothness overrides</span>
-<span class="sd">        fa:     arc smoothness overrides</span>
-<span class="sd">        fs:     arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 <span class="sd">        chamfer_angle: chamfer angle in degrees away from ends</span>
 <span class="sd">        chamfer_angle1: chamfer angle in degrees away from ends</span>
 <span class="sd">        chamfer_angle2: chamfer angle in degrees away from ends</span>
@@ -2487,10 +2595,6 @@
 <span class="sd">            shape.show()</span>
 
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">texture</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">texture</span> <span class="o">!=</span> <span class="s2">"none"</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"texture= (VNF surface texturing) is not supported by this pure-Python port."</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">tex_size</span><span class="p">,</span> <span class="n">tex_reps</span><span class="p">,</span> <span class="n">tex_depth</span><span class="p">,</span> <span class="n">tex_inset</span><span class="p">)</span>
-
     <span class="n">length_val</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="n">rad1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">rad2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius2</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter2</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -2500,9 +2604,25 @@
         <span class="n">sc</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)</span>
         <span class="n">rad1</span> <span class="o">*=</span> <span class="n">sc</span>
         <span class="n">rad2</span> <span class="o">*=</span> <span class="n">sc</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
-    <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">center</span> <span class="k">else</span> <span class="n">BOTTOM</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_cyl_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">texture</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">texture</span> <span class="o">!=</span> <span class="s2">"none"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_textured_cyl</span><span class="p">(</span>
+            <span class="n">length_val</span><span class="p">,</span>
+            <span class="n">rad1</span><span class="p">,</span>
+            <span class="n">rad2</span><span class="p">,</span>
+            <span class="n">texture</span><span class="p">,</span>
+            <span class="n">tex_size</span><span class="o">=</span><span class="n">tex_size</span><span class="p">,</span>
+            <span class="n">tex_reps</span><span class="o">=</span><span class="n">tex_reps</span><span class="p">,</span>
+            <span class="n">tex_depth</span><span class="o">=</span><span class="n">tex_depth</span><span class="p">,</span>
+            <span class="n">tex_inset</span><span class="o">=</span><span class="n">tex_inset</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="n">r1v</span> <span class="o">=</span> <span class="n">rounding1</span> <span class="k">if</span> <span class="n">rounding1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">rounding</span> <span class="k">if</span> <span class="n">rounding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">r2v</span> <span class="o">=</span> <span class="n">rounding2</span> <span class="k">if</span> <span class="n">rounding2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">rounding</span> <span class="k">if</span> <span class="n">rounding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
@@ -2659,7 +2779,28 @@
     <span class="n">teardrop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">clip_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Generate a 2D cylinder profile with optional rounding and chamfering."""</span>
+<span class="w">    </span><span class="sd">"""Generate a 2D cylinder profile with optional rounding and chamfering.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius1: Radius at the bottom end.</span>
+<span class="sd">        radius2: Radius at the top end.</span>
+<span class="sd">        length: Length of the cylinder along its axis.</span>
+<span class="sd">        rounding1: Rounding radius at the bottom end; negative rounds outward.</span>
+<span class="sd">        rounding2: Rounding radius at the top end; negative rounds outward.</span>
+<span class="sd">        chamfer1: Chamfer size at the bottom end.</span>
+<span class="sd">        chamfer2: Chamfer size at the top end.</span>
+<span class="sd">        chamfer_angle1: Angle of the bottom chamfer in degrees, measured from the end face.</span>
+<span class="sd">        chamfer_angle2: Angle of the top chamfer in degrees, measured from the end face.</span>
+<span class="sd">        from_end1: Measure the bottom chamfer along the end face rather than up the side.</span>
+<span class="sd">        from_end2: Measure the top chamfer along the end face rather than up the side.</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        teardrop: Make the top a printable teardrop, optionally giving the angle.</span>
+<span class="sd">        clip_angle: Angle at which a teardrop profile is clipped flat, for printability.</span>
+
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
 
     <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">)</span>
@@ -2762,6 +2903,52 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a cylinder oriented along the X axis. See cyl() for argument details.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        height: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius: Radius of the cylinder (default 1)</span>
+<span class="sd">        center: If given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</span>
+<span class="sd">        length: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius1: Radius of the negative end of the cylinder.</span>
+<span class="sd">        radius2: Radius of the positive end of the cylinder.</span>
+<span class="sd">        diameter: Diameter of the cylinder.</span>
+<span class="sd">        diameter1: Diameter of the negative end of the cylinder.</span>
+<span class="sd">        diameter2: Diameter of the positive end of the cylinder.</span>
+<span class="sd">        chamfer: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer1: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer2: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding1: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding2: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).</span>
+<span class="sd">        realign: Shift point alignment by half a facet (CSG backend).</span>
+<span class="sd">        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).</span>
+<span class="sd">        anchor: Anchor point (default CENTER)</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient: Direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use</span>
+<span class="sd">            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out</span>
+<span class="sd">            to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).</span>
+<span class="sd">        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).</span>
+<span class="sd">        chamfer_angle2: Chamfer angle at the top end (CSG backend).</span>
+<span class="sd">        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).</span>
+<span class="sd">        from_end1: Measure the bottom chamfer along the conic face (CSG backend).</span>
+<span class="sd">        from_end2: Measure the top chamfer along the conic face (CSG backend).</span>
+<span class="sd">        extra: Extra height at both ends, invisible to anchoring (CSG backend).</span>
+<span class="sd">        extra1: Extra height at the bottom end (CSG backend).</span>
+<span class="sd">        extra2: Extra height at the top end (CSG backend).</span>
+<span class="sd">        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).</span>
+<span class="sd">        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).</span>
+<span class="sd">        texture: Named texture for the side surface (CSG backend).</span>
+<span class="sd">        tex_size: Size of one texture tile (CSG backend).</span>
+<span class="sd">        tex_reps: Number of texture repetitions (CSG backend).</span>
+<span class="sd">        tex_depth: Depth of the texture (CSG backend).</span>
+<span class="sd">        tex_inset: Inset the texture into the surface (CSG backend).</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
@@ -2781,9 +2968,7 @@
         <span class="n">rad1</span> <span class="o">*=</span> <span class="n">sc</span>
         <span class="n">rad2</span> <span class="o">*=</span> <span class="n">sc</span>
 
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
-    <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">center</span> <span class="k">else</span> <span class="n">BOTTOM</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_cyl_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
 
     <span class="n">shape</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
         <span class="n">length</span><span class="o">=</span><span class="n">length_val</span><span class="p">,</span>
@@ -2872,6 +3057,52 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a cylinder oriented along the Y axis. See cyl() for argument details.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        height: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius: Radius of the cylinder (default 1)</span>
+<span class="sd">        center: If given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</span>
+<span class="sd">        length: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius1: Radius of the negative end of the cylinder.</span>
+<span class="sd">        radius2: Radius of the positive end of the cylinder.</span>
+<span class="sd">        diameter: Diameter of the cylinder.</span>
+<span class="sd">        diameter1: Diameter of the negative end of the cylinder.</span>
+<span class="sd">        diameter2: Diameter of the positive end of the cylinder.</span>
+<span class="sd">        chamfer: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer1: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer2: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding1: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding2: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).</span>
+<span class="sd">        realign: Shift point alignment by half a facet (CSG backend).</span>
+<span class="sd">        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).</span>
+<span class="sd">        anchor: Anchor point (default CENTER)</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient: Direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use</span>
+<span class="sd">            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out</span>
+<span class="sd">            to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).</span>
+<span class="sd">        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).</span>
+<span class="sd">        chamfer_angle2: Chamfer angle at the top end (CSG backend).</span>
+<span class="sd">        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).</span>
+<span class="sd">        from_end1: Measure the bottom chamfer along the conic face (CSG backend).</span>
+<span class="sd">        from_end2: Measure the top chamfer along the conic face (CSG backend).</span>
+<span class="sd">        extra: Extra height at both ends, invisible to anchoring (CSG backend).</span>
+<span class="sd">        extra1: Extra height at the bottom end (CSG backend).</span>
+<span class="sd">        extra2: Extra height at the top end (CSG backend).</span>
+<span class="sd">        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).</span>
+<span class="sd">        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).</span>
+<span class="sd">        texture: Named texture for the side surface (CSG backend).</span>
+<span class="sd">        tex_size: Size of one texture tile (CSG backend).</span>
+<span class="sd">        tex_reps: Number of texture repetitions (CSG backend).</span>
+<span class="sd">        tex_depth: Depth of the texture (CSG backend).</span>
+<span class="sd">        tex_inset: Inset the texture into the surface (CSG backend).</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
@@ -2891,9 +3122,7 @@
         <span class="n">rad1</span> <span class="o">*=</span> <span class="n">sc</span>
         <span class="n">rad2</span> <span class="o">*=</span> <span class="n">sc</span>
 
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
-    <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">center</span> <span class="k">else</span> <span class="n">BOTTOM</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_cyl_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
 
     <span class="n">shape</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
         <span class="n">length</span><span class="o">=</span><span class="n">length_val</span><span class="p">,</span>
@@ -2983,6 +3212,52 @@
 <span class="w">    </span><span class="sd">"""Return a cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for.</span>
 
 <span class="sd">    argument details.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius: Radius of the cylinder (default 1)</span>
+<span class="sd">        center: If given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</span>
+<span class="sd">        length: Length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius1: Radius of the negative end of the cylinder.</span>
+<span class="sd">        radius2: Radius of the positive end of the cylinder.</span>
+<span class="sd">        diameter: Diameter of the cylinder.</span>
+<span class="sd">        diameter1: Diameter of the negative end of the cylinder.</span>
+<span class="sd">        diameter2: Diameter of the positive end of the cylinder.</span>
+<span class="sd">        chamfer: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer1: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        chamfer2: Chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding1: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding2: Rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).</span>
+<span class="sd">        realign: Shift point alignment by half a facet (CSG backend).</span>
+<span class="sd">        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).</span>
+<span class="sd">        anchor: Anchor point (default CENTER)</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient: Direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use</span>
+<span class="sd">            fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out</span>
+<span class="sd">            to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres; ambient default when omitted (CSG backend). Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).</span>
+<span class="sd">        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).</span>
+<span class="sd">        chamfer_angle2: Chamfer angle at the top end (CSG backend).</span>
+<span class="sd">        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).</span>
+<span class="sd">        from_end1: Measure the bottom chamfer along the conic face (CSG backend).</span>
+<span class="sd">        from_end2: Measure the top chamfer along the conic face (CSG backend).</span>
+<span class="sd">        extra: Extra height at both ends, invisible to anchoring (CSG backend).</span>
+<span class="sd">        extra1: Extra height at the bottom end (CSG backend).</span>
+<span class="sd">        extra2: Extra height at the top end (CSG backend).</span>
+<span class="sd">        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).</span>
+<span class="sd">        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).</span>
+<span class="sd">        texture: Named texture for the side surface (CSG backend).</span>
+<span class="sd">        tex_size: Size of one texture tile (CSG backend).</span>
+<span class="sd">        tex_reps: Number of texture repetitions (CSG backend).</span>
+<span class="sd">        tex_depth: Depth of the texture (CSG backend).</span>
+<span class="sd">        tex_inset: Inset the texture into the surface (CSG backend).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -3104,9 +3379,10 @@
 <span class="sd">        anchor:             anchor point (default CENTER)</span>
 <span class="sd">        spin:               Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:             direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:           arc smoothness overrides</span>
-<span class="sd">        fa:           arc smoothness overrides</span>
-<span class="sd">        fs:           arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -3169,7 +3445,7 @@
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">irad2</span> <span class="o">&lt;=</span> <span class="n">rad2</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span>
 
     <span class="c1"># Build outer and inner cylinders via cyl() for chamfer/rounding support</span>
     <span class="n">outer</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
@@ -3256,9 +3532,10 @@
 <span class="sd">        anchor:         anchor point</span>
 <span class="sd">        spin:           Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:         direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:       arc smoothness overrides</span>
-<span class="sd">        fa:       arc smoothness overrides</span>
-<span class="sd">        fs:       arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A pointed cone:</span>

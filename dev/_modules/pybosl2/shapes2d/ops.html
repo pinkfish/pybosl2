@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2140,10 +2164,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
@@ -2162,15 +2183,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span><span class="p">,</span> <span class="n">_finish</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span><span class="p">,</span> <span class="n">Shape2DLike</span><span class="p">,</span> <span class="n">_finish</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
-
-<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="c1"># Defined once in base.py: five identical copies is the same duplication C-21 is about, and</span>
+<span class="c1"># only base.py imported the names its own copy referenced.</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
@@ -2309,9 +2331,10 @@
 <span class="sd">        outer_radius: radius to round only convex (outside) corners to (BOSL2 `or`)</span>
 <span class="sd">        inner_radius: radius to round only concave (inside) corners to</span>
 <span class="sd">        children:     the 2-D solid(s) to round</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
@@ -2349,9 +2372,10 @@
 <span class="sd">        inner_radius: rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]</span>
 <span class="sd">                      pair rounds those corner types separately (default 0)</span>
 <span class="sd">        children:     the 2-D solid(s) to shell</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2471,7 +2495,7 @@
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ltr"</span><span class="p">,</span>
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"en"</span><span class="p">,</span>
     <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"latin"</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2484,20 +2508,23 @@
 <span class="sd">        size:      font size (default 10)</span>
 <span class="sd">        font:      font to use (default "Liberation Sans")</span>
 <span class="sd">        halign:    horizontal alignment: "left", "center", "right" (default "center")</span>
-<span class="sd">        valign:    vertical alignment: "top", "center", "baseline", "bottom" (default: `anchor`)</span>
+<span class="sd">        valign:    vertical alignment: "top", "center", "baseline", "bottom" (default "baseline")</span>
 <span class="sd">        spacing:   relative spacing multiplier between characters (default 1.0)</span>
 <span class="sd">        direction: text direction: "ltr", "rtl", "ttb", "btt" (default "ltr")</span>
 <span class="sd">        language:  language the text is in (default "en")</span>
 <span class="sd">        script:    script the text is in (default "latin")</span>
-<span class="sd">        anchor:    vertical alignment fallback used when valign isn't given (default "baseline")</span>
+<span class="sd">        anchor:    where the finished text's bounding box lands, in the anchor language</span>
+<span class="sd">                   (SPEC C-10). ``None`` leaves it where *halign*/*valign* put it, which is the</span>
+<span class="sd">                   typographic placement and the usual answer for text</span>
 <span class="sd">        spin:      Z-axis rotation in degrees (default 0)</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">halign</span> <span class="k">if</span> <span class="n">halign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"center"</span>
-    <span class="n">v</span> <span class="o">=</span> <span class="n">valign</span> <span class="k">if</span> <span class="n">valign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">anchor</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">valign</span> <span class="k">if</span> <span class="n">valign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"baseline"</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_otext</span><span class="p">(</span>
         <span class="n">text</span><span class="p">,</span>
         <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
@@ -2512,7 +2539,10 @@
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">spin</span><span class="p">)</span></div>
+    <span class="n">placed</span> <span class="o">=</span> <span class="n">_finish</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">spin</span><span class="p">)</span>
+    <span class="c1"># The typographic alignment has already positioned the text; an anchor, if given, then places</span>
+    <span class="c1"># its finished box the way it places every other 2-D shape (SPEC C-10, PLAN O-6b).</span>
+    <span class="k">return</span> <span class="n">placed</span><span class="o">.</span><span class="n">reanchor</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">placed</span></div>
 
 </code></pre></div>
 

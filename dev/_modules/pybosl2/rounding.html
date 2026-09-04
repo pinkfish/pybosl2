@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2512,6 +2536,20 @@
 <span class="sd">        or *width* (chamfer only) -- each a scalar or a per-corner list. *curvature* (smooth only, 0..1)</span>
 <span class="sd">        tunes how tight the curvature match is. Works on 2-D and 3-D paths.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            radius: The rounding radius. A single float applies to all corners; a list applies per-corner radii.</span>
+<span class="sd">            method: The rounding method (``"circle"``, ``"smooth"``, etc.).</span>
+<span class="sd">            cut: Cut depth for chamfers.</span>
+<span class="sd">            joint: Joint distance for rounding.</span>
+<span class="sd">            width: Width for rounding.</span>
+<span class="sd">            curvature: Curvature value for rounding.</span>
+<span class="sd">            closed: Override whether paths are treated as closed.</span>
+<span class="sd">            fn: Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">            k: Smoothing parameter for continuous-curvature rounding, from 0 (sharp) to 1.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).</span>
 
@@ -2577,6 +2615,15 @@
 <span class="sd">        from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2</span>
 <span class="sd">        ``method="corners"`` variant is not ported.</span>
 
+
+<span class="sd">        Args:</span>
+<span class="sd">            tangents: Tangent directions, one per point, instead of deriving them.</span>
+<span class="sd">            size: The size, one number or one per axis.</span>
+<span class="sd">            relsize: Corner size as a fraction of the shorter adjacent segment.</span>
+<span class="sd">            splinesteps: How many segments each bezier is flattened into.</span>
+<span class="sd">            uniform: Sample by arc length rather than by parameter.</span>
+<span class="sd">            closed: Treat the path as closed.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).</span>
 
@@ -2624,7 +2671,15 @@
         <span class="n">endcap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
         <span class="n">joint</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Offset this 2-D path to create a thickened outline Region."""</span>
+<span class="w">        </span><span class="sd">"""Offset this 2-D path to create a thickened outline Region.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            width: Width of the result.</span>
+<span class="sd">            closed: Treat the path as closed.</span>
+<span class="sd">            endcap: Treatment applied to the ends.</span>
+<span class="sd">            joint: Rounding size as the distance along each leg from the corner.</span>
+
+<span class="sd">        """</span>
         <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
             <span class="s2">"Region"</span><span class="p">,</span>
@@ -2662,9 +2717,10 @@
 <span class="sd">                controls when omitted.</span>
 <span class="sd">            caps: End caps for the extrusion.</span>
 <span class="sd">            style: Quad-subdivision style for the mesh.</span>
-<span class="sd">            fn: Fixed fragment count for the rim arcs; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle for the rim arcs.</span>
-<span class="sd">            fs: Minimum fragment size for the rim arcs.</span>
+<span class="sd">            fn: Fixed fragment count for the rim arcs; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle for the rim arcs. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size for the rim arcs. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The extruded solid.</span>
@@ -2699,7 +2755,17 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape."""</span>
+<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            height: Height of the result.</span>
+<span class="sd">            bottom: Treatment applied to the bottom.</span>
+<span class="sd">            top: Treatment applied to the top.</span>
+<span class="sd">            steps: How many segments the rounded corner is built from.</span>
+<span class="sd">            caps: Close the open ends.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_convex_offset_extrude</span> <span class="k">as</span> <span class="n">_coe</span>
 
         <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
@@ -2731,7 +2797,22 @@
         <span class="n">joint_bot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">k_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the rounded prism between this path and a top path."""</span>
+<span class="w">        </span><span class="sd">"""Return the rounded prism between this path and a top path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            top: Treatment applied to the top.</span>
+<span class="sd">            height: Height of the result.</span>
+<span class="sd">            joint_top: Joint distance at the top.</span>
+<span class="sd">            joint_bottom: Joint distance at the bottom.</span>
+<span class="sd">            joint_sides: Joint distance on the side edges.</span>
+<span class="sd">            curvature_sides: Continuous-curvature smoothness on the side edges, from 0 to 1.</span>
+<span class="sd">            steps: How many segments the rounded corner is built from.</span>
+<span class="sd">            caps: Close the open ends.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+<span class="sd">            joint_bot: Joint distance at the bottom.</span>
+<span class="sd">            k_sides: Continuous-curvature smoothness on the side edges, from 0 to 1.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_rounded_prism</span> <span class="k">as</span> <span class="n">_rp</span>
 
         <span class="c1"># joint_bot / k_sides are BOSL2's names for joint_bottom / curvature_sides</span>
@@ -2764,7 +2845,16 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Join this prism to a base plane with a filleted transition."""</span>
+<span class="w">        </span><span class="sd">"""Join this prism to a base plane with a filleted transition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            height: Height of the result.</span>
+<span class="sd">            fillet: Fillet radius.</span>
+<span class="sd">            steps: How many segments the rounded corner is built from.</span>
+<span class="sd">            caps: Close the open ends.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_join_prism</span> <span class="k">as</span> <span class="n">_jp</span>
 
         <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
@@ -2791,7 +2881,18 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Construct a filleted prism connecting two objects."""</span>
+<span class="w">        </span><span class="sd">"""Construct a filleted prism connecting two objects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Length of the result.</span>
+<span class="sd">            fillet: Fillet radius.</span>
+<span class="sd">            fillet1: Fillet radius at the start.</span>
+<span class="sd">            fillet2: Fillet radius at the end.</span>
+<span class="sd">            steps: How many segments the rounded corner is built from.</span>
+<span class="sd">            caps: Close the open ends.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_prism_connector</span> <span class="k">as</span> <span class="n">_pc</span>
 
         <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
@@ -2832,9 +2933,10 @@
 <span class="sd">                controls when omitted.</span>
 <span class="sd">            caps: End caps for the prism.</span>
 <span class="sd">            style: Quad-subdivision style for the mesh.</span>
-<span class="sd">            fn: Fixed fragment count for the arcs; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle for the arcs.</span>
-<span class="sd">            fs: Minimum fragment size for the arcs.</span>
+<span class="sd">            fn: Fixed fragment count for the arcs; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle for the arcs. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size for the arcs. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The prism solid.</span>
@@ -2866,7 +2968,14 @@
         <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Create a mask to generate a round-edged cutout in a cylindrical shell."""</span>
+<span class="w">        </span><span class="sd">"""Create a mask to generate a round-edged cutout in a cylindrical shell.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Rounding radius.</span>
+<span class="sd">            thickness: Wall thickness.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_bent_cutout_mask</span> <span class="k">as</span> <span class="n">_bcm</span>
 
         <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
@@ -2895,7 +3004,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Join multiple paths to this path end-to-end (see :func:`path_join`)."""</span>
+<span class="w">        </span><span class="sd">"""Join multiple paths to this path end-to-end (see :func:`path_join`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other_paths: The further paths to join onto this one, in order.</span>
+<span class="sd">            radius: Rounding radius at each join, one value or one per join.</span>
+<span class="sd">            cut: Rounding size given as the cut distance from the corner instead of a radius.</span>
+<span class="sd">            joint: Rounding size given as the joint distance along each leg instead of a radius.</span>
+<span class="sd">            curvature: Continuous-curvature smoothness at each join, from 0 (sharp) to 1.</span>
+<span class="sd">            relocate: Move each path so its start meets the previous path's end, rather than requiring them to already</span>
+<span class="sd">                touch.</span>
+<span class="sd">            closed: Join the last path back to the first. Defaults to this path's own flag.</span>
+<span class="sd">            k: Smoothing parameter for the continuous-curvature joins, one value or one per join.</span>
+<span class="sd">            fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">                ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
             <span class="s2">"Self"</span><span class="p">,</span>
             <span class="n">_path_join</span><span class="p">(</span>

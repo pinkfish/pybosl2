@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2331,7 +2355,7 @@
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ltr"</span><span class="p">,</span>
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"em"</span><span class="p">,</span>
     <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"latin"</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"baseline[-1,0,-1]"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2351,12 +2375,16 @@
 <span class="sd">        direction: text direction: "ltr", "rtl", "ttb", "btt" (default "ltr")</span>
 <span class="sd">        language:  language the text is in (default "en")</span>
 <span class="sd">        script:    script the text is in (default "latin")</span>
-<span class="sd">        anchor:    anchor point (default "baseline")</span>
+<span class="sd">        anchor:    anchor point in the anchor language (default the baseline-left corner,</span>
+<span class="sd">                   ``(-1, 0, -1)``), as every other constructor takes it (SPEC C-10, PLAN O-6b).</span>
+<span class="sd">                   *valign* is derived from its Y component when not given, which is where the</span>
+<span class="sd">                   old ``"baseline[...]"`` string carried the typographic half (T39)</span>
 <span class="sd">        spin:      Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        orient:    direction to rotate the top towards (default UP)</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2472,9 +2500,10 @@
 <span class="sd">        reverse:     reverse the letters if true (default False, 3-D paths only)</span>
 <span class="sd">        textmetrics: use the experimental textmetrics feature when lettersize is not given (default False)</span>
 <span class="sd">        kern:        scalar or array giving per-letter size adjustments (default 0)</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="c1"># Imported lazily (only path_text() needs it) so that everything else in this file stays</span>

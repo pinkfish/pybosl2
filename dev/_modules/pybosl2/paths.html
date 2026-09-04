@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2213,6 +2237,11 @@
 <span class="sd">    downstream reads it as anything but truthy, so the result was an empty mesh with no error --</span>
 <span class="sd">    the silent wrong answer that SPEC C-7a exists to remove, in the constructor callers were being</span>
 <span class="sd">    sent to.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        closed: Treat the path as closed.</span>
+<span class="sd">        type_name: Name of the expected type, for the error message.</span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">closed</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">closed</span>
@@ -2382,7 +2411,12 @@
 <div class="viewcode-block" id="Path.color">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.color">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return a copy of this path with the given :class:`Color`."""</span>
+<span class="w">        </span><span class="sd">"""Return a copy of this path with the given :class:`Color`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            c: The colour to apply.</span>
+
+<span class="sd">        """</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">c</span>
         <span class="k">return</span> <span class="n">copy</span></div>

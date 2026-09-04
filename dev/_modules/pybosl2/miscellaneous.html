@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2249,6 +2273,16 @@
 <span class="sd">    The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between</span>
 <span class="sd">    them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.</span>
 
+
+<span class="sd">    Args:</span>
+<span class="sd">        profile: The cross-section to sweep or extrude.</span>
+<span class="sd">        pt1: The first point.</span>
+<span class="sd">        pt2: The second point.</span>
+<span class="sd">        twist: Total twist in degrees.</span>
+<span class="sd">        scale: Scale applied along the extrusion.</span>
+<span class="sd">        slices: How many intermediate sections to insert.</span>
+<span class="sd">        convexity: Convexity hint for the renderer.</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        A twisted, tapering column between two points:</span>
 
@@ -2305,6 +2339,21 @@
 
 <span class="sd">    Chops the profile into vertical facets and extrudes each radially. Handy for embossing text</span>
 <span class="sd">    onto a curved wall. The profile's X spans one revolution by default (override with *size*).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        profile: The 2-D shape to wrap around the cylinder.</span>
+<span class="sd">        inner_radius: Radius the wrapped profile starts at.</span>
+<span class="sd">        outer_radius: Radius the wrapped profile reaches.</span>
+<span class="sd">        outer_diameter: Outer diameter, instead of *outer_radius*.</span>
+<span class="sd">        inner_diameter: Inner diameter, instead of *inner_radius*.</span>
+<span class="sd">        size: Size of the flat region the profile is drawn in before wrapping.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
+<span class="sd">        orient: Direction to rotate the top towards, after spin.</span>
+<span class="sd">        convexity: Convexity hint for the renderer; higher for more self-overlapping profiles.</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2398,7 +2447,15 @@
 <div class="viewcode-block" id="minkowski_difference">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.minkowski_difference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_difference</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">*</span><span class="n">diffs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Carve *diffs* out of the surface of *base*."""</span>
+<span class="w">    </span><span class="sd">"""Carve *diffs* out of the surface of *base*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base: The shape to carve out of.</span>
+<span class="sd">        *diffs: The shapes to subtract from its surface.</span>
+<span class="sd">        size: The size, one number or one per axis.</span>
+<span class="sd">        convexity: Convexity hint for the renderer.</span>
+
+<span class="sd">    """</span>
     <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">convexity</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_mink</span>
@@ -2456,6 +2513,14 @@
 <span class="sd">        3-D "moulding" that follows the path. *caps* rounds the two open ends (the profile must be</span>
 <span class="sd">        symmetric across the Y axis); *closed* joins the ends into a loop; *s* is the internal mask</span>
 <span class="sd">        size (defaults to the path's bounding-box diagonal).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            profile: The cross-section to sweep or extrude.</span>
+<span class="sd">            caps: Close the open ends.</span>
+<span class="sd">            closed: Treat the path as closed.</span>
+<span class="sd">            s: The scale factor.</span>
+<span class="sd">            convexity: Convexity hint for the renderer.</span>
+
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -2532,6 +2597,12 @@
 <span class="sd">        between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps</span>
 <span class="sd">        :func:`~pybosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary</span>
 <span class="sd">        native 2-D object (text, multi-part shapes) that is not a single polygon.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            profile: The cross-section to sweep or extrude.</span>
+<span class="sd">            convexity: Convexity hint for the renderer.</span>
+<span class="sd">            clipsize: Size of the clipping box used to trim the result.</span>
+
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
 

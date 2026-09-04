@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2157,6 +2181,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span><span class="p">,</span> <span class="n">FRONT</span><span class="p">,</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">UP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_center_anchor</span>
 
 <span class="c1"># Import base class and helper functions from shapes3d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2167,7 +2192,6 @@
     <span class="n">_finish3</span><span class="p">,</span>
     <span class="n">_ocylinder</span><span class="p">,</span>
     <span class="n">_osphere</span><span class="p">,</span>
-    <span class="n">_resolve_center_anchor</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
@@ -2191,7 +2215,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span><span class="p">,</span> <span class="n">EDGES_ALL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">edges</span> <span class="k">as</span> <span class="n">resolve_edges</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d.cylinder</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl_profile</span>
 
 
@@ -2385,6 +2409,11 @@
 <span class="sd">    :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton</span>
 <span class="sd">    algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tests.</span>
 
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: The shape to operate on.</span>
+<span class="sd">        method: How to build it.</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
@@ -2437,9 +2466,10 @@
 <span class="sd">        anchor:        anchor point (default Anchor.CENTER)</span>
 <span class="sd">        spin:          Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:        direction to rotate the top towards, after spin (default Anchor.TOP)</span>
-<span class="sd">        fn:      arc smoothness overrides</span>
-<span class="sd">        fa:      arc smoothness overrides</span>
-<span class="sd">        fs:      arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        Basic cube:</span>
@@ -2468,9 +2498,9 @@
 
 <span class="sd">    """</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
-    <span class="n">use_anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchor</span>
-    <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="k">else</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM_FRONT_LEFT</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM_FRONT_LEFT</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">cuboid</span><span class="p">(</span>
         <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span>
         <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
@@ -2533,9 +2563,12 @@
 <span class="sd">        anchor:       anchor point (default Anchor.CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        orient:       direction to rotate the top towards (default Anchor.TOP)</span>
-<span class="sd">        fn:  arc smoothness overrides for rounded edges/corners</span>
-<span class="sd">        fa:  arc smoothness overrides for rounded edges/corners</span>
-<span class="sd">        fs:  arc smoothness overrides for rounded edges/corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fn=...)`` value</span>
+<span class="sd">            applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fa=...)`` value</span>
+<span class="sd">            applies.</span>
+<span class="sd">        fs: arc smoothness overrides for rounded edges/corners. Omitted, the ambient ``use_defaults(fs=...)`` value</span>
+<span class="sd">            applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2554,7 +2587,10 @@
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">teardrop</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"cuboid(): teardrop= is not supported by this pure-Python port."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"cuboid(): teardrop= is not built in this port yet. Round the edges with rounding= and "</span>
+            <span class="s2">"cut the overhang yourself, or build the teardrop profile as a Mask2D and sweep it."</span>
+        <span class="p">)</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">p1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">p2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2674,9 +2710,10 @@
 <span class="sd">        anchor:    anchor point (default BOTTOM)</span>
 <span class="sd">        spin:      Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:    direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
-<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
-<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2696,7 +2733,7 @@
     <span class="n">radius2</span> <span class="o">=</span> <span class="n">rounding2</span> <span class="k">if</span> <span class="n">rounding2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rounding</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="n">chamfer1</span> <span class="k">if</span> <span class="n">chamfer1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">chamfer</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="n">chamfer2</span> <span class="k">if</span> <span class="n">chamfer2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">chamfer</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span>
 
     <span class="n">path1</span> <span class="o">=</span> <span class="n">_rect_path</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
     <span class="n">path2</span> <span class="o">=</span> <span class="n">_rect_path</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">c2</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
@@ -2781,7 +2818,7 @@
 
 <span class="sd">    """</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">pts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span>
@@ -2880,9 +2917,12 @@
 <span class="sd">        anchor:     anchor point (default BOTTOM)</span>
 <span class="sd">        spin:       Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:     direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:         arc smoothness override for the rounded corners, passed to both prismoids</span>
-<span class="sd">        fa:         arc smoothness override for the rounded corners, passed to both prismoids</span>
-<span class="sd">        fs:         arc smoothness override for the rounded corners, passed to both prismoids</span>
+<span class="sd">        fn: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness override for the rounded corners, passed to both prismoids. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If neither an outer size nor an inner size with a wall is given, or the bore</span>
@@ -2981,7 +3021,7 @@
     <span class="n">ichamfer1_v</span> <span class="o">=</span> <span class="n">_rect_tube_rounding</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">ichamfer1_t</span><span class="p">,</span> <span class="n">chamfer1_v</span><span class="p">,</span> <span class="n">irounding1_t</span><span class="p">,</span> <span class="n">size1_v</span><span class="p">,</span> <span class="n">isize1_v</span><span class="p">)</span>
     <span class="n">ichamfer2_v</span> <span class="o">=</span> <span class="n">_rect_tube_rounding</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">ichamfer2_t</span><span class="p">,</span> <span class="n">chamfer2_v</span><span class="p">,</span> <span class="n">irounding2_t</span><span class="p">,</span> <span class="n">size2_v</span><span class="p">,</span> <span class="n">isize2_v</span><span class="p">)</span>
 
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span>
 
     <span class="n">outer</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">(</span>
         <span class="n">size1_v</span><span class="p">,</span>
@@ -3094,9 +3134,10 @@
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:   direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -3150,9 +3191,10 @@
     <span class="k">if</span> <span class="p">(</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
 
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
+    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">centred</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span> <span class="n">uncentred</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">center</span> <span class="k">else</span> <span class="n">BOTTOM</span>
+        <span class="c1"># Neither was given: this family centres by default (SPEC D-4).</span>
+        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">CENTER</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span> <span class="ow">or</span> <span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">):</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">prism_len</span><span class="p">,</span> <span class="n">radius1</span><span class="o">=</span><span class="n">rad1</span><span class="p">,</span> <span class="n">radius2</span><span class="o">=</span><span class="n">rad2</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>

@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2250,6 +2274,24 @@
 <span class="sd">        (degrees) and *scale* (scalar, 2-vector, per-point vector, or Nx2) are interpolated along the</span>
 <span class="sd">        path. See BOSL2 path_sweep() for the full semantics.</span>
 
+
+<span class="sd">        Args:</span>
+<span class="sd">            shape: The cross-section to sweep.</span>
+<span class="sd">            method: How cross-sections are matched or oriented along the sweep.</span>
+<span class="sd">            normal: The surface normal to use.</span>
+<span class="sd">            closed: Treat the path or profile as closed.</span>
+<span class="sd">            twist: Total twist in degrees along the sweep.</span>
+<span class="sd">            twist_by_length: Distribute the twist by arc length rather than evenly per section.</span>
+<span class="sd">            scale: Scale applied along the sweep, from 1 at the start.</span>
+<span class="sd">            scale_by_length: Distribute the scaling by arc length rather than evenly per section.</span>
+<span class="sd">            symmetry: Rotational symmetry of the profile, used to match its points up.</span>
+<span class="sd">            last_normal: The previous section's normal, so the sweep does not flip.</span>
+<span class="sd">            tangent: The path's direction at this point.</span>
+<span class="sd">            uniform: Sample by arc length rather than by parameter.</span>
+<span class="sd">            relaxed: Allow a less exact match where an exact one is not possible.</span>
+<span class="sd">            caps: Close the two open ends of the sweep.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
 <span class="sd">        Examples:</span>
 <span class="sd">            Sweeping a small square profile along a helical path into a solid:</span>
 
@@ -2375,6 +2417,13 @@
 <span class="sd">        producing a stack of profiles that are skinned into the final surface. Closed paths are</span>
 <span class="sd">        reversed automatically to maintain the same winding.</span>
 
+
+<span class="sd">        Args:</span>
+<span class="sd">            shape: The cross-section to sweep.</span>
+<span class="sd">            closed: Treat the path or profile as closed.</span>
+<span class="sd">            caps: Close the two open ends of the sweep.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
 <span class="sd">        Examples:</span>
 <span class="sd">            A rounded bar swept along a wavy 2-D path:</span>
 
@@ -2409,6 +2458,17 @@
 <span class="sd">        The profile is duplicated at *slices* positions along the Z axis; at each level the points</span>
 <span class="sd">        are twisted (rotation around Z, degrees) and scaled (uniform scalar or 2-vector), then</span>
 <span class="sd">        shifted in XY. The slices are skinned into a VNF.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            height: Height of the extrusion.</span>
+<span class="sd">            twist: Total twist in degrees along the sweep.</span>
+<span class="sd">            scale: Scale applied along the sweep, from 1 at the start.</span>
+<span class="sd">            shift: Offset of the far end from the near one, as ``[x, y]``.</span>
+<span class="sd">            slices: How many intermediate sections to insert between profiles.</span>
+<span class="sd">            center: Centre the result on the origin.</span>
+<span class="sd">            caps: Close the two open ends of the sweep.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            A twisting, tapering square column:</span>
@@ -2450,6 +2510,14 @@
 
 <span class="sd">        The profile is swept through *angle* degrees (default 360) around Z, starting at</span>
 <span class="sd">        *start* degrees. When *angle* &lt; 360 the profile is capped at both ends.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            angle: The angle in degrees.</span>
+<span class="sd">            caps: Close the two open ends of the sweep.</span>
+<span class="sd">            _closed: Internal closed flag.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+<span class="sd">            start: Where along the path to begin.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            Revolving a rounded profile into a spool:</span>
@@ -2508,9 +2576,10 @@
 <span class="sd">            diameter2: Diameter at the end.</span>
 <span class="sd">            center: Centre the coil on the origin.</span>
 <span class="sd">            style: Quad-subdivision style for the mesh.</span>
-<span class="sd">            fn: Fixed fragment count per turn; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle per turn.</span>
-<span class="sd">            fs: Minimum fragment size per turn.</span>
+<span class="sd">            fn: Fixed fragment count per turn; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle per turn. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size per turn. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The swept coil.</span>
@@ -2558,6 +2627,13 @@
 <span class="w">        </span><span class="sd">"""Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.</span>
 
 <span class="sd">        or Bosl2Solid (BOSL2 sweep()).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            transforms: The matrices to place each section with, instead of deriving them.</span>
+<span class="sd">            closed: Treat the path or profile as closed.</span>
+<span class="sd">            caps: Close the two open ends of the sweep.</span>
+<span class="sd">            style: How each grid cell is split into triangles.</span>
+
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
             <span class="n">_sweep</span><span class="p">(</span>
@@ -2598,6 +2674,10 @@
 <span class="sd">    numpy row in would otherwise leak ``np.float64`` scalars out of an annotation that promises</span>
 <span class="sd">    ``float``, and those raise SystemError/TypeError at the native FFI boundary (see the note in</span>
 <span class="sd">    pybosl2/paths.py).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: The path to sweep along.</span>
+
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span></div>
 
@@ -2612,6 +2692,10 @@
 <span class="sd">    outline, and handing back the raw points would drop the type its caller just supplied (PLAN</span>
 <span class="sd">    T-4, SPEC C-9). The old signature said `list[Sequence[float]]` while actually returning numpy</span>
 <span class="sd">    rows, which only type-checked because a `# type: ignore` sat on the call.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        poly: The polygon to operate on.</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
@@ -2630,6 +2714,12 @@
 <span class="w">    </span><span class="sd">"""Return the 4x4 rotation whose columns are the given orthonormal axes.</span>
 
 <span class="sd">    Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: The X coordinate.</span>
+<span class="sd">        y: The Y coordinate.</span>
+<span class="sd">        z: The Z coordinate.</span>
+
 <span class="sd">    """</span>
     <span class="n">xu</span> <span class="o">=</span> <span class="n">_u</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">yu</span> <span class="o">=</span> <span class="n">_u</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2891,6 +2981,12 @@
 
 <span class="sd">    *slices* is a count (or a per-segment list). The profiles must all be equal-length point</span>
 <span class="sd">    lists; the interpolation is vertex-by-vertex.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        profiles: The cross-sections to skin between, in order.</span>
+<span class="sd">        slices: How many intermediate sections to insert between profiles.</span>
+<span class="sd">        closed: Treat the path or profile as closed.</span>
+
 <span class="sd">    """</span>
     <span class="n">profiles</span> <span class="o">=</span> <span class="n">require_paths</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="s2">"profiles"</span><span class="p">,</span> <span class="s2">"slice_profiles"</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
@@ -3173,6 +3269,14 @@
 <span class="sd">    *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of</span>
 <span class="sd">    the profile lengths. Returns the stacked list of (equal-length) profiles.</span>
 
+
+<span class="sd">    Args:</span>
+<span class="sd">        profiles: The cross-sections to skin between, in order.</span>
+<span class="sd">        slices: How many intermediate sections to insert between profiles.</span>
+<span class="sd">        numpoints: How many points to resample each profile to.</span>
+<span class="sd">        method: How cross-sections are matched or oriented along the sweep.</span>
+<span class="sd">        closed: Treat the path or profile as closed.</span>
+
 <span class="sd">    Raises:</span>
 <span class="sd">        Bosl2ValueError: If *profiles* is not a sequence of `Path2D`/`Path3D`.</span>
 
@@ -3244,7 +3348,13 @@
     <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the value for key or a default."""</span>
+<span class="w">        </span><span class="sd">"""Return the value for key or a default.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: Function returning the value to sort or group by.</span>
+<span class="sd">            default: Value to return when there is none.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">"type"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">value</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>

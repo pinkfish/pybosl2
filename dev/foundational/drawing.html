@@ -2333,6 +2333,30 @@
   
   
     <li class="md-nav__item">
+      <a href="groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="masking.html" class="md-nav__link">
         
   
@@ -2477,7 +2501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="texture.html" class="md-nav__link">
+      <a href="textures.html" class="md-nav__link">
         
   
   
@@ -5545,11 +5569,12 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 </dd>
 <dt id="pybosl2.shapes2d.arc.endpoint"><span class="sig-name descname">endpoint</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.endpoint" title="Permalink to this definition">¶</a></dt><dd><p>include the final point (default True)</p>
 </dd>
-<dt id="pybosl2.shapes2d.arc.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution.</p>
+<dt id="pybosl2.shapes2d.arc.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies;
+<code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.shapes2d.arc.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution.</p>
+<dt id="pybosl2.shapes2d.arc.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.shapes2d.arc.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution.</p>
+<dt id="pybosl2.shapes2d.arc.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5557,7 +5582,7 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>wedge</em> is set).</p>
 </dd>
 <dt class="field-odd" id="pybosl2.shapes2d.arc-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.arc-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><em>Path2D</em></p>
+<dd class="field-odd"><p>Path2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5638,14 +5663,14 @@ the two spellings execute exactly the same code:</p>
 <div class="stl-viewer" data-stl-uri="_stl/5503b79722310b67.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/5503b79722310b67.stl">⬇ Download STL mesh</a></p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.turtle.TurtleCommands.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.TurtleCommands.run.commands" title="pybosl2.turtle.TurtleCommands.run.commands (Python parameter)"><span class="n"><span class="pre">commands</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.TurtleCommands.run.repeat" title="pybosl2.turtle.TurtleCommands.run.repeat (Python parameter)"><span class="n"><span class="pre">repeat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/turtle/_fluent.html#TurtleCommands.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.TurtleCommands.run.commands" title="pybosl2.turtle.TurtleCommands.run.commands (Python parameter) — The commands to run."><span class="n"><span class="pre">commands</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.TurtleCommands.run.repeat" title="pybosl2.turtle.TurtleCommands.run.repeat (Python parameter) — How many times to repeat them."><span class="n"><span class="pre">repeat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/turtle/_fluent.html#TurtleCommands.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run" title="Link to this definition">¶</a></dt>
 <dd><p>Execute <em>commands</em>; provided by the concrete turtle.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.turtle.TurtleCommands.run-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.turtle.TurtleCommands.run.commands"><span class="sig-name descname">commands</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[<a class="reference internal" href="../paths/commands.html#pybosl2.turtle.commands.TurtleCommand" title="pybosl2.turtle.commands.TurtleCommand (Python class) — Bases: object">TurtleCommand</a>]</span></span><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run.commands" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.turtle.TurtleCommands.run.commands"><span class="sig-name descname">commands</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[<a class="reference internal" href="../paths/commands.html#pybosl2.turtle.commands.TurtleCommand" title="pybosl2.turtle.commands.TurtleCommand (Python class) — Bases: object">TurtleCommand</a>]</span></span><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run.commands" title="Permalink to this definition">¶</a></dt><dd><p>The commands to run.</p>
 </dd>
-<dt id="pybosl2.turtle.TurtleCommands.run.repeat"><span class="sig-name descname">repeat</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run.repeat" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.turtle.TurtleCommands.run.repeat"><span class="sig-name descname">repeat</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.turtle.TurtleCommands.run.repeat" title="Permalink to this definition">¶</a></dt><dd><p>How many times to repeat them.</p>
 </dd>
 </dl>
 </dd>

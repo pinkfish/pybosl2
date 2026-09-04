@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2285,9 +2309,10 @@
 <span class="sd">            diameter: Diameter for a constant-radius helix.</span>
 <span class="sd">            diameter1: Bottom diameter.</span>
 <span class="sd">            diameter2: Top diameter.</span>
-<span class="sd">            fn: Fixed fragment count per turn; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle per turn.</span>
-<span class="sd">            fs: Minimum fragment size per turn.</span>
+<span class="sd">            fn: Fixed fragment count per turn; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle per turn. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size per turn. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            A 2.5-turn helix drawn as a tube:</span>

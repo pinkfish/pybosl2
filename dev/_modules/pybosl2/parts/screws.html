@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2201,7 +2225,12 @@
 <div class="viewcode-block" id="ThreadPitches.pitch">
 <a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.ThreadPitches.pitch">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the pitch for a thread class, falling back to coarse if it's undefined for this size."""</span>
+<span class="w">        </span><span class="sd">"""Return the pitch for a thread class, falling back to coarse if it's undefined for this size.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            thread: The thread pitch class, or a pitch in millimetres.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">thread</span> <span class="o">==</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
         <span class="n">lookup</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ThreadPitchClass</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>

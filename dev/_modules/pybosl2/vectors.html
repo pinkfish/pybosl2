@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2163,6 +2187,13 @@
 <span class="w">    </span><span class="sd">"""Check if *v* is a list/tuple/ndarray of finite numbers.</span>
 
 <span class="sd">    Optionally of a given length and/or zero-ness.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v: The vector.</span>
+<span class="sd">        length: Target length to scale the vector to.</span>
+<span class="sd">        zero: What to return when the vector has no length.</span>
+<span class="sd">        eps: Tolerance below which a component counts as zero.</span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">v</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2190,7 +2221,13 @@
 <div class="viewcode-block" id="add_scalar">
 <a class="viewcode-back" href="../../math/vectors.html#pybosl2.vectors.add_scalar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_scalar</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return *v* with scalar *s* added to every entry."""</span>
+<span class="w">    </span><span class="sd">"""Return *v* with scalar *s* added to every entry.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v: The vector.</span>
+<span class="sd">        s: The scalar to combine with the vector.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span></div>
 
 
@@ -2205,6 +2242,11 @@
 
 <span class="sd">    If *v* has (near) zero length, returns *error* if given, else raises</span>
 <span class="sd">    ValueError (matching BOSL2's default assert-on-zero-vector behavior).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v: The vector.</span>
+<span class="sd">        error: Raise instead of returning *zero* when the vector has no length.</span>
+
 <span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
@@ -2222,6 +2264,10 @@
 <span class="w">    </span><span class="sd">"""Return the angle in degrees of the 2-D vector *vec*, measured counter-clockwise from +X.</span>
 
 <span class="sd">    Equivalent to ``math.degrees(math.atan2(vec[1], vec[0]))``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vec: The vector.</span>
+
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
 

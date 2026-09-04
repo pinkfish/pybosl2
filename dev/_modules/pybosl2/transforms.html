@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2164,7 +2188,13 @@
 <div class="viewcode-block" id="polar_to_xy">
 <a class="viewcode-back" href="../../foundational/transforms.html#pybosl2.transforms.polar_to_xy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">polar_to_xy</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point."""</span>
+<span class="w">    </span><span class="sd">"""Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius: Radius to scale by.</span>
+<span class="sd">        angle: Rotation angle in degrees.</span>
+
+<span class="sd">    """</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">),</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)]</span></div>
 
@@ -2183,6 +2213,11 @@
 
 <span class="sd">    Matches BOSL2's ``rot(from=, to=)`` axis choice, including the antiparallel case (180</span>
 <span class="sd">    degrees about a perpendicular axis).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a: The first vector, or the angle in degrees.</span>
+<span class="sd">        b: The second vector.</span>
+
 <span class="sd">    """</span>
     <span class="n">au</span><span class="p">,</span> <span class="n">bu</span> <span class="o">=</span> <span class="n">_unit</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">_unit</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="n">dot</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">au</span> <span class="o">@</span> <span class="n">bu</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
@@ -2200,7 +2235,13 @@
 <div class="viewcode-block" id="axis_angle_matrix">
 <a class="viewcode-back" href="../../foundational/transforms.html#pybosl2.transforms.axis_angle_matrix">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">axis_angle_matrix</span><span class="p">(</span><span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""3x3 rotation matrix for *angle* degrees about *axis* (Rodrigues' rotation formula)."""</span>
+<span class="w">    </span><span class="sd">"""3x3 rotation matrix for *angle* degrees about *axis* (Rodrigues' rotation formula).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        angle: Rotation angle in degrees.</span>
+<span class="sd">        axis: Axis to rotate about.</span>
+
+<span class="sd">    """</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">_unit</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
     <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
@@ -2224,6 +2265,12 @@
 
 <span class="sd">    The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate</span>
 <span class="sd">    back.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        angle: Rotation angle in degrees.</span>
+<span class="sd">        axis: Axis to rotate about.</span>
+<span class="sd">        center: Point to rotate or scale about.</span>
+
 <span class="sd">    """</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">m</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
@@ -2239,6 +2286,10 @@
 <span class="w">    </span><span class="sd">"""Inverse of a rigid 4x4 transform: transpose the rotation,.</span>
 
 <span class="sd">    un-translate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t: Interpolation parameter from 0 to 1.</span>
+
 <span class="sd">    """</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">radius</span> <span class="o">=</span> <span class="n">t</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
@@ -2258,6 +2309,11 @@
 <span class="sd">    line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,</span>
 <span class="sd">    *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the</span>
 <span class="sd">    complementary (&gt;180 degree) rotation about the reversed axis is chosen.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        m: The 4x4 matrix.</span>
+<span class="sd">        long: Take the long way round the rotation rather than the short one.</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 
@@ -2356,6 +2412,11 @@
 <span class="sd">    Usage::</span>
 
 <span class="sd">        apply(reorient(anchor=CENTER, orient=LEFT, size=[1, 1, 1]), [[5, 0, 0], [-5, 0, 0]])</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        transform: The 4x4 matrix to apply.</span>
+<span class="sd">        points: The points to transform.</span>
+
 <span class="sd">    """</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>

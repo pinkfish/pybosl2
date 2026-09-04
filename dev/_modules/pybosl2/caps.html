@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2161,9 +2185,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
@@ -2244,7 +2268,7 @@
 <span class="c1">#: * a ``Sequence[CapType | CapSpec]`` pair (per-end caps)</span>
 <span class="c1">#:</span>
 <span class="c1">#: Use ``CapType.NONE`` to request no cap; ``CapType.BUTT`` for a flat cap.</span>
-<span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"CapType"</span><span class="p">,</span> <span class="s2">"CapSpec"</span><span class="p">,</span> <span class="s2">"str"</span><span class="p">,</span> <span class="s2">"Sequence[Union['CapType', 'CapSpec', str]]"</span><span class="p">]</span>
+<span class="n">CapsSpec</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">"CapType | CapSpec | str | Sequence[CapType | CapSpec | str]"</span>
 
 <span class="c1">#: The default cap type used when no explicit cap is requested.</span>
 <span class="n">DEFAULT_CAP</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span>
@@ -2364,6 +2388,10 @@
 <span class="sd">    If given a raw :class:`CapType`, looks up the default :class:`CapSpec`</span>
 <span class="sd">    from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it</span>
 <span class="sd">    unchanged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cap: The cap to build.</span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cap</span>
@@ -2380,7 +2408,12 @@
 <div class="viewcode-block" id="has_decorative_caps">
 <a class="viewcode-back" href="../../foundational/caps.html#pybosl2.caps.has_decorative_caps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">has_decorative_caps</span><span class="p">(</span><span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return True if any endcap is a decorative (non-flat/non-dome/non-none) type."""</span>
+<span class="w">    </span><span class="sd">"""Return True if any endcap is a decorative (non-flat/non-dome/non-none) type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cap_specs: The caps for each end and the joints.</span>
+
+<span class="sd">    """</span>
     <span class="n">_basic</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">SPHERE</span><span class="p">})</span>
     <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_basic</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">cap_specs</span><span class="p">)</span></div>
 
@@ -2462,7 +2495,10 @@
         <span class="k">return</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"CapType.CIRCLE is not yet implemented"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "</span>
+            <span class="s2">"CapSpec with a custom path for an exact circle."</span>
+        <span class="p">)</span>
 
     <span class="n">w</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
@@ -2550,7 +2586,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">place</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">theta_deg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">at</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Rotate a local polygon by *theta_deg* and translate it to point *at*."""</span>
+<span class="w">    </span><span class="sd">"""Rotate a local polygon by *theta_deg* and translate it to point *at*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        poly: The cap's outline.</span>
+<span class="sd">        theta_deg: The cap's angle in degrees.</span>
+<span class="sd">        at: Where along the path the cap sits.</span>
+
+<span class="sd">    """</span>
     <span class="c1"># Imported here, not at module scope: `pybosl2.paths` imports CapSpec from this module, so a</span>
     <span class="c1"># top-level import closes the cycle and the package stops importing at all.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
@@ -2563,7 +2606,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">trim_ends</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">trim1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">trim2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""</span>
+<span class="w">    </span><span class="sd">"""Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        body: The stroke body the cap is attached to.</span>
+<span class="sd">        trim1: How much to trim from the start so the cap keeps the requested end position.</span>
+<span class="sd">        trim2: How much to trim from the end.</span>
+
+<span class="sd">    """</span>
     <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">body</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">trim1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
@@ -2587,6 +2637,12 @@
 
 <span class="sd">    Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's</span>
 <span class="sd">    solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: The shape being capped.</span>
+<span class="sd">        outdir: Direction the cap points.</span>
+<span class="sd">        at: Where along the path the cap sits.</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_from_to</span>
 

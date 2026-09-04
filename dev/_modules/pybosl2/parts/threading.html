@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2200,7 +2224,12 @@
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">depth_abs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Absolute peak-to-valley depth (mm) at the given *pitch*."""</span>
+<span class="w">        </span><span class="sd">"""Absolute peak-to-valley depth (mm) at the given *pitch*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pitch: Thread pitch in millimetres.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">*</span> <span class="n">pitch</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">as_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
@@ -2782,9 +2811,10 @@
 <span class="sd">        pitch: Thread pitch in mm.</span>
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedRod` with an ISO/UTS thread profile.</span>
@@ -2817,9 +2847,10 @@
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
 <span class="sd">        slop: Extra clearance added to the thread diameter.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedNut` with an ISO/UTS thread profile.</span>
@@ -2863,9 +2894,10 @@
 <span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedRod` with a trapezoidal thread profile.</span>
@@ -2912,9 +2944,10 @@
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
 <span class="sd">        slop: Extra clearance added to the thread diameter.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedNut` with a trapezoidal thread profile.</span>
@@ -2956,9 +2989,10 @@
 <span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedRod` with a 29-degree ACME thread profile.</span>
@@ -3004,9 +3038,10 @@
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
 <span class="sd">        slop: Extra clearance added to the thread diameter.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedNut` with an ACME thread profile.</span>
@@ -3047,9 +3082,10 @@
 <span class="sd">        pitch: Thread pitch in mm.</span>
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedRod` with a square thread profile.</span>
@@ -3082,9 +3118,10 @@
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
 <span class="sd">        slop: Extra clearance added to the thread diameter.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedNut` with a square thread profile.</span>
@@ -3124,9 +3161,10 @@
 <span class="sd">        pitch: Thread pitch in mm.</span>
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedRod` with a buttress thread profile.</span>
@@ -3159,9 +3197,10 @@
 <span class="sd">        starts: Number of thread starts.</span>
 <span class="sd">        left_handed: True for left-handed threads.</span>
 <span class="sd">        slop: Extra clearance added to the thread diameter.</span>
-<span class="sd">        fn: Number of fragments (circle resolution).</span>
-<span class="sd">        fa: Minimum fragment angle.</span>
-<span class="sd">        fs: Minimum fragment size.</span>
+<span class="sd">        fn: Number of fragments (circle resolution). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`ThreadedNut` with a buttress thread profile.</span>

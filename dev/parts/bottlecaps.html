@@ -638,6 +638,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../foundational/masking.html" class="md-nav__link">
         
   
@@ -782,7 +806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../foundational/texture.html" class="md-nav__link">
+      <a href="../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2775,11 +2799,14 @@ BOSL2 (thread taper, internal-thread flank, and cap surface textures are not rep
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -2811,11 +2838,14 @@ BOSL2 (thread taper, internal-thread flank, and cap surface textures are not rep
 </dd>
 <dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.texture"><span class="sig-name descname">texture</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | BottleCapTexture</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.texture" title="Permalink to this definition">¶</a></dt><dd><p>Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1810_cap.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -2842,11 +2872,14 @@ BOSL2 (thread taper, internal-thread flank, and cap surface textures are not rep
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -2878,11 +2911,14 @@ BOSL2 (thread taper, internal-thread flank, and cap surface textures are not rep
 </dd>
 <dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.texture"><span class="sig-name descname">texture</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | BottleCapTexture</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.texture" title="Permalink to this definition">¶</a></dt><dd><p>Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.bottlecaps.BottleCaps.pco1881_cap.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>

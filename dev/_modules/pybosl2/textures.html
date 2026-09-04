@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.texture - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.textures - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
       
     
     
@@ -91,7 +91,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              pybosl2.texture
+              pybosl2.textures
             
           </span>
         </div>
@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2124,7 +2148,7 @@
                   
 
 
-<h1>Source code for pybosl2.texture</h1><div class="highlight"><pre>
+<h1>Source code for pybosl2.textures</h1><div class="highlight"><pre>
 <span></span><code><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
@@ -2133,7 +2157,7 @@
 
 <span class="sd">"""The texture() named-texture engine (BOSL2 skin.scad)."""</span>
 
-<span class="c1"># LibFile: pybosl2/texture.py</span>
+<span class="c1"># LibFile: pybosl2/textures.py</span>
 <span class="c1">#    Port of BOSL2's texture() engine from skin.scad: the named-texture table that</span>
 <span class="c1">#    :func:`~pybosl2.shapes3d.textured_tile` (and, in BOSL2, the textured sweeps) build from.</span>
 <span class="c1">#    :func:`texture` resolves a texture *name* to its data -- either a height-field (a 2-D array of</span>
@@ -2155,7 +2179,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -2167,7 +2191,22 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span> <span class="k">as</span> <span class="n">_quantup_float</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"texture"</span><span class="p">,</span> <span class="s2">"TEXTURES"</span><span class="p">,</span> <span class="s2">"is_heightfield_texture"</span><span class="p">,</span> <span class="s2">"is_vnf_texture"</span><span class="p">,</span> <span class="s2">"TextureType"</span><span class="p">]</span>
+<span class="c1">#: A built texture: a height field (rows of heights in 0..1) or a VNF tile as a</span>
+<span class="c1">#: ``(vertices, faces)`` pair. `texture()` returns one; every consumer takes either (SPEC S-34).</span>
+<span class="n">TextureData</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">"list[list[float]] | tuple[list[list[float]], list[list[int]]]"</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"TEXTURES"</span><span class="p">,</span>
+    <span class="s2">"TextureData"</span><span class="p">,</span>
+    <span class="s2">"TextureType"</span><span class="p">,</span>
+    <span class="s2">"default_tex_reps"</span><span class="p">,</span>
+    <span class="s2">"height_field"</span><span class="p">,</span>
+    <span class="s2">"is_heightfield_texture"</span><span class="p">,</span>
+    <span class="s2">"is_vnf_texture"</span><span class="p">,</span>
+    <span class="s2">"texture"</span><span class="p">,</span>
+    <span class="s2">"texture_grid"</span><span class="p">,</span>
+    <span class="s2">"textured_cylinder_vnf"</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <span class="c1"># --- small helpers mirroring the BOSL2 list utilities texture() uses ----------</span>
@@ -2184,7 +2223,13 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">quantup</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Round *x* up to the next multiple of *m* (BOSL2 quantup)."""</span>
+<span class="w">    </span><span class="sd">"""Round *x* up to the next multiple of *m* (BOSL2 quantup).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: The X coordinate.</span>
+<span class="sd">        m: The height field.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">_quantup_float</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
 
 
@@ -2820,21 +2865,31 @@
 <span class="sd">    *border*/*gap* shape the VNF-tile textures; *roughness* perturbs ``bricks``. Pass a name</span>
 <span class="sd">    from :data:`TEXTURES`. See the module docstring for which textures are ported.</span>
 
-<span class="sd">    Returns</span>
+<span class="sd">    Returns:</span>
 <span class="sd">    -------</span>
 <span class="sd">         list[list[float]]:</span>
 <span class="sd">            The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).</span>
 
-<span class="sd">    Raises</span>
+<span class="sd">    Raises:</span>
 <span class="sd">    ------</span>
 <span class="sd">        ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.</span>
 
-<span class="sd">    See Also</span>
+<span class="sd">    See Also:</span>
 <span class="sd">    --------</span>
 <span class="sd">        pybosl2.paths.Path2D.texture()</span>
 <span class="sd">        pybosl2.paths.Path2D.texture_v()</span>
 <span class="sd">        pybosl2.shapes3d.Bosl2Solid.texture()</span>
 <span class="sd">        pybosl2.shapes3d.Bosl2Solid.texture_v()</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tex: The texture name to look up, or an already-built texture to pass through.</span>
+<span class="sd">        sides: Number of sides for the textures that have a polygon count.</span>
+<span class="sd">        border: Flat border left around each tile.</span>
+<span class="sd">        gap: Gap left between tiles.</span>
+<span class="sd">        roughness: Amplitude of the random variation, for the rough textures.</span>
+<span class="sd">        inset: How far the pattern is inset into the surface.</span>
+<span class="sd">        fn: Fixed fragment count for curved surfaces. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">inset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">border</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2945,7 +3000,7 @@
 
 
 <div class="viewcode-block" id="vnf_tile_to_solid">
-<a class="viewcode-back" href="../../foundational/texture.html#pybosl2.texture.vnf_tile_to_solid">[docs]</a>
+<a class="viewcode-back" href="../../foundational/textures.html#pybosl2.textures.vnf_tile_to_solid">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">vnf_tile_to_solid</span><span class="p">(</span>
     <span class="n">tile</span><span class="p">:</span> <span class="s2">"VNF"</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -2988,7 +3043,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">is_heightfield_texture</span><span class="p">(</span><span class="n">tex</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Check if *tex* is a height-field: a 2-D array whose entries are plain numbers."""</span>
+<span class="w">    </span><span class="sd">"""Check if *tex* is a height-field: a 2-D array whose entries are plain numbers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tex: The texture, by name or already built.</span>
+
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">tex</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
@@ -2997,7 +3057,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">is_vnf_texture</span><span class="p">(</span><span class="n">tex</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Check if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors."""</span>
+<span class="w">    </span><span class="sd">"""Check if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tex: The texture, by name or already built.</span>
+
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">verts</span><span class="p">:</span> <span class="n">Any</span>
         <span class="n">faces</span><span class="p">:</span> <span class="n">Any</span>
@@ -3005,6 +3070,251 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">faces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"__len__"</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">height_field</span><span class="p">(</span><span class="n">tex</span><span class="p">:</span> <span class="s2">"str | TextureType | TextureData"</span><span class="p">,</span> <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Return *tex* as a height field: rows of heights in 0..1, whatever kind it started as.</span>
+
+<span class="sd">    A named texture is looked up first. A VNF tile is rasterised</span>
+<span class="sd">    (:func:`rasterize_vnf_texture`), so both kinds of texture reduce to one thing a surface can be</span>
+<span class="sd">    displaced by -- which is what lets `cyl(texture=...)` take either without the caller knowing</span>
+<span class="sd">    which it got (SPEC S-34).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tex: A texture name, a height field, or a VNF tile.</span>
+<span class="sd">        sides: Raster resolution used when *tex* is a VNF tile.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The height field, as a list of rows.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if *tex* is neither kind of texture.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pybosl2.textures import height_field</span>
+<span class="sd">        &gt;&gt;&gt; height_field("ribs")</span>
+<span class="sd">        [[1.0, 0.0]]</span>
+
+<span class="sd">    """</span>
+    <span class="n">tile</span> <span class="o">=</span> <span class="n">texture</span><span class="p">(</span><span class="n">tex</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tex</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">TextureType</span><span class="p">)</span> <span class="k">else</span> <span class="n">tex</span>
+    <span class="k">if</span> <span class="n">is_heightfield_texture</span><span class="p">(</span><span class="n">tile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"list[list[float]]"</span><span class="p">,</span> <span class="n">tile</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">is_vnf_texture</span><span class="p">(</span><span class="n">tile</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>  <span class="c1"># local: vnf imports this module for its texture tiles</span>
+
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"tuple[list[list[float]], list[list[int]]]"</span><span class="p">,</span> <span class="n">tile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rasterize_vnf_texture</span><span class="p">(</span><span class="n">VNF</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="p">),</span> <span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"height_field(): </span><span class="si">{</span><span class="n">tex</span><span class="si">!r}</span><span class="s2"> is neither a height field nor a VNF tile. Pass a name from "</span>
+        <span class="sa">f</span><span class="s2">"the texture registry, a 2-D array of heights, or a (verts, faces) tile."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sample</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return one cell of a tiling height field, wrapping in both directions."""</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="n">row</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">field</span><span class="p">)][</span><span class="n">column</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">texture_grid</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span>
+    <span class="n">reps_around</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">reps_along</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Tile *field* into the sampling grid for one wrapped surface.</span>
+
+<span class="sd">    The grid has one column per texture cell around the surface and one row per cell along it,</span>
+<span class="sd">    plus a closing row so the two ends are sampled exactly rather than interpolated. Columns wrap;</span>
+<span class="sd">    rows do not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        field: The height field for one tile.</span>
+<span class="sd">        reps_around: How many times the tile repeats around the surface.</span>
+<span class="sd">        reps_along: How many times it repeats along the surface.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sampled heights, one list per row.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if either repeat count is not positive.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">reps_around</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">reps_along</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"texture_grid(): repeats must be at least 1, got around=</span><span class="si">{</span><span class="n">reps_around</span><span class="si">}</span><span class="s2">, along=</span><span class="si">{</span><span class="n">reps_along</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Give a smaller tex_size, or a tex_reps of 1 or more."</span>
+        <span class="p">)</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">_sample</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span> <span class="o">*</span> <span class="n">reps_around</span><span class="p">)]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">reps_along</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">default_tex_reps</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the repeat counts to use when the caller gave neither *tex_size* nor *tex_reps*.</span>
+
+<span class="sd">    SPEC D-4: neither given is "decide for me", not an error. The rule is to repeat the tile so</span>
+<span class="sd">    one tile comes out roughly square in world space -- as many around as the circumference holds</span>
+<span class="sd">    at the cylinder's own height. One tile wrapped around a whole cylinder is not a texture, and</span>
+<span class="sd">    making the caller say so is what P-1 exists to avoid.</span>
+
+<span class="sd">    It lives here because *both* backends need it and neither owns it. It was written twice for</span>
+<span class="sd">    one turn -- once in the CSG `_textured_cyl` and once in the SDF one -- which is how two</span>
+<span class="sd">    backends come to answer the same undecorated call with two different surfaces (SPEC C-21,</span>
+<span class="sd">    PAR-5). The same duplication, in the same shape, that `center=` had.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height: Height of the cylinder.</span>
+<span class="sd">        radius1: Radius at the bottom.</span>
+<span class="sd">        radius2: Radius at the top.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``[around, along]`` counts.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pybosl2.textures import default_tex_reps</span>
+<span class="sd">        &gt;&gt;&gt; default_tex_reps(20.0, 10.0, 10.0)</span>
+<span class="sd">        [3, 1]</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">circumference</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">circumference</span> <span class="o">/</span> <span class="n">height</span><span class="p">)),</span> <span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_repeat_counts</span><span class="p">(</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tex_size</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span><span class="p">,</span>
+    <span class="n">tex_reps</span><span class="p">:</span> <span class="s2">"int | Sequence[int] | None"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return how many times a tile repeats around a surface and along it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height: Height of the surface.</span>
+<span class="sd">        radius: Largest radius, which sets the circumference the tiles wrap.</span>
+<span class="sd">        tex_size: Size of one tile in millimetres, one number or ``[around, along]``.</span>
+<span class="sd">        tex_reps: The counts directly, one number or ``[around, along]``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(around, along)`` counts, each at least 1.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">tex_reps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="n">tex_reps</span><span class="p">,</span> <span class="n">tex_reps</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tex_reps</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">tex_reps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">tex_size</span><span class="p">,</span> <span class="n">tex_size</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tex_size</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">tex_size</span><span class="p">))</span>
+    <span class="n">circumference</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">radius</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">circumference</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]))),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">textured_cylinder_vnf</span><span class="p">(</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tex</span><span class="p">:</span> <span class="s2">"str | TextureType | TextureData"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tex_size</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_reps</span><span class="p">:</span> <span class="s2">"int | Sequence[int] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">tex_inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a cylinder's surface with *tex* displacing it radially, as a mesh.</span>
+
+<span class="sd">    The side is sampled on a grid with one column per texture cell around it and one row per cell</span>
+<span class="sd">    along it, each vertex pushed out (or in) by the texture's height there. Both kinds of texture</span>
+<span class="sd">    work: a VNF tile is rasterised to a height field first (:func:`height_field`), so a caller</span>
+<span class="sd">    passing ``texture("dots")`` and one passing ``texture("ribs")`` get the same treatment, which</span>
+<span class="sd">    is what SPEC S-34 means by "the caller does not need to know which".</span>
+
+<span class="sd">    Give *tex_size* or *tex_reps*, not both: the first says how big one tile is in millimetres and</span>
+<span class="sd">    the repeat counts follow from the cylinder, the second says the counts directly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height: Height of the cylinder.</span>
+<span class="sd">        radius1: Radius at the bottom.</span>
+<span class="sd">        radius2: Radius at the top.</span>
+<span class="sd">        tex: A texture name, a height field, or a VNF tile.</span>
+<span class="sd">        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.</span>
+<span class="sd">        tex_reps: Repeat counts as ``[around, along]``, or one number for both.</span>
+<span class="sd">        tex_depth: How far the texture displaces the surface. Negative sinks it in.</span>
+<span class="sd">        tex_inset: How far the surface is sunk before the texture is added, so the texture's</span>
+<span class="sd">            valleys sit flush rather than proud. ``True`` means one full *tex_depth*.</span>
+<span class="sd">        sides: Raster resolution used when *tex* is a VNF tile.</span>
+<span class="sd">        fn: Fixed fragment count for the cylinder itself. The texture's own cells set a minimum</span>
+<span class="sd">            number of columns; this raises it, so a coarse texture does not make a coarse</span>
+<span class="sd">            cylinder (SPEC R-1). Omitted, the ambient ``use_defaults(fn=...)`` value applies.</span>
+<span class="sd">        fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)``</span>
+<span class="sd">            value applies.</span>
+<span class="sd">        fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)``</span>
+<span class="sd">            value applies.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The textured surface as a closed :class:`~pybosl2.vnf.VNF`, capped at both ends.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: if both *tex_size* and *tex_reps* are given, or neither, or if the</span>
+<span class="sd">            cylinder's dimensions are not positive.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pybosl2.textures import textured_cylinder_vnf</span>
+<span class="sd">        &gt;&gt;&gt; mesh = textured_cylinder_vnf(20, 10, 10, "ribs", tex_reps=[12, 1])</span>
+<span class="sd">        &gt;&gt;&gt; mesh.is_watertight()</span>
+<span class="sd">        True</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+    <span class="k">if</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">radius1</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">radius2</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">radius1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">radius2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"textured_cylinder_vnf(): needs a positive height and radius, got height=</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"radius1=</span><span class="si">{</span><span class="n">radius1</span><span class="si">}</span><span class="s2">, radius2=</span><span class="si">{</span><span class="n">radius2</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">tex_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">tex_reps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="s2">"textured_cylinder_vnf(): give tex_size or tex_reps, not both and not neither. "</span>
+            <span class="s2">"tex_size is the tile's size in millimetres; tex_reps is how many times it repeats."</span>
+        <span class="p">)</span>
+
+    <span class="n">field</span> <span class="o">=</span> <span class="n">height_field</span><span class="p">(</span><span class="n">tex</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
+    <span class="n">around</span><span class="p">,</span> <span class="n">along</span> <span class="o">=</span> <span class="n">_repeat_counts</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">),</span> <span class="n">tex_size</span><span class="p">,</span> <span class="n">tex_reps</span><span class="p">)</span>
+
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">texture_grid</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">reps_around</span><span class="o">=</span><span class="n">around</span><span class="p">,</span> <span class="n">reps_along</span><span class="o">=</span><span class="n">along</span><span class="p">)</span>
+
+    <span class="c1"># The texture's cells set the column count, and that is also the cylinder's facet count -- so</span>
+    <span class="c1"># a two-cell texture would give a two-sided cylinder. The facet controls raise it: each cell</span>
+    <span class="c1"># is repeated over as many columns as it takes to reach the roundness asked for, which keeps</span>
+    <span class="c1"># the texture crisp (a cell stays a constant-height patch) while the curve gets smooth</span>
+    <span class="c1"># (SPEC R-1).</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span>
+
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">frag_count</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">oversample</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">wanted</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="n">oversample</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oversample</span><span class="p">)]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">]</span>
+
+    <span class="n">inset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tex_depth</span><span class="p">)</span> <span class="k">if</span> <span class="n">tex_inset</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">tex_inset</span><span class="p">)</span>
+
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">row_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">heights</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grid</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="p">(</span><span class="n">row_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">height</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">height</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">radius1</span> <span class="o">+</span> <span class="p">(</span><span class="n">radius2</span> <span class="o">-</span> <span class="n">radius1</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
+        <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">heights</span><span class="p">):</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">c</span> <span class="o">/</span> <span class="n">columns</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">base</span> <span class="o">-</span> <span class="n">inset</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">tex_depth</span><span class="p">)</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">z</span><span class="p">])</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapType</span>
+
+    <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">col_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">))</span>
 </code></pre></div>
 
 

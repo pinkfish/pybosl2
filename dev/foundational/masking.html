@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="flat.html">
+        <link rel="prev" href="groups.html">
       
       
         <link rel="next" href="native_ops.html">
@@ -620,6 +620,30 @@
   
   <span class="md-ellipsis">
     <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
     
   </span>
   
@@ -2067,7 +2091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="texture.html" class="md-nav__link">
+      <a href="textures.html" class="md-nav__link">
         
   
   
@@ -4728,11 +4752,12 @@ factories, so existing code keeps working.</p>
 </dd>
 <dt id="pybosl2.masking.Mask2D.roundover.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Rounding diameter (alternative to <em>radius</em>).</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -4794,11 +4819,12 @@ symmetric 45-degree chamfer).</p>
 </dd>
 <dt id="pybosl2.masking.Mask2D.cove.excess"><span class="sig-name descname">excess</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.excess" title="Permalink to this definition">¶</a></dt><dd><p>Amount the flat sides extend past the origin, for a clean cut (default 0.01).</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.cove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.cove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.cove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.cove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.cove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.cove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.cove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -4819,11 +4845,12 @@ symmetric 45-degree chamfer).</p>
 </dd>
 <dt id="pybosl2.masking.Mask2D.tear.maxgap"><span class="sig-name descname">maxgap</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.maxgap" title="Permalink to this definition">¶</a></dt><dd><p>Maximum gap height (unused, kept for compatibility).</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.tear.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.tear.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.tear.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.tear.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.tear.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.Mask2D.tear.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.tear.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -4889,11 +4916,14 @@ groove rather than a slot, so that is what it derives when you do not say.</p>
 </dd>
 <dt id="pybosl2.masking.Mask2D.groove.excess"><span class="sig-name descname">excess</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.excess" title="Permalink to this definition">¶</a></dt><dd><p>Amount the flat sides extend past the origin, for a clean cut (default 0.01).</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.groove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count.</p>
+<dt id="pybosl2.masking.Mask2D.groove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.groove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle.</p>
+<dt id="pybosl2.masking.Mask2D.groove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.masking.Mask2D.groove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size.</p>
+<dt id="pybosl2.masking.Mask2D.groove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask2D.groove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value
+applies.</p>
 </dd>
 </dl>
 </dd>
@@ -4954,11 +4984,14 @@ and safer – the solid already knows its own box and fills this in (SPEC S-26a,
 </dd>
 <dt id="pybosl2.masking.Mask3D.roundover.corners"><span class="sig-name descname">corners</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.corners" title="Permalink to this definition">¶</a></dt><dd><p>Corners to select.</p>
 </dd>
-<dt id="pybosl2.masking.Mask3D.roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count.</p>
+<dt id="pybosl2.masking.Mask3D.roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.Mask3D.roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle.</p>
+<dt id="pybosl2.masking.Mask3D.roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.masking.Mask3D.roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size.</p>
+<dt id="pybosl2.masking.Mask3D.roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value
+applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5123,11 +5156,12 @@ what <cite>cubetruss</cite> and <cite>tripod_mounts</cite> chamfer with, so it w
 </dd>
 <dt id="pybosl2.masking.corner_profile.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.Point" title="pybosl2.points.Point (Python class) — Bases: Sequence[float]">Point</a> | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.center" title="Permalink to this definition">¶</a></dt><dd><p>The box center in body’s current frame.</p>
 </dd>
-<dt id="pybosl2.masking.corner_profile.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.corner_profile.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back
+out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.corner_profile.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.corner_profile.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.corner_profile.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.corner_profile.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 <dt id="pybosl2.masking.corner_profile.return_cutter"><span class="sig-name descname">return_cutter</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.masking.corner_profile.return_cutter" title="Permalink to this definition">¶</a></dt><dd><p>If True, returns the generated cutter shape instead of cutting it.</p>
 </dd>
@@ -5229,11 +5263,12 @@ defaults to <code class="docutils literal notranslate"><span class="pre">Mask2D.
 </dd>
 <dt id="pybosl2.masking.face_profile.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.Point" title="pybosl2.points.Point (Python class) — Bases: Sequence[float]">Point</a> | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.center" title="Permalink to this definition">¶</a></dt><dd><p>The box center in body’s current frame.</p>
 </dd>
-<dt id="pybosl2.masking.face_profile.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.face_profile.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back
+out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.face_profile.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.face_profile.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.face_profile.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.face_profile.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 <dt id="pybosl2.masking.face_profile.return_cutter"><span class="sig-name descname">return_cutter</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.masking.face_profile.return_cutter" title="Permalink to this definition">¶</a></dt><dd><p>If True, returns the generated cutter shape instead of cutting it.</p>
 </dd>
@@ -5294,11 +5329,12 @@ symmetric 45-degree chamfer).</p>
 </dd>
 <dt id="pybosl2.masking.mask2d_cove.excess"><span class="sig-name descname">excess</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.excess" title="Permalink to this definition">¶</a></dt><dd><p>Amount the flat sides extend past the origin, for a clean cut (default 0.01).</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_cove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_cove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_cove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_cove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_cove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_cove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_cove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5327,11 +5363,14 @@ groove rather than a slot, so that is what it derives when you do not say.</p>
 </dd>
 <dt id="pybosl2.masking.mask2d_groove.excess"><span class="sig-name descname">excess</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.excess" title="Permalink to this definition">¶</a></dt><dd><p>Amount the flat sides extend past the origin, for a clean cut (default 0.01).</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_groove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count.</p>
+<dt id="pybosl2.masking.mask2d_groove.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_groove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle.</p>
+<dt id="pybosl2.masking.mask2d_groove.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_groove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size.</p>
+<dt id="pybosl2.masking.mask2d_groove.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_groove.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value
+applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5369,11 +5408,12 @@ groove rather than a slot, so that is what it derives when you do not say.</p>
 </dd>
 <dt id="pybosl2.masking.mask2d_roundover.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Rounding diameter (alternative to <em>radius</em>).</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5434,11 +5474,12 @@ a step as deep as it is wide is the ordinary case.</p>
 </dd>
 <dt id="pybosl2.masking.mask2d_tear.maxgap"><span class="sig-name descname">maxgap</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.maxgap" title="Permalink to this definition">¶</a></dt><dd><p>Maximum gap height (unused, kept for compatibility).</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_tear.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_tear.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts
+back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_tear.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_tear.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.mask2d_tear.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.mask2d_tear.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask2d_tear.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5552,11 +5593,14 @@ and safer – the solid already knows its own box and fills this in (SPEC S-26a,
 </dd>
 <dt id="pybosl2.masking.mask3d_roundover.corners"><span class="sig-name descname">corners</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.corners" title="Permalink to this definition">¶</a></dt><dd><p>Corners to select.</p>
 </dd>
-<dt id="pybosl2.masking.mask3d_roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count.</p>
+<dt id="pybosl2.masking.mask3d_roundover.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – fixed fragment count. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.mask3d_roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle.</p>
+<dt id="pybosl2.masking.mask3d_roundover.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment angle. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.masking.mask3d_roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size.</p>
+<dt id="pybosl2.masking.mask3d_roundover.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness override – minimum fragment size. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value
+applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5605,11 +5649,12 @@ and safer – the solid already knows its own box and fills this in (SPEC S-26a,
 </dd>
 <dt id="pybosl2.masking.rounding_edge_mask.excess"><span class="sig-name descname">excess</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.excess" title="Permalink to this definition">¶</a></dt><dd><p>Amount the flat sides extend past the origin (default 0.1).</p>
 </dd>
-<dt id="pybosl2.masking.rounding_edge_mask.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.rounding_edge_mask.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fn" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back
+out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.masking.rounding_edge_mask.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.rounding_edge_mask.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fa" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.masking.rounding_edge_mask.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides.</p>
+<dt id="pybosl2.masking.rounding_edge_mask.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.masking.rounding_edge_mask.fs" title="Permalink to this definition">¶</a></dt><dd><p>Arc smoothness overrides. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5658,7 +5703,7 @@ and safer – the solid already knows its own box and fills this in (SPEC S-26a,
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="flat.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Flat">
+          <a href="groups.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Groups">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -5668,7 +5713,7 @@ and safer – the solid already knows its own box and fills this in (SPEC S-26a,
                 Previous
               </span>
               <div class="md-ellipsis">
-                Flat
+                Groups
               </div>
             </div>
           </a>

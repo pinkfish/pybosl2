@@ -965,6 +965,30 @@
   
   
     <li class="md-nav__item">
+      <a href="groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="masking.html" class="md-nav__link">
         
   
@@ -1109,7 +1133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="texture.html" class="md-nav__link">
+      <a href="textures.html" class="md-nav__link">
         
   
   
@@ -2928,6 +2952,11 @@ of an ambient <code class="docutils literal notranslate"><span class="pre">fn</s
 <dd class="field-odd"><p>tuple[int | None, float | None, float | None]</p>
 </dd>
 </dl>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The rule itself lives in <a class="reference internal" href="groups.html#pybosl2.groups.Facets.resolved" title="pybosl2.groups.Facets.resolved (Python method) — Return the values to actually use: what the caller passed, over the ambient defaults."><code class="xref py py-meth docutils literal notranslate"><span class="pre">resolved()</span></code></a>, which this and
+<a class="reference internal" href="#pybosl2.defaults.resolve_res" title="pybosl2.defaults.resolve_res (Python function) — Fill in the SDF sampling resolution from the ambient defaults when the caller left it unset."><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_res()</span></code></a> both call. They were two implementations of one rule (SPEC R-1).</p>
+</div>
 </dd></dl>
 
 <dl class="py function objdesc">

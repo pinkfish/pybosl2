@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2147,6 +2171,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_res</span> <span class="k">as</span> <span class="n">_resolve_res</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnsupportedByBackendError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">EdgeTreatment</span><span class="p">,</span> <span class="n">Placement</span><span class="p">,</span> <span class="n">resolve_edge_treatment</span><span class="p">,</span> <span class="n">resolve_placement_2d</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -2192,14 +2217,25 @@
 <div class="viewcode-block" id="Flat.rotate">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Rotate this shape *a* degrees about Z."""</span>
+<span class="w">        </span><span class="sd">"""Rotate this shape *a* degrees about Z.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            a: The rotation angle in degrees.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.linear_extrude">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.linear_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid."""</span>
+<span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            height: Height of the extrusion.</span>
+<span class="sd">            **kwargs: Options the active backend's extruder declares.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2268,6 +2304,7 @@
     <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2284,10 +2321,14 @@
 <span class="sd">        corner: Three 2-D points defining a path the circle should be tangent to.</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value</span>
+<span class="sd">            applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a circle.</span>
@@ -2299,6 +2340,7 @@
 <span class="sd">            circle(radius=15).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"circle"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle2d</span>
 
@@ -2331,8 +2373,10 @@
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">treatment</span><span class="p">:</span> <span class="n">EdgeTreatment</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2347,12 +2391,19 @@
 <span class="sd">        center: Whether to center the shape (CSG only).</span>
 <span class="sd">        rounding: Corner rounding radius.</span>
 <span class="sd">        chamfer: Corner chamfer distance.</span>
+<span class="sd">        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,</span>
+<span class="sd">            never both, so this makes the pair unrepresentable rather than checked; giving it beside</span>
+<span class="sd">            rounding= or chamfer= raises (SPEC G-3).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value</span>
+<span class="sd">            applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a square.</span>
@@ -2364,6 +2415,8 @@
 <span class="sd">            square(size=20, rounding=2).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span> <span class="o">=</span> <span class="n">resolve_edge_treatment</span><span class="p">(</span><span class="n">treatment</span><span class="p">,</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="s2">"square"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"square"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">square2d</span>
 
@@ -2399,8 +2452,10 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">treatment</span><span class="p">:</span> <span class="n">EdgeTreatment</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2414,12 +2469,19 @@
 <span class="sd">        size: Size of the rectangle (scalar or 2-element sequence).</span>
 <span class="sd">        rounding: Corner rounding radius.</span>
 <span class="sd">        chamfer: Corner chamfer distance.</span>
+<span class="sd">        treatment: A rounding or a chamfer as one value (SPEC G-1). An edge is rounded or chamfered,</span>
+<span class="sd">            never both, so this makes the pair unrepresentable rather than checked; giving it beside</span>
+<span class="sd">            rounding= or chamfer= raises (SPEC G-3).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value</span>
+<span class="sd">            applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a rectangle.</span>
@@ -2431,6 +2493,8 @@
 <span class="sd">            rect(size=[30, 20], rounding=3).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span> <span class="o">=</span> <span class="n">resolve_edge_treatment</span><span class="p">(</span><span class="n">treatment</span><span class="p">,</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="s2">"rect"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"rect"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect2d</span>
 
@@ -2474,6 +2538,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a polygon on the active backend.</span>
@@ -2484,7 +2549,10 @@
 <span class="sd">        points: The outline, as a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value</span>
+<span class="sd">            applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a polygon.</span>
@@ -2497,6 +2565,7 @@
 <span class="sd">            polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"polygon"</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_path</span>
 
@@ -2532,8 +2601,9 @@
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ltr"</span><span class="p">,</span>
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"en"</span><span class="p">,</span>
     <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"latin"</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"baseline"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2547,16 +2617,21 @@
 <span class="sd">        size: Text height.</span>
 <span class="sd">        font: Font family name.</span>
 <span class="sd">        halign: Horizontal alignment.</span>
-<span class="sd">        valign: Vertical alignment.</span>
+<span class="sd">        valign: Vertical alignment: "top", "center", "baseline" or "bottom" (default "baseline").</span>
 <span class="sd">        spacing: Character spacing factor.</span>
 <span class="sd">        direction: Text direction.</span>
 <span class="sd">        language: Language code.</span>
 <span class="sd">        script: Script code.</span>
-<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        anchor: Where the finished text's box lands, in the anchor language (SPEC C-10). ``None``</span>
+<span class="sd">            leaves it where *halign*/*valign* put it, which is the typographic placement and the</span>
+<span class="sd">            usual answer for text.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing text.</span>
@@ -2568,6 +2643,7 @@
 <span class="sd">            text(text="BOSL2", size=10).linear_extrude(height=3).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
             <span class="s2">"text"</span><span class="p">,</span>
@@ -2608,6 +2684,7 @@
     <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2621,10 +2698,13 @@
 <span class="sd">        realign: Rotate by half a segment so a flat faces +X (CSG backend only).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
-<span class="sd">        fn: Arc smoothness override (CSG backend only).</span>
-<span class="sd">        fa: Arc smoothness override (CSG backend only).</span>
-<span class="sd">        fs: Arc smoothness override (CSG backend only).</span>
-<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness override (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+<span class="sd">        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D shape on whichever backend is active.</span>
@@ -2636,6 +2716,7 @@
 <span class="sd">            ellipse(radius=[20, 10]).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"ellipse"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">ellipse2d</span>
 
@@ -2663,6 +2744,7 @@
     <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a star on the active backend.</span>
@@ -2677,7 +2759,9 @@
 <span class="sd">        realign: Rotate by half a point (CSG backend only).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
-<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D shape on whichever backend is active.</span>
@@ -2689,6 +2773,7 @@
 <span class="sd">            star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"star"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">star2d</span>
 
@@ -2736,6 +2821,7 @@
     <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2753,10 +2839,15 @@
 <span class="sd">        realign: Rotate by half a side (CSG backend only).</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
-<span class="sd">        fn: Fragment count for the rounded corners; ambient default when omitted.</span>
-<span class="sd">        fa: Minimum fragment angle for the rounded corners.</span>
-<span class="sd">        fs: Minimum fragment size for the rounded corners.</span>
-<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        fn: Fragment count for the rounded corners; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value</span>
+<span class="sd">            applies.</span>
+<span class="sd">        fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value</span>
+<span class="sd">            applies.</span>
+<span class="sd">        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D shape on whichever backend is active.</span>
@@ -2772,6 +2863,7 @@
 <span class="sd">            regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"regular_ngon"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rounding</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
@@ -2827,6 +2919,7 @@
     <span class="n">shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a trapezoid on the active backend.</span>
@@ -2841,7 +2934,9 @@
 <span class="sd">        shift: Shift of the top edge along X.</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
-<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+<span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>
+<span class="sd">            orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).</span>
+<span class="sd">        res: Sampling resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D shape on whichever backend is active.</span>
@@ -2856,6 +2951,7 @@
 <span class="sd">            trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"trapezoid"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid2d</span>
 

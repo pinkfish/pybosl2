@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2141,10 +2165,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 
@@ -2193,12 +2214,13 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 
 
-<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="c1"># Defined once in base.py: five identical copies is the same duplication C-21 is about, and</span>
+<span class="c1"># only base.py imported the names its own copy referenced.</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
@@ -2244,9 +2266,10 @@
 <span class="sd">        corner:   three 2-D points defining a path the circle should be tangent to</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2329,9 +2352,10 @@
 <span class="sd">        clockwise:        for the two-point form, take the long way / a given handedness</span>
 <span class="sd">        counterclockwise: for the two-point form, take the long way / a given handedness</span>
 <span class="sd">        endpoint:   include the final point (default True)</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).</span>
@@ -2512,9 +2536,10 @@
 <span class="sd">        uniform:  use equal-length approximating segments (not implemented; evenly spaced by angle)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2576,9 +2601,10 @@
 <span class="sd">        shoulder_radius: fillet radius where the shoulders meet the circles (default 0)</span>
 <span class="sd">        anchor: standard BOSL2 2-D anchor / spin</span>
 <span class="sd">        spin:   standard BOSL2 2-D anchor / spin</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2670,9 +2696,10 @@
 <span class="sd">        angle:    sweep angle in degrees (only the full-annulus form is ported; angle must be None)</span>
 <span class="sd">        anchor: standard BOSL2 2-D anchor / spin</span>
 <span class="sd">        spin:   standard BOSL2 2-D anchor / spin</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2727,9 +2754,10 @@
 <span class="sd">        diameter: diameter of the end circles (alternative to radius)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2808,9 +2836,10 @@
 <span class="sd">        diameter: scale the shape to fit in a circle of this diameter</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

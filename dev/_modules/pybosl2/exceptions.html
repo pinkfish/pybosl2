@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2143,7 +2167,13 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Bosl2Error"</span><span class="p">,</span> <span class="s2">"Bosl2ValueError"</span><span class="p">,</span> <span class="s2">"UnsupportedByBackendError"</span><span class="p">,</span> <span class="s2">"CrossBackendError"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Bosl2Error"</span><span class="p">,</span>
+    <span class="s2">"Bosl2ValueError"</span><span class="p">,</span>
+    <span class="s2">"Bosl2NotImplementedError"</span><span class="p">,</span>
+    <span class="s2">"UnsupportedByBackendError"</span><span class="p">,</span>
+    <span class="s2">"CrossBackendError"</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Bosl2Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -2177,6 +2207,19 @@
 <span class="sd">            except Bosl2Error as err:</span>
 <span class="sd">                print(err)  # give radius or diameter, not both (radius=5, diameter=10)</span>
 
+<span class="sd">    """</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Bosl2NotImplementedError</span><span class="p">(</span><span class="n">Bosl2Error</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A capability this port advertises but does not yet build: a ``NotImplementedError`` *and* a :class:`Bosl2Error`.</span>
+
+<span class="sd">    The same reasoning as :class:`Bosl2ValueError`, for the same reason. Four public callables</span>
+<span class="sd">    raised a bare ``NotImplementedError`` -- ``cyl(texture=...)``, ``cuboid(teardrop=...)``,</span>
+<span class="sd">    ``CapType.CIRCLE`` and ``VNF.from_field`` with a range -- so ``except Bosl2Error`` missed</span>
+<span class="sd">    them, and none named an alternative, which SPEC E-2 asks of every refusal.</span>
+
+<span class="sd">    A parameter that raises this is one the signature advertises and the port does not honour. It</span>
+<span class="sd">    is a gap, not a design decision, and the message says what to do meanwhile.</span>
 <span class="sd">    """</span>
 
 

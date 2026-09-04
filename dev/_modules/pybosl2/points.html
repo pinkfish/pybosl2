@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2329,7 +2353,12 @@
 <div class="viewcode-block" id="Point.dot">
 <a class="viewcode-back" href="../../math/points.html#pybosl2.points.Point.dot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Dot product with another vector (2‑D or 3‑D)."""</span>
+<span class="w">        </span><span class="sd">"""Dot product with another vector (2‑D or 3‑D).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The point to compare or combine with.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)))</span></div>
 
 
@@ -2337,6 +2366,9 @@
 <a class="viewcode-back" href="../../math/points.html#pybosl2.points.Point.cross">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cross</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Cross product with another 3‑D vector, returning a :class:`Point`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The point to compare or combine with.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If this point is 2‑D (cross product requires 3‑D vectors).</span>
@@ -2403,6 +2435,10 @@
 
 <span class="sd">        For a 2‑D point this adds the Z coordinate. For a 3‑D point this</span>
 <span class="sd">        returns a copy with *z* replaced (unless *z* equals ``self.z``).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            z: Z coordinate to give a 2-D point when lifting it to 3-D.</span>
+
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">z</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">z</span><span class="p">)</span></div>
 
@@ -2413,6 +2449,10 @@
 <span class="w">        </span><span class="sd">"""Normalize this vector to unit length, returning a new Point.</span>
 
 <span class="sd">        If it has (near) zero length, returns *error* if given, else raises ValueError.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            error: Raise on a degenerate input rather than returning a fallback.</span>
+
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPSILON</span>
 
@@ -2431,6 +2471,10 @@
 <span class="w">        </span><span class="sd">"""Angle between this vector and *other* in radians.</span>
 
 <span class="sd">        The result is always in the range [0, pi].</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The point to compare or combine with.</span>
+
 <span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
@@ -2456,6 +2500,10 @@
 <span class="w">        </span><span class="sd">"""Return the axis vector (cross product) and angle between this vector and *other*.</span>
 
 <span class="sd">        Requires 3-D vectors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The point to compare or combine with.</span>
+
 <span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
@@ -2487,6 +2535,10 @@
 <span class="w">        </span><span class="sd">"""Return a unit vector that bisects the minor angle between this vector and *other*.</span>
 
 <span class="sd">        Returns None if they are directly opposite.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The point to compare or combine with.</span>
+
 <span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
@@ -2510,7 +2562,12 @@
 <div class="viewcode-block" id="Point.closest">
 <a class="viewcode-back" href="../../math/points.html#pybosl2.points.Point.closest">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Point</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the index of the closest point in *points* to this point."""</span>
+<span class="w">        </span><span class="sd">"""Return the index of the closest point in *points* to this point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: The points to operate on.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot find closest point in an empty list"</span><span class="p">)</span>
         <span class="n">result</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2526,7 +2583,12 @@
 <div class="viewcode-block" id="Point.furthest">
 <a class="viewcode-back" href="../../math/points.html#pybosl2.points.Point.furthest">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">furthest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Point</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the index of the furthest point in *points* from this point."""</span>
+<span class="w">        </span><span class="sd">"""Return the index of the furthest point in *points* from this point.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points: The points to operate on.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot find furthest point in an empty list"</span><span class="p">)</span>
         <span class="n">result</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>

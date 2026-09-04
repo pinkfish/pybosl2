@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2225,7 +2249,16 @@
     <span class="n">p2</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return translation matrices evenly spread along a line."""</span>
+<span class="w">    </span><span class="sd">"""Return translation matrices evenly spread along a line.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">        p1: Start of the line the copies are placed along.</span>
+<span class="sd">        p2: End of that line.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ll</span> <span class="o">=</span> <span class="n">_vec3</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2282,7 +2315,15 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies spread along the X axis."""</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the X axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">        start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span>
         <span class="n">RIGHT</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span>
         <span class="n">spacing</span><span class="p">,</span>
@@ -2298,7 +2339,15 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies spread along the Y axis."""</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the Y axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">        start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span><span class="n">BACK</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">)</span>
 
 
@@ -2308,7 +2357,15 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies spread along the Z axis."""</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the Z axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">        start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span><span class="n">UP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">)</span>
 
 
@@ -2321,7 +2378,18 @@
     <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"xy"</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies laid out in a square or staggered (hex) grid."""</span>
+<span class="w">    </span><span class="sd">"""Return copies laid out in a square or staggered (hex) grid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        size: Extent to spread the copies over, one number or one per axis.</span>
+<span class="sd">        stagger: Offset alternate rows by half a step, for a hexagonal packing.</span>
+<span class="sd">        inside: Keep only the copies whose centres fall inside this outline.</span>
+<span class="sd">        nonzero: Use the nonzero winding rule for *inside* rather than even-odd.</span>
+<span class="sd">        axes: Which plane the grid lies in, as two of ``"xyz"``.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">stagger</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): stagger must be False, True or 'alt'."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
@@ -2426,7 +2494,19 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return rotated copies about an axis, optionally offset into a ring."""</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies about an axis, optionally offset into a ring.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">        v: Axis to rotate about.</span>
+<span class="sd">        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">        sa: Starting angle in degrees.</span>
+<span class="sd">        offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">        delta: Translation applied to each copy before it is rotated.</span>
+<span class="sd">        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">subrot</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_vec3</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_copies(): subrot can only be False when delta is nonzero."</span><span class="p">)</span>
     <span class="n">sang</span> <span class="o">=</span> <span class="n">sa</span> <span class="o">+</span> <span class="n">offset</span>
@@ -2459,7 +2539,18 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return rotated copies around the X axis, optionally into a ring of radius *radius*."""</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the X axis, optionally into a ring of radius *radius*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">        sa: Starting angle in degrees.</span>
+<span class="sd">        radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">        diameter: Diameter, instead of *radius*.</span>
+<span class="sd">        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2481,7 +2572,18 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the Y axis, optionally into a ring of radius *radius*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">        sa: Starting angle in degrees.</span>
+<span class="sd">        radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">        diameter: Diameter, instead of *radius*.</span>
+<span class="sd">        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2503,7 +2605,18 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the Z axis, optionally into a ring of radius *radius*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">        sa: Starting angle in degrees.</span>
+<span class="sd">        radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">        diameter: Diameter, instead of *radius*.</span>
+<span class="sd">        subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="n">rr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2528,7 +2641,21 @@
     <span class="n">rot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane."""</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">        radius_x: Radius along X, for an elliptical arc.</span>
+<span class="sd">        radius_y: Radius along Y, for an elliptical arc.</span>
+<span class="sd">        diameter: Diameter, instead of *radius*.</span>
+<span class="sd">        diameter_x: Diameter along X, instead of *radius_x*.</span>
+<span class="sd">        diameter_y: Diameter along Y, instead of *radius_y*.</span>
+<span class="sd">        sa: Starting angle in degrees.</span>
+<span class="sd">        ea: Ending angle in degrees.</span>
+<span class="sd">        rot: Rotate each copy to face along the arc.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="n">rxv</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">radius_x</span>
         <span class="k">if</span> <span class="n">radius_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2574,7 +2701,17 @@
     <span class="n">scale</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">perp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies spread over a sphere/ellipsoid by the golden-spiral method."""</span>
+<span class="w">    </span><span class="sd">"""Return copies spread over a sphere/ellipsoid by the golden-spiral method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+<span class="sd">        radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">        diameter: Diameter, instead of *radius*.</span>
+<span class="sd">        cone_ang: Half-angle of the cone the sphere copies are restricted to; 90 is the whole sphere.</span>
+<span class="sd">        scale: Scale applied to the sphere before the copies are placed, for an ellipsoid.</span>
+<span class="sd">        perp: Orient each copy perpendicular to the surface.</span>
+
+<span class="sd">    """</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
     <span class="n">cnt</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">num_copies</span> <span class="o">/</span> <span class="p">(</span><span class="n">cone_ang</span> <span class="o">/</span> <span class="mi">180</span><span class="p">))</span>
     <span class="n">scalev</span> <span class="o">=</span> <span class="n">_vec3</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
@@ -2605,7 +2742,18 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return copies placed along *path*, oriented to it."""</span>
+<span class="w">    </span><span class="sd">"""Return copies placed along *path*, oriented to it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: The path to place the copies along.</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">        dist: Distances along the path, one per copy, instead of even spacing.</span>
+<span class="sd">        rotate_children: Turn each copy to follow the path's direction.</span>
+<span class="sd">        closed: Treat the path as closed, so the spacing wraps.</span>
+<span class="sd">        num_copies: How many copies to make.</span>
+
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_path</span>
@@ -2673,7 +2821,14 @@
     <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return the original plus a mirrored copy across the plane with normal *v*."""</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a mirrored copy across the plane with normal *v*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v: Axis to rotate about.</span>
+<span class="sd">        offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">        center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+
+<span class="sd">    """</span>
     <span class="n">nv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">nv_norm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">nv</span><span class="p">))</span>
     <span class="n">nv</span> <span class="o">=</span> <span class="n">nv</span> <span class="o">/</span> <span class="n">nv_norm</span> <span class="k">if</span> <span class="n">nv_norm</span> <span class="k">else</span> <span class="n">nv</span>
@@ -2692,17 +2847,35 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the X=*x* plane."""</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the X=*x* plane.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">        x: X coordinate of the mirror plane.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Y=*y* plane."""</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Y=*y* plane.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">        y: Y coordinate of the mirror plane.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Z=*z* plane."""</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Z=*z* plane.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">        z: Z coordinate of the mirror plane.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
 
 
@@ -2778,7 +2951,16 @@
         <span class="n">p2</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread along a line."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along a line.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">            p1: Start of the line the copies are placed along.</span>
+<span class="sd">            p2: End of that line.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">line_copies</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2791,7 +2973,15 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread along the X axis."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the X axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">            start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">RIGHT</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2804,7 +2994,15 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread along the Y axis."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the Y axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">            start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">BACK</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2817,7 +3015,15 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread along the Z axis."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the Z axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            length: Total length to spread the copies over, instead of *spacing*.</span>
+<span class="sd">            start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">UP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2833,7 +3039,18 @@
         <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"xy"</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies in a square or staggered (hex) grid."""</span>
+<span class="w">        </span><span class="sd">"""Return copies in a square or staggered (hex) grid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            size: Extent to spread the copies over, one number or one per axis.</span>
+<span class="sd">            stagger: Offset alternate rows by half a step, for a hexagonal packing.</span>
+<span class="sd">            inside: Keep only the copies whose centres fall inside this outline.</span>
+<span class="sd">            nonzero: Use the nonzero winding rule for *inside* rather than even-odd.</span>
+<span class="sd">            axes: Which plane the grid lies in, as two of ``"xyz"``.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">grid_copies</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">stagger</span><span class="p">,</span> <span class="n">inside</span><span class="p">,</span> <span class="n">nonzero</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2850,7 +3067,19 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Rotated copies about an axis (optionally into a ring via *delta*)."""</span>
+<span class="w">        </span><span class="sd">"""Rotated copies about an axis (optionally into a ring via *delta*).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">            v: Axis to rotate about.</span>
+<span class="sd">            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">            sa: Starting angle in degrees.</span>
+<span class="sd">            offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">            delta: Translation applied to each copy before it is rotated.</span>
+<span class="sd">            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">rot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2866,7 +3095,18 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Rotated copies around the X axis."""</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the X axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">            sa: Starting angle in degrees.</span>
+<span class="sd">            radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">            diameter: Diameter, instead of *radius*.</span>
+<span class="sd">            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">xrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2882,7 +3122,18 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Rotated copies around the Y axis."""</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the Y axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">            sa: Starting angle in degrees.</span>
+<span class="sd">            radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">            diameter: Diameter, instead of *radius*.</span>
+<span class="sd">            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">yrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2898,7 +3149,18 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Rotated copies around the Z axis."""</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the Z axis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rots: The rotation angles in degrees, one per copy.</span>
+<span class="sd">            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+<span class="sd">            sa: Starting angle in degrees.</span>
+<span class="sd">            radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">            diameter: Diameter, instead of *radius*.</span>
+<span class="sd">            subrot: Rotate each copy to follow the arc, rather than keeping its original orientation.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">zrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2917,7 +3179,21 @@
         <span class="n">rot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">            radius_x: Radius along X, for an elliptical arc.</span>
+<span class="sd">            radius_y: Radius along Y, for an elliptical arc.</span>
+<span class="sd">            diameter: Diameter, instead of *radius*.</span>
+<span class="sd">            diameter_x: Diameter along X, instead of *radius_x*.</span>
+<span class="sd">            diameter_y: Diameter along Y, instead of *radius_y*.</span>
+<span class="sd">            sa: Starting angle in degrees.</span>
+<span class="sd">            ea: Ending angle in degrees.</span>
+<span class="sd">            rot: Rotate each copy to face along the arc.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span>
             <span class="n">arc_copies</span><span class="p">(</span>
                 <span class="n">radius</span><span class="p">,</span>
@@ -2945,7 +3221,17 @@
         <span class="n">scale</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="n">perp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies spread over a sphere/ellipsoid surface."""</span>
+<span class="w">        </span><span class="sd">"""Return copies spread over a sphere/ellipsoid surface.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+<span class="sd">            radius: Radius of the arc or sphere the copies are placed on.</span>
+<span class="sd">            diameter: Diameter, instead of *radius*.</span>
+<span class="sd">            cone_ang: Half-angle of the cone the sphere copies are restricted to; 90 is the whole sphere.</span>
+<span class="sd">            scale: Scale applied to the sphere before the copies are placed, for an ellipsoid.</span>
+<span class="sd">            perp: Orient each copy perpendicular to the surface.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">sphere_copies</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">cone_ang</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">perp</span><span class="p">))</span></div>
 
 
@@ -2961,7 +3247,18 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return copies placed along *path*, oriented to it."""</span>
+<span class="w">        </span><span class="sd">"""Return copies placed along *path*, oriented to it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: The path to place the copies along.</span>
+<span class="sd">            spacing: Distance between adjacent copies.</span>
+<span class="sd">            start_pos: Where the first copy sits, as a distance along the axis or a point.</span>
+<span class="sd">            dist: Distances along the path, one per copy, instead of even spacing.</span>
+<span class="sd">            rotate_children: Turn each copy to follow the path's direction.</span>
+<span class="sd">            closed: Treat the path as closed, so the spacing wraps.</span>
+<span class="sd">            num_copies: How many copies to make.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span>
             <span class="n">path_copies</span><span class="p">(</span>
                 <span class="n">path</span><span class="p">,</span>
@@ -2983,28 +3280,53 @@
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return this object plus a copy mirrored across the plane with normal *v*."""</span>
+<span class="w">        </span><span class="sd">"""Return this object plus a copy mirrored across the plane with normal *v*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            v: Axis to rotate about.</span>
+<span class="sd">            offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">            center: Point to rotate or mirror about. ``True`` centres the whole set on the origin.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.xflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.xflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the X=*x* plane."""</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the X=*x* plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">            x: X coordinate of the mirror plane.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">xflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.yflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.yflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Y=*y* plane."""</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Y=*y* plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">            y: Y coordinate of the mirror plane.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">yflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.zflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.zflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Z=*z* plane."""</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Z=*z* plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            offset: Distance to shift each copy along the rotation axis.</span>
+<span class="sd">            z: Z coordinate of the mirror plane.</span>
+
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">zflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span></div>
 
 
@@ -3085,6 +3407,12 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Distribute distinct children along the X axis.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        children: The shapes to place. One is copied; several are distributed between them.</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
@@ -3106,7 +3434,15 @@
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Distribute distinct children along the Y axis."""</span>
+<span class="w">    </span><span class="sd">"""Distribute distinct children along the Y axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        children: The shapes to place. One is copied; several are distributed between them.</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">BACK</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
 
@@ -3119,7 +3455,15 @@
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Distribute distinct children along the Z axis."""</span>
+<span class="w">    </span><span class="sd">"""Distribute distinct children along the Z axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        children: The shapes to place. One is copied; several are distributed between them.</span>
+<span class="sd">        spacing: Distance between adjacent copies.</span>
+<span class="sd">        sizes: The individual extents of the shapes being distributed, so uneven ones still clear each other.</span>
+<span class="sd">        length: Total length to spread the copies over, instead of *spacing*.</span>
+
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
 </code></pre></div>

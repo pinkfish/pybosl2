@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2381,7 +2405,12 @@
 <div class="viewcode-block" id="Region.color">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.color">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return a copy of this region with the given :class:`Color`."""</span>
+<span class="w">        </span><span class="sd">"""Return a copy of this region with the given :class:`Color`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            c: The colour to apply.</span>
+
+<span class="sd">        """</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">c</span>
         <span class="k">return</span> <span class="n">copy</span></div>
@@ -2515,9 +2544,12 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            file: Path to the SVG.</span>
-<span class="sd">            fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count).</span>
-<span class="sd">            fa: Minimum angle in degrees (accepted for API parity).</span>
-<span class="sd">            fs: Minimum fragment size in SVG user units (default ``2.0``).</span>
+<span class="sd">            fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count). Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum angle in degrees (accepted for API parity). Omitted, the ambient ``use_defaults(fa=...)``</span>
+<span class="sd">                value applies.</span>
+<span class="sd">            fs: Minimum fragment size in SVG user units (default ``2.0``). Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fs=...)`` value applies.</span>
 <span class="sd">            flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).</span>
 <span class="sd">            color: When set, overrides every shape's fill colour with this hex string.</span>
 <span class="sd">                Pass ``None`` (the default) to use the SVG's own colours.</span>
@@ -2745,9 +2777,12 @@
 <span class="sd">            radius: The corner-rounding radius for the offset.</span>
 <span class="sd">            delta: The absolute offset distance.</span>
 <span class="sd">            chamfer: Whether to chamfer corners instead of rounding them.</span>
-<span class="sd">            fn: Fixed number of fragments for the rounded corners; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle for the rounded corners.</span>
-<span class="sd">            fs: Minimum fragment size for the rounded corners.</span>
+<span class="sd">            fn: Fixed number of fragments for the rounded corners; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle for the rounded corners. Omitted, the ambient ``use_defaults(fa=...)`` value</span>
+<span class="sd">                applies.</span>
+<span class="sd">            fs: Minimum fragment size for the rounded corners. Omitted, the ambient ``use_defaults(fs=...)`` value</span>
+<span class="sd">                applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with every path offset by the given parameters.</span>
@@ -2787,9 +2822,10 @@
 <span class="sd">            width: Width for rounding.</span>
 <span class="sd">            curvature: Curvature value for rounding.</span>
 <span class="sd">            closed: Override whether paths are treated as closed.</span>
-<span class="sd">            fn: Fixed number of fragments per full circle; ambient default when omitted.</span>
-<span class="sd">            fa: Minimum fragment angle in degrees.</span>
-<span class="sd">            fs: Minimum fragment size in millimetres.</span>
+<span class="sd">            fn: Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle in degrees. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with rounded corners on every path.</span>
@@ -3039,9 +3075,12 @@
 <span class="sd">            twist: Twist angle in degrees over the full height (default 0).</span>
 <span class="sd">            scale: Scale factor for the top cross-section (default 1.0).</span>
 <span class="sd">            slices: Number of intermediate layers for twist/scale (auto if None).</span>
-<span class="sd">            fn: Smoothness override for the angular resolution.</span>
-<span class="sd">            fa: Smoothness override for the minimum angle.</span>
-<span class="sd">            fs: Smoothness override for the minimum segment length.</span>
+<span class="sd">            fn: Smoothness override for the angular resolution. Omitted, the ambient ``use_defaults(fn=...)`` value</span>
+<span class="sd">                applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Smoothness override for the minimum angle. Omitted, the ambient ``use_defaults(fa=...)`` value</span>
+<span class="sd">                applies.</span>
+<span class="sd">            fs: Smoothness override for the minimum segment length. Omitted, the ambient ``use_defaults(fs=...)``</span>
+<span class="sd">                value applies.</span>
 <span class="sd">            color_heights: Optional dict mapping colour names (``"#ff0000"``, ``"red"``, or</span>
 <span class="sd">                :class:`~pybosl2.color.Color` objects) to a specific extrusion height.  Coloured</span>
 <span class="sd">                pieces that match a key are extruded by that height; pieces whose colour is not</span>
@@ -3149,9 +3188,10 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            angle: The rotation angle in degrees.</span>
-<span class="sd">            fn: Number of polygon segments for curved geometry.</span>
-<span class="sd">            fa: Minimum angle for polygon segments.</span>
-<span class="sd">            fs: Minimum size for polygon segments.</span>
+<span class="sd">            fn: Number of polygon segments for curved geometry. Omitted, the ambient ``use_defaults(fn=...)`` value</span>
+<span class="sd">                applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum angle for polygon segments. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum size for polygon segments. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2._backend.Solid` from the active backend (SPEC A-10). Revolving is</span>
@@ -3210,6 +3250,13 @@
 <span class="w">        </span><span class="sd">"""Break every path in the region into dashed polygon outlines.</span>
 
 <span class="sd">        Returns a :class:`Region` of all dash polygons.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dashpat: The dash pattern, as alternating on and off lengths.</span>
+<span class="sd">            closed: Join the last point back to the first.</span>
+<span class="sd">            fit: Stretch the pattern so a whole number of dashes fits the path.</span>
+<span class="sd">            mindash: Shortest dash to keep; anything shorter is dropped.</span>
+
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">dashed_stroke_2d</span>
 

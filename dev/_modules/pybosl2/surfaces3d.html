@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2418,7 +2442,7 @@
     <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span>
     <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">FRONT</span> <span class="o">+</span> <span class="n">LEFT</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">FRONT</span> <span class="o">+</span> <span class="n">LEFT</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2433,12 +2457,14 @@
 <span class="sd">        angle:     angle between the faces to fillet in degrees (default 90)</span>
 <span class="sd">        overlap: overlap size for unioning with the faces (default 0.01)</span>
 <span class="sd">        diameter:       diameter of the fillet</span>
-<span class="sd">        anchor:  anchor point (default FRONT+LEFT)</span>
+<span class="sd">        anchor:  anchor point in the anchor language (default FRONT+LEFT), as every other</span>
+<span class="sd">            constructor takes it (SPEC C-10, PLAN O-6b)</span>
 <span class="sd">        spin:    Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:  direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn:      Fixed fragment count for the fillet arc; ambient default when omitted.</span>
-<span class="sd">        fa:      Minimum fragment angle for the fillet arc.</span>
-<span class="sd">        fs:      Minimum fragment size for the fillet arc.</span>
+<span class="sd">        fn: Fixed fragment count for the fillet arc; ambient default when omitted. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum fragment angle for the fillet arc. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum fragment size for the fillet arc. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
@@ -2923,6 +2949,22 @@
 <span class="sd">    material, centered along its own Z. Only 90-degree edges are ported (BOSL2's ``angle`` for other</span>
 <span class="sd">    dihedral angles is not).</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        length: Length of the cutter along its axis (default 1).</span>
+<span class="sd">        radius: Rounding radius (both ends).</span>
+<span class="sd">        angle: Angle in degrees between the two faces the fillet sits in.</span>
+<span class="sd">        radius1: Rounding radius at the first end, for a tapered cutter.</span>
+<span class="sd">        radius2: Rounding radius at the second end, for a tapered cutter.</span>
+<span class="sd">        diameter: Rounding diameter (both ends).</span>
+<span class="sd">        diameter1: Rounding diameter at the first end.</span>
+<span class="sd">        diameter2: Rounding diameter at the second end.</span>
+<span class="sd">        excess: Extra length added at each end, so the cutter reaches past the solid it trims.</span>
+<span class="sd">        height: Length of the cutter along its axis (default 1).</span>
+<span class="sd">        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
@@ -2980,7 +3022,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a rectangular tile carrying a repeated *texture*.</span>
 
-<span class="sd">    *texture* is either a **name** from the ported :func:`~pybosl2.texture.texture` engine (e.g.</span>
+<span class="sd">    *texture* is either a **name** from the ported :func:`~pybosl2.textures.texture` engine (e.g.</span>
 <span class="sd">    ``"pyramids"``, ``"diamonds"``, ``"hills"``, ``"bricks"``, ``"pyramids_vnf"``), a raw **height-field**</span>
 <span class="sd">    (a 2-D array of scalar heights in ``[0, 1]``), or a raw **VNF tile** ``(verts, faces)``. It is tiled</span>
 <span class="sd">    *tex_reps* times (or ``tex_size`` chosen) across the *size* rectangle and raised by *tex_depth*.</span>
@@ -2995,7 +3037,8 @@
 <span class="sd">        style:     vnf_vertex_array quad-subdivision style (height-field textures only)</span>
 <span class="sd">        sides: number of sides for named texture geometry.</span>
 <span class="sd">        border: border width for named textures.</span>
-<span class="sd">        fn: number of fragments for circle resolution in named textures.</span>
+<span class="sd">        fn: number of fragments for circle resolution in named textures. Omitted, the ambient ``use_defaults(fn=...)``</span>
+<span class="sd">            value applies; ``fn=0`` opts back out to fa/fs.</span>
 <span class="sd">        gap: spacing between texture elements for named textures.</span>
 <span class="sd">        roughness: roughness parameter for named textures.</span>
 
@@ -3018,14 +3061,14 @@
 <span class="sd">            textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.texture</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.textures</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">TextureType</span><span class="p">,</span>
         <span class="n">is_heightfield_texture</span><span class="p">,</span>
         <span class="n">is_vnf_texture</span><span class="p">,</span>
         <span class="n">rasterize_vnf_texture</span><span class="p">,</span>
         <span class="n">vnf_tile_to_solid</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.texture</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.textures</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">texture</span> <span class="k">as</span> <span class="n">_texture</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
@@ -3113,9 +3156,10 @@
 <span class="sd">        anchor:    anchor point (default LEFT+BACK+TOP)</span>
 <span class="sd">        spin:      Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        orient:    direction to rotate the top towards (default UP)</span>
-<span class="sd">        fn: number of fragments for circle resolution.</span>
-<span class="sd">        fa: minimum fragment angle for circle resolution.</span>
-<span class="sd">        fs: minimum fragment size for circle resolution.</span>
+<span class="sd">        fn: number of fragments for circle resolution. Omitted, the ambient ``use_defaults(fn=...)`` value applies;</span>
+<span class="sd">            ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: minimum fragment angle for circle resolution. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>

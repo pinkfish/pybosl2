@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2142,10 +2166,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 
@@ -2186,13 +2207,14 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 
-<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="c1"># Defined once in base.py: five identical copies is the same duplication C-21 is about, and</span>
+<span class="c1"># only base.py imported the names its own copy referenced.</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
@@ -2316,9 +2338,10 @@
 <span class="sd">        realign:    flip whether the bottom is a point or a flat (default False)</span>
 <span class="sd">        anchor:     anchor point (default CENTER)</span>
 <span class="sd">        spin:       Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2389,9 +2412,10 @@
 <span class="sd">        arc_diameter: diameter of the joining arcs (alternative to arc_radius)</span>
 <span class="sd">        anchor:       anchor point (default CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn: arc smoothness overrides</span>
-<span class="sd">        fa: arc smoothness overrides</span>
-<span class="sd">        fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back</span>
+<span class="sd">            out to fa/fs.</span>
+<span class="sd">        fa: arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2571,6 +2595,12 @@
 <span class="w">    </span><span class="sd">"""Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.</span>
 
 <span class="sd">    *radius*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        squareness: How square the curve is, from 0 (a circle) to 1 (a square).</span>
+<span class="sd">        radius: The radius.</span>
+<span class="sd">        angle: The angle in degrees.</span>
+
 <span class="sd">    """</span>
     <span class="n">s2a</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">squareness</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angle</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">s2a</span><span class="p">))</span> <span class="k">if</span> <span class="n">s2a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">radius</span></div>
@@ -2628,9 +2658,10 @@
 <span class="sd">        style:      only "fg" is supported</span>
 <span class="sd">        anchor:     standard BOSL2 2-D anchor</span>
 <span class="sd">        spin:       standard BOSL2 2-D spin</span>
-<span class="sd">        fn: smoothness overrides</span>
-<span class="sd">        fa: smoothness overrides</span>
-<span class="sd">        fs: smoothness overrides</span>
+<span class="sd">        fn: smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out</span>
+<span class="sd">            to fa/fs.</span>
+<span class="sd">        fa: smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

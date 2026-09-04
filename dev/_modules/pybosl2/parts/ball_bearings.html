@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../foundational/texture.html" class="md-nav__link">
+      <a href="../../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2323,7 +2347,12 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">of</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">trade_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BearingType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Look up a :class:`BearingType` from its trade-name string (``"608"``, ``"R8ZZ"``)."""</span>
+<span class="w">        </span><span class="sd">"""Look up a :class:`BearingType` from its trade-name string (``"608"``, ``"R8ZZ"``).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            trade_name: The bearing's catalogue name, such as ``"608"``.</span>
+
+<span class="sd">        """</span>
         <span class="n">bt</span> <span class="o">=</span> <span class="n">_BY_TRADE_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trade_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bt</span>
@@ -3044,9 +3073,12 @@
 <span class="sd">            width: Axial width in mm. Required if trade_size is not given.</span>
 <span class="sd">            shield: Model sealed/shielded cartridge (True) or open bearing with balls (False). Defaults to True.</span>
 <span class="sd">            color: Color name to apply to the bearing model. Defaults to "silver".</span>
-<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
-<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
-<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient</span>
+<span class="sd">                ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d."Solid"`.</span>

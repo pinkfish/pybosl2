@@ -638,6 +638,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../foundational/masking.html" class="md-nav__link">
         
   
@@ -782,7 +806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../foundational/texture.html" class="md-nav__link">
+      <a href="../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2637,11 +2661,14 @@ Overrides explicit dimensions if given.</p>
 </dd>
 <dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.color"><span class="sig-name descname">color</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object">Color</a> | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.color" title="Permalink to this definition">¶</a></dt><dd><p>Color name to apply to the bearing model. Defaults to “silver”.</p>
 </dd>
-<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of fragments for cylinder resolution. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives.</p>
+<dt id="pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.ball_bearings.BallBearings.ball_bearing.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size. Passed to the geometry primitives. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>

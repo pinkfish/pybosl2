@@ -638,6 +638,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../foundational/masking.html" class="md-nav__link">
         
   
@@ -782,7 +806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../foundational/texture.html" class="md-nav__link">
+      <a href="../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -4677,12 +4701,12 @@ takes it to 11315 with the area unchanged to five figures.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.color">
-<span class="sig-name descname"><span class="pre">color</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.color.c" title="pybosl2.regions.Region.color.c (Python parameter)"><span class="n"><span class="pre">c</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/regions.html#Region.color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.color" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">color</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.color.c" title="pybosl2.regions.Region.color.c (Python parameter) — The colour to apply."><span class="n"><span class="pre">c</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/regions.html#Region.color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.color" title="Link to this definition">¶</a></dt>
 <dd><p>Return a copy of this region with the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.color-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.color-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.regions.Region.color.c"><span class="sig-name descname">c</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object">Color</a></span></span><a class="headerlink" href="#pybosl2.regions.Region.color.c" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.regions.Region.color.c"><span class="sig-name descname">c</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object">Color</a></span></span><a class="headerlink" href="#pybosl2.regions.Region.color.c" title="Permalink to this definition">¶</a></dt><dd><p>The colour to apply.</p>
 </dd>
 </dl>
 </dd>
@@ -4773,11 +4797,14 @@ measured, offset, rounded or tessellated like anything else – and needs no ren
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt id="pybosl2.regions.Region.from_svg.file"><span class="sig-name descname">file</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.file" title="Permalink to this definition">¶</a></dt><dd><p>Path to the SVG.</p>
 </dd>
-<dt id="pybosl2.regions.Region.from_svg.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fn" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment count per curved segment (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">3</span></code> → absolute point count).</p>
+<dt id="pybosl2.regions.Region.from_svg.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fn" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment count per curved segment (<code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">3</span></code> → absolute point count). Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.regions.Region.from_svg.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum angle in degrees (accepted for API parity).</p>
+<dt id="pybosl2.regions.Region.from_svg.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum angle in degrees (accepted for API parity). Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code>
+value applies.</p>
 </dd>
-<dt id="pybosl2.regions.Region.from_svg.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size in SVG user units (default <code class="docutils literal notranslate"><span class="pre">2.0</span></code>).</p>
+<dt id="pybosl2.regions.Region.from_svg.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size in SVG user units (default <code class="docutils literal notranslate"><span class="pre">2.0</span></code>). Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 <dt id="pybosl2.regions.Region.from_svg.flip_y"><span class="sig-name descname">flip_y</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.regions.Region.from_svg.flip_y" title="Permalink to this definition">¶</a></dt><dd><p>Negate Y so the drawing is not mirrored (SVG’s Y axis points down).</p>
 </dd>
@@ -4910,11 +4937,14 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </dd>
 <dt id="pybosl2.regions.Region.offset.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>Whether to chamfer corners instead of rounding them.</p>
 </dd>
-<dt id="pybosl2.regions.Region.offset.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fn" title="Permalink to this definition">¶</a></dt><dd><p>Fixed number of fragments for the rounded corners; ambient default when omitted.</p>
+<dt id="pybosl2.regions.Region.offset.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fn" title="Permalink to this definition">¶</a></dt><dd><p>Fixed number of fragments for the rounded corners; ambient default when omitted. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.regions.Region.offset.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle for the rounded corners.</p>
+<dt id="pybosl2.regions.Region.offset.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle for the rounded corners. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.regions.Region.offset.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size for the rounded corners.</p>
+<dt id="pybosl2.regions.Region.offset.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.offset.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size for the rounded corners. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value
+applies.</p>
 </dd>
 </dl>
 </dd>
@@ -4949,11 +4979,12 @@ a list applies per-corner radii.</p>
 </dd>
 <dt id="pybosl2.regions.Region.round_corners.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.closed" title="Permalink to this definition">¶</a></dt><dd><p>Override whether paths are treated as closed.</p>
 </dd>
-<dt id="pybosl2.regions.Region.round_corners.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fn" title="Permalink to this definition">¶</a></dt><dd><p>Fixed number of fragments per full circle; ambient default when omitted.</p>
+<dt id="pybosl2.regions.Region.round_corners.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fn" title="Permalink to this definition">¶</a></dt><dd><p>Fixed number of fragments per full circle; ambient default when omitted. Omitted, the ambient
+<code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.regions.Region.round_corners.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle in degrees.</p>
+<dt id="pybosl2.regions.Region.round_corners.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment angle in degrees. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.regions.Region.round_corners.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size in millimetres.</p>
+<dt id="pybosl2.regions.Region.round_corners.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.round_corners.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum fragment size in millimetres. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5101,11 +5132,14 @@ region of DISJOINT islands; a region with holes raises
 </dd>
 <dt id="pybosl2.regions.Region.linear_extrude.slices"><span class="sig-name descname">slices</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.slices" title="Permalink to this definition">¶</a></dt><dd><p>Number of intermediate layers for twist/scale (auto if None).</p>
 </dd>
-<dt id="pybosl2.regions.Region.linear_extrude.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fn" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the angular resolution.</p>
+<dt id="pybosl2.regions.Region.linear_extrude.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fn" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the angular resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.regions.Region.linear_extrude.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fa" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the minimum angle.</p>
+<dt id="pybosl2.regions.Region.linear_extrude.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fa" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the minimum angle. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value
+applies.</p>
 </dd>
-<dt id="pybosl2.regions.Region.linear_extrude.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fs" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the minimum segment length.</p>
+<dt id="pybosl2.regions.Region.linear_extrude.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.fs" title="Permalink to this definition">¶</a></dt><dd><p>Smoothness override for the minimum segment length. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code>
+value applies.</p>
 </dd>
 <dt id="pybosl2.regions.Region.linear_extrude.color_heights"><span class="sig-name descname">color_heights</span><span class="p"> : </span><span class="desctype"><span class="desctype">dict[str | <a class="reference internal" href="../foundational/color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object">Color</a>, float] | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude.color_heights" title="Permalink to this definition">¶</a></dt><dd><p>Optional dict mapping colour names (<code class="docutils literal notranslate"><span class="pre">&quot;#ff0000&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;red&quot;</span></code>, or
 <a class="reference internal" href="../foundational/color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code></a> objects) to a specific extrusion height.  Coloured
@@ -5145,11 +5179,12 @@ in the mapping use the default <em>height</em>.</p>
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt id="pybosl2.regions.Region.rotate_extrude.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.angle" title="Permalink to this definition">¶</a></dt><dd><p>The rotation angle in degrees.</p>
 </dd>
-<dt id="pybosl2.regions.Region.rotate_extrude.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of polygon segments for curved geometry.</p>
+<dt id="pybosl2.regions.Region.rotate_extrude.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fn" title="Permalink to this definition">¶</a></dt><dd><p>Number of polygon segments for curved geometry. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value
+applies; <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.regions.Region.rotate_extrude.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum angle for polygon segments.</p>
+<dt id="pybosl2.regions.Region.rotate_extrude.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fa" title="Permalink to this definition">¶</a></dt><dd><p>Minimum angle for polygon segments. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.regions.Region.rotate_extrude.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum size for polygon segments.</p>
+<dt id="pybosl2.regions.Region.rotate_extrude.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.rotate_extrude.fs" title="Permalink to this definition">¶</a></dt><dd><p>Minimum size for polygon segments. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
 </dd>
@@ -5193,19 +5228,19 @@ CSG-only, so the SDF backend refuses rather than approximating (SPEC B-4).</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.dashed_stroke">
-<span class="sig-name descname"><span class="pre">dashed_stroke</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.dashpat" title="pybosl2.regions.Region.dashed_stroke.dashpat (Python parameter)"><span class="n"><span class="pre">dashpat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.closed" title="pybosl2.regions.Region.dashed_stroke.closed (Python parameter)"><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.fit" title="pybosl2.regions.Region.dashed_stroke.fit (Python parameter)"><span class="n"><span class="pre">fit</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.mindash" title="pybosl2.regions.Region.dashed_stroke.mindash (Python parameter)"><span class="n"><span class="pre">mindash</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.5</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/regions.html#Region.dashed_stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">dashed_stroke</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.dashpat" title="pybosl2.regions.Region.dashed_stroke.dashpat (Python parameter) — The dash pattern, as alternating on and off lengths."><span class="n"><span class="pre">dashpat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.closed" title="pybosl2.regions.Region.dashed_stroke.closed (Python parameter) — Join the last point back to the first."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.fit" title="pybosl2.regions.Region.dashed_stroke.fit (Python parameter) — Stretch the pattern so a whole number of dashes fits the path."><span class="n"><span class="pre">fit</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.dashed_stroke.mindash" title="pybosl2.regions.Region.dashed_stroke.mindash (Python parameter) — Shortest dash to keep; anything shorter is dropped."><span class="n"><span class="pre">mindash</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.5</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/regions.html#Region.dashed_stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke" title="Link to this definition">¶</a></dt>
 <dd><p>Break every path in the region into dashed polygon outlines.</p>
 <p>Returns a <a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> of all dash polygons.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.dashed_stroke-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.regions.Region.dashed_stroke.dashpat"><span class="sig-name descname">dashpat</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.dashpat" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.regions.Region.dashed_stroke.dashpat"><span class="sig-name descname">dashpat</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.dashpat" title="Permalink to this definition">¶</a></dt><dd><p>The dash pattern, as alternating on and off lengths.</p>
 </dd>
-<dt id="pybosl2.regions.Region.dashed_stroke.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.closed" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.regions.Region.dashed_stroke.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.closed" title="Permalink to this definition">¶</a></dt><dd><p>Join the last point back to the first.</p>
 </dd>
-<dt id="pybosl2.regions.Region.dashed_stroke.fit"><span class="sig-name descname">fit</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.fit" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.regions.Region.dashed_stroke.fit"><span class="sig-name descname">fit</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.fit" title="Permalink to this definition">¶</a></dt><dd><p>Stretch the pattern so a whole number of dashes fits the path.</p>
 </dd>
-<dt id="pybosl2.regions.Region.dashed_stroke.mindash"><span class="sig-name descname">mindash</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.mindash" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.regions.Region.dashed_stroke.mindash"><span class="sig-name descname">mindash</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.dashed_stroke.mindash" title="Permalink to this definition">¶</a></dt><dd><p>Shortest dash to keep; anything shorter is dropped.</p>
 </dd>
 </dl>
 </dd>

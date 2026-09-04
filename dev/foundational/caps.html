@@ -949,6 +949,30 @@
   
   
     <li class="md-nav__item">
+      <a href="groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="masking.html" class="md-nav__link">
         
   
@@ -1093,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="texture.html" class="md-nav__link">
+      <a href="textures.html" class="md-nav__link">
         
   
   
@@ -2954,8 +2978,8 @@ a custom 2-D polygon to use as the endcap shape.</p>
 </dd></dl>
 
 <dl class="py data objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.caps.CapsSpec">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.caps.</span></span><span class="sig-name descname"><span class="pre">CapsSpec</span></span><a class="headerlink" href="#pybosl2.caps.CapsSpec" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.caps.CapsSpec">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.caps.</span></span><span class="sig-name descname"><span class="pre">CapsSpec</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">TypeAlias</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'CapType | CapSpec | str | Sequence[CapType | CapSpec | str]'</span></code><a class="headerlink" href="#pybosl2.caps.CapsSpec" title="Link to this definition">¶</a></dt>
 <dd><p>A cap specification used by sweep/skin entry points. Can be:</p>
 <ul class="simple">
 <li><p>a single <a class="reference internal" href="#pybosl2.caps.CapType" title="pybosl2.caps.CapType (Python class) — Bases: Enum"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code></a> enum member (same cap on both ends)</p></li>
@@ -2963,7 +2987,6 @@ a custom 2-D polygon to use as the endcap shape.</p>
 <li><p>a <code class="docutils literal notranslate"><span class="pre">Sequence[CapType</span> <span class="pre">|</span> <span class="pre">CapSpec]</span></code> pair (per-end caps)</p></li>
 </ul>
 <p>Use <code class="docutils literal notranslate"><span class="pre">CapType.NONE</span></code> to request no cap; <code class="docutils literal notranslate"><span class="pre">CapType.BUTT</span></code> for a flat cap.</p>
-<p>alias of <a class="reference internal" href="#pybosl2.caps.CapType" title="pybosl2.caps.CapType (Python class) — Bases: Enum"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code></a> | <a class="reference internal" href="#pybosl2.caps.CapSpec" title="pybosl2.caps.CapSpec (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapSpec</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence[Union['CapType',</span> <span class="pre">'CapSpec',</span> <span class="pre">str]]</span></code></p>
 </dd></dl>
 
 <dl class="py function objdesc">
@@ -3016,12 +3039,12 @@ already been resolved by <code class="xref py py-func docutils literal notransla
 
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.caps.has_decorative_caps">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.caps.</span></span><span class="sig-name descname"><span class="pre">has_decorative_caps</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.caps.has_decorative_caps.cap_specs" title="pybosl2.caps.has_decorative_caps.cap_specs (Python parameter)"><span class="n"><span class="pre">cap_specs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/caps.html#has_decorative_caps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.caps.has_decorative_caps" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.caps.</span></span><span class="sig-name descname"><span class="pre">has_decorative_caps</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.caps.has_decorative_caps.cap_specs" title="pybosl2.caps.has_decorative_caps.cap_specs (Python parameter) — The caps for each end and the joints."><span class="n"><span class="pre">cap_specs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/caps.html#has_decorative_caps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.caps.has_decorative_caps" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if any endcap is a decorative (non-flat/non-dome/non-none) type.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.caps.has_decorative_caps-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.caps.has_decorative_caps-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.caps.has_decorative_caps.cap_specs"><span class="sig-name descname">cap_specs</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[<a class="reference internal" href="#pybosl2.caps.CapSpec" title="pybosl2.caps.CapSpec (Python class) — Bases: object">CapSpec</a>]</span></span><a class="headerlink" href="#pybosl2.caps.has_decorative_caps.cap_specs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.caps.has_decorative_caps.cap_specs"><span class="sig-name descname">cap_specs</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[<a class="reference internal" href="#pybosl2.caps.CapSpec" title="pybosl2.caps.CapSpec (Python class) — Bases: object">CapSpec</a>]</span></span><a class="headerlink" href="#pybosl2.caps.has_decorative_caps.cap_specs" title="Permalink to this definition">¶</a></dt><dd><p>The caps for each end and the joints.</p>
 </dd>
 </dl>
 </dd>

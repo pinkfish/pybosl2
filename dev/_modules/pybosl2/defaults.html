@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2335,13 +2359,15 @@
 <span class="sd">        of an ambient ``fn``, and :func:`~pybosl2._helpers.frag_count` reads any ``fn`` below 3 as</span>
 <span class="sd">        "use fa/fs" (SPEC R-5).</span>
 
+<span class="sd">    Note:</span>
+<span class="sd">        The rule itself lives in :meth:`~pybosl2.groups.Facets.resolved`, which this and</span>
+<span class="sd">        :func:`resolve_res` both call. They were two implementations of one rule (SPEC R-1).</span>
+
 <span class="sd">    """</span>
-    <span class="n">active</span> <span class="o">=</span> <span class="n">current_defaults</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">fn</span> <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">active</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span>
-        <span class="n">fa</span> <span class="k">if</span> <span class="n">fa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">active</span><span class="o">.</span><span class="n">fa</span><span class="p">,</span>
-        <span class="n">fs</span> <span class="k">if</span> <span class="n">fs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">active</span><span class="o">.</span><span class="n">fs</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">Facets</span>  <span class="c1"># local: groups reads the ambient defaults from here</span>
+
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">Facets</span><span class="o">.</span><span class="n">resolved</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resolved</span><span class="o">.</span><span class="n">fn</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">fa</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">fs</span></div>
 
 
 
@@ -2357,7 +2383,9 @@
 <span class="sd">        The resolution to use, or ``None`` when nothing is set anywhere.</span>
 
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">res</span> <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">current_defaults</span><span class="p">()</span><span class="o">.</span><span class="n">res</span></div>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">Facets</span>  <span class="c1"># local: groups reads the ambient defaults from here</span>
+
+    <span class="k">return</span> <span class="n">Facets</span><span class="o">.</span><span class="n">resolved</span><span class="p">(</span><span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">)</span><span class="o">.</span><span class="n">res</span></div>
 
 
 

@@ -629,6 +629,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/groups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Groups</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/masking.html" class="md-nav__link">
         
   
@@ -773,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../foundational/texture.html" class="md-nav__link">
+      <a href="../../foundational/textures.html" class="md-nav__link">
         
   
   
@@ -2182,6 +2206,10 @@
 <span class="sd">    The backends take different parameter sets, so only what was asked for is forwarded through</span>
 <span class="sd">    :meth:`SolidBackend.construct` -- a backend never sees an option it has no notion of, and</span>
 <span class="sd">    each keeps its own defaults.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arguments: The arguments to build it with.</span>
+
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">arguments</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
@@ -2338,6 +2366,10 @@
 <span class="sd">    The façade owns the default for every argument both backends understand (SPEC B-3) and always</span>
 <span class="sd">    forwards it, so each backend filters by what it actually declares rather than relying on the</span>
 <span class="sd">    caller to have omitted the ones it does not know (PLAN F-P2).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        constructor: The backend constructor about to be called.</span>
+
 <span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
@@ -2432,7 +2464,7 @@
         <span class="k">if</span> <span class="n">renamed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted</span>
         <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TESSELLATION_PARAMETERS</span>
         <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_default</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">unhonoured</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
@@ -2447,14 +2479,32 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Report whether *value* asks for nothing, so dropping it changes no geometry.</span>
 
 <span class="sd">    An explicit zero rounding or chamfer is "no rounding", not a request a backend has to honour --</span>
 <span class="sd">    and parts pass one routinely, normalising `None` to `0` before forwarding. Refusing those was a</span>
 <span class="sd">    false alarm: `RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`.</span>
 <span class="sd">    Matches the same no-op set the SDF `linear_extrude` has always used for `twist`/`scale`.</span>
+
+<span class="sd">    **A falsy value is only nothing when the façade's default is falsy too.** Where the default is</span>
+<span class="sd">    `True`, passing `False` is the caller *turning something off* -- a request, and one the backend</span>
+<span class="sd">    has to be able to honour. `cuboid(trimcorners=False)` leaves the chamfer running past the</span>
+<span class="sd">    corners, and it was being dropped on the SDF backend, which trims them regardless: a silent</span>
+<span class="sd">    wrong answer of exactly the kind B-9 exists to prevent, arriving through the guard against</span>
+<span class="sd">    false alarms rather than around it. Two parameters in the whole façade have a truthy default a</span>
+<span class="sd">    backend lacks, and both of them are this one.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: The value the façade is about to forward.</span>
+<span class="sd">        default: The façade's own default for that parameter, when it has one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True when dropping *value* changes no geometry.</span>
+
 <span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
 
 
@@ -2514,6 +2564,11 @@
 <span class="w">    </span><span class="sd">"""Whether *backend* can do *feature*. Backend-exclusive features are False on the other side.</span>
 
 <span class="sd">    everything else (the shared surface) is assumed supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        backend: Name of the backend.</span>
+<span class="sd">        feature: Name of the feature being refused.</span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">CSG_ONLY_FEATURES</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">"csg"</span>
@@ -2526,6 +2581,11 @@
 <span class="w">    </span><span class="sd">"""Return the :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the.</span>
 
 <span class="sd">    OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        backend: Name of the backend.</span>
+<span class="sd">        name: The name to look up.</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnsupportedByBackendError</span>
 
@@ -2661,7 +2721,12 @@
 <div class="viewcode-block" id="set_default_backend">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.set_default_backend">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_default_backend</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Change the process-wide default backend (outside any :func:`use_backend` block)."""</span>
+<span class="w">    </span><span class="sd">"""Change the process-wide default backend (outside any :func:`use_backend` block).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: The name to look up.</span>
+
+<span class="sd">    """</span>
     <span class="n">_validate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">global</span> <span class="n">_default</span>
     <span class="n">_default</span> <span class="o">=</span> <span class="n">name</span></div>
@@ -2672,7 +2737,12 @@
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.use_backend">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">use_backend</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Make *name* the active backend for the duration of the ``with`` block (nestable, thread-safe)."""</span>
+<span class="w">    </span><span class="sd">"""Make *name* the active backend for the duration of the ``with`` block (nestable, thread-safe).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: The name to look up.</span>
+
+<span class="sd">    """</span>
     <span class="n">_validate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">token</span> <span class="o">=</span> <span class="n">_current</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2683,7 +2753,13 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">register_backend</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">impl</span><span class="p">:</span> <span class="s2">"SolidBackend"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Register a :class:`SolidBackend` implementation under *name* (also makes it a known backend)."""</span>
+<span class="w">    </span><span class="sd">"""Register a :class:`SolidBackend` implementation under *name* (also makes it a known backend).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: The name to look up.</span>
+<span class="sd">        impl: The backend implementation to register.</span>
+
+<span class="sd">    """</span>
     <span class="n">_KNOWN</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">_registry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">impl</span>
 
@@ -2693,6 +2769,10 @@
 
 <span class="sd">    The two built-in backends register themselves on first use (importing them is FFI-free -- the</span>
 <span class="sd">    native runtime is only touched when geometry is actually realized).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: The name to look up.</span>
+
 <span class="sd">    """</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">current_backend</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_registry</span><span class="p">:</span>
@@ -2966,6 +3046,11 @@
 
 <span class="sd">        Backend-neutral, so a shape can name the frame it anchors to without reaching for a native</span>
 <span class="sd">        handle. `bounds()` keeps reporting the geometry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: The size, one number or one per axis.</span>
+<span class="sd">            anchor: Anchor point.</span>
+
 <span class="sd">        """</span>
         <span class="o">...</span>
 
@@ -3016,7 +3101,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s2">"str | os.PathLike[str]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">file_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FilePath"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Write this solid to a mesh file (SPEC S-53)."""</span>
+<span class="w">        </span><span class="sd">"""Write this solid to a mesh file (SPEC S-53).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: The path to draw.</span>
+<span class="sd">            file_format: The format to write, taken from the suffix when not given.</span>
+<span class="sd">            check: Validate the mesh before writing it.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -3260,6 +3352,11 @@
 
 <span class="sd">        *arguments* holds just the parameters the caller gave, so a backend never has to accept</span>
 <span class="sd">        an option it has no notion of (see :func:`pybosl2.solid._given`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            shape: Name of the shape to build.</span>
+<span class="sd">            arguments: The arguments to build it with.</span>
+
 <span class="sd">        """</span>
         <span class="o">...</span>
 
@@ -3276,6 +3373,12 @@
 <span class="sd">        (:class:`~pybosl2.shapes2d.Bosl2Shape2D`), whereas a path is backend-neutral. It is what</span>
 <span class="sd">        :meth:`pybosl2.paths.Path2D.linear_extrude` dispatches through, so the same call yields a</span>
 <span class="sd">        Bosl2Solid on the CSG backend and a PyShape on the SDF one.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            paths: The paths to draw.</span>
+<span class="sd">            height: Height of the extrusion.</span>
+<span class="sd">            arguments: The arguments to build it with.</span>
+
 <span class="sd">        """</span>
         <span class="o">...</span>
 
@@ -3287,6 +3390,12 @@
 <span class="sd">        ``(hypot(x, y), z)``, so the SDF backend needs no meshing and no approximation for it.</span>
 <span class="sd">        Like :meth:`linear_extrude` it takes raw point paths rather than a 2-D shape object,</span>
 <span class="sd">        because 2-D *geometry* is a CSG notion while a path is backend-neutral.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            paths: The paths to draw.</span>
+<span class="sd">            angle: The angle in degrees.</span>
+<span class="sd">            arguments: The arguments to build it with.</span>
+
 <span class="sd">        """</span>
         <span class="o">...</span>
 
@@ -3298,7 +3407,16 @@
         <span class="n">endcap1</span><span class="p">:</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""3-D tube along *path*."""</span>
+<span class="w">        </span><span class="sd">"""3-D tube along *path*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: The path to draw.</span>
+<span class="sd">            width: Width of the drawn line.</span>
+<span class="sd">            closed: Join the last point back to the first.</span>
+<span class="sd">            endcap1: Treatment for the start of the line.</span>
+<span class="sd">            endcap2: Treatment for the end.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span>
 
 
