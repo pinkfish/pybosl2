@@ -67,20 +67,22 @@ L5_parts = ["parts"]
 # Runtime module-level edges, plus the deferred ones that are not cycles. Every one is debt and
 # the list only shrinks. `A-10` marks the geometry bridge -- a geometry type reaching a backend
 # module directly instead of the façade.
+#
+# Four entries were removed in T50 that had never belonged: `color -> _shape`,
+# `distributors -> _shape`, `path3d -> shapes3d` and `turtle3d -> shapes3d` exist **only** under
+# `if TYPE_CHECKING`, which the model above calls "allowed and unlisted". They made the debt look
+# a quarter worse than it was, and the staleness check could not see it -- it asked whether the
+# edge existed, not whether it was the *kind* of edge this list is for.
 [known_violations]
 "_helpers -> shapes2d" = "Native shape helpers reach the CSG modules directly at module level."
 "_helpers -> shapes3d" = "As above."
 "_helpers -> _native" = "Deferred, but not a cycle: _native does not import the helpers."
 "beziers -> shapes3d" = "A Bezier builds a solid through the CSG module rather than the façade (A-10). Module level and deferred, and not a cycle."
-"color -> _shape" = "Colour reaches the CSG shape wrapper to apply itself."
-"distributors -> _shape" = "Distribution reaches the CSG shape wrapper."
 "masking -> solid" = "Deferred, but not a cycle: the façade does not import masking."
 "path2d -> miscellaneous" = "The Extrudable mixin lives in an L3 module and is inherited by an L2 type."
 "path3d -> miscellaneous" = "Extrudable, as above."
-"path3d -> shapes3d" = "The geometry bridge, as above (A-10)."
 "path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
 "regions -> shapes3d" = "Region.text3d reaches the CSG module directly (A-10)."
 "skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
 "turtle2d -> shapes2d" = "The turtle builds its arcs through the CSG module (A-10)."
-"turtle3d -> shapes3d" = "As above (A-10)."
 "vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."

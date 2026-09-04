@@ -2187,6 +2187,8 @@ Anything that can be expressed as a signed-distance field MUST be available on t
 '''
 enforced_by = [
     "tests/test_backend_matrix.py",
+    "tests/test_neutral_geometry_is_not_gated.py::test_nothing_backend_only_returns_backend_neutral_geometry",
+    "tests/test_neutral_geometry_is_not_gated.py::test_the_partition_masks_refuse_for_their_own_reason",
 ]
 candidates = [
     "tests/test_dimension_validation.py",

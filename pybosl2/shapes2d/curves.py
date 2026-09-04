@@ -519,7 +519,6 @@ def squircle(
 # ---------------------------------------------------------------------------
 
 
-@backend_only("csg")
 def jittered_poly(path: "Path2D", dist: float = 1 / 512) -> list[list[float]]:
     """Add tiny random jitter to a path's points.
 
