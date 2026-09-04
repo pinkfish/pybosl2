@@ -40,6 +40,7 @@ from functools import reduce
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2._helpers import pick_radius as _pick_radius
@@ -330,8 +331,17 @@ class Extrudable:
 
     :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead
     of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).
+
+    **Both are CSG-only, and say so now.** They are built out of native primitives -- `path_extrude`
+    clips with `pythonscad.cube`, and `path_extrude2d` takes its corner fillets from
+    `_planar_half`, which cuts with `pythonscad.square` -- so neither follows the active backend
+    however the profile is dispatched. Under `use_backend("sdf")` they used to fail from inside,
+    with an `AttributeError` about `_sdf_fn` or a complaint that "every argument must be a
+    PyShape": raw exceptions no `except Bosl2Error` could catch, naming an internal detail rather
+    than the call the caller made (SPEC E-1, E-6, B-9).
     """
 
+    @backend_only("csg")
     def path_extrude2d(
         self,
         profile: object,
@@ -415,6 +425,7 @@ class Extrudable:
             raise Bosl2ValueError("path_extrude2d(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
+    @backend_only("csg")
     def path_extrude(
         self,
         profile: object,

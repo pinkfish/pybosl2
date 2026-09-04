@@ -1581,12 +1581,48 @@ more positional tier parameter, `shapes2d/circle.py` −1 of each. **A move is n
 totals say so** — which is why these are per-file counts with a checked total rather than one
 number that a move could quietly inflate.
 
+### The plan for `Extrudable` was wrong, and measuring said so
+
+The intent was to route `path_extrude` and `path_extrude2d` through the façade, on the reading that
+they call a backend method that could be dispatched. **They do not.** `path_extrude` clips with
+`pythonscad.cube`; `path_extrude2d` takes its corner fillets from `_planar_half`, which cuts with
+`pythonscad.square`. Both are native CSG constructions, and no amount of dispatch changes that —
+routing them through the façade would mean *rewriting* them.
+
+What was actually wrong is that they said nothing about it. Under `use_backend("sdf")`:
+
+```
+AttributeError: 'openscad.PyOpenSCAD' object has no attribute '_sdf_fn'
+Bosl2ValueError: every argument must be a PyShape, got ['PyOpenSCAD']
+```
+
+Neither is a `Bosl2Error`, so the documented `except Bosl2Error` catches neither, and neither names
+the call the caller made. They are `@backend_only("csg")` now, which is simply the truth about
+them (E-1, E-6, B-9).
+
+### And a real portability defect came out of it
+
+`SdfShape2D.linear_extrude` did not accept `convexity`. Its own sibling `rotate_extrude` accepted
+and ignored it, and both CSG methods take it — three of four:
+
+| | `linear_extrude` | `rotate_extrude` |
+|---|---|---|
+| CSG | takes it | takes it |
+| SDF | **raised `TypeError`** | takes and ignores it |
+
+So `flat.square(...).linear_extrude(height=5, convexity=4)` worked on one backend and blew up on
+the other. It is a *renderer* hint about how many times a ray crosses the surface — a distance
+field has no use for it, and now ignores it, as B-9's tessellation carve-out says it may. One
+class, two spellings of one shared parameter (C-17, C-21).
+
 ### What remains
 
 11 violations, of which **three are runtime module-level** and the rest deferred-but-not-cycles:
 
-* `path2d -> miscellaneous` and `path3d -> miscellaneous` — the `Extrudable` mixin lives in L3 and
-  is inherited by L2 types;
+* `path2d -> miscellaneous` and `path3d -> miscellaneous` — `Extrudable` is CSG machinery living
+  correctly at L3 and *inherited* by two L2 geometry types. The reason is measured now rather than
+  assumed, and closing it means `Path2D`/`Path3D` not carrying these methods at all — an API
+  decision rather than a move.
 * `regions -> shapes3d` — `Region.text3d` reaches the CSG module directly (A-10).
 
 
