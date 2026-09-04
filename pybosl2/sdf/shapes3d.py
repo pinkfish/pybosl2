@@ -3904,6 +3904,12 @@ def prismoid(
     size2: list[float],
     height: float | None = None,
     shift: list[float] | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
     length: float | None = None,
     center: bool | None = None,
     anchor: "Sequence[float]" = BOTTOM,
@@ -3913,22 +3919,34 @@ def prismoid(
 ) -> PyShape:
     """Return a rectangular prismoid (truncated pyramid), as a libfive SDF.
 
-    CAVEAT: unlike pybosl2.shapes3d.prismoid(), this pure-libfive port does not support
-    rounding/chamfer of the vertical edges (deriving an exact SDF for a *tapered* box's
-    independently-radiused vertical edges was out of scope here -- use
-    pybosl2.shapes3d.prismoid() for that, or pybosl2.sdf.shapes3d.cuboid() for the non-tapered case). The SDF
-    itself is built by linearly interpolating the local half-size/shift at each height `z`
-    (clamped to the `[bottom, top]` range via min()/max(), so no true per-point conditional is
-    needed) and taking the 2-D box distance in that local cross-section, intersected with the
-    top/bottom slab -- exact for a non-tapered box (`size1 == size2`, `shift == [0, 0]`), an
-    approximation (same character as cuboid()'s documented corner caveats) for a genuine taper.
+    The vertical edges take a rounding or a chamfer, which this backend refused until T43 on the
+    grounds that "deriving an exact SDF for a *tapered* box's independently-radiused vertical
+    edges was out of scope". It needed no derivation, because the CSG backend does not derive one
+    either: it builds the two end cross-sections and takes their **convex hull**, and the hull of
+    two convex sets in parallel planes has cross-section `(1-t)A + tB` -- the Minkowski
+    combination -- at every height between them.
+
+    For these shapes that combination is the same shape again. A rounded rectangle is
+    `box + disc`, and Minkowski addition distributes, so the blend is a rounded rectangle whose
+    half-size and whose corner radius are each linearly interpolated. A chamfered rectangle is an
+    octagon whose support function is linear in the size and the chamfer, so its blend is a
+    chamfered rectangle with both interpolated. **So the cross-section is exact**, and the only
+    approximation left is the one this function already carried: measuring across a taper is not
+    the Euclidean distance to it, though the zero set is right (SPEC B-5's line about not
+    approximating what the other backend does not).
 
     Args:
         size1:  [width, length] of the bottom end
         size2:  [width, length] of the top end
         height:    height of the prism
-        length:    height of the prism
         shift:  [X,Y] shift of the top center relative to the bottom center
+        rounding: Rounding radius of the vertical edges (overall/bottom/top).
+        rounding1: Rounding radius of the vertical edges (overall/bottom/top).
+        rounding2: Rounding radius of the vertical edges (overall/bottom/top).
+        chamfer: Chamfer size of the vertical edges (overall/bottom/top).
+        chamfer1: Chamfer size of the vertical edges (overall/bottom/top).
+        chamfer2: Chamfer size of the vertical edges (overall/bottom/top).
+        length:    height of the prism
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
         anchor: anchor point (default BOTTOM)
@@ -3936,6 +3954,9 @@ def prismoid(
         orient: Direction to rotate the shape's top towards, applied last.
         res: libfive meshing resolution passed to frep() (default 10). Omitted, the ambient ``use_defaults(res=...)``
             value applies.
+
+    Raises:
+        Bosl2ValueError: if a rounding and a chamfer are both asked for (SPEC G-7).
 
     """
     anchor = resolve_center_anchor(center=center, anchor=anchor, centred=CENTER, uncentred=BOTTOM)
@@ -3946,20 +3967,32 @@ def prismoid(
     bx2, by2 = size2[0] / 2, size2[1] / 2
     hb = height / 2
 
+    r1, r2 = _per_end((rounding, rounding1, rounding2))
+    c1, c2 = _per_end((chamfer, chamfer1, chamfer2))
+    if (r1 or r2) and (c1 or c2):
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
+
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         t = lv.min(lv.max((z + hb) / height, 0), 1)
         bx = bx1 + (bx2 - bx1) * t
         by = by1 + (by2 - by1) * t
-        cx = shift[0] * t
-        cy = shift[1] * t
-        qx = lv.abs(x - cx) - bx
-        qy = lv.abs(y - cy) - by
-        d2d = lv.min(lv.max(qx, qy), 0) + _lv_hypot(lv.max(qx, 0), lv.max(qy, 0))
-        slab = lv.abs(z) - hb
-        return lv.max(d2d, slab)
+        qx = lv.abs(x - shift[0] * t)
+        qy = lv.abs(y - shift[1] * t)
+        if c1 or c2:
+            cut = c1 + (c2 - c1) * t
+            d2d = lv.max(lv.max(qx - bx, qy - by), (qx - bx + qy - by + cut) / _SQRT2)
+        else:
+            radius = r1 + (r2 - r1) * t
+            ex, ey = qx - (bx - radius), qy - (by - radius)
+            d2d = lv.min(lv.max(ex, ey), 0) + _lv_hypot(lv.max(ex, 0), lv.max(ey, 0)) - radius
+        return lv.max(d2d, lv.abs(z) - hb)
 
-    maxx = max(bx1, bx2, bx1 + abs(shift[0]), bx2 + abs(shift[0]))
-    maxy = max(by1, by2, by1 + abs(shift[1]), by2 + abs(shift[1]))
+    # The shift moves the *top* section only, so the widest point in each direction is whichever
+    # end reaches furthest -- not either end plus the whole shift. Adding it to the bottom
+    # reported a 28-wide box for a solid 20 wide, the same defect `cyl` carried until T40 and in
+    # the same place: a bound written beside the field rather than measured from it.
+    maxx = max(bx1, bx2 + abs(shift[0]))
+    maxy = max(by1, by2 + abs(shift[1]))
     shape = PyShape(sdf_fn, [-maxx, -maxy, -hb], [maxx, maxy, hb], res)
     offset = _anchor_offset_box3([maxx * 2, maxy * 2, height], [int(a) for a in anchor])
     return _place(shape, offset, spin, orient)

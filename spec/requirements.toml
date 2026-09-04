@@ -983,6 +983,8 @@ status = "enforced"
 note = '''
 The rule is about the box's *type*, and one thing about its *value* is recorded here because T40 made it reachable. A shape that is round about Z reports a **looser box after a spin that cannot move it** -- `sphere(spin=30)` says 27.3 across where it is still 20 -- because `PyShape.rotate` recomputes the bound as the axis-aligned box of the rotated *corner box*: exact for a cuboid, loose for a disc. The field is untouched (rotating `|p| - r` gives back `|p| - r`); only the stored bound grew. Pre-existing in `rotate`, and invisible until T40 gave the SDF constructors `spin`. `ROUND_ABOUT_Z` in `tests/test_option_parity.py` lists the shapes and a test fails if the list goes stale, so one comes off it rather than sitting there as an excuse. Fixing it means giving `rotate` a bound that tracks the shape rather than its corner box, which touches every rotated shape and is its own task.
 
+T43 then found the *same* bound defect in a second shape: `prismoid` added the whole `shift` to its bottom half-size, reporting a 28-wide box for a solid 20 wide, exactly as `cyl` did until T40. Twice is a pattern rather than a slip, and the cause is structural -- every SDF constructor writes its bound beside its field by hand rather than measuring one from the other, so a bound is only as good as whoever last read the formula next to it.
+
 The general point is worth more than the case: an SDF shape's `bounds()` is the box it **declares**, not a measurement of its field. A cross-backend bounds comparison therefore cannot see a defect that moves the geometry and leaves the declaration alone -- T40 found one (the `shift` shear plane, PAR-5) that a bounds test passes with the defect put back.
 '''
 
@@ -2279,6 +2281,8 @@ enforced_by = [
     "tests/test_sdf_texture.py::test_the_repeat_counts_are_resolved_in_one_place",
     "tests/test_sdf_rim.py::test_a_treated_rim_moves_the_wall_of_a_cone",
     "tests/test_sdf_rim.py::test_the_chamfer_is_the_profile_csg_revolves",
+    "tests/test_sdf_prismoid.py::test_no_part_of_the_hull_is_missing_from_the_field",
+    "tests/test_sdf_prismoid.py::test_the_treated_corner_is_actually_cut_away",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
