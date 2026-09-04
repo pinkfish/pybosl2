@@ -556,6 +556,8 @@ status = "enforced"
 note = '''
 Closed on the shape surface in T17 and open everywhere the test did not look: Path2D and Path3D each carried three synonym pairs until T32 — deduplicate/deduplicated, subdivide/subdivide_path, resample/resample_path. The check now walks every public class reachable from the top level, not one class family.
 
+**And a fourth, `teardrop_stations` (T46), shared for a different reason than the other three.** Sharing does not make that rule *right* -- a shared defect moves both backends together, and no parity check can see it. What it does is let one explicit assertion of the rule cover both, which is what a cross-backend comparison cannot supply and what the tests there had been leaning on it for.
+
 **The third instance was caught before it existed.** T44 needed eighty lines of `rect_tube` argument resolution on the SDF side -- outer size or bore plus wall, per-end fallbacks, bore roundings set back by the wall -- and it went to `pybosl2._helpers.resolve_rect_tube` rather than being copied, because the two previous instances say what copying it costs.
 
 **And one about which of two things a name reaches.** `texture` was a top-level export *and* a submodule, and Python binds a submodule onto its package when imported -- winning over the package's own lazy export table. `from pybosl2 import texture` therefore returned the function or the module depending on import order, which is why it survived every test that imported one way and surfaced only when a new test module imported the other. T41 renamed the module to `pybosl2.textures`; the function keeps BOSL2's spelling (B2-3), being the half a caller reads. Exactly one name in the package collided, so `tests/test_declared_surface.py::test_no_exported_name_is_also_a_submodule_name` asserts rather than budgets.
@@ -2151,6 +2153,7 @@ The façade exposes the **union** of what the backends can build, not the inters
 enforced_by = [
     "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
     "tests/test_backend_matrix.py::test_turning_something_off_is_a_request_the_backend_has_to_honour",
+    "tests/test_backend_matrix.py::test_the_examples_here_are_still_gaps",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",
@@ -2164,7 +2167,7 @@ status = "enforced"
 note = '''
 The carve-out for a value that asks for nothing had a hole in it, found in T40. An explicit zero rounding is "no rounding" and refusing it was a false alarm (`RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`) -- but where the façade's default is `True`, passing `False` is the caller turning something **off**, which is a request. `cuboid(trimcorners=False)` leaves the chamfer running past the corners; the SDF backend trims them regardless, and the argument was being dropped in silence. The wrong answer arrived *through* the guard against false alarms rather than around it. `_is_no_op` now takes the façade's default and calls a falsy value nothing only when the default is falsy too. Two parameters in the whole façade have a truthy default a backend lacks, and both of them are this one.
 
-This rule's own worked example has now gone stale twice: `test_an_argument_the_backend_cannot_honour_is_refused_not_dropped` used `cube(10, spin=45)` until T40 built `spin`, then `cuboid(p1=, p2=)` until T42 built that. Each carried an implicit claim -- that the option was CSG-only -- which was never true of either; both were unwritten. What the rule governs is the refusal, not any particular gap, so the example is picked from whatever the parity budget still counts and is expected to keep moving.
+This rule's own worked example has now gone stale **four times**: `cube(10, spin=45)` until T40 built `spin`, `cuboid(p1=, p2=)` until T42, `rect_tube(size1=)` until T44, `cyl(teardrop=)` until T45. Each carried an implicit claim -- that the option was CSG-only -- and not one of the four was ever true; all four were unwritten. What the rule governs is the refusal, not any particular gap. `tests/test_backend_matrix.py::test_the_examples_here_are_still_gaps` reads the measured gap table now and says which example was built, because four times it surfaced instead as a `DID NOT RAISE` three tests away from the change that caused it.
 '''
 
 [[requirement]]
@@ -2288,6 +2291,10 @@ enforced_by = [
     "tests/test_sdf_prismoid.py::test_a_sheared_solid_is_not_centred_on_the_origin",
     "tests/test_sdf_prismoid.py::test_the_bore_corner_is_the_outer_one_set_back_by_the_wall",
     "tests/test_sdf_prismoid.py::test_the_bore_goes_all_the_way_through",
+    "tests/test_sdf_rim.py::test_a_clipped_fillet_follows_the_profile_csg_revolves",
+    "tests/test_sdf_rim.py::test_a_boolean_teardrop_means_forty_five_degrees_not_one",
+    "tests/test_sdf_rim.py::test_a_teardrops_cross_sections_are_the_ones_csg_hulls",
+    "tests/test_sdf_rim.py::test_a_chamfered_end_sets_its_own_section_in_by_the_chamfer",
 ]
 candidates = [
     "tests/test_backend_matrix.py",

@@ -646,7 +646,11 @@ def cyl_profile(
 
     eff_clip = float(clip_angle)
     if teardrop is not False and teardrop is not None:
-        td_ang = teardrop if isinstance(teardrop, (int, float)) else 45.0
+        # `bool` is a subclass of `int`, so an `isinstance(teardrop, (int, float))` test answers
+        # True for `teardrop=True` and takes the boolean itself as the angle -- a **1 degree**
+        # teardrop, which is a rounding with an imperceptible flat on it rather than the 45 the
+        # flag is supposed to mean. The bool has to be ruled out before the number is read.
+        td_ang = 45.0 if isinstance(teardrop, bool) else float(teardrop)
         eff_clip = min(eff_clip, 90.0 - td_ang)
 
     _check_rim_treatments(radius1, radius2, rounding1, rounding2, chamfer1, chamfer2)

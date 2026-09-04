@@ -991,3 +991,65 @@ def resolve_rect_tube(
         ichamfer1_v,
         ichamfer2_v,
     )
+
+
+def teardrop_stations(
+    length: float,
+    rad1: float,
+    rad2: float,
+    cap1: float | None,
+    cap2: float | None,
+    chamfer1: float,
+    chamfer2: float,
+    sin_a: float,
+) -> "list[tuple[float, float, float]]":
+    """Return the cross-sections a teardrop is hulled from, as ``(y, radius, cap)`` stations.
+
+    A chamfered end is an extra section, set in along the axis by the chamfer and smaller by it in
+    both the radius and the cap -- which is what makes the end a bevel. The CSG backend hulls this
+    chain; the SDF backend makes it the breakpoints of a piecewise-linear cross-section. Same
+    chain, so the same shape.
+
+    It is shared for a reason the tests found rather than the reason the previous three were
+    shared for. `tests/test_sdf_rim.py` checks the field against the CSG backend's own outline
+    builder *at these stations* -- so a defect in the stations themselves is invisible to it, the
+    expectation being derived from the thing under test. Sharing does not fix that (a shared
+    defect moves both backends together, and no parity check can see it); what it does is make the
+    one explicit assertion of the rule cover both (SPEC C-21, B2-1).
+
+    "No cap" is stated as a cap at the apex, ``radius / sin(angle)``, rather than as ``None``. It
+    is the same shape, and it removes the case where one end is truncated and the other is not --
+    which would otherwise have no value to interpolate towards.
+
+    Args:
+        length: Length along the axis.
+        rad1: Radius at the front end.
+        rad2: Radius at the back end.
+        cap1: Truncation height at the front, or ``None``.
+        cap2: Truncation height at the back, or ``None``.
+        chamfer1: Chamfer at the front end.
+        chamfer2: Chamfer at the back end.
+        sin_a: Sine of the teardrop's angle.
+
+    Returns:
+        The stations, front to back.
+
+    """
+
+    def capped(radius: float, cap: float | None) -> float:
+        return radius / sin_a if cap is None else min(cap, radius / sin_a)
+
+    front, back = -length / 2, length / 2
+    stations = []
+    if chamfer1:
+        inner = max(0.001, rad1 - chamfer1)
+        stations.append((front, inner, capped(inner, None if cap1 is None else cap1 - chamfer1)))
+        front += abs(chamfer1)
+    stations.append((front, rad1, capped(rad1, cap1)))
+    if chamfer2:
+        back -= abs(chamfer2)
+    stations.append((back, rad2, capped(rad2, cap2)))
+    if chamfer2:
+        inner = max(0.001, rad2 - chamfer2)
+        stations.append((back + abs(chamfer2), inner, capped(inner, None if cap2 is None else cap2 - chamfer2)))
+    return stations

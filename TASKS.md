@@ -71,6 +71,8 @@ spec renumbers as items close, and all but S-46a have.
 | 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
+| 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
+| 18 | PAR-4 / PAR-5 / C-21 / B2-1 | [T46](#t46--the-teardrops-own-ends) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1199,6 +1201,132 @@ took a probe at the bore's edge on the side the shear moves it toward, and one a
 sharp corner — the latter asserted against `max(outer, −bore)` from both closed forms, because
 with a thin wall the *outer* surface is the nearer of the two there and an assertion naming only
 the bore would have been checking the wrong number.
+
+
+## T45 — Clip the fillet ✅
+
+**§12.2 item 17. PAR-4, PAR-5, E-5. 20 → 10.**
+
+Ten gaps: one option pair (`teardrop=`, `clip_angle=`) on the five cylinder spellings. **The first
+that was different in kind.**
+
+Everything closed on this backend before it was an intersection of convex pieces. A fillet clipped
+at an angle is not — the arc runs from the wall down to the clip angle and then goes *straight* to
+the end face, leaving a concave vertex where the two meet. It is the full fillet **unioned** with
+the wedge between the chord and the end face: `min` of two expressions rather than `max` of
+several.
+
+### `teardrop=True` was a one-degree teardrop
+
+`bool` is a subclass of `int`. `cyl_profile` tested `isinstance(teardrop, (int, float))` before
+ruling the flag out, so `True` was read as **the angle itself** — a 1° teardrop where the flag
+means 45. A rounding with a flat too small to see.
+
+```python
+>>> cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=True)[1]
+[6.035, -10.0]     # ... which is teardrop=1
+>>> cyl_profile(8, 8, 20, rounding1=2, rounding2=2, teardrop=45)[1]
+[7.414, -10.0]     # ... which is what the flag means
+```
+
+Nothing caught it because the shape still builds, still looks round, and **its bounding box is
+identical either way**. It took writing the rule down somewhere both backends could read it
+(`effective_clip`) to notice that the two spellings of "yes" disagreed — the fourth time this
+session that sharing a rule found the rule was wrong.
+
+### The profile probe was blind in the middle
+
+`_worst_on_profile` sampled the profile's **vertices**, and everything about the clip flat except
+its two endpoints lives in its *interior*. Two of six negative controls passed:
+
+* the wedge's depth wrong (`sin` for `cos`) — invisible at both endpoints;
+* its union turned into an intersection — likewise.
+
+It samples the midpoints of **straight** segments too now: the end faces, the wall, and the clip
+flat. Chords of the arc are excluded, because a chord sits inside the true circle and that is
+faceting rather than a defect. A strictly better instrument for every shape it checks, not only
+this one.
+
+### And B-9's worked example went stale a fourth time
+
+`spin=` (T40) → `cuboid(p1=, p2=)` (T42) → `rect_tube(size1=)` (T44) → `cyl(teardrop=)` (T45).
+**Not one of the four was ever CSG-only** — all four were unwritten, and naming one in a test
+quietly asserted otherwise. Each time it surfaced as a confusing `DID NOT RAISE` three tests away
+from the thing that changed.
+
+`test_the_examples_here_are_still_gaps` now reads the *measured* gap table and fails with "both
+backends build them now: [...]. Pick another from the budget." A list of examples drawn from a
+shrinking set needs something that notices when the set moves out from under it.
+
+### What remains
+
+10 gaps: the `teardrop` *shape*'s own cap and chamfer options (5), `trimcorners` (2),
+`regular_prism`'s `shift` (1), and `cuboid`/`cube`'s `teardrop` (2) — the last of which raises
+`Bosl2NotImplementedError` on the CSG backend too, so it is a feature neither backend has rather
+than a parity gap.
+
+
+## T46 — The teardrop's own ends ✅
+
+**§12.2 item 18. PAR-4, PAR-5, C-21, B2-1. 10 → 5.**
+
+`cap_h1`, `cap_h2`, `chamfer`, `chamfer1`, `chamfer2` on the `teardrop` shape — `prismoid`'s
+argument for the third time. The CSG backend hulls a chain of cross-sections, so the section runs
+**piecewise-linearly** along the axis, and a chamfered end is one more station in that chain: set
+in by the chamfer, and smaller by it in *both* the radius and the cap. That is what makes the end
+a bevel rather than a step.
+
+A teardrop section is convex, and each of its three features — the disc, the two roof planes, the
+cap — has a support function linear in the radius and the cap height, so the blend of two of them
+is another one with both interpolated. `teardrop_stations` is shared with the CSG backend, the
+fourth such rule after `resolve_center_anchor`, `default_tex_reps` and `resolve_rect_tube`.
+
+### The finding is a limit, not a slip
+
+The cross-section check verifies the field against the CSG backend's own outline builder — but **at
+the stations `teardrop_stations` computes.** A defect in the stations themselves is invisible to
+it: the expectation is derived from the thing under test.
+
+Planting *"the chamfer does not lower the cap"* left **every test green**, including the
+cross-backend box, because the middle station still carries the full cap and the box does not
+move.
+
+**And sharing the function does not fix it.** A shared defect moves both backends together, so no
+parity check can ever see it. That is the limit of the instrument this session has leaned on
+hardest.
+
+What covers it is one test that writes the rule out and asserts it directly:
+
+```
+front chamfer 1.5 → station at y=-10, radius 6.5, cap 5.5
+                    (set in by 1.5, smaller by 1.5 in both)
+```
+
+Not a derivation, just the rule — but it fails when the code stops obeying it, which is what a
+comparison between two things obeying the same wrong rule cannot do. **Every "both backends agree"
+check needs one of these beside it.**
+
+### The staleness guard earned its keep on its first outing
+
+T45 added `test_the_examples_here_are_still_gaps` because B-9's worked example had gone stale four
+times, each as a confusing `DID NOT RAISE` three tests away from the change. This run it fired for
+real and said which:
+
+```
+assert not ['teardrop(cap_h1=)', 'teardrop(chamfer=)']
+```
+
+**The pool is nearly empty now** — three options left that one backend builds and the other
+refuses, and two more that neither builds. When the last goes, that test and the ones it guards
+should be *deleted* rather than kept limping: B-9 will be enforced by there being nothing left to
+refuse.
+
+### What remains
+
+5 gaps, none of them "nobody wrote it": `trimcorners` (2, per-corner edge selection on a chamfer),
+`regular_prism`'s `shift` (1, needs shear in `polygon_prism`), and `cuboid`/`cube`'s `teardrop`
+(2), which raises `Bosl2NotImplementedError` on the **CSG** backend too — a feature neither backend
+has rather than a parity gap.
 
 
 ## Keeping this file honest

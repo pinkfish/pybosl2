@@ -2844,6 +2844,61 @@ def _with_extra(
     return with_extra, mn, mx
 
 
+def effective_clip(clip_angle: float, teardrop: "float | bool") -> float:
+    """Return the angle a rim's rounding is clipped flat at, in degrees.
+
+    `teardrop=` is `clip_angle=` stated as an overhang instead: a teardrop that prints without
+    support may not overhang by more than its angle, so it clips at ``90 - angle``, and the
+    tighter of the two wins.
+
+    ``bool`` is a subclass of ``int``, so reading the number before ruling the flag out takes
+    ``teardrop=True`` as **one degree** -- a rounding with an imperceptible flat rather than the
+    45 the flag means. The CSG backend did exactly that until T45, which is why this is written
+    once and both backends call it.
+
+    Args:
+        clip_angle: The angle to clip the rounding at, 90 for none.
+        teardrop: ``True`` for the default 45-degree teardrop, a number for its angle, ``False``
+            for none.
+
+    Returns:
+        The effective clip angle in degrees.
+
+    """
+    clip = float(clip_angle)
+    if teardrop is False or teardrop is None:
+        return clip
+    angle = 45.0 if isinstance(teardrop, bool) else float(teardrop)
+    return min(clip, 90.0 - angle)
+
+
+def _clip_fillet(u: LVTree, w: LVTree, a: float, clip: float) -> LVTree:
+    """Return the wedge a clipped rounding keeps that a full one cuts away.
+
+    BOSL2 clips a rim's fillet at an angle so the overhang stays printable: the arc runs from the
+    wall down to *clip* degrees and then goes **straight** to the end face, instead of curving all
+    the way round. That leaves a concave vertex where the arc meets the flat, so the region is not
+    convex and cannot be one expression -- it is the full fillet *unioned* with the wedge between
+    the chord and the end face, which is the box below.
+
+    Everything closed on this backend before now was an intersection of convex pieces. This is the
+    first that is not, which is why it was the last of the parity gaps to look different in kind.
+
+    Args:
+        u: The radial coordinate relative to the rim, negative inside.
+        w: The axial coordinate relative to the end face, negative inside.
+        a: The rounding radius.
+        clip: The clip angle in degrees.
+
+    Returns:
+        The distance to the wedge.
+
+    """
+    inset = a * (1.0 - math.cos(math.radians(clip)))
+    depth = a * (1.0 - math.sin(math.radians(clip)))
+    return lv.max(u + inset, lv.max(w, -w - depth))
+
+
 def _cyl_edge_sdf(
     axial: LVTree,
     radial: LVTree,
@@ -2853,6 +2908,7 @@ def _cyl_edge_sdf(
     amt1: "float | tuple[float, float]",
     amt2: "float | tuple[float, float]",
     mode: EdgeMode,
+    clip: float = 90.0,
 ) -> LVTree:
     """Return _cylinder_sdf() plus independent rounding/chamfer treatment of the bottom and top rims.
 
@@ -2873,6 +2929,8 @@ def _cyl_edge_sdf(
             qu = radial - r_ref + a
             qv = lv.abs(axial) - hb + a
             base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
+            if clip < 90.0 and a:
+                base = lv.min(base, _clip_fillet(radial - r_ref, lv.abs(axial) - hb, a, clip))
         else:
             assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
             dx, dy = a if isinstance(a, tuple) else (a, a)
@@ -2915,6 +2973,8 @@ def cylinder(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -2964,6 +3024,10 @@ def cylinder(
             through. It changes neither the length nor the anchoring.
         extra1: Extra length past the end (overall/negative/positive).
         extra2: Extra length past the end (overall/negative/positive).
+        teardrop: Clip the rim's rounding flat so it prints without support -- True for the
+            default 45 degrees, or the angle itself.
+        clip_angle: The angle to clip the rim's rounding at, 90 for none. The tighter of this and
+            *teardrop* wins.
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3002,6 +3066,8 @@ def cylinder(
         extra=extra,
         extra1=extra1,
         extra2=extra2,
+        teardrop=teardrop,
+        clip_angle=clip_angle,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -3086,6 +3152,8 @@ def cyl(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3135,6 +3203,10 @@ def cyl(
             through. It changes neither the length nor the anchoring.
         extra1: Extra length past the end (overall/negative/positive).
         extra2: Extra length past the end (overall/negative/positive).
+        teardrop: Clip the rim's rounding flat so it prints without support -- True for the
+            default 45 degrees, or the angle itself.
+        clip_angle: The angle to clip the rim's rounding at, 90 for none. The tighter of this and
+            *teardrop* wins.
         shift: X/Y offset for the positive end (shear) (default [0,0])
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3176,7 +3248,8 @@ def cyl(
             raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
         sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2, shift)  # noqa: E731
     else:
-        sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)  # noqa: E731
+        clip = effective_clip(clip_angle, teardrop)
+        sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode, clip)  # noqa: E731
     maxr = max(rad1, rad2)
     if texture is not None and texture != "none":
         # The texture pushes the surface out by at most `tex_depth` past the plain radius (and an
@@ -3281,6 +3354,8 @@ def _cyl_axis(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
     shift: "list[float] | None" = None,
@@ -3300,6 +3375,7 @@ def _cyl_axis(
         (from_end, from_end1, from_end2),
     )
 
+    clip = effective_clip(clip_angle, teardrop)
     lean = _axis_shift(axis, shift)
     if lean is not None and any(_rim_size(amt) for amt in (amt1, amt2)):
         raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
@@ -3319,7 +3395,7 @@ def _cyl_axis(
             local_x, local_y = _axis_local_xy(axis, others)
             return textured(local_x, local_y, axial)
         radial = _lv_hypot(others[0], others[1])
-        return _cyl_edge_sdf(axial, radial, length, rad1, rad2, amt1, amt2, mode)
+        return _cyl_edge_sdf(axial, radial, length, rad1, rad2, amt1, amt2, mode, clip)
 
     maxr = max(rad1, rad2)
     if textured is not None:
@@ -3364,6 +3440,8 @@ def xcyl(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3406,6 +3484,10 @@ def xcyl(
             through. It changes neither the length nor the anchoring.
         extra1: Extra length past the end (overall/negative/positive).
         extra2: Extra length past the end (overall/negative/positive).
+        teardrop: Clip the rim's rounding flat so it prints without support -- True for the
+            default 45 degrees, or the angle itself.
+        clip_angle: The angle to clip the rim's rounding at, 90 for none. The tighter of this and
+            *teardrop* wins.
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3451,6 +3533,8 @@ def xcyl(
         extra=extra,
         extra1=extra1,
         extra2=extra2,
+        teardrop=teardrop,
+        clip_angle=clip_angle,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -3484,6 +3568,8 @@ def ycyl(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3526,6 +3612,10 @@ def ycyl(
             through. It changes neither the length nor the anchoring.
         extra1: Extra length past the end (overall/negative/positive).
         extra2: Extra length past the end (overall/negative/positive).
+        teardrop: Clip the rim's rounding flat so it prints without support -- True for the
+            default 45 degrees, or the angle itself.
+        clip_angle: The angle to clip the rim's rounding at, 90 for none. The tighter of this and
+            *teardrop* wins.
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3571,6 +3661,8 @@ def ycyl(
         extra=extra,
         extra1=extra1,
         extra2=extra2,
+        teardrop=teardrop,
+        clip_angle=clip_angle,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -3604,6 +3696,8 @@ def zcyl(
     extra: float = 0.0,
     extra1: float | None = None,
     extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
     shift: list[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
@@ -3646,6 +3740,10 @@ def zcyl(
             through. It changes neither the length nor the anchoring.
         extra1: Extra length past the end (overall/negative/positive).
         extra2: Extra length past the end (overall/negative/positive).
+        teardrop: Clip the rim's rounding flat so it prints without support -- True for the
+            default 45 degrees, or the angle itself.
+        clip_angle: The angle to clip the rim's rounding at, 90 for none. The tighter of this and
+            *teardrop* wins.
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
         texture: A texture name, a height field, or a VNF tile, displacing the side.
         tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
@@ -3686,6 +3784,8 @@ def zcyl(
         extra=extra,
         extra1=extra1,
         extra2=extra2,
+        teardrop=teardrop,
+        clip_angle=clip_angle,
         shift=shift,
         texture=texture,
         tex_size=tex_size,
@@ -4554,6 +4654,29 @@ def polygon_prism(
     )
 
 
+def _piecewise(t: LVTree, stations: "list[tuple[float, float]]") -> LVTree:
+    """Return a piecewise-linear function of *t* through *stations*, as an expression.
+
+    Written as a running sum of clamped ramps -- `v0 + sum((v[i+1] - v[i]) * clamp01(...))` -- so
+    it needs no comparison operator, which libfive does not have. Exact at and between every
+    station, and flat outside the first and last.
+
+    Args:
+        t: The coordinate.
+        stations: ``(at, value)`` pairs in increasing order of *at*.
+
+    Returns:
+        The interpolated value.
+
+    """
+    total: LVTree = stations[0][1]
+    for (at0, v0), (at1, v1) in zip(stations, stations[1:], strict=False):
+        if at1 <= at0 or v1 == v0:
+            continue
+        total = total + (v1 - v0) * lv.min(lv.max((t - at0) / (at1 - at0), 0), 1)
+    return total
+
+
 def teardrop(
     height: float | None = None,
     radius: float | None = None,
@@ -4564,6 +4687,11 @@ def teardrop(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
+    cap_h1: float | None = None,
+    cap_h2: float | None = None,
+    chamfer: float = 0,
+    chamfer1: float = 0,
+    chamfer2: float = 0,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
@@ -4574,9 +4702,13 @@ def teardrop(
     union of a circle and a "roof" of two planes meeting at the apex, tangent to the circle,
     extruded along Y for thickness `h`.
 
-    CAVEAT: simplified relative to pybosl2.shapes3d.teardrop() -- no `chamfer=`/`circum=`/
-    `realign=` support. `cap_height` (truncation height) is supported since it's a plain top-slab
-    intersection.
+    The section's radius and its truncation height both run **piecewise-linearly** along the
+    axis, which is what a chamfered end is: the CSG backend hulls a chain of cross-sections, and a
+    hull's slice is the linear blend of the two it lies between. A teardrop section is convex and
+    each of its three features -- the disc, the two roof planes, the cap -- has a support function
+    linear in the radius and the cap height, so the blend of two of them is another one with both
+    interpolated. `circum=` and `realign=` are still CSG-only: both are about *facet placement* on
+    a polygon, and this backend's section is the exact curve rather than a polygon (SPEC B-9).
 
     Args:
         height: thickness of the teardrop (default 1)
@@ -4588,6 +4720,12 @@ def teardrop(
         diameter: diameter of the circular portion.
         diameter1: diameter of the front end.
         diameter2: diameter of the back end.
+        cap_h1: Truncation height at the front end, falling back to *cap_height*.
+        cap_h2: Truncation height at the back end, falling back to *cap_height*.
+        chamfer: Chamfer at the ends (overall/front/back): the end face is set in by this much and
+            the section shrinks by it, so the end is a bevel rather than a square edge.
+        chamfer1: Chamfer at the ends (overall/front/back).
+        chamfer2: Chamfer at the ends (overall/front/back).
         anchor: anchor point (default CENTER)
         spin: Z-axis rotation in degrees, applied after anchoring.
         orient: Direction to rotate the shape's top towards, applied last.
@@ -4607,30 +4745,36 @@ def teardrop(
     ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
+    from pybosl2._helpers import teardrop_stations
 
-    def profile_sdf(u: LVTree, v: LVTree, radius: float) -> LVTree:
+    stations = teardrop_stations(
+        length,
+        rad1,
+        rad2,
+        cap_h1 if cap_h1 is not None else cap_height,
+        cap_h2 if cap_h2 is not None else cap_height,
+        chamfer1 or chamfer,
+        chamfer2 or chamfer,
+        sin_a,
+    )
+
+    def profile_sdf(u: LVTree, v: LVTree, radius: LVTree, cap: LVTree) -> LVTree:
         circle = _lv_hypot(u, v) - radius
         right = u * sin_a + v * cos_a - radius
         left = -u * sin_a + v * cos_a - radius
         # The roof planes are only tangent to (and so only a valid boundary of) the circle
         # at v >= radius*cos_a (their tangent height); below that they cut into the disk, so
         # mask them out there and let the circle govern instead.
-        v_tangent = radius * cos_a
-        roof = lv.max(right, left) + _PENALTY * lv.max(0, v_tangent - v)
-        d = lv.min(circle, roof)
-        if cap_height is not None:
-            d = lv.max(d, v - cap_height)
-        return d
+        roof = lv.max(right, left) + _PENALTY * lv.max(0, radius * cos_a - v)
+        return lv.max(lv.min(circle, roof), v - cap)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
-        t = lv.min(lv.max((y + hb) / length, 0), 1)
-        rad = rad1 + (rad2 - rad1) * t
-        prof = profile_sdf(x, z, rad)
-        slab = lv.abs(y) - hb
-        return lv.max(prof, slab)
+        rad = _piecewise(y, [(at, r) for at, r, _ in stations])
+        cap = _piecewise(y, [(at, c) for at, _, c in stations])
+        return lv.max(profile_sdf(x, z, rad, cap), lv.abs(y) - hb)
 
-    maxr = max(rad1, rad2)
-    maxheight = maxr / sin_a if cap_height is None else min(cap_height, maxr / sin_a)
+    maxr = max(r for _, r, _ in stations)
+    maxheight = max(min(c, r / sin_a) for _, r, c in stations)
     shape = PyShape(sdf_fn, [-maxr, -hb, -maxr], [maxr, hb, maxheight], res)
     offset = (
         [
