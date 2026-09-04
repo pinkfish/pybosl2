@@ -85,7 +85,7 @@ COVERAGE: dict[str, tuple[str, tuple[str, ...], str]] = {
     "beziers.scad": ("ported", ("beziers",), "bezier curves, paths and patches."),
     "nurbs.scad": ("ported", ("nurbs",), "NURBS curves and patches."),
     "rounding.scad": ("ported", ("rounding", "skin"), "corner rounding, offset sweeps, joints and prisms."),
-    "skin.scad": ("ported", ("skin", "texture"), "skin, sweep, path_sweep, textures."),
+    "skin.scad": ("ported", ("skin", "textures"), "skin, sweep, path_sweep, textures."),
     "vnf.scad": ("ported", ("vnf",), "the mesh interchange type and its operations."),
     "isosurface.scad": (
         "partial",

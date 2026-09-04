@@ -23,7 +23,7 @@ from pybosl2._native import native
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2.texture import TextureType
+    from pybosl2.textures import TextureType
 
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
@@ -253,7 +253,7 @@ def _textured_cyl(
 ) -> Bosl2Solid:
     """Build a cylinder whose side carries *tex*, as a polyhedron (SPEC S-34, S-35).
 
-    The mesh is built in pure Python (:func:`~pybosl2.texture.textured_cylinder_vnf`) and crosses
+    The mesh is built in pure Python (:func:`~pybosl2.textures.textured_cylinder_vnf`) and crosses
     to geometry once, at the end. When neither *tex_size* nor *tex_reps* is given the repeats are
     derived from the facet count the cylinder would have had, so a textured cylinder is as smooth
     as the plain one it replaces.
@@ -278,15 +278,10 @@ def _textured_cyl(
         The textured cylinder.
 
     """
-    from pybosl2.texture import textured_cylinder_vnf
+    from pybosl2.textures import default_tex_reps, textured_cylinder_vnf
 
     if tex_size is None and tex_reps is None:
-        # Neither given, so decide (SPEC D-4): repeat the tile so one comes out roughly square in
-        # world space -- as many around as the circumference holds at the cylinder's own height.
-        # One tile around a whole cylinder is not a texture, and requiring the caller to say is
-        # what P-1 exists to avoid.
-        circumference = 2.0 * math.pi * max(radius1, radius2)
-        tex_reps = [max(1, round(circumference / length)) if length > 0 else 1, 1]
+        tex_reps = default_tex_reps(length, radius1, radius2)
 
     mesh = textured_cylinder_vnf(
         length,

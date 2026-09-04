@@ -1911,7 +1911,7 @@ Things the tranches showed, all worth expecting on the rest:
 **Closed:** §12.2 item 3 → §12.1 (C-8, C-9) · **Implements:** SPEC C-8, C-9 · **Size:** S
 **Risk:** low — three public functions, one library caller
 
-Three functions in `pybosl2/texture.py` thread the two halves of a mesh through separately:
+Three functions in `pybosl2/textures.py` thread the two halves of a mesh through separately:
 `is_watertight_topology(verts, faces)`, `rasterize_vnf_texture(verts, faces, sides)` and
 `vnf_tile_to_solid(verts, faces, size, reps, ...)`, which also *returns* a bare `(verts, faces)`
 tuple. C-8 makes `VNF` the mesh interchange type, and these predate it. Splitting a mesh in two

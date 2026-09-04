@@ -69,6 +69,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
+    from pybosl2.textures import TextureData, TextureType
     from pybosl2.vnf import VNF
 
 
@@ -2646,6 +2647,11 @@ def cylinder(
     rounding1: float | None = None,
     rounding2: float | None = None,
     shift: list[float] | None = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
     anchor: "Sequence[float] | None" = None,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
@@ -2677,6 +2683,12 @@ def cylinder(
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
+        texture: A texture name, a height field, or a VNF tile, displacing the side.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the valleys sit
+            flush rather than proud. ``True`` means one full *tex_depth*.
         anchor: anchor point (default BOTTOM if center=False, otherwise CENTER)
         spin: Z-axis rotation in degrees, applied after anchoring.
         orient: Direction to rotate the shape's top towards, applied last.
@@ -2700,11 +2712,62 @@ def cylinder(
         rounding1=rounding1,
         rounding2=rounding2,
         shift=shift,
+        texture=texture,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
         anchor=anchor,
         spin=spin,
         orient=orient,
         res=res,
     )
+
+
+def _textured_cyl_sdf(
+    length: float,
+    rad1: float,
+    rad2: float,
+    tex: "str | TextureType | TextureData",
+    tex_size: "float | Sequence[float] | None",
+    tex_reps: "int | Sequence[int] | None",
+    tex_depth: float,
+    tex_inset: float | bool,
+) -> "Callable[[LVTree, LVTree, LVTree], LVTree]":
+    """Return the field of a textured cylinder, resolving the texture arguments as CSG does.
+
+    The resolution is shared with the CSG backend down to the tile and the repeat counts
+    (`pybosl2.textures`), so the same call describes the same surface on either backend and the two
+    agree exactly at the sample points the mesh is built from (SPEC PAR-4, PAR-5).
+
+    Args:
+        length: Height of the cylinder.
+        rad1: Radius at the bottom.
+        rad2: Radius at the top.
+        tex: The texture, by name or already built.
+        tex_size: Size of one tile in millimetres.
+        tex_reps: Repeat counts, instead of *tex_size*.
+        tex_depth: How far the texture displaces the surface.
+        tex_inset: How far the surface is sunk before the texture is added.
+
+    Returns:
+        The SDF closure.
+
+    """
+    from pybosl2.sdf.textures import textured_cyl_sdf
+    from pybosl2.textures import _repeat_counts, default_tex_reps, height_field
+
+    if tex_size is None and tex_reps is None:
+        tex_reps = default_tex_reps(length, rad1, rad2)
+
+    field = height_field(tex)
+    around, along = _repeat_counts(length, max(rad1, rad2), tex_size, tex_reps)
+    inset = float(tex_depth) if tex_inset is True else float(tex_inset)
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        return textured_cyl_sdf(x, y, z, length, rad1, rad2, field, around, along, float(tex_depth), inset)
+
+    return sdf_fn
 
 
 def cyl(
@@ -2724,6 +2787,11 @@ def cyl(
     rounding1: float | None = None,
     rounding2: float | None = None,
     shift: list[float] | None = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
     anchor: "Sequence[float] | None" = None,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
@@ -2731,9 +2799,9 @@ def cyl(
 ) -> PyShape:
     """Return a cylinder/cone with optional rounding or chamfering of its end rims, as a libfive SDF.
 
-    See pybosl2.shapes3d.cyl() for the full BOSL2-style version this mirrors (circum=/realign=/
-    texture= aren't supported here; shift= is, for oblique cones, but not combined with
-    rounding/chamfer).
+    See pybosl2.shapes3d.cyl() for the full BOSL2-style version this mirrors (circum=/realign=
+    aren't supported here; shift= is, for oblique cones, but not combined with rounding/chamfer,
+    and neither is texture=).
 
     `rounding`/`chamfer` (and their `1`/`2` bottom/top variants) are mutually exclusive, same
     as pybosl2.shapes3d.cyl().
@@ -2755,6 +2823,12 @@ def cyl(
         rounding1: rounding radius on the end rims (overall/negative/positive)
         rounding2: rounding radius on the end rims (overall/negative/positive)
         shift: X/Y offset for the positive end (shear) (default [0,0])
+        texture: A texture name, a height field, or a VNF tile, displacing the side.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the valleys sit
+            flush rather than proud. ``True`` means one full *tex_depth*.
         anchor: anchor point (default CENTER)
         spin: Z-axis rotation in degrees, applied after anchoring.
         orient: Direction to rotate the shape's top towards, applied last.
@@ -2783,7 +2857,9 @@ def cyl(
         raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
-    if shift is not None and (shift[0] or shift[1]):
+    if texture is not None and texture != "none":
+        sdf_fn = _textured_cyl_sdf(length, rad1, rad2, texture, tex_size, tex_reps, tex_depth, tex_inset)
+    elif shift is not None and (shift[0] or shift[1]):
         if amt1:
             raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
         if amt2:
@@ -2792,6 +2868,11 @@ def cyl(
     else:
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)  # noqa: E731
     maxr = max(rad1, rad2)
+    if texture is not None and texture != "none":
+        # The texture pushes the surface out by at most `tex_depth` past the plain radius (and an
+        # inset pulls it in first). A bound that ignored it would clip the peaks off.
+        inset = float(tex_depth) if tex_inset is True else float(tex_inset)
+        maxr += max(0.0, float(tex_depth) - inset)
     mn = [-maxr, -maxr, -length / 2]
     mx = [maxr, maxr, length / 2]
     if shift is not None and (shift[0] or shift[1]):
@@ -2820,6 +2901,29 @@ _AXIS_LEAN: dict[int, tuple[tuple[int, float], tuple[int, float]]] = {
     1: ((0, 1.0), (1, -1.0)),
     2: ((0, 1.0), (1, 1.0)),
 }
+
+
+def _axis_local_xy(axis: int, others: "list[LVTree]") -> "tuple[LVTree, LVTree]":
+    """Return the cylinder's own ``(x, y)`` from the two non-axial world coordinates.
+
+    `_AXIS_LEAN` says which local coordinate each `others[k]` *is*, and with what sign -- that is
+    what made it able to carry `shift` through the turn. Read backwards it does the other job a
+    turned cylinder needs: putting a texture's angle in the cylinder's own frame, so `xcyl` and
+    `cyl` wear the same pattern the same way round. One table, read forwards for `shift=` and
+    backwards for `texture=`, rather than two derivations of one rotation.
+
+    Args:
+        axis: 0, 1 or 2 -- the coordinate the cylinder runs along.
+        others: The two non-axial coordinates, in world order.
+
+    Returns:
+        The pair ``(local_x, local_y)``.
+
+    """
+    local: list[LVTree] = [0.0, 0.0]
+    for k, (index, sign) in enumerate(_AXIS_LEAN[axis]):
+        local[index] = sign * others[k]
+    return local[0], local[1]
 
 
 def _axis_shift(axis: int, shift: "list[float] | None") -> "list[float] | None":
@@ -2860,6 +2964,11 @@ def _cyl_axis(
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
     shift: "list[float] | None" = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
 ) -> PyShape:
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -2876,6 +2985,10 @@ def _cyl_axis(
     if lean is not None and (amt1 or amt2):
         raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
 
+    textured = None
+    if texture is not None and texture != "none":
+        textured = _textured_cyl_sdf(length, rad1, rad2, texture, tex_size, tex_reps, tex_depth, tex_inset)
+
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         coords = [x, y, z]
         axial = coords[axis]
@@ -2883,10 +2996,16 @@ def _cyl_axis(
         if lean is not None:
             t = axial / length
             others = [o - m * t for o, m in zip(others, lean, strict=True)]
+        if textured is not None:
+            local_x, local_y = _axis_local_xy(axis, others)
+            return textured(local_x, local_y, axial)
         radial = _lv_hypot(others[0], others[1])
         return _cyl_edge_sdf(axial, radial, length, rad1, rad2, amt1, amt2, mode)
 
     maxr = max(rad1, rad2)
+    if textured is not None:
+        inset = float(tex_depth) if tex_inset is True else float(tex_inset)
+        maxr += max(0.0, float(tex_depth) - inset)
     mn, mx = [-maxr, -maxr, -maxr], [maxr, maxr, maxr]
     mn[axis], mx[axis] = -length / 2, length / 2
     if lean is not None:
@@ -2917,6 +3036,11 @@ def xcyl(
     rounding1: float | None = None,
     rounding2: float | None = None,
     shift: list[float] | None = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
     center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -2941,6 +3065,12 @@ def xcyl(
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
+        texture: A texture name, a height field, or a VNF tile, displacing the side.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the valleys sit
+            flush rather than proud. ``True`` means one full *tex_depth*.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
@@ -2971,6 +3101,11 @@ def xcyl(
         spin=spin,
         orient=orient,
         shift=shift,
+        texture=texture,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
     )
 
 
@@ -2990,6 +3125,11 @@ def ycyl(
     rounding1: float | None = None,
     rounding2: float | None = None,
     shift: list[float] | None = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
     center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -3014,6 +3154,12 @@ def ycyl(
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
         shift: [X,Y] offset of the far end's centre, in the cylinder's own frame.
+        texture: A texture name, a height field, or a VNF tile, displacing the side.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the valleys sit
+            flush rather than proud. ``True`` means one full *tex_depth*.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
@@ -3044,6 +3190,11 @@ def ycyl(
         spin=spin,
         orient=orient,
         shift=shift,
+        texture=texture,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
     )
 
 
@@ -3063,6 +3214,11 @@ def zcyl(
     rounding1: float | None = None,
     rounding2: float | None = None,
     shift: list[float] | None = None,
+    texture: "str | TextureType | TextureData | None" = None,
+    tex_size: "float | Sequence[float] | None" = None,
+    tex_reps: "int | Sequence[int] | None" = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
     center: bool | None = None,
     anchor: "Sequence[float] | None" = None,
     spin: float = 0,
@@ -3087,6 +3243,12 @@ def zcyl(
         rounding1: Rounding radius on the end rims (overall/negative/positive)
         rounding2: Rounding radius on the end rims (overall/negative/positive)
         shift: [X,Y] offset of the top section's centre, making an oblique cone.
+        texture: A texture name, a height field, or a VNF tile, displacing the side.
+        tex_size: Size of one tile as ``[around, along]`` in millimetres, or one number for both.
+        tex_reps: Repeat counts as ``[around, along]``, or one number for both.
+        tex_depth: How far the texture displaces the surface. Negative sinks it in.
+        tex_inset: How far the surface is sunk before the texture is added, so the valleys sit
+            flush rather than proud. ``True`` means one full *tex_depth*.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on BOTTOM (SPEC B2-3).
         anchor: Anchor point (default CENTER)
@@ -3112,6 +3274,11 @@ def zcyl(
         rounding1=rounding1,
         rounding2=rounding2,
         shift=shift,
+        texture=texture,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
         anchor=anchor,
         spin=spin,
         orient=orient,

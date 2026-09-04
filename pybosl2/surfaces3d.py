@@ -851,7 +851,7 @@ def textured_tile(
 ) -> "Solid":
     """Return a rectangular tile carrying a repeated *texture*.
 
-    *texture* is either a **name** from the ported :func:`~pybosl2.texture.texture` engine (e.g.
+    *texture* is either a **name** from the ported :func:`~pybosl2.textures.texture` engine (e.g.
     ``"pyramids"``, ``"diamonds"``, ``"hills"``, ``"bricks"``, ``"pyramids_vnf"``), a raw **height-field**
     (a 2-D array of scalar heights in ``[0, 1]``), or a raw **VNF tile** ``(verts, faces)``. It is tiled
     *tex_reps* times (or ``tex_size`` chosen) across the *size* rectangle and raised by *tex_depth*.
@@ -890,14 +890,14 @@ def textured_tile(
             textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
 
     """
-    from pybosl2.texture import (
+    from pybosl2.textures import (
         TextureType,
         is_heightfield_texture,
         is_vnf_texture,
         rasterize_vnf_texture,
         vnf_tile_to_solid,
     )
-    from pybosl2.texture import (
+    from pybosl2.textures import (
         texture as _texture,
     )
     from pybosl2.vnf import VNF

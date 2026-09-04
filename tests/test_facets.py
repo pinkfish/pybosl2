@@ -68,6 +68,10 @@ DESCRIPTORS: frozenset[str] = frozenset(
         # is no output to observe one in. The scan matches them on the parameter names alone.
         "groups.py::refuse_rounding_and_chamfer",
         "groups.py::resolve_edge_treatment",
+        # Takes a height and two radii and returns *how many times a texture tile repeats* --
+        # counts, not geometry. The constructor that consumes them owns the facet count, and the
+        # SDF backend consumes them with no facet count at all (its side is exactly round).
+        "textures.py::default_tex_reps",
         "beziers.py::Bezier.begin",
         "beziers.py::Bezier.end",
         "beziers.py::Bezier.joint",

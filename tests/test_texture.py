@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2.texture: the texture() engine and textured_tile's use of it."""
+"""Tests for pybosl2.textures: the texture() engine and textured_tile's use of it."""
 
 import numpy as np
 import pytest
 
 from pybosl2.shapes3d import Bosl2Solid, textured_tile
-from pybosl2.texture import (
+from pybosl2.textures import (
     TEXTURES,
     is_heightfield_texture,
     is_vnf_texture,

@@ -67,7 +67,7 @@ from pybosl2.regions import Region
 from pybosl2.rounding import _round_corners
 from pybosl2.shapes2d import circle, square
 from pybosl2.shapes3d import cuboid
-from pybosl2.texture import texture
+from pybosl2.textures import texture
 from pybosl2.turtle import turtle2d, turtle3d
 from pybosl2.turtle.turtle3d import TurtleCommand, TurtleCommandType
 from pybosl2.vnf import VNF

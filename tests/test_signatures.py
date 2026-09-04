@@ -54,7 +54,7 @@ TOO_MANY_REQUIRED: dict[str, int] = {
     "path2d.py": 1,
     "path3d.py": 1,
     "surfaces3d.py": 1,
-    "texture.py": 1,
+    "textures.py": 1,
 }
 
 #: Public callables taking a tier parameter positionally, per file. Only shrinks.
@@ -86,7 +86,7 @@ POSITIONAL_TIERS: dict[str, int] = {
     "solid.py": 1,
     "surfaces3d.py": 6,
     "svg.py": 5,
-    "texture.py": 1,
+    "textures.py": 1,
 }
 
 

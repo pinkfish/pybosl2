@@ -29,7 +29,7 @@ L0_foundations = [
 L1_contract = ["_backend"]
 L2_geometry = [
     "geometry", "paths", "path2d", "path3d", "regions", "beziers", "nurbs", "quaternions",
-    "vnf", "rounding", "skin", "texture", "bounds", "color", "transforms", "svg", "turtle",
+    "vnf", "rounding", "skin", "textures", "bounds", "color", "transforms", "svg", "turtle",
     "_helpers", "_anchoring", "distributors", "export", "caps",
 ]
 L3_backends = [

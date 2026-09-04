@@ -21,7 +21,7 @@ import pytest
 
 from pybosl2 import Anchor, cyl, cylinder, texture, xcyl, ycyl, zcyl
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.texture import height_field, texture_grid, textured_cylinder_vnf
+from pybosl2.textures import height_field, texture_grid, textured_cylinder_vnf
 
 
 class TestHeightField:
