@@ -73,6 +73,7 @@ spec renumbers as items close, and all but S-46a have.
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
 | 18 | PAR-4 / PAR-5 / C-21 / B2-1 | [T46](#t46--the-teardrops-own-ends) ✅ | S |
+| 19 | PAR-4 / PAR-5 / B2-1 | [T47](#t47--trimcorners-and-the-instrument-that-was-there-all-along) ✅ | S |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1327,6 +1328,73 @@ refuse.
 `regular_prism`'s `shift` (1, needs shear in `polygon_prism`), and `cuboid`/`cube`'s `teardrop`
 (2), which raises `Bosl2NotImplementedError` on the **CSG** backend too — a feature neither backend
 has rather than a parity gap.
+
+
+## T47 — `trimcorners`, and the instrument that was there all along ✅
+
+**§12.2 item 19. PAR-4, PAR-5, B2-1. 5 → 3.**
+
+Two gaps. **The finding is the instrument, not the option.**
+
+Every cross-backend check written in T40–T46 was one of two things:
+
+| instrument | what it compares | the hole in it |
+|---|---|---|
+| `bounds()` on both backends | two analytically computed triples | a box cannot see the shape inside it |
+| field vs. a CSG-side builder | `cyl_profile`, `rect_path`, `teardrop_stations` | cannot see what the backend does with what it builds |
+
+**`PyOpenSCAD.mesh()` returns real vertices, and has all along.** The strongest available statement
+is simply: *is the field zero at every vertex of the mesh the other backend produces?* I had said
+earlier in this session that meshing wasn't available — that was true of the **SDF** side (no
+libfive here) and I never checked the CSG side, which can.
+
+### What it settled
+
+No box could distinguish `trimcorners`: the trimmed and untrimmed chamfered cubes have the **same
+bounding box** and differ by one vertex out of 24 — the point where three chamfer planes would
+otherwise meet. This backend had been building the **untrimmed** solid for a uniform chamfer, with
+no way to say so, while CSG trims by default.
+
+The trim is one more plane, `x + y + z = Σhalf − 2c`, read straight off those vertices at four
+chamfer sizes.
+
+### And it corrected a wrong guess in the same sitting
+
+The flag reads as though it should apply to a rounding too — BOSL2's own edge-mask code picks a
+sphere for the corner when set and three intersecting cylinders when not. But:
+
+```
+cuboid(rounding=2, trimcorners=True ).mesh()   ┐ byte-identical,
+cuboid(rounding=2, trimcorners=False).mesh()   ┘ at every facet count checked
+```
+
+The first version honoured it there, and would have made the two backends disagree on a call they
+already agree on. **A plausible reading of the source lost to a measurement of the output**, which
+is the same shape as every other finding in this run.
+
+### The pool of refusal examples is down to one
+
+The staleness guard fired again, naming `cube(trimcorners=)` and `cuboid(trimcorners=)`. Three
+tests had to be repointed and **one had its premise removed entirely**:
+`test_turning_something_off_is_a_request_the_backend_has_to_honour` needed a façade argument with
+a *truthy* default that a backend lacks, and `trimcorners` was the only one — two parameters, both
+it. There is now no end-to-end call that reaches that branch of `_is_no_op`.
+
+It is a unit test of `_is_no_op` now, saying so. **A unit test that admits what it is beats an
+integration test that quietly stopped being one.**
+
+`regular_prism(shift=)` is the last option one backend builds and the other refuses.
+`cuboid`/`cube`'s `teardrop` is unbuilt on *both*, so it cannot stand in as an example of a
+refusal. When that last one goes, these tests should be **deleted** rather than kept limping —
+B-9 enforced by there being nothing left to refuse is the outcome the rule is for.
+
+### Where the parity work stands
+
+**176 → 3.** What closed them was almost never a distance field somebody had to invent; it was
+reading what the CSG backend actually does, which more often than not turned out to be "reduce it
+to something simple and then build that". The three left are `regular_prism`'s `shift`, and
+`cuboid`/`cube`'s `teardrop` — which raises `Bosl2NotImplementedError` on the CSG backend too, so
+it is a feature neither backend has rather than a parity gap.
 
 
 ## Keeping this file honest

@@ -196,7 +196,13 @@ def _edge_matrices(
 
 
 def _cuboid_edge_sdf(
-    x: LVTree, y: LVTree, z: LVTree, size: list[float], amounts: list[list[float]], modes: list[list[EdgeMode]]
+    x: LVTree,
+    y: LVTree,
+    z: LVTree,
+    size: list[float],
+    amounts: list[list[float]],
+    modes: list[list[EdgeMode]],
+    trimcorners: bool = True,
 ) -> LVTree:
     """Return the cuboid SDF with independent per-edge treatment.
 
@@ -205,9 +211,27 @@ def _cuboid_edge_sdf(
     max()-ing full cuboid SDFs (the old .round()/.chamfer() composition) leaves their zero
     sets coincident along every untreated face, which libfive's mesher refines to the bitter
     end (a plain box ballooned to ~1M triangles and minutes of meshing).
+
+    **`trimcorners` is what happens where three treated edges meet.** The general form below --
+    the three axis-wise 2-D sections intersected -- *is* the untrimmed corner: it is BOSL2's
+    "intersection of three cylinders", and for a chamfer it leaves the three cut planes meeting at
+    a point. Trimming takes that point off with one more plane. This backend built the untrimmed
+    shape for a uniform chamfer and had no way to say so, while the CSG backend trims by default:
+    the same call gave a 24-vertex solid on one and a 32-vertex one on the other (T47).
+
+    Per-edge amounts are always untrimmed, and there is nothing else they could be: a corner where
+    three *differently* treated edges meet has no single amount to trim it by. A uniform
+    **rounding** ignores the flag, because the CSG backend does: its trimmed and untrimmed meshes
+    are identical.
     """
-    if all(m == EdgeMode.ROUND for row in modes for m in row) and len({a for row in amounts for a in row}) == 1:
-        # Uniform treatment (including the plain r=0 box): the exact closed-form SDF.
+    uniform = len({a for row in amounts for a in row}) == 1
+    if uniform and all(m == EdgeMode.ROUND for row in modes for m in row):
+        # Uniform rounding (including the plain r=0 box): the exact closed-form SDF, whose corner
+        # is a sphere. `trimcorners` is deliberately not consulted here, because **the CSG backend
+        # ignores it for a rounding**: `cuboid(rounding=2, trimcorners=False)` and the default
+        # produce byte-identical meshes, at every facet count checked. Honouring it here would
+        # make the two backends differ on a call they currently agree on -- which is what the
+        # first version of this did, and what meshing the CSG shape caught.
         return _rounded_box_sdf(x, y, z, size, amounts[0][0])
 
     p = [x, y, z]
@@ -222,7 +246,14 @@ def _cuboid_edge_sdf(
         slab = lv.abs(p[axis]) - b[axis]
         return lv.max(d2d, slab)
 
-    return lv.max(lv.max(axis_sdf(0), axis_sdf(1)), axis_sdf(2))
+    box = lv.max(lv.max(axis_sdf(0), axis_sdf(1)), axis_sdf(2))
+    if trimcorners and uniform and all(m == EdgeMode.CHAMFER for row in modes for m in row) and amounts[0][0]:
+        # The corner facet, measured off the CSG backend's own mesh: its three vertices sit on
+        # `x + y + z = sum(half) - 2c` for every chamfer size, so that is the plane, normalised.
+        cut = amounts[0][0]
+        corner = (lv.abs(x) + lv.abs(y) + lv.abs(z) - (sum(b) - 2 * cut)) / math.sqrt(3.0)
+        box = lv.max(box, corner)
+    return box
 
 
 #: Native operations that genuinely need a mesh: they consume or produce mesh topology, so
@@ -1920,6 +1951,7 @@ def cuboid(
     chamfer: float = 0,
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
+    trimcorners: bool = True,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -1949,6 +1981,10 @@ def cuboid(
         edges:        edges to treat -- "ALL"/"NONE"/"X"/"Y"/"Z", a single edge vector (e.g.
                       TOP+LEFT), a list of edge vectors, or a raw 3x4 edge array (default "ALL")
         except_edges: edges to explicitly exclude from `edges` (BOSL2's `except=` synonym;
+        trimcorners: Trim the corners where three treated edges meet (default True). False leaves
+            the three treatments meeting at a point, which is BOSL2's "intersection of three
+            cylinders". Per-edge amounts are always untrimmed: a corner where three *differently*
+            treated edges meet has no single amount to trim it by.
                       `except` is a Python keyword)
         res: libfive meshing resolution passed to frep() (default 10; higher = finer mesh). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
@@ -2015,7 +2051,7 @@ def cuboid(
     mode = EdgeMode.CHAMFER if chamfer else EdgeMode.ROUND
     amount = chamfer if chamfer else rounding
     amounts, modes = _edge_matrices(amount, edge_set, mode)
-    sdf_fn = lambda x, y, z: _cuboid_edge_sdf(x, y, z, sz, amounts, modes)  # noqa: E731
+    sdf_fn = lambda x, y, z: _cuboid_edge_sdf(x, y, z, sz, amounts, modes, trimcorners)  # noqa: E731
     shape = PyShape(
         sdf_fn,
         [-half[0], -half[1], -half[2]],
@@ -2035,6 +2071,7 @@ def cube(
     chamfer: float = 0,
     edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
     except_edges: "list[EdgeAtom] | None" = None,
+    trimcorners: bool = True,
     center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -2049,6 +2086,10 @@ def cube(
         chamfer: Chamfer size for the edges, as :func:`cuboid` builds it.
         edges: Which edges to treat; the whole edge language :func:`cuboid` accepts.
         except_edges: Which edges to leave alone.
+        trimcorners: Trim the corners where three treated edges meet (default True). False leaves
+            the three treatments meeting at a point, which is BOSL2's "intersection of three
+            cylinders". Per-edge amounts are always untrimmed: a corner where three *differently*
+            treated edges meet has no single amount to trim it by.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on FRONT+LEFT+BOTTOM (SPEC B2-3).
         anchor: anchor point (default Anchor.CENTER)
@@ -2064,6 +2105,7 @@ def cube(
         chamfer=chamfer,
         edges=edges,
         except_edges=except_edges,
+        trimcorners=trimcorners,
         anchor=anchor,
         spin=spin,
         orient=orient,

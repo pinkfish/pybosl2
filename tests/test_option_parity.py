@@ -50,10 +50,14 @@ T46, the `teardrop` *shape*'s per-end caps and chamfers -- `prismoid`'s argument
 backend hulls a chain of cross-sections, so the section runs piecewise-linearly along the axis and
 a chamfered end is one more station in that chain.
 
-**Five remain**, and none of them is "nobody wrote it": `trimcorners` (2) is per-corner edge
-selection on a chamfer, `regular_prism`'s `shift` (1) needs shear in `polygon_prism`, and
-`cuboid`/`cube`'s `teardrop` (2) raises `Bosl2NotImplementedError` on the *CSG* backend too -- a
-feature neither backend has rather than a parity gap.
+T47, `trimcorners` -- and the instrument, which was there all along. `PyOpenSCAD.mesh()` returns
+real vertices, so the strongest cross-backend statement available is "is the field zero at every
+vertex of the mesh the other backend builds". No box could have settled this one: the trimmed and
+untrimmed solids have the *same* box and differ by one vertex out of 24.
+
+**Three remain**: `regular_prism`'s `shift` (1), which needs shear in `polygon_prism`, and
+`cuboid`/`cube`'s `teardrop` (2), which raises `Bosl2NotImplementedError` on the *CSG* backend too
+-- a feature neither backend has rather than a parity gap.
 
 Two things this separates, because they are different defects:
 
@@ -83,8 +87,8 @@ TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 #: How many options the SDF backend lacks, per shape. Honest parity debt: each is refused with the
 #: parameter named (B-9) rather than silently dropped. Only shrinks.
 OPTION_GAPS: dict[str, int] = {
-    "cube": 2,
-    "cuboid": 2,
+    "cube": 1,
+    "cuboid": 1,
     "regular_prism": 1,
 }
 
