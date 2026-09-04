@@ -2295,6 +2295,9 @@ enforced_by = [
     "tests/test_sdf_rim.py::test_a_boolean_teardrop_means_forty_five_degrees_not_one",
     "tests/test_sdf_rim.py::test_a_teardrops_cross_sections_are_the_ones_csg_hulls",
     "tests/test_sdf_rim.py::test_a_chamfered_end_sets_its_own_section_in_by_the_chamfer",
+    "tests/test_sdf_corners.py::test_the_field_passes_through_every_vertex_of_the_csg_mesh",
+    "tests/test_sdf_corners.py::test_trimming_is_the_one_vertex_that_tells_them_apart",
+    "tests/test_sdf_corners.py::test_a_rounded_box_ignores_the_flag_because_the_csg_backend_does",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
@@ -2314,6 +2317,8 @@ note = '''
 * **`_AXIS_LEAN`, which carries `shift` through the rotation that turns a `cyl` into an `xcyl`, had every sign inverted** in its first version. `shift=[3, 3]` on a symmetric cone passes with the signs backwards, so the tests use an asymmetric shift on each axis.
 
 **T42 found a third way the two can disagree, and a third instrument for seeing it.** The CSG backend states a cylinder's rim as a 2-D *profile* it revolves, so there is an exact question available: is the field zero at every vertex of that profile? On a taper it was not. BOSL2 puts a treated rim's inner endpoint at the **nominal** end radius and runs the wall from there to the other end's endpoint, so a chamfered cone's wall is not the line through its two nominal corners; this backend measured against that nominal line and built a different cone from the same call -- 0.39mm out on an 8-to-4 taper with a 2mm chamfer, and the same for a rounding. Wrong since the rim treatment was written. Neither of the other two instruments could have found it: on a plain cylinder the two constructions coincide, and the bounding box is set by the widest ring, which the wall between the rims never touches. Three defects, three instruments, and each was invisible to the other two -- which is the argument for asking what a check *cannot* see before trusting that it passed.
+
+**And there was a better instrument available the whole time.** `PyOpenSCAD.mesh()` returns real vertices, so "is the field zero at every vertex of the mesh the other backend builds" was always askable, and it is strictly stronger than either of the two used through T40-T46 -- a box cannot see the shape inside it, and a CSG-side geometry builder cannot see what the backend does with what it builds. T47 found it while chasing `trimcorners`, which no box could settle: the trimmed and untrimmed chamfered cubes have the same bounding box and differ by one vertex out of 24. The mesh also corrected a wrong guess in the same sitting -- that the flag applies to a rounding, which the CSG backend's own byte-identical meshes say it does not.
 
 **A bounds comparison could only see two of the three.** An SDF shape's `bounds()` is the box it *declares*, not a measurement of its field, so the wrong shear plane moves the geometry and leaves the reported box alone -- planting that defect again leaves the cross-backend bounds test green. It took a test that asks the field where the material is (`test_the_oblique_shear_is_taken_about_the_mid_plane`, sampling either side of each end disc). That is a general limit on how far the cross-backend comparison can reach on this backend, not a fact about `shift`.
 '''

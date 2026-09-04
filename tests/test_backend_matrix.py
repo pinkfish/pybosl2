@@ -495,19 +495,28 @@ def test_turning_something_off_is_a_request_the_backend_has_to_honour() -> None:
 
     A falsy value is normally nothing to honour -- `prismoid(rounding=0)` is "no rounding", and
     refusing it turned `RingHook` away from the SDF backend for no reason. But where the default
-    is `True`, `False` is the caller turning something *off*: `cuboid(trimcorners=False)` leaves
-    the chamfer running past the corners, and the SDF backend trims them regardless. It was being
+    is `True`, `False` is the caller turning something *off*: `cuboid(trimcorners=False)` left the
+    chamfer running past the corners, and the SDF backend trimmed them regardless. It was being
     dropped -- a silent wrong answer arriving through the guard against false alarms rather than
-    around it. Two parameters in the whole façade have a truthy default a backend lacks, and both
-    are this one.
-    """
-    from pybosl2.exceptions import UnsupportedByBackendError
+    around it.
 
-    with use_backend("sdf"):
-        # The default itself still passes quietly: nobody asked for it.
-        assert solid.cuboid(size=10, chamfer=2, trimcorners=True).backend == "sdf"  # type: ignore[attr-defined]
-        with pytest.raises(UnsupportedByBackendError, match="trimcorners"):
-            solid.cuboid(size=10, chamfer=2, trimcorners=False)
+    **The example is gone**, and that is the honest state: `trimcorners` was the only façade
+    argument with a truthy default a backend lacked (two parameters, both this one), and T47 built
+    it on the SDF backend. There is no end-to-end call left that reaches this branch, so the test
+    is of `_is_no_op` itself. A unit test that says so beats an integration test that quietly
+    stopped being one.
+    """
+    from pybosl2._backend import _is_no_op
+
+    # `trimcorners` was the example, and both parameters that carried it are built on both
+    # backends now (T47) -- so there is no façade argument left with a truthy default that a
+    # backend lacks, and no end-to-end call that exercises this. The rule is still the rule; what
+    # is left to test is the function that states it, which is better than deleting the check and
+    # better than pretending an integration test is still running.
+    assert _is_no_op(False, None) is True, "a plain False asks for nothing"
+    assert _is_no_op(0, None) is True, "and so does a zero"
+    assert _is_no_op(False, True) is False, "but False against a True default is turning it off"
+    assert _is_no_op(None, True) is True, "while None is still 'decide for me' (SPEC D-4)"
 
 
 def test_a_facade_default_is_still_filtered_quietly() -> None:
@@ -657,7 +666,7 @@ def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) 
     assert built.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
 
 
-@pytest.mark.parametrize("kwargs", [{"teardrop": True}, {"trimcorners": False}])
+@pytest.mark.parametrize("kwargs", [{"teardrop": True}])
 def test_a_real_request_the_backend_cannot_honour_is_still_refused(kwargs: dict[str, object]) -> None:
     """The other half of the zero-is-not-a-request rule, on a gap that is still a gap.
 
@@ -705,8 +714,6 @@ def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
     ("shape", "kwargs", "expected"),
     [
         ("regular_prism", {"sides": 6, "height": 10, "radius": 5, "shift": [3, 0]}, (None, None, 10)),
-        ("cube", {"size": 10, "chamfer": 2, "trimcorners": False}, (10, 10, 10)),
-        ("cuboid", {"size": [40, 20, 10], "chamfer": 2, "trimcorners": False}, (40, 20, 10)),
     ],
 )
 def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
@@ -765,21 +772,18 @@ def test_the_examples_here_are_still_gaps() -> None:
     here, saying which two options had been built. The budget is the authority on what is left, so
     this reads it rather than keeping a second list beside it (SPEC B2-1).
 
-    **The pool is nearly empty**, which is the point of the exercise: three options are left that
-    one backend builds and the other refuses, and two more that neither builds. When the last one
-    goes, this test and the ones it guards have nothing to say and should be deleted rather than
-    kept limping -- B-9 will be enforced by there being nothing left to refuse.
+    **The pool is down to one.** `regular_prism(shift=)` is the last option one backend builds and
+    the other refuses; `cuboid`/`cube`'s `teardrop` is unbuilt on both, so it cannot serve as an
+    example of a *refusal*. When that one goes, this test and the ones it guards have nothing left
+    to say and should be **deleted** rather than kept limping -- B-9 will be enforced by there
+    being nothing left to refuse, which is the outcome the rule is for.
     """
     import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from test_option_parity import GAPS
 
-    examples = {
-        ("regular_prism", "shift"),
-        ("cube", "trimcorners"),
-        ("cuboid", "trimcorners"),
-    }
+    examples = {("regular_prism", "shift")}
     built = sorted(f"{shape}({option}=)" for shape, option in examples if option not in GAPS.get(shape, ()))
     assert not built, (
         "these are used above as options one backend cannot honour, and both backends build them "
