@@ -75,6 +75,7 @@ spec renumbers as items close, and all but S-46a have.
 | 18 | PAR-4 / PAR-5 / C-21 / B2-1 | [T46](#t46--the-teardrops-own-ends) ✅ | S |
 | 19 | PAR-4 / PAR-5 / B2-1 | [T47](#t47--trimcorners-and-the-instrument-that-was-there-all-along) ✅ | S |
 | 20 | PAR-4 / PAR-5 / S-2b | [T48](#t48--the-last-option-gap) ✅ | S |
+| 21 | S-2b / PAR-5 | [T49](#t49--measure-the-bounds-instead-of-writing-them) ✅ | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1455,6 +1456,64 @@ examples were illustrations, and the illustrations kept turning out to be wrong.
 The new test does not take "neither backend does it" on trust either: it *calls* `cuboid(teardrop=)`
 and requires `Bosl2NotImplementedError`, because that is exactly the kind of claim that quietly
 stops being true.
+
+
+## T49 — Measure the bounds instead of writing them ✅
+
+**§12.2 item 21. S-2b, PAR-5.**
+
+Five bound defects came up in T40–T48, in five places, **each found by accident while doing
+something else**:
+
+| where | what it claimed |
+|---|---|
+| `cyl(shift=)` | widened by the whole shift at *both* ends — 13 wide for a solid 10 wide |
+| `prismoid(shift=)` | added the shift to the *bottom* half-size — 28 for a solid 20 |
+| the fix for that | kept the box **symmetric**, which a sheared solid is not |
+| `multmatrix` after a shear | old box's corners carried along — 14 for a solid 13.2 |
+| `rotate` | the rotated corner box — **37% too wide for a sphere** |
+
+Every one is the same mistake: **the box is written by hand beside the field rather than measured
+from it**, so it is only as good as whoever last read the formula next to it.
+
+### The fix, and then the instrument
+
+`rotate` now records, per shape, the line or point it may be turned about without moving —
+consulted only when the rotation line *is* that line, so a cylinder shifted off the axis and spun
+still gets the honest conservative box. `sphere(spin=30)` reports 20 across instead of 27.3.
+
+But the point of this task is the second half. `tests/test_sdf_bounds_are_tight.py` asks, of every
+constructor and every option combination that moves a box, two questions:
+
+* does the solid **reach** each face it declares?
+* does any of it **escape**?
+
+### The escape half was missing, and two of four controls passed without it
+
+Both were defects that make the box too **small** — a shape keeping its symmetry after being moved
+off its own axis, and a sheared cylinder claiming to be rotationally symmetric. That is the
+direction that **clips geometry when the field is meshed**: not with an error, but with a shape
+that is quietly wrong.
+
+I had written the check for the direction I had been finding defects in, which was the safe one.
+
+A third control was unobservable until its fixture was made asymmetric enough to show it: a
+sheared cylinder with a *short* shift fits inside its own unspun box either way, so claiming a
+symmetry it does not have changed nothing. `shift=[20, 0]` shows it.
+
+### A guard retired itself
+
+The §12.2 row recording the rotation defect told whoever fixed it to delete `ROUND_ABOUT_Z`, its
+test and the row. T40 wrote that test to fail *when the defect went away*:
+
+```
+assert spun[0] > plain[0], (
+    "the SDF bound is no longer conservative after a spin -- delete ROUND_ABOUT_Z, this test, "
+    "and the §12.2 row that records it")
+```
+
+It fired, and all three went. The round shapes are compared on `spin` as well as `orient` now,
+which is what the exclusion existed to wait for.
 
 
 ## Keeping this file honest

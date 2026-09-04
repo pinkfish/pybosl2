@@ -74,6 +74,27 @@ if TYPE_CHECKING:
     from pybosl2.vnf import VNF
 
 
+def _symmetric(shape: PyShape, direction: "tuple[float, float, float]", when: bool = True) -> PyShape:
+    """Record that *shape*, as built, is unchanged by a turn about *direction* through the origin.
+
+    A zero direction means spherical. Only the constructors that are *actually* symmetric say so:
+    a textured or sheared cylinder is not, and neither is a polygonal prism or a pie slice.
+
+    Args:
+        shape: The freshly built field, centred on the origin.
+        direction: The axis it may be turned about, or ``(0, 0, 0)`` for any.
+        when: False to leave the shape unmarked -- so a caller states the condition where the
+            shape is built rather than wrapping the construction in an `if`.
+
+    Returns:
+        The same shape, carrying its symmetry if it has one.
+
+    """
+    if when:
+        shape._symmetry = (direction, (0.0, 0.0, 0.0))
+    return shape
+
+
 def _place(
     shape: PyShape,
     offset: "Sequence[float]",
@@ -279,6 +300,56 @@ _MESH_OPERATIONS = frozenset(
 )
 
 
+#: A shape's rotational symmetry: the line, or the point, that it may be turned about without its
+#: bounding box changing. `(direction, point)` with a zero direction means spherical -- any axis
+#: through *point*. It exists because a bound is a *claim*, and the one `rotate` computes is the
+#: axis-aligned box of the rotated **corner box**: exact for a cuboid, and 37% too wide for a
+#: sphere, which reports 27.3 across after a 30-degree spin that cannot move it (SPEC S-2b, PAR-5).
+#:
+#: Only `rotate` reads it, and only when the rotation line *is* the symmetry line. `translate`
+#: carries the point along; everything else drops it, because a shape that has been cut, unioned
+#: or scaled is no longer the shape whose symmetry was recorded.
+Symmetry = tuple[tuple[float, float, float], tuple[float, float, float]]
+
+
+def _turns_about_its_own_axis(
+    symmetry: "Symmetry | None", a: "float | Sequence[float] | None", v: "Sequence[float] | None"
+) -> bool:
+    """Report whether this rotation leaves the shape, and so its bounding box, exactly where it is.
+
+    True only when the rotation line **is** the symmetry line. A cylinder standing on the Z axis
+    spun about Z is unmoved; the same cylinder shifted to `x = 3` and spun about Z is not, which is
+    why the symmetry carries a point and not just a direction.
+
+    Args:
+        symmetry: The shape's recorded symmetry, or ``None``.
+        a: The angle, or a list of Euler angles.
+        v: The axis, when *a* is an angle.
+
+    Returns:
+        True if the box may be kept as it is.
+
+    """
+    if symmetry is None or v is None or isinstance(a, (list, tuple)):
+        return False  # Euler triples are three rotations; not worth reasoning about here
+    direction, point = symmetry
+    axis = [float(c) for c in v]
+    length = math.sqrt(sum(c * c for c in axis))
+    if length < 1e-12:
+        return False
+    unit = [c / length for c in axis]
+    # The rotation is about a line through the origin, so the symmetry point has to lie on it.
+    along = sum(point[i] * unit[i] for i in range(3))
+    if any(abs(point[i] - along * unit[i]) > 1e-9 for i in range(3)):
+        return False
+    if not any(direction):
+        return True  # spherical: any axis through the point will do
+    scale = math.sqrt(sum(c * c for c in direction))
+    return all(abs(direction[i] / scale - unit[i] * (1 if along >= 0 else 1)) < 1e-9 for i in range(3)) or all(
+        abs(direction[i] / scale + unit[i]) < 1e-9 for i in range(3)
+    )
+
+
 class SdfSolid(Colorable, Anchorable, Distributable):
     """Wrap a libfive SDF kept as a *symbolic* function of (x, y, z).
 
@@ -350,6 +421,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         # survives every exact transform rather than forcing a mesh
         self._nominal_size: list[float] | None = None
         self._nominal_anchor: Any = None
+        self._symmetry: "Symmetry | None" = None
 
     def _wrap(
         self,
@@ -360,6 +432,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
         cuboid_edge_amounts: list[list[float]] | None = None,
         cuboid_edge_modes: list[list[EdgeMode]] | None = None,
+        symmetry: "Symmetry | None" = None,
     ) -> PyShape:
         out = PyShape(
             sdf_fn,
@@ -371,6 +444,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             cuboid_edge_amounts,
             cuboid_edge_modes,
         )
+        out._symmetry = symmetry
         # colour is metadata, so it survives every exact transform rather than forcing a mesh
         out._colour = self._colour
         out._modifier = self._modifier
@@ -755,6 +829,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             self.cuboid_center[1] + ty,
             self.cuboid_center[2] + tz,
         )
+        moved = None
+        if self._symmetry is not None:
+            direction, point = self._symmetry
+            moved = (direction, (point[0] + tx, point[1] + ty, point[2] + tz))
         return self._wrap(
             new_fn,
             new_mn,
@@ -763,6 +841,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             new_center,
             self.cuboid_edge_amounts,
             self.cuboid_edge_modes,
+            moved,
         )
 
     def rotate(self, a: float | Sequence[float] | None = None, v: Sequence[float] | None = None) -> PyShape:
@@ -800,6 +879,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             ]
             for i in range(8)
         ]
+        if _turns_about_its_own_axis(self._symmetry, a, v):
+            # The shape is being turned about the very line it is symmetric around, so it does not
+            # move and neither does its box. Recomputing it from the rotated corners would report
+            # a sphere 37% wider after a spin that cannot touch it.
+            return self._wrap(new_fn, list(self.mn), list(self.mx), symmetry=self._symmetry)
         rotated = [[sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners]
         new_mn = [min(c[i] for c in rotated) for i in range(3)]
         new_mx = [max(c[i] for c in rotated) for i in range(3)]
@@ -2546,6 +2630,7 @@ def sphere(
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     sdf_fn = lambda x, y, z: lv.sqrt(x * x + y * y + z * z) - rad  # noqa: E731
     shape = PyShape(sdf_fn, [-rad, -rad, -rad], [rad, rad, rad], res)
+    shape = _symmetric(shape, (0.0, 0.0, 0.0))
     offset = _anchor_offset_sphere(rad, anchor)
     return _place(shape, offset, spin, orient)
 
@@ -2657,6 +2742,7 @@ def torus(
     sdf_fn = lambda x, y, z: _lv_hypot(_lv_hypot(x, y) - maj, z) - minr  # noqa: E731
     outer = maj + minr
     shape = PyShape(sdf_fn, [-outer, -outer, -minr], [outer, outer, minr], res)
+    shape = _symmetric(shape, (0.0, 0.0, 1.0))
     offset = _anchor_offset_cyl(outer, outer, minr * 2, anchor)
     return _place(shape, offset, spin, orient)
 
@@ -3309,7 +3395,8 @@ def cyl(
             mn[i] = min(-shift[i] / 2 - rad1, shift[i] / 2 - rad2)
             mx[i] = max(-shift[i] / 2 + rad1, shift[i] / 2 + rad2)
     field, mn, mx = _with_extra(sdf_fn, 2, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
-    shape = PyShape(field, mn, mx, res)
+    upright = not (shift and (shift[0] or shift[1])) and texture is None
+    shape = _symmetric(PyShape(field, mn, mx, res), (0.0, 0.0, 1.0), upright)
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
     return _place(shape, offset, spin, orient)
 
@@ -3453,7 +3540,8 @@ def _cyl_axis(
             mn[i] = min(-lean[k] / 2 - rad1, lean[k] / 2 - rad2)
             mx[i] = max(-lean[k] / 2 + rad1, lean[k] / 2 + rad2)
     field, mn, mx = _with_extra(sdf_fn, axis, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
-    shape = PyShape(field, mn, mx, res)
+    axis_line = (float(axis == 0), float(axis == 1), float(axis == 2))
+    shape = _symmetric(PyShape(field, mn, mx, res), axis_line, not lean and texture is None)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=axis)
     return _place(shape, offset, spin, orient)
 
@@ -3941,6 +4029,7 @@ def tube(
 
     maxr = max(rad1, rad2)
     shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
+    shape = _symmetric(shape, (0.0, 0.0, 1.0))
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
     return _place(shape, offset, spin, orient)
 
@@ -4875,6 +4964,7 @@ def onion(
 
     maxheight = rad / sin_a if cap_height is None else min(cap_height, rad / sin_a)
     shape = PyShape(sdf_fn, [-rad, -rad, -rad], [rad, rad, maxheight], res)
+    shape = _symmetric(shape, (0.0, 0.0, 1.0))
     offset = (
         [
             -anchor[0] * rad,
