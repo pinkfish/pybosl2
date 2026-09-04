@@ -1972,11 +1972,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         from functools import reduce
 
         from pybosl2.color import Color
-        from pybosl2.shapes3d import text3d
 
         solid = self.polygon().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
+        # `text3d` renders a font and is CSG-only, and it is imported here rather than at the top
+        # of the module so a debug helper's dependency is not every caller's import cost.
+        from pybosl2._helpers import refuse_text_labels
+        from pybosl2.shapes3d import text3d
+
+        refuse_text_labels("Path2D.debug_polygon(vertices=True)")
         labels = [
             text3d(str(i), size=size, height=0.02, halign="center", valign="center")
             .translate([float(x), float(y), 0.01])

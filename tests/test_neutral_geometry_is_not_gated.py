@@ -209,3 +209,70 @@ def test_the_path_extrusions_refuse_rather_than_failing_from_inside(method: str)
         getattr(path, method)(profile=profile)
     assert isinstance(excinfo.value, Bosl2Error), "the documented `except Bosl2Error` has to catch it"
     assert method in str(excinfo.value), "and it names the call, not an attribute inside the backend"
+
+
+def test_importing_regions_does_not_drag_in_a_backend_module() -> None:
+    """A debug helper's dependency should not be every caller's import cost (SPEC A-1).
+
+    `Region.debug_region(vertices=True)` labels each vertex with `text3d`, which renders a font
+    and is CSG-only. It was imported at the top of `pybosl2.regions`, so `import pybosl2.regions`
+    pulled a whole backend module in for a feature most callers never touch -- and made the edge a
+    *runtime* upward import rather than a deferred one.
+    """
+    import subprocess
+    import sys
+
+    probe = "import pybosl2.regions, sys; print('pybosl2.shapes3d' in sys.modules)"
+    out = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, cwd=ROOT)
+    assert out.stdout.strip() == "False", f"importing pybosl2.regions still pulls in shapes3d: {out.stdout!r}"
+
+
+@pytest.mark.parametrize(
+    ("label", "build"),
+    [
+        (
+            "a one-path region",
+            lambda: __import__("pybosl2.regions", fromlist=["Region"]).Region([[[0, 0], [10, 0], [10, 10], [0, 10]]]),
+        ),
+        (
+            "a two-path region",
+            lambda: __import__("pybosl2.regions", fromlist=["Region"]).Region(
+                [[[0, 0], [10, 0], [10, 10], [0, 10]], [[2, 2], [4, 2], [4, 4], [2, 4]]]
+            ),
+        ),
+        ("a path", lambda: __import__("pybosl2.path2d", fromlist=["Path2D"]).Path2D([[0, 0], [10, 0], [10, 10]])),
+    ],
+)
+def test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on(label: str, build) -> None:
+    """B-9's per-option refusal, applied to a call that is only partly backend-neutral.
+
+    These helpers build their outline through the façade and work on either backend; only the
+    `vertices=True` labels need `text3d`, which renders a font and is CSG-only. So the refusal
+    belongs on the *option*, the way `cyl(teardrop=)` refuses on the option rather than the shape.
+
+    It used to surface `'pybosl2.shapes3d.extrusions.text3d' is not supported` -- an internal path
+    three frames down, and nothing a caller can act on (SPEC E-5).
+
+    **The same feature is written twice**, in `Region.debug_region` and `Path2D.debug_polygon`, and
+    a one-path region *delegates* to the second -- so fixing only the first left the commonest case
+    still reporting the old message. That is why the rule is one shared function and why a one-path
+    region is a case here: it names `debug_polygon`, which is where it really is.
+    """
+    from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
+
+    shape = build()
+    method = "debug_polygon" if hasattr(shape, "debug_polygon") else "debug_region"
+
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            assert getattr(shape, method)(vertices=False) is not None, "the outline works on either backend"
+    with use_backend("csg"):
+        assert getattr(shape, method)(vertices=True) is not None
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        getattr(shape, method)(vertices=True)
+    message = str(excinfo.value)
+    assert isinstance(excinfo.value, Bosl2Error)
+    assert "debug_" in message, f"{label}: the refusal does not name the call: {message}"
+    assert "text3d" not in message, f"{label}: the refusal surfaces an internal path: {message}"
+    assert "vertices=False" in message, "and says what to do instead"
