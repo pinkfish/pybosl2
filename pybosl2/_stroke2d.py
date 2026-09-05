@@ -15,7 +15,7 @@ Called directly by :meth:`Path2D.stroke` and :meth:`Path2D.dashed_stroke`.
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import shapely as _shapely
@@ -29,6 +29,7 @@ from pybosl2.path2d import Path2D
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.paths import PathLike
     from pybosl2.regions import Region
 
 
@@ -113,7 +114,7 @@ def _shapely_to_path2d(geom: _shapely.Polygon | _shapely.MultiPolygon, fallback_
 
 @builds_with("csg")
 def stroke_2d(
-    path: Any,
+    path: "PathLike",
     width: float = 1,
     closed: bool | None = None,
     endcap1: CapType | CapSpec = CapType.ROUND,
@@ -181,7 +182,7 @@ def stroke_2d(
 
 @builds_with("csg")
 def dashed_stroke_2d(
-    path: Any,
+    path: "PathLike",
     dashpat: Sequence[float] | None = None,
     closed: bool | None = None,
     fit: bool = True,
