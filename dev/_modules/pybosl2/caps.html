@@ -2168,16 +2168,22 @@
 <span class="sd">Cap types</span>
 <span class="sd">    ``NONE`` -- no cap (open end)</span>
 <span class="sd">    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)</span>
-<span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)</span>
-<span class="sd">    ``CIRCLE`` -- round-over end cap (planned)</span>
+<span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap; one cap under two names</span>
+<span class="sd">    ``CIRCLE`` -- round-over end cap; not built yet, and refused rather than flattened</span>
 <span class="sd">    ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles</span>
+<span class="sd">    ``X`` / ``LINE`` -- flat 2-D markers; the 3-D consumers refuse them</span>
 <span class="sd">    ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)</span>
 
 <span class="sd">.. note::</span>
-<span class="sd">    Fancy sweep cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are</span>
-<span class="sd">    scaffolding only -- they resolve to flat caps. Full BOSL2 cap profiles</span>
-<span class="sd">    need the sweep's 3-D end-profile geometry exported into</span>
-<span class="sd">    :class:`~pybosl2.vnf.VNF` and are not yet ported.</span>
+<span class="sd">    A cap type that a consumer cannot build **refuses**; it never quietly returns a butt cap.</span>
+<span class="sd">    That is not free: each of the three consumers -- the sweep path, the 3-D stroke and the 2-D</span>
+<span class="sd">    stroke -- decides what it handles by listing the members it knows, and every fall-through</span>
+<span class="sd">    lands on a flat end (:func:`endcap_polys` returns ``[]``, ``_cap_style`` returns ``"flat"``).</span>
+<span class="sd">    A butt cap is a perfectly good solid, so nothing downstream notices. Four members were</span>
+<span class="sd">    falling through when this was measured, and this note used to describe two of them as</span>
+<span class="sd">    intended behaviour -- while ``ROUND`` and ``SPHERE``, which it called scaffolding, had been</span>
+<span class="sd">    doming the sweep all along. ``tests/test_cap_types_are_not_silently_flat.py`` compares every</span>
+<span class="sd">    member against ``BUTT`` in all three consumers so the next one cannot arrive unnoticed.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2214,8 +2220,8 @@
 <span class="sd">    Sweep/skin cap types:</span>
 <span class="sd">        ``NONE`` -- no cap (open end)</span>
 <span class="sd">        ``BUTT`` -- flat end cap</span>
-<span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical (planned)</span>
-<span class="sd">        ``CIRCLE`` -- round-over (planned)</span>
+<span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical dome; the two are one cap, not two</span>
+<span class="sd">        ``CIRCLE`` -- round-over; not built yet, and refused rather than flattened</span>
 <span class="sd">        ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape</span>
 
 <span class="sd">    Stroke endcap/joint types:</span>
@@ -2225,7 +2231,12 @@
 <span class="sd">        ``BLOCK`` / ``SQUARE`` -- rectangular block</span>
 <span class="sd">        ``CHISEL`` -- chisel edge</span>
 <span class="sd">        ``TAIL`` / ``TAIL2`` -- tail shapes</span>
-<span class="sd">        ``CROSS`` / ``X`` / ``LINE`` -- line markers</span>
+<span class="sd">        ``CROSS`` -- line marker</span>
+<span class="sd">        ``X`` / ``LINE`` -- flat 2-D line markers. The 3-D consumers refuse these: a cap</span>
+<span class="sd">        profile is revolved about the path axis, and a revolved line is a disc.</span>
+
+<span class="sd">    Every member either changes the geometry or refuses by name in each of the three consumers</span>
+<span class="sd">    -- the sweep path, the 3-D stroke and the 2-D stroke. None of them quietly returns a butt cap.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
