@@ -2567,10 +2567,17 @@ section = "8.1 Argument tiers"
 title = "A parameter is a promise, and an unkept one refuses as a library error."
 keyword = "MUST"
 statement = '''
-A parameter in a public signature says the library honours it. Where this port advertises one it does not build, the refusal MUST be a `Bosl2NotImplementedError` — a `Bosl2Error` so `except Bosl2Error` catches it (E-1), a `NotImplementedError` so existing callers are unaffected, and carrying a hint naming what to do meanwhile (E-2). Four public callables raised a bare `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and `VNF.from_field` with a range. The gaps are listed and the list only shrinks. **`texture=` is the one that matters:** S-34 and S-35 specify textures as a working subsystem, the registry is built, and thirteen public constructors take the five texture parameters — so grouping those five (G-1) would be polish on a promise nothing keeps, which is why the `Texturing` group was not built.
+A parameter in a public signature says the library honours it. Where this port advertises one it does not build, the refusal MUST be a `Bosl2NotImplementedError` — a `Bosl2Error` so `except Bosl2Error` catches it (E-1), a `NotImplementedError` so existing callers are unaffected, and carrying a hint naming what to do meanwhile (E-2). Four public callables raised a bare `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and `VNF.from_field` with a range. The gaps are listed and the list only shrinks.
+
+**An accepted enum member is the same promise as a parameter, and is easier to break quietly.** A `CapType` reaches three consumers — the sweep path, the 3-D stroke, the 2-D stroke — and each decides what it handles by listing the members it knows. Every fall-through lands on a flat end, and a butt cap is a perfectly good solid, so nothing downstream objects. Four members were falling through when this was measured: `SPHERE` (documented as a synonym of `ROUND`, and one only on the sweep), `CIRCLE` on the 2-D stroke alone, and `LINE` and `X` on both 3-D consumers, whose two-point profiles revolve into nothing. So a member a consumer cannot build MUST refuse naming `CapType.<NAME>`, never return a butt cap; and the guard is a matrix — every member against `BUTT`, in every consumer — because a per-case test only ever finds the case it was written for.
+
+**`texture=` is the one that matters:** S-34 and S-35 specify textures as a working subsystem, the registry is built, and thirteen public constructors take the five texture parameters — so grouping those five (G-1) would be polish on a promise nothing keeps, which is why the `Texturing` group was not built.
 '''
 enforced_by = [
     "tests/test_unimplemented.py::test_every_gap_refuses_as_a_library_error",
+    "tests/test_cap_types_are_not_silently_flat.py::test_a_cap_changes_the_shape_or_refuses_by_name",
+    "tests/test_cap_types_are_not_silently_flat.py::test_sphere_is_the_synonym_of_round_it_is_documented_as",
+    "tests/test_cap_types_are_not_silently_flat.py::test_the_unbuildable_sets_only_shrink",
 ]
 status = "enforced"
 

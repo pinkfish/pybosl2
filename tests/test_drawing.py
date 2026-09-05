@@ -240,7 +240,13 @@ def test_every_endcap_style_builds_2d(style: object) -> None:
     assert len(ribbon.paths[0]) > len(pts)
 
 
-@pytest.mark.parametrize("style", ALL_ENDCAPS)
+#: `LINE` and `X` are flat 2-D markers and the 3-D stroke refuses them -- their profile is a bare
+#: line, and a 3-D endcap is a solid of revolution. See
+#: `tests/test_cap_types_are_not_silently_flat.py`, which is where that came from.
+ENDCAPS_WITH_A_3D_FORM = [c for c in ALL_ENDCAPS if c not in (CapType.LINE, CapType.X)]
+
+
+@pytest.mark.parametrize("style", ENDCAPS_WITH_A_3D_FORM)
 def test_every_endcap_style_builds_3d(style: object) -> None:
     """One straight segment is one cylinder, whatever is put on its ends."""
     tube = Path3D([[0, 0, 0], [40, 0, 0]]).stroke(width=3, endcap1=style, endcap2=style)  # type: ignore[arg-type]
@@ -249,6 +255,11 @@ def test_every_endcap_style_builds_3d(style: object) -> None:
     # whatever the cap draws, it draws the same at both ends -- an X is two crossed bars, so four
     decorations = program.count("sphere(") + program.count("rotate_extrude")
     assert decorations % 2 == 0, f"{style}: the two ends disagree"
+    # An even count alone is not enough: zero is even, so a cap that drew *nothing* passed this
+    # test for as long as it existed. That is how `LINE` and `X` went unnoticed -- both produced
+    # no geometry at all and were counted as agreeing with themselves.
+    if style not in (CapType.BUTT, CapType.NONE):
+        assert decorations > 0, f"{style}: no cap geometry was emitted at either end"
 
 
 def test_endcap_polys_shapes() -> None:

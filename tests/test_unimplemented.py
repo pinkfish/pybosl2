@@ -35,6 +35,7 @@ PACKAGE = ROOT / "pybosl2"
 #: lives. Building one removes its row; nothing may be added without a spec item saying why.
 KNOWN_GAPS: frozenset[str] = frozenset(
     {
+        "_stroke3d.py::endcap_geometry_3d",  # CapType.LINE and X have no solid of revolution
         "caps.py::endcap_polys",  # CapType.CIRCLE
         "shapes3d/cuboid.py::cuboid",  # teardrop=
         "vnf.py::from_field",  # tuple (lo, hi) isovalue ranges

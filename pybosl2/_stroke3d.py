@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import builds_with
 from pybosl2.caps import CapSpec, CapType, endcap_polys, oriented_to
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
 
@@ -63,7 +63,10 @@ def endcap_geometry_3d(
 
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return None
-    if spec.cap_type == CapType.ROUND:
+    # SPHERE alongside ROUND: the sweep path treats them as one (`has_decorative_caps` calls both
+    # basic and domes both ends), but here SPHERE fell past every branch to `endcap_polys`, which
+    # has no SPHERE case either -- it returned `[]`, and an empty list is `return None`, no cap.
+    if spec.cap_type in (CapType.ROUND, CapType.SPHERE):
         with use_backend("csg"):
             return _sphere(radius=width / 2).translate([float(c) for c in at])
     if spec.cap_type == CapType.DOT:
@@ -72,6 +75,19 @@ def endcap_geometry_3d(
     polys = endcap_polys(spec, width)
     if not polys:
         return None
+    # Every cap below is revolved about the path axis, and revolving a zero-area profile yields
+    # nothing at all -- which is how `LINE` and `X` produced bounds identical to `BUTT` in all six
+    # components, on this path and on the sweep that shares it. Thickening them the way the 2-D
+    # stroke does (`_place_and_union` buffers a degenerate polyline) would make them non-empty but
+    # not correct: a tick mark revolved about its own axis is a disc, and an X revolved is the same
+    # disc twice. They are 2-D annotation markers, so say so rather than build the wrong shape.
+    if any(len(poly) < 3 for poly in polys):
+        raise Bosl2NotImplementedError(
+            f"CapType.{spec.cap_type.name} is a flat 2-D marker and has no 3-D form in this port. "
+            f"Its profile is a bare line, and 3-D endcaps are solids of revolution -- revolving a "
+            f"line about the path axis gives a disc, not the marker. Use it on a 2-D stroke, or "
+            f"pick a cap with an area: CapType.CROSS is the closest 3-D equivalent."
+        )
     if active != "csg":
         warnings.warn(
             f"Decorative endcap {spec.cap_type!r} not supported on SDF backend; falling back to ROUND sphere",

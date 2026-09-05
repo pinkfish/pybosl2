@@ -877,10 +877,22 @@ as the mathematics allows.
   Bosl2Error` catches it (E-1), a `NotImplementedError` so existing callers are unaffected, and
   carrying a hint naming what to do meanwhile (E-2). Four public callables raised a bare
   `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and
-  `VNF.from_field` with a range. The gaps are listed and the list only shrinks. **`texture=` is the
-  one that matters:** S-34 and S-35 specify textures as a working subsystem, the registry is built,
-  and thirteen public constructors take the five texture parameters — so grouping those five (G-1)
-  would be polish on a promise nothing keeps, which is why the `Texturing` group was not built.
+  `VNF.from_field` with a range. The gaps are listed and the list only shrinks.
+
+  **An accepted enum member is the same promise as a parameter, and is easier to break quietly.** A
+  `CapType` reaches three consumers — the sweep path, the 3-D stroke, the 2-D stroke — and each
+  decides what it handles by listing the members it knows. Every fall-through lands on a flat end,
+  and a butt cap is a perfectly good solid, so nothing downstream objects. Four members were falling
+  through when this was measured: `SPHERE` (documented as a synonym of `ROUND`, and one only on the
+  sweep), `CIRCLE` on the 2-D stroke alone, and `LINE` and `X` on both 3-D consumers, whose
+  two-point profiles revolve into nothing. So a member a consumer cannot build MUST refuse naming
+  `CapType.<NAME>`, never return a butt cap; and the guard is a matrix — every member against
+  `BUTT`, in every consumer — because a per-case test only ever finds the case it was written for.
+
+  **`texture=` is the one that matters:** S-34 and S-35 specify textures as a working subsystem, the
+  registry is built, and thirteen public constructors take the five texture parameters — so grouping
+  those five (G-1) would be polish on a promise nothing keeps, which is why the `Texturing` group
+  was not built.
 * **G-2 A group composes and inherits.** A group SHOULD offer `with_()` to derive a variant without
   mutating the original, and where the
   family has ambient defaults (§8.3) a way to read them. `None` in a member still means "not given,
@@ -1098,6 +1110,14 @@ there in the same commit as the code (§13 rule 4).
 **Then the one adoption case turned out not to need adopting.** `debug_bezier_patches` ended with `result if isinstance(result, Bosl2Solid) else Bosl2Solid(result)`, above a comment explaining that every piece is already a solid. Both halves are true and the conjunction is the defect: naming the CSG class by hand means an `SdfSolid`, which is not a `Bosl2Solid`, takes the *else* branch and gets re-wrapped into a CSG wrapper — so the helper returned a `CsgSolid` from inside `use_backend("sdf")`, an A-6 violation the layering edge was holding in place. The wrap had nothing to do: `_debug_tube` had always gone through `path_sweep`, and the only genuine native reach was one control-point marker, which is a façade `sphere` now. **Deleting the wrap closed the edge, fixed the A-6 defect, and let T57's `@backend_only("csg")` marker come off** — that marker was a gate on a one-line bug, and gating it made the bug permanent. `beziers -> solid` is a façade bridge now, `known_violations` is **3**, and what still refuses on sdf is the one real obstruction: the patch *surface* is an open non-convex mesh, and the refusal names `polyhedron` and says why, instead of blaming the union three frames later.
 
 **Two lessons compound here.** T52's — measure before moving — held again, and this time the thing measured was my own claim from the previous task. And T57's gate is the second time in this campaign that a *refusal* was written where a *fix* belonged: `Region.debug_region` needed one because `text3d` renders fonts and the façade carries no equivalent, and this looked identical from outside. What separates them is not the symptom but whether anything the helper does is actually backend-specific, which takes reading the assembly rather than the error.
+
+**T59 was meant to build `CapType.CIRCLE` and instead found four caps that were quietly doing nothing.** `CIRCLE` is one of three `Bosl2NotImplementedError` gaps left in the port, and it looked like a small geometry job. Measuring the whole enum first — every member, against `BUTT`, in each of the three consumers — said otherwise. **`SPHERE` is documented as a synonym of `ROUND`**, is one on the sweep path, and fell through to a flat end on both strokes. **`CIRCLE` refuses on the sweep and the 3-D stroke** — it is genuinely unbuilt — **but the 2-D stroke had it listed among the types needing no decorative polygon**, so it flattened silently instead. And the guard written for those two immediately found two more: **`LINE` and `X` produced bounds identical to `BUTT` in all six components** on both 3-D consumers, because their profile is a bare two-point line and the 3-D path revolves cap profiles about the path axis. Thickening them the way the 2-D path does would make them non-empty and still wrong — a tick mark revolved about its own axis is a disc — so the 3-D consumers refuse them by name and the 2-D one keeps building them.
+
+**The reason four of these survived is structural, and it is why the guard is a matrix rather than a case.** Each consumer decides what it handles by listing the members it knows, and every fall-through lands on the same place: `endcap_polys` returns `[]`, which `endcap_geometry_3d` reads as "no cap", and `_cap_style` returns `"flat"`. A butt cap is a perfectly good solid — it unions, it renders, it has a bounding box — so nothing downstream ever objects. **The existing test that should have caught it was passing vacuously:** `test_every_endcap_style_builds_3d` asserted the decoration count was even so that both ends agreed, and zero is even, so a cap drawing nothing agreed with itself. It asserts a non-zero count now.
+
+**Two of the three docstrings describing this were wrong in opposite directions**, and one of them was licensing the defect: `caps.py`'s module note called `ROUND`, `SPHERE` and `CIRCLE` "scaffolding only -- they resolve to flat caps", while `ROUND` and `SPHERE` had been doming the sweep all along. The `CapType` docstring separately marked both as "(planned)". Documentation that describes a silent fallback as intended behaviour is what lets it survive four members deep, so the note now states the rule it should have stated: a cap type a consumer cannot build refuses, and never quietly returns a butt cap.
+
+`KNOWN_GAPS` gains one row and `CapType.CIRCLE` keeps its own: the round-over cap — the swept rim filleted rather than domed — is a real geometry feature unbuilt on both backends, in the same class as `cuboid(teardrop=)`, and is not what this task turned out to be about.
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
