@@ -1617,7 +1617,8 @@ class, two spellings of one shared parameter (C-17, C-21).
 
 ### What remains
 
-11 violations, of which **three are runtime module-level** and the rest deferred-but-not-cycles:
+4 violations after T56, none of them a runtime module-level import.
+The three that are not going away moved to `[capability_edges]` in T55:
 
 * `path2d -> miscellaneous` and `path3d -> miscellaneous` — see below; the reason is measured now,
   and it is neither of the two things it looked like.
@@ -1758,6 +1759,110 @@ disagree, so if they ever converge the note gets re-measured rather than trusted
 edges; T52 found "lives in an L3 module" was an accident-of-filing reading of something structural;
 T54 found T52's own replacement reason understated the cost. The list is worth much more than it
 was, and none of that came from moving code.
+
+
+## T55 — Architecture is not debt ✅
+
+**§12.2 item 22, closed. A-1. 11 known violations → 8.**
+
+Three upward edges are not going away, because removing them removes something the library can do.
+Leaving them on a list called `known_violations` — a list whose whole contract is *"only shrinks"*
+— makes the number mean less every time someone reads it and finds a row nobody intends to fix.
+
+`spec/layers.toml` has a `[capability_edges]` section now:
+
+| edge | buys |
+|---|---|
+| `path2d -> miscellaneous` | `Extrudable`, which takes a profile that is not a point list |
+| `path3d -> miscellaneous` | the same, on `Path3D` |
+| `regions -> shapes3d` | `text3d` vertex labels, which render a font |
+
+### `pinned_by` is what stops it being a dumping ground
+
+Every entry names a **test that holds the capability in place**:
+
+```toml
+[capability_edges."path2d -> miscellaneous"]
+reason = "..."
+pinned_by = "tests/...::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+```
+
+So "this edge buys something" is checked rather than asserted, and the next person who thinks it is
+removable finds out what it costs before they try. The check requires the named test to **exist**
+and to **mention the edge's source** — a pin that never touches the module cannot be holding
+anything. And an edge may not sit in both sections: counting it as debt *and* architecture is how a
+figure stops meaning anything.
+
+Every one of these was in `known_violations` first, each with a different stated reason, and all
+three reasons were wrong. **The bar for leaving the debt list is a pinned capability, not that
+somebody found the edge hard to fix.**
+
+### Where the number went
+
+| | |
+|---|---|
+| 16 | as first measured |
+| −4 | never debt — `if TYPE_CHECKING` edges the model itself calls allowed (T50) |
+| −1 | fixed — `arc` moved to the layer it belonged in (T50) |
+| −3 | architecture, with the receipts (T55) |
+| **8** | actual debt, one of it runtime |
+
+
+## T56 — Measure the remaining eight ✅
+
+**§12.2 item 22. A-1, C-20. 8 known violations → 4, and 16 → 4 overall.**
+
+Five of the eight were not what the list said.
+
+### Three were counted twice
+
+`_helpers -> shapes2d`, `_helpers -> shapes3d` and `vnf -> isosurface` sat in `known_violations`
+**and** in `allowed_deferred`. All three are genuine cycles, so the second listing is the right
+one; the debt rows claimed a module-level import —
+
+> "Native shape helpers reach the CSG modules directly **at module level**"
+> "**Module level** as well as deferred; only the deferred one is a cycle"
+
+— that no longer exists. Removed at some point, rows left behind.
+
+**Nothing checked for an edge appearing in two sections.** T55 added exactly that check *one task
+earlier*, for `capability_edges` alone, and these three were sitting in a different pair the whole
+time. It covers every pair now. A check aimed at the case you just thought of finds the case you
+just thought of.
+
+### One was already sanctioned by a check it had never been put to
+
+`masking -> solid` reaches **down** to the neutral façade, so a mask cutter is built by whichever
+backend is active — which is what A-10 asks for, not a layer being dodged. `facade_bridges`' own
+test is *"is the target a façade module?"*, and `solid` is one. It had simply never been tried.
+
+### One turned up a typing defect instead
+
+`path3d -> _stroke3d` looks like it should be a cycle the way `path2d -> _stroke2d` is. The reason
+it is not: `_stroke3d` declared **`path: Any`** on all three public functions — the same
+"declared, checked not at all" class T33 fixed on the shape contract.
+
+Typed honestly it is `PathLike` (a `Path` *or* a raw point list — both callers exist), which lives
+in L2. So the edge stays debt, and the annotation is a real fix regardless. **Narrowing it to
+`Path3D` would have made the cycle appear**, and would have been manufacturing one rather than
+finding one; I had it typed that way for a minute before checking the callers.
+
+### Where the number went, in full
+
+| | |
+|---|---|
+| 16 | as first measured |
+| −4 | never debt — typing-only edges the model itself calls allowed (T50) |
+| −1 | fixed — `arc` moved to the layer it belonged in (T50) |
+| −3 | architecture, pinned by tests (T55) |
+| −3 | counted twice, and cycles (T56) |
+| −1 | already a façade bridge (T56) |
+| **4** | actual debt, none of it runtime |
+
+The four left — `_helpers -> _native`, `beziers -> shapes3d`, `path3d -> _stroke3d`, `skin -> sdf`
+— now carry reasons that say what the edge buys and what closing it would cost, rather than
+restating that it is not a cycle. `beziers -> shapes3d` is the one with an obvious next step: it is
+a debug helper building CSG directly, the same defect `Region.debug_region` had until T53.
 
 
 ## Keeping this file honest

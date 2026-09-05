@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import ast
 import pathlib
+import re
 import tomllib
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -155,10 +156,13 @@ def test_the_graph_was_actually_walked() -> None:
 def test_every_runtime_upward_import_is_known_debt(edge: Edge) -> None:
     """A lower layer importing a higher one at module level is A-1's violation."""
     known = MODEL["known_violations"]
-    assert edge.name in known, (
+    capability = MODEL["capability_edges"]
+    assert edge.name in known or edge.name in capability, (
         f"{edge.path}:{edge.line} imports upward at runtime ({edge.name}) and is not in "
         f"spec/layers.toml's known_violations. New upward imports are not accepted: move the "
-        f"shared piece down a layer, or build through the façade (SPEC A-10)."
+        f"shared piece down a layer, or build through the façade (SPEC A-10). If it buys a "
+        f"capability the layer below cannot have, say which in capability_edges and name the test "
+        f"that pins it."
     )
 
 
@@ -171,8 +175,8 @@ def test_every_deferred_upward_import_is_a_cycle_or_known_debt(edge: Edge) -> No
     list. Six of the fourteen deferred up-edges were exactly that when this was first drawn up.
     """
     allowed, known = MODEL["allowed_deferred"], MODEL["known_violations"]
-    bridges = MODEL["facade_bridges"]
-    assert edge.name in allowed or edge.name in known or edge.name in bridges, (
+    bridges, capability = MODEL["facade_bridges"], MODEL["capability_edges"]
+    assert edge.name in allowed or edge.name in known or edge.name in bridges or edge.name in capability, (
         f"{edge.path}:{edge.line} defers an upward import ({edge.name}) that spec/layers.toml "
         f"does not know about. PLAN M-5 reserves this for a genuine cycle; say which one in "
         f"allowed_deferred, or route the call through the façade (SPEC A-10) and record it in "
@@ -210,6 +214,19 @@ def test_the_debt_lists_are_not_stale() -> None:
     reads the right table and asks it the wrong question.
     """
     live = {edge.name for edge in UPWARD if edge.kind != "typing"}
+    # Every pair of sections, not just the two T55 thought of. An edge listed twice is counted
+    # twice, and three were: `_helpers -> shapes2d`, `_helpers -> shapes3d` and
+    # `vnf -> isosurface` sat in `known_violations` *and* `allowed_deferred`, each with a debt row
+    # claiming a module-level import that no longer existed. T55 added this check for
+    # `capability_edges` alone and missed them, which is what a check aimed at one pair does.
+    sections = ("known_violations", "allowed_deferred", "facade_bridges", "capability_edges")
+    for i, first in enumerate(sections):
+        for second in sections[i + 1 :]:
+            overlap = sorted(set(MODEL[first]) & set(MODEL[second]))
+            assert not overlap, (
+                f"these are listed in both {first} and {second}: {overlap}. An edge is one thing, "
+                f"and counting it twice is how a debt figure stops meaning anything."
+            )
     deferred = {edge.name for edge in UPWARD if edge.kind == "deferred"}
     stale = sorted(set(MODEL["known_violations"]) - live)
     assert not stale, (
@@ -236,8 +253,43 @@ def test_a_facade_bridge_really_targets_the_facade(name: str) -> None:
 
 def test_the_known_violation_count_only_shrinks() -> None:
     """The ratchet. Fixing an edge means deleting its row; nothing may add one."""
-    budget = 11
+    budget = 4
     count = len(MODEL["known_violations"])
     assert count <= budget, f"{count} known violations, budget {budget}"
     if count < budget:
         pytest.fail(f"{count} known violations, budget {budget} -- lower the budget to {count}")
+
+
+@pytest.mark.parametrize("name", sorted(MODEL["capability_edges"]), ids=lambda n: str(n))
+def test_a_capability_edge_is_live_and_pinned(name: str) -> None:
+    """`capability_edges` says an edge is permanent. That claim gets checked, twice.
+
+    An entry here is an upward import nobody is going to remove, because removing it removes
+    something the library can do. Three sat in `known_violations` first, each with a *different*
+    stated reason, and all three reasons were wrong -- so the bar for moving one out of the debt
+    list is that the capability is **pinned by a named test**, not that someone found the edge
+    hard to fix.
+
+    Checked here: the edge still exists (an entry for a vanished import makes the architecture
+    look worse than it is), and the test it names exists and is about the module in question. What
+    that test asserts is the capability itself, which is the part no layering check can see.
+    """
+    assert name in {edge.name for edge in UPWARD}, (
+        f"{name} is listed as a capability edge but no upward import matches it -- delete the row"
+    )
+    entry = MODEL["capability_edges"][name]
+    reason, pinned_by = entry["reason"].strip(), entry["pinned_by"].strip()
+    assert reason, f"{name} is listed with an empty reason"
+
+    path, _, test_name = pinned_by.partition("::")
+    source = ROOT / path
+    assert source.is_file(), f"{name} names {path}, which does not exist"
+    text = source.read_text()
+    assert re.search(rf"^\s*def {re.escape(test_name)}\b", text, re.MULTILINE), (
+        f"{name} names {pinned_by}, and that test is not in the file"
+    )
+    edge_source = name.partition(" -> ")[0]
+    assert edge_source in text, (
+        f"{pinned_by} is named as pinning {name} but never mentions {edge_source} -- it cannot be "
+        f"holding that capability in place"
+    )

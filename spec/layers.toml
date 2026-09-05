@@ -63,10 +63,18 @@ L5_parts = ["parts"]
 [facade_bridges]
 "path2d -> flat" = "Path2D.polygon() builds through the façade (A-10)."
 "regions -> flat" = "Region.geometry() builds through the façade (A-10)."
+"masking -> solid" = "A mask cutter is built by whichever backend is active, so `masking` takes `cuboid` from the façade rather than from a backend module. It sat in known_violations until T56 measured it: the section's own check -- is the target a façade module? -- passes, and reaching *down* to the neutral façade is the thing A-10 asks for, not a layer being dodged."
 
 # Runtime module-level edges, plus the deferred ones that are not cycles. Every one is debt and
 # the list only shrinks. `A-10` marks the geometry bridge -- a geometry type reaching a backend
 # module directly instead of the façade.
+#
+# Three more went in T56, and they had been counted *twice*: `_helpers -> shapes2d`,
+# `_helpers -> shapes3d` and `vnf -> isosurface` were listed here **and** in `allowed_deferred`,
+# and all three are genuine cycles. Their rows here claimed a module-level edge ("at module level",
+# "Module level as well as deferred") that no longer exists -- removed at some point, with the row
+# left behind. Nothing checked for an edge appearing in two sections until T56 added it; T55 had
+# added that check for `capability_edges` alone, which was too narrow the day it was written.
 #
 # Four entries were removed in T50 that had never belonged: `color -> _shape`,
 # `distributors -> _shape`, `path3d -> shapes3d` and `turtle3d -> shapes3d` exist **only** under
@@ -74,14 +82,33 @@ L5_parts = ["parts"]
 # a quarter worse than it was, and the staleness check could not see it -- it asked whether the
 # edge existed, not whether it was the *kind* of edge this list is for.
 [known_violations]
-"_helpers -> shapes2d" = "Native shape helpers reach the CSG modules directly at module level."
-"_helpers -> shapes3d" = "As above."
-"_helpers -> _native" = "Deferred, but not a cycle: _native does not import the helpers."
-"beziers -> shapes3d" = "A Bezier builds a solid through the CSG module rather than the façade (A-10). Module level and deferred, and not a cycle."
-"masking -> solid" = "Deferred, but not a cycle: the façade does not import masking."
-"path2d -> miscellaneous" = "`Extrudable` composes *native* primitives -- `pythonscad.cube`, `pythonscad.square` -- so it must reach L3 to return a `Bosl2Solid`, and an L2 path type inherits it. Its two sibling mixins are at L2 because they build a neutral `VNF` and call `.polyhedron()` on it, which needs no backend import; T51 tried moving `Extrudable` to L2 the same way and found it cannot, because the backend protocol has no way to adopt an already-composed native object. T54 then measured the rewrite and it is worse than that: **a feature removal.** A VNF sweep needs the cross-section as *points*, and these two exist precisely to take a profile that is not one -- `path_extrude`'s docstring says so, and a disjoint two-part profile builds here and is refused by `path_sweep`. The point-list subset cannot be delegated either: `path_extrude` mitres and `path_sweep` uses a rotation-minimising frame, and they build different geometry for the same profile. So this edge is the price of a capability, not deferred tidying."
-"path3d -> miscellaneous" = "Extrudable, as above."
-"path3d -> _stroke3d" = "Deferred, but not a cycle: _stroke3d does not import path3d."
-"regions -> shapes3d" = "`Region.debug_region(vertices=True)` labels each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose, and 22 CSG-only names are exported top-level outside it. Deferred since T53 -- importing `pybosl2.regions` no longer drags in a backend module for a debug helper -- and the call refuses under its own name rather than letting `text3d`'s surface from three frames down. Closing it means the label feature not living on an L2 geometry type."
-"skin -> sdf" = "Deferred, but not a cycle: the SDF backend does not import skin."
-"vnf -> isosurface" = "Module level as well as deferred; only the deferred one is a cycle."
+"_helpers -> _native" = "`as_native_2d` coerces a bare point list into a native polygon, which means calling `native(\"polygon\")`. That is CSG machinery in a geometry module -- the same shape as `Extrudable`, one layer down -- and the fix is the same size: the coercion would have to build through the façade, which returns a wrapper rather than the raw handle its callers want."
+"beziers -> shapes3d" = "`debug_bezier_patches` marks control points with native spheres and wraps them in `Bosl2Solid` so a union works either way round. It is a *debug helper* that builds CSG directly -- the same defect `Region.debug_region` had until T53, and it should get the same treatment: refuse under its own name on another backend, rather than letting the wrapper fail from inside."
+"path3d -> _stroke3d" = "`Path3D.stroke` calls the 3-D stroke, which lives in a backend module. Its 2-D twin `path2d -> _stroke2d` is a legitimate cycle because `_stroke2d` takes a `Path2D`; this one is not, because `_stroke3d` takes a `PathLike`. T56 typed its three `path: Any` parameters (a C-20 defect on its own) and confirmed `PathLike` is the honest type -- narrowing to `Path3D` would have manufactured the cycle rather than found one."
+"skin -> sdf" = "`spiral_sweep` dispatches to the SDF backend's own exact form when that backend is active, because a helical sweep has a closed-form distance field and meshing one would be B-5's lossy conversion. It cannot go through the façade: `pybosl2.solid` carries no `spiral_sweep`. This is the `masking -> solid` case without a façade equivalent to reach."
+
+# Upward edges that buy a capability the layer below cannot have. Unlike `known_violations` these
+# are not going away, and saying so is more useful than a list that never shrinks: a reader of the
+# debt list should be looking at things somebody could act on.
+#
+# What stops this becoming a dumping ground is `pinned_by`. Every entry names a test that holds the
+# capability in place -- so the claim "this edge buys something" is checked rather than asserted,
+# and anyone who thinks the edge is removable finds out what it costs before they try. That test
+# must exist and must mention the edge's source; `tests/test_layering.py` verifies both.
+#
+# Three tasks of measurement produced these. Each had a *different* stated reason in
+# `known_violations` first, and all three were wrong -- see SPEC 12.2 items 22 and the T50/T52/T53/T54
+# entries in TASKS.md.
+[capability_edges]
+
+[capability_edges."path2d -> miscellaneous"]
+reason = "`Extrudable` composes *native* primitives, so it is backend machinery, and `Path2D` inherits it. Its two sibling mixins are at L2 because they build a neutral `VNF` and call `.polyhedron()`; this one cannot, because a VNF sweep needs the cross-section as points and these methods exist precisely to take a profile that is not one -- a disjoint multi-part shape, or rendered text. Rewriting them to build a VNF removes that."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+
+[capability_edges."path3d -> miscellaneous"]
+reason = "`Extrudable` on `Path3D`, as above."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot"
+
+[capability_edges."regions -> shapes3d"]
+reason = "`Region.debug_region(vertices=True)` numbers each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose. Deferred, so importing `pybosl2.regions` does not pull a backend module in, and the labels refuse under their own name."
+pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on"
