@@ -62,6 +62,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
 from pybosl2.enums import SweepMethod, VNFStyle
@@ -1797,6 +1798,7 @@ def _sphere_at(p: np.ndarray, diameter: float) -> Any:
     return _Bosl2Solid(sphere(d=diameter).translate(p3))  # the native takes r/d, not radius/diameter
 
 
+@backend_only("csg")
 def debug_bezier_patches(
     patches: np.ndarray | Sequence[np.ndarray],
     size: float | None = None,
@@ -1811,6 +1813,14 @@ def debug_bezier_patches(
     Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.
     Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
     ported path_sweep tube.
+
+    **CSG-only, and it says so now.** It marks control points with native spheres and returns a
+    `Bosl2Solid`, so it was never neutral -- but under `use_backend("sdf")` it got halfway through
+    and failed on the *combination*: "cannot combine a 'csg'-backend solid with a 'sdf'-backend
+    solid". A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.
+    It refuses up front under its own name now (SPEC B-9, E-5) -- the same fix `Region.debug_region`
+    got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the
+    active backend, each announcing it differently, and none of them saying what it was.
 
     Args:
         patches: A single patch or list of patches to debug-visualise.

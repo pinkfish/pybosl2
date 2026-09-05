@@ -254,3 +254,90 @@ def test_every_anchor_parameter_speaks_the_anchor_language() -> None:
         and ast.unparse(a.annotation) != "Any"
     ]
     assert not wrong, "anchors outside the anchor language (PLAN O-6b):\n  " + "\n  ".join(wrong)
+
+
+#: How many parameters *named for a type this project defines* are annotated `Any`, per file.
+#: Only shrinks.
+#:
+#: 177 parameters in the package are annotated `Any` and most of them are fine -- a protocol's
+#: `*args: Any`, a colour spec, a numeric-or-array. What is not fine is `path: Any` on a function
+#: that takes a path, when `PathLike` exists and every caller passes one: it declares a type the
+#: library already has and then throws it away, which is T33's "found by name, checked not at all"
+#: one layer down from the public contract.
+#:
+#: Found by measurement, not by suspicion. `_stroke3d.stroke_3d(path: Any)` came out of chasing a
+#: *layering* edge in T56 -- it was the reason `path3d -> _stroke3d` could not be seen as a cycle
+#: -- and measuring the class immediately turned up its 2-D twin, `_stroke2d.stroke_2d`, with the
+#: identical defect. Both are `PathLike` now.
+DOMAIN_TYPED_ANY: dict[str, int] = {
+    "_backend.py": 3,
+    "_csg.py": 3,
+    "parts/bottlecaps.py": 1,
+    "regions.py": 1,
+    "sdf/__init__.py": 5,
+    "sdf/shapes2d.py": 1,
+    "sdf/shapes3d.py": 2,
+    "solid.py": 1,
+    "vnf.py": 1,
+}
+
+#: Parameter names that mean a type the project defines, so `Any` on one is throwing that type
+#: away rather than describing something genuinely unconstrained.
+DOMAIN_NAMES = frozenset({"path", "paths", "region", "profile", "vnf", "point", "points"})
+
+
+def _domain_typed_any() -> dict[str, list[str]]:
+    """Return, per file, the domain-named parameters annotated exactly `Any`."""
+    import ast
+
+    found: dict[str, list[str]] = {}
+    for path in sorted((ROOT / "pybosl2").rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            for argument in node.args.args:
+                annotation = argument.annotation
+                if argument.arg not in DOMAIN_NAMES or annotation is None:
+                    continue
+                if ast.unparse(annotation).strip("\"'") == "Any":
+                    found.setdefault(str(path.relative_to(ROOT / "pybosl2")), []).append(
+                        f"{node.name}({argument.arg}=)"
+                    )
+    return found
+
+
+@pytest.mark.parametrize("path", sorted(set(DOMAIN_TYPED_ANY) | set(_domain_typed_any())))
+def test_no_file_grows_its_domain_named_any_parameters(path: str) -> None:
+    """SPEC C-20, PLAN T-9a: a parameter named for a type should carry it."""
+    found = _domain_typed_any()
+    actual, budget = len(found.get(path, [])), DOMAIN_TYPED_ANY.get(path, 0)
+    if actual > budget:
+        pytest.fail(
+            f"{path} has {actual} domain-named parameters annotated `Any`, budget {budget}: "
+            f"{sorted(found[path])[:4]}. Give them the type their name promises."
+        )
+    if actual < budget:
+        pytest.fail(f"{path} is down to {actual} from {budget}; lower its entry in DOMAIN_TYPED_ANY.")
+
+
+def test_the_strokes_take_the_path_they_stroke() -> None:
+    """The pair this ratchet was built around, asserted directly rather than only counted.
+
+    Both stroke modules declared `path: Any` on every public function. `PathLike` is the honest
+    type -- a `Path` *or* a raw point list, and both callers exist -- so narrowing further would
+    be wrong, and it was: `Path3D` alone typechecks against the outside callers and fails on
+    `_stroke3d`'s own internal one, which passes a bare list.
+    """
+    import inspect
+
+    from pybosl2 import _stroke2d, _stroke3d
+
+    for module, names in (
+        (_stroke2d, ("stroke_2d", "dashed_stroke_2d")),
+        (_stroke3d, ("stroke_3d", "dashed_stroke_3d")),
+    ):
+        for name in names:
+            annotation = inspect.signature(getattr(module, name)).parameters["path"].annotation
+            assert "PathLike" in str(annotation), (
+                f"{module.__name__}.{name} takes path: {annotation}, not the PathLike it strokes"
+            )

@@ -1865,6 +1865,52 @@ restating that it is not a cycle. `beziers -> shapes3d` is the one with an obvio
 a debug helper building CSG directly, the same defect `Region.debug_region` had until T53.
 
 
+## T57 — Guard the typing fix, and the third debug helper ✅
+
+**A-1, C-20, B-9, E-5. 4 known violations, unchanged; two defects closed.**
+
+### The guard, and what measuring it found
+
+T56's `path: Any` → `PathLike` fix had **no check behind it** — `_stroke3d` is private, so nothing
+in the suite would have caught it reverting. Measuring the class gave the honest rule:
+
+* **177** parameters in the package are annotated `Any`, and most are fine — a protocol's
+  `*args: Any`, a colour spec, a numeric-or-array.
+* **20** are named for a type this project *defines* (`path`, `paths`, `region`, `profile`, `vnf`,
+  `point`, `points`). Those declare a type the library already has and then throw it away.
+
+That is the ratchet: per file, only shrinks. And the first thing it turned up was `_stroke2d`'s
+identical pair — `stroke_2d(path: Any)` and `dashed_stroke_2d(path: Any)`, the 2-D twins of the
+function T56 fixed. Both are `PathLike` now, so the budget starts at 18 rather than 20.
+
+The pair is also asserted directly, not only counted, with the reason `Path3D` would be wrong:
+`_stroke3d`'s own internal caller passes a bare point list, so `PathLike` is the honest type and
+narrowing further only typechecks until you look at the callers.
+
+### `debug_bezier_patches` is the third of a kind
+
+It marks control points with native spheres and returns a `Bosl2Solid`, so it was never neutral.
+Under `use_backend("sdf")` it got **halfway through** and failed on the combination:
+
+> cannot combine a 'csg'-backend solid with a 'sdf'-backend solid
+
+A true sentence about the wrong thing. Nothing in it says the helper is a CSG feature.
+
+Three now, each announcing the same fact differently before being fixed:
+
+| helper | how it used to fail |
+|---|---|
+| `path_extrude` / `path_extrude2d` (T51) | raw `AttributeError` about `_sdf_fn`, from inside |
+| `Region.debug_region` (T53) | surfaced `text3d`'s own name, three frames down |
+| `debug_bezier_patches` (T57) | blamed the union, halfway through |
+
+All three build CSG regardless of the active backend; none of them said so. All three refuse under
+their own names now.
+
+The layering edge stays: wrapping a composed native object needs the L3 class, and the backend
+protocol has no way to adopt one — the same wall `Extrudable` hit in T52.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

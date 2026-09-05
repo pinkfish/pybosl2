@@ -320,3 +320,41 @@ def test_the_path_extrusions_take_a_profile_a_sweep_cannot() -> None:
             "path_extrude and path_sweep now agree, so the point-list case could be delegated -- "
             f"re-measure before trusting the note in spec/layers.toml ({mitred} vs {swept})"
         )
+
+
+def test_the_bezier_debug_helper_refuses_under_its_own_name() -> None:
+    """The third helper of this kind, and the third way of announcing the same thing badly.
+
+    `debug_bezier_patches` marks control points with native spheres and returns a `Bosl2Solid`, so
+    it was never backend-neutral. Under `use_backend("sdf")` it got *halfway through* and failed on
+    the combination -- "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid" -- which
+    is a true sentence about the wrong thing. Nothing in it says the helper is a CSG feature.
+
+    Three now, each announcing it differently before being fixed: the path extrusions raised a raw
+    `AttributeError` from inside (T51), `Region.debug_region` surfaced `text3d`'s own name from
+    three frames down (T53), and this one blamed the union. All three build CSG regardless of the
+    active backend; none of them said so.
+    """
+    import numpy as np
+
+    import pybosl2.beziers as beziers
+    from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
+
+    patch = np.array(
+        [
+            [[0, 0, 0], [1, 0, 0], [2, 0, 0]],
+            [[0, 1, 0], [1, 1, 1], [2, 1, 0]],
+            [[0, 2, 0], [1, 2, 0], [2, 2, 0]],
+        ],
+        dtype=float,
+    )
+
+    with use_backend("csg"):
+        assert beziers.debug_bezier_patches(patches=[patch]) is not None
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        beziers.debug_bezier_patches(patches=[patch])
+    message = str(excinfo.value)
+    assert isinstance(excinfo.value, Bosl2Error)
+    assert "debug_bezier_patches" in message, f"the refusal does not name the call: {message}"
+    assert "combine" not in message, f"it still blames the union rather than the helper: {message}"
