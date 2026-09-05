@@ -304,15 +304,19 @@ _NUT = {
 _CLEARANCE = {"close": 0.2, "normal": 0.5, "loose": 1.0}
 
 
+@dataclass(frozen=True, init=False)
 class ScrewSpec:
     """Resolved dimensions for a metric screw.
 
     Construct directly (replaces the old ``_parse_spec`` helper):
     ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.
-    Construct directly (replaces the old ``_parse_spec`` helper):
-    ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.
 
-    Attributes are set by the constructor and may be read freely.
+    Every attribute is a resolved dimension, and resolved dimensions are values (PLAN O-5): the
+    object is frozen, so assigning to one raises. ``init=False`` keeps the constructor below,
+    which takes a *specification* -- a trade name, a bare diameter, a mapping -- rather than the
+    eleven dimensions it derives; `pitch` is both an optional input and a resolved output, so the
+    generated ``__init__`` could not express it. The fields are set through
+    ``object.__setattr__``, which is the stdlib pattern for exactly this.
     """
 
     system: str
@@ -356,65 +360,102 @@ class ScrewSpec:
             ValueError: If the specification cannot be resolved or the head type is unknown.
 
         """
-        self.system = "ISO"
+        d, p = _resolve_thread(spec, thread, pitch)
+        dims = _resolve_head(head, drive, d)
+        for name, value in (
+            ("system", "ISO"),
+            ("diameter", d),
+            ("pitch", p),
+            ("head", ScrewHeadType.NONE if head in (None, ScrewHeadType.NONE) else head),
+            ("drive", drive),
+            *dims.items(),
+        ):
+            object.__setattr__(self, name, value)
 
-        if isinstance(spec, dict):
-            d = float(spec["diameter"])
-            p = float(spec.get("pitch", 0)) if spec.get("pitch") is not None else _lookup_pitch(d, thread)
-        elif isinstance(spec, (int, float)):
-            d = float(spec)
-            p = float(pitch) if pitch is not None else _lookup_pitch(d, thread)
-        else:
-            s = str(spec).strip().upper()
-            if s.startswith("M"):
-                s = s[1:]
-            if "X" in s:
-                dpart, ppart = s.split("X", 1)
-                d, p = float(dpart), float(ppart)
-            else:
-                d = float(s)
-                p = float(pitch) if pitch is not None else _lookup_pitch(d, thread)
 
-        self.diameter = d
-        self.pitch = p
-        self.head = head
-        self.drive = drive
-        self.head_size = None
-        self.head_height = 0.0
-        self.head_angle = None
-        self.head_size_sharp = None
-        self.drive_size = None
-        self.drive_depth = None
+def _resolve_thread(
+    spec: str | dict[str, float] | float,
+    thread: ThreadPitchClass,
+    pitch: float | None,
+) -> tuple[float, float]:
+    """Resolve a screw specification to its nominal diameter and thread pitch.
 
-        if head in (None, ScrewHeadType.NONE):
-            self.head = ScrewHeadType.NONE
-            if drive == ScrewDriveType.HEX:
-                self.drive_size = _closest(_SETSCREW, d)
-                self.drive_depth = d / 2
-        elif head == ScrewHeadType.HEX:
-            spec_h: _HexHead = _closest(_HEX_HEAD, d)
-            self.head_size, self.head_height = spec_h.width, spec_h.height
-        elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
-            spec_s: _SocketHead = _closest(_SOCKET_HEAD, d)
-            self.head_size, self.head_height = spec_s.head_d, d
-            if drive == ScrewDriveType.HEX:
-                self.drive_size, self.drive_depth = spec_s.hex_drive, d / 2
-        elif head == ScrewHeadType.BUTTON:
-            spec_b: _ButtonHead = _closest(_BUTTON_HEAD, d)
-            self.head_size, self.head_height = spec_b.head_d, spec_b.height
-            if drive == ScrewDriveType.HEX:
-                self.drive_size, self.drive_depth = spec_b.hex_drive, spec_b.hex_depth
-        elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
-            spec_p: _PanHead = _closest(_PAN_HEAD, d)
-            self.head_size, self.head_height = spec_p.head_d, spec_p.height
-        elif head == ScrewHeadType.FLAT:
-            spec_f: _FlatHead = _closest(_FLAT_HEAD, d)
-            self.head_size = spec_f.actual_d
-            self.head_size_sharp = spec_f.sharp_d
-            self.head_angle = 90.0
-            self.head_height = (spec_f.actual_d - d) / 2
-        else:
-            raise Bosl2ValueError(f'Unknown head type "{head}"')
+    Args:
+        spec: ``"M6"``, ``"M8x1"``, a bare float diameter, or a mapping with ``diameter``.
+        thread: Pitch class used when the specification does not carry an explicit pitch.
+        pitch: Explicit pitch override, which an ``"M8x1"``-style specification outranks.
+
+    Returns:
+        The ``(diameter, pitch)`` pair, both in millimetres.
+
+    """
+    if isinstance(spec, dict):
+        d = float(spec["diameter"])
+        return d, (float(spec.get("pitch", 0)) if spec.get("pitch") is not None else _lookup_pitch(d, thread))
+    if isinstance(spec, (int, float)):
+        d = float(spec)
+        return d, (float(pitch) if pitch is not None else _lookup_pitch(d, thread))
+    text = str(spec).strip().upper()
+    if text.startswith("M"):
+        text = text[1:]
+    if "X" in text:
+        dpart, ppart = text.split("X", 1)
+        return float(dpart), float(ppart)
+    d = float(text)
+    return d, (float(pitch) if pitch is not None else _lookup_pitch(d, thread))
+
+
+def _resolve_head(head: ScrewHeadType, drive: ScrewDriveType, d: float) -> dict[str, float | None]:
+    """Look up the head and drive-recess dimensions for a head style at a nominal diameter.
+
+    Args:
+        head: The head style, whose table supplies the dimensions.
+        drive: The drive recess, which several head styles size from their own table.
+        d: The nominal diameter in millimetres.
+
+    Returns:
+        The six derived dimensions, keyed by field name, with ``None`` where the style has none.
+
+    Raises:
+        Bosl2ValueError: If *head* is not a head style this port has a table for.
+
+    """
+    dims: dict[str, float | None] = {
+        "head_size": None,
+        "head_height": 0.0,
+        "head_angle": None,
+        "head_size_sharp": None,
+        "drive_size": None,
+        "drive_depth": None,
+    }
+    if head in (None, ScrewHeadType.NONE):
+        if drive == ScrewDriveType.HEX:
+            dims["drive_size"], dims["drive_depth"] = _closest(_SETSCREW, d), d / 2
+    elif head == ScrewHeadType.HEX:
+        spec_h: _HexHead = _closest(_HEX_HEAD, d)
+        dims["head_size"], dims["head_height"] = spec_h.width, spec_h.height
+    elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
+        spec_s: _SocketHead = _closest(_SOCKET_HEAD, d)
+        dims["head_size"], dims["head_height"] = spec_s.head_d, d
+        if drive == ScrewDriveType.HEX:
+            dims["drive_size"], dims["drive_depth"] = spec_s.hex_drive, d / 2
+    elif head == ScrewHeadType.BUTTON:
+        spec_b: _ButtonHead = _closest(_BUTTON_HEAD, d)
+        dims["head_size"], dims["head_height"] = spec_b.head_d, spec_b.height
+        if drive == ScrewDriveType.HEX:
+            dims["drive_size"], dims["drive_depth"] = spec_b.hex_drive, spec_b.hex_depth
+    elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
+        spec_p: _PanHead = _closest(_PAN_HEAD, d)
+        dims["head_size"], dims["head_height"] = spec_p.head_d, spec_p.height
+    elif head == ScrewHeadType.FLAT:
+        spec_f: _FlatHead = _closest(_FLAT_HEAD, d)
+        dims["head_size"] = spec_f.actual_d
+        dims["head_size_sharp"] = spec_f.sharp_d
+        dims["head_angle"] = 90.0
+        dims["head_height"] = (spec_f.actual_d - d) / 2
+    else:
+        raise Bosl2ValueError(f'Unknown head type "{head}"')
+    return dims
 
 
 def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:

@@ -367,6 +367,12 @@ there in the same commit as the code (§13 rule 4).
 
 `KNOWN_GAPS` gains one row and `CapType.CIRCLE` keeps its own: the round-over cap — the swept rim filleted rather than domed — is a real geometry feature unbuilt on both backends, in the same class as `cuboid(teardrop=)`, and is not what this task turned out to be about.
 
+**T60 took the last spec object that was not frozen, and the reason it had been left was wrong in a specific way.** `ScrewSpec` carried the one exception in `NOT_FROZEN`, with the note that an 88-line constructor parsing a trade name made it "a refactor rather than a decorator". The observation was accurate; the conclusion did not follow. The constructor takes a *specification* — `"M6"`, `"M8x1"`, a bare diameter, a mapping — and the eleven fields are what it *derives*, which is why the generated `__init__` could not express it (`pitch` is both an optional input and a resolved output). That is the shape `frozen=True, init=False` exists for, and the fields go in through `object.__setattr__`. The constructor did not need rewriting to freeze the class; nothing in the package mutates a `ScrewSpec`, so nothing broke, and the object gained `__eq__` and `__repr__` on the way.
+
+**The refactor the exception was waiting for was worth doing on its own, separately.** The constructor is two phases that share nothing but the diameter: parse the specification into `(diameter, pitch)`, then look up head and drive dimensions from the ISO tables. Split, `parts/screws.py`'s over-long function budget went **2 → 1** — a gain that had been sitting behind a blocked task for no reason, since neither half of it depended on the other.
+
+**The guard needed a second half.** `test_every_spec_object_is_frozen` scans decorators, so it passes for any class carrying `frozen=True` whether or not assignment raises — and `init=False` is exactly where that could diverge, because the fields are set through a back door that a second back door would be indistinguishable from. A negative control that kept the decorator and restored `__setattr__` proved the point: the scan passed it. A companion test now assigns to a resolved dimension, requires `FrozenInstanceError`, and requires the value to be unchanged afterwards.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

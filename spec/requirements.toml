@@ -3849,10 +3849,14 @@ Spec objects are frozen dataclasses. Shapes and paths return new objects from ev
 '''
 enforced_by = [
     "tests/test_declared_surface.py::test_every_spec_object_is_frozen",
+    "tests/test_declared_surface.py::test_no_spec_object_claims_an_exception",
+    "tests/test_declared_surface.py::test_a_resolved_dimension_does_not_change_under_the_caller",
 ]
 status = "enforced"
 note = '''
-`ScrewSpec` is the one exception, with the reason: an 87-line constructor that parses a trade name, so converting it is a refactor rather than a decorator.
+There are no exceptions. `ScrewSpec` was the only one, on the reason that an 88-line constructor parsing a trade name made it "a refactor rather than a decorator". The observation was right and the conclusion did not follow: the constructor takes a *specification* and the eleven fields are what it derives, so `frozen=True, init=False` with `object.__setattr__` — the stdlib pattern for exactly this — fits without touching the constructor at all. The refactor the exception was waiting on happened anyway and was worth having on its own: the parse and the ISO table lookup are separate functions now, and the file's over-long function budget went 2 -> 1.
+
+The scan behind this requirement reads decorators, so it would pass a class that carried `frozen=True` and was not immutable — a live risk precisely for `init=False` classes, whose fields are assigned through a back door that a second back door would be indistinguishable from. A companion test assigns to a resolved dimension and requires `FrozenInstanceError`, and requires the value to be unchanged afterwards.
 '''
 
 [[requirement]]
