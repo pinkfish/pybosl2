@@ -2569,6 +2569,8 @@ keyword = "MUST"
 statement = '''
 A parameter in a public signature says the library honours it. Where this port advertises one it does not build, the refusal MUST be a `Bosl2NotImplementedError` — a `Bosl2Error` so `except Bosl2Error` catches it (E-1), a `NotImplementedError` so existing callers are unaffected, and carrying a hint naming what to do meanwhile (E-2). Four public callables raised a bare `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and `VNF.from_field` with a range. The gaps are listed and the list only shrinks.
 
+**A refusal is a claim about cost, and the claim is worth checking before it is written.** `VNF.from_field`'s told the caller to "mesh each threshold and subtract the inner surface from the outer one" — two meshes, a boolean, and the orientation problem of a nested pair. The band `lo <= f <= hi` is `min(f - lo, hi - f) >= 0`, so it is one marching-cubes pass over a transformed field and the refusal was the whole of the gap. Where a refusal's own advice is more work than the feature, that is the signal to measure it again.
+
 **An accepted enum member is the same promise as a parameter, and is easier to break quietly.** A `CapType` reaches three consumers — the sweep path, the 3-D stroke, the 2-D stroke — and each decides what it handles by listing the members it knows. Every fall-through lands on a flat end, and a butt cap is a perfectly good solid, so nothing downstream objects. Four members were falling through when this was measured: `SPHERE` (documented as a synonym of `ROUND`, and one only on the sweep), `CIRCLE` on the 2-D stroke alone, and `LINE` and `X` on both 3-D consumers, whose two-point profiles revolve into nothing. So a member a consumer cannot build MUST refuse naming `CapType.<NAME>`, never return a butt cap; and the guard is a matrix — every member against `BUTT`, in every consumer — because a per-case test only ever finds the case it was written for.
 
 **`texture=` is the one that matters:** S-34 and S-35 specify textures as a working subsystem, the registry is built, and thirteen public constructors take the five texture parameters — so grouping those five (G-1) would be polish on a promise nothing keeps, which is why the `Texturing` group was not built.
@@ -2578,6 +2580,9 @@ enforced_by = [
     "tests/test_cap_types_are_not_silently_flat.py::test_a_cap_changes_the_shape_or_refuses_by_name",
     "tests/test_cap_types_are_not_silently_flat.py::test_sphere_is_the_synonym_of_round_it_is_documented_as",
     "tests/test_cap_types_are_not_silently_flat.py::test_the_unbuildable_sets_only_shrink",
+    "tests/test_isovalue_ranges.py::test_a_band_of_a_distance_field_is_a_shell_of_the_right_volume",
+    "tests/test_isovalue_ranges.py::test_every_vertex_of_the_shell_is_on_one_of_the_two_spheres",
+    "tests/test_isovalue_ranges.py::test_a_range_open_at_the_bottom_is_the_region_below_the_threshold",
 ]
 status = "enforced"
 

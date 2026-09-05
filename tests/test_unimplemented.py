@@ -38,7 +38,6 @@ KNOWN_GAPS: frozenset[str] = frozenset(
         "_stroke3d.py::endcap_geometry_3d",  # CapType.LINE and X have no solid of revolution
         "caps.py::endcap_polys",  # CapType.CIRCLE
         "shapes3d/cuboid.py::cuboid",  # teardrop=
-        "vnf.py::from_field",  # tuple (lo, hi) isovalue ranges
     }
 )
 

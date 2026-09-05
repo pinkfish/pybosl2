@@ -879,6 +879,13 @@ as the mathematics allows.
   `NotImplementedError` instead: `cyl(texture=...)`, `cuboid(teardrop=...)`, `CapType.CIRCLE` and
   `VNF.from_field` with a range. The gaps are listed and the list only shrinks.
 
+  **A refusal is a claim about cost, and the claim is worth checking before it is written.**
+  `VNF.from_field`'s told the caller to "mesh each threshold and subtract the inner surface from the
+  outer one" — two meshes, a boolean, and the orientation problem of a nested pair. The band `lo <=
+  f <= hi` is `min(f - lo, hi - f) >= 0`, so it is one marching-cubes pass over a transformed field
+  and the refusal was the whole of the gap. Where a refusal's own advice is more work than the
+  feature, that is the signal to measure it again.
+
   **An accepted enum member is the same promise as a parameter, and is easier to break quietly.** A
   `CapType` reaches three consumers — the sweep path, the 3-D stroke, the 2-D stroke — and each
   decides what it handles by listing the members it knows. Every fall-through lands on a flat end,
@@ -1124,6 +1131,12 @@ there in the same commit as the code (§13 rule 4).
 **The refactor the exception was waiting for was worth doing on its own, separately.** The constructor is two phases that share nothing but the diameter: parse the specification into `(diameter, pitch)`, then look up head and drive dimensions from the ISO tables. Split, `parts/screws.py`'s over-long function budget went **2 → 1** — a gain that had been sitting behind a blocked task for no reason, since neither half of it depended on the other.
 
 **The guard needed a second half.** `test_every_spec_object_is_frozen` scans decorators, so it passes for any class carrying `frozen=True` whether or not assignment raises — and `init=False` is exactly where that could diverge, because the fields are set through a back door that a second back door would be indistinguishable from. A negative control that kept the decorator and restored `__setattr__` proved the point: the scan passed it. A companion test now assigns to a resolved dimension, requires `FrozenInstanceError`, and requires the value to be unchanged afterwards.
+
+**T61 built `VNF.from_field`'s isovalue range, and the refusal turned out to be the whole of the gap.** It advised the caller to "mesh each threshold and subtract the inner surface from the outer one" — two marching-cubes passes, a boolean, and the orientation problem of a nested pair. The band `lo <= f <= hi` is exactly `min(f - lo, hi - f) >= 0`, so it is **one** pass over a transformed field, inserted where both the array and callable branches have already converged on a sampled grid. `[lo, inf]` leaves the field untouched and is the bare threshold, so the open-ended range and the plain one are the same code path. `from_metaballs` forwards its isovalue and so hollows a blob for free. **Where a refusal's own workaround is more work than the feature, that is the signal to measure it again** — the same shape as T58, where a `@backend_only` marker was gating a one-line bug.
+
+**The instrument is analytic volume, and it had to be.** Bounds cannot tell a shell from the ball that contains it — both are 20mm across — and losing the cavity while getting the outer surface right is precisely what a band implementation risks. `f(p) = |p|` banded to `[5, 10]` is a spherical shell of volume `4/3 π (10³ - 5³)`, matched to **0.06%**, with every vertex on one of the two spheres and none in the wall between them.
+
+**One defect was written and caught during the build, and it is the one the guards were then built around.** For `[-inf, hi]` the region is `f <= hi`, and the tempting shortcut is to negate the *threshold* — which gives `f >= -hi`, the entire bounding box. That fails silently: the result is a perfectly good closed mesh of the wrong solid. The field is what must be negated, and `min(f - lo, hi - f)` already does it, so the special case came out. A negative control plants the shortcut.
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body

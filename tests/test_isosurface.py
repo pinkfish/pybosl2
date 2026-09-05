@@ -13,7 +13,6 @@ checks run on the pure-Python VNF, and real geometry is verified in test_stl_ren
 import math
 
 import numpy as np
-import pytest
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.isosurface import (
@@ -207,14 +206,20 @@ def test_isovalue_float_works() -> None:
     assert len(vnf.vertices) > 0
 
 
-def test_isovalue_tuple_raises() -> None:
-    """from_field with tuple isovalue raises NotImplementedError."""
-    with pytest.raises(NotImplementedError):
-        VNF.from_field(
-            lambda pts: np.zeros(len(pts)),
-            isovalue=(0.0, 1.0),  # type: ignore[arg-type]
-            bounding_box=Bounds3D(-1, -1, -1, 1, 1, 1, 2, 2, 2),
-        )
+def test_isovalue_tuple_encloses_the_band() -> None:
+    """A `[lo, hi]` isovalue meshes the band between the two thresholds (T61).
+
+    This asserted `NotImplementedError` until the range was built. The shell geometry itself is
+    checked in `tests/test_isovalue_ranges.py` against an analytic volume; what is left here is
+    that the tuple reaches the mesher at all.
+    """
+    vnf = VNF.from_field(
+        lambda pts: np.sqrt(np.sum(pts**2, axis=1)),
+        isovalue=(2.0, 4.0),
+        bounding_box=Bounds3D(-6, -6, -6, 6, 6, 6, 12, 12, 12),
+        voxel_size=0.5,
+    )
+    assert len(vnf.vertices) > 0
 
 
 def test_marching_cubes_closed() -> None:
