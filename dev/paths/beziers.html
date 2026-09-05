@@ -7303,11 +7303,11 @@ draws the control net, and <em>showdots</em> highlights the mesh vertices.</p>
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.BezierPatch.debug-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.debug-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered
-patch surface, control net, and control-point markers.</p>
+<dd class="field-even"><p>The rendered patch surface, control net and control-point markers, as a
+<a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2._backend.Solid (Python class)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a> on whichever backend is active.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.BezierPatch.debug-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.debug-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Solid</p>
+<dd class="field-odd"><p><a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 <p>Examples:
@@ -7326,16 +7326,16 @@ patch surface, control net, and control-point markers.</p>
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.beziers.debug_bezier_patches">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.beziers.</span></span><span class="sig-name descname"><span class="pre">debug_bezier_patches</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.patches" title="pybosl2.beziers.debug_bezier_patches.patches (Python parameter) — A single patch or list of patches to debug-visualise."><span class="n"><span class="pre">patches</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.size" title="pybosl2.beziers.debug_bezier_patches.size (Python parameter) — Optional marker diameter; auto-scaled if None."><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.splinesteps" title="pybosl2.beziers.debug_bezier_patches.splinesteps (Python parameter) — Number of sampling steps for the surface mesh."><span class="n"><span class="pre">splinesteps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">16</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.showcps" title="pybosl2.beziers.debug_bezier_patches.showcps (Python parameter) — If True, render the control-point net."><span class="n"><span class="pre">showcps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.showdots" title="pybosl2.beziers.debug_bezier_patches.showdots (Python parameter) — If True, highlight the mesh vertices."><span class="n"><span class="pre">showdots</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.showpatch" title="pybosl2.beziers.debug_bezier_patches.showpatch (Python parameter) — If True, render the surface mesh."><span class="n"><span class="pre">showpatch</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.debug_bezier_patches.style" title="pybosl2.beziers.debug_bezier_patches.style (Python parameter) — VNF triangulation style, passed to vertex_array()."><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/beziers.html#debug_bezier_patches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches" title="Link to this definition">¶</a></dt>
 <dd><p>Native geometry showing bezier patches: surfaces, control points and control-net lines.</p>
-<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered patches.
+<p>Returns whichever <a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2._backend.Solid (Python class)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a> the active backend builds.
 Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
 ported path_sweep tube.</p>
-<p><strong>CSG-only, and it says so now.</strong> It marks control points with native spheres and returns a
-<cite>Bosl2Solid</cite>, so it was never neutral – but under <cite>use_backend(“sdf”)</cite> it got halfway through
-and failed on the <em>combination</em>: “cannot combine a ‘csg’-backend solid with a ‘sdf’-backend
-solid”. A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.
-It refuses up front under its own name now (SPEC B-9, E-5) – the same fix <cite>Region.debug_region</cite>
-got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the
-active backend, each announcing it differently, and none of them saying what it was.</p>
+<p><strong>It builds on either backend.</strong> It used to fail halfway through under <cite>use_backend(“sdf”)</cite> –
+“cannot combine a ‘csg’-backend solid with a ‘sdf’-backend solid” – and T57 marked it
+<cite>&#64;backend_only(“csg”)</cite> so it would at least refuse under its own name. That was a workaround
+for a one-line defect: of its two markers, <cite>_debug_tube</cite> had always gone through <cite>path_sweep</cite>
+(neutral), and only <cite>_sphere_at</cite> reached for <cite>pythonscad.sphere</cite> and wrapped the result. Taking
+that one through the façade makes the whole helper neutral, which beats refusing well
+(SPEC A-10, PAR-1).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.debug_bezier_patches-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -7356,11 +7356,11 @@ active backend, each announcing it differently, and none of them saying what it 
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.debug_bezier_patches-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered patch
-surfaces, control nets, and control-point markers.</p>
+<dd class="field-even"><p>The rendered patch surfaces, control nets and control-point markers, as a
+<a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2._backend.Solid (Python class)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a> on whichever backend is active.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.debug_bezier_patches-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Solid</p>
+<dd class="field-odd"><p><a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>

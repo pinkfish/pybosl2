@@ -2209,11 +2209,9 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">PointLike</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SweepMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
@@ -3989,7 +3987,7 @@
         <span class="n">showpatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Visualize this patch as native geometry (BOSL2 debug_bezier_patches).</span>
 
 <span class="sd">        Renders the surface, control-point net lines, and control points as</span>
@@ -4005,8 +4003,8 @@
 <span class="sd">            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered</span>
-<span class="sd">            patch surface, control net, and control-point markers.</span>
+<span class="sd">            The rendered patch surface, control net and control-point markers, as a</span>
+<span class="sd">            :class:`~pybosl2._backend.Solid` on whichever backend is active.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -4055,17 +4053,18 @@
 <span class="sd">    operator") while ``tube | sphere`` worked, so whether a caller's union succeeded came down to</span>
 <span class="sd">    which kind of piece it happened to start with.</span>
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span>
-
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span>
 
     <span class="n">p3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">sphere</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">))</span>  <span class="c1"># the native takes r/d, not radius/diameter</span>
+    <span class="c1"># Through the façade, so the marker is built by whichever backend is active (SPEC A-10). It</span>
+    <span class="c1"># took `pythonscad.sphere` and wrapped the result in `Bosl2Solid`, which made this the one</span>
+    <span class="c1"># native call in an otherwise neutral debug helper -- `_debug_tube` beside it has always gone</span>
+    <span class="c1"># through `path_sweep`, which returns a `Solid` on either backend.</span>
+    <span class="k">return</span> <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="debug_bezier_patches">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.debug_bezier_patches">[docs]</a>
-<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">debug_bezier_patches</span><span class="p">(</span>
     <span class="n">patches</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4074,20 +4073,20 @@
     <span class="n">showdots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">showpatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Native geometry showing bezier patches: surfaces, control points and control-net lines.</span>
 
-<span class="sd">    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.</span>
+<span class="sd">    Returns whichever :class:`~pybosl2._backend.Solid` the active backend builds.</span>
 <span class="sd">    Requires the real PythonSCAD app; builds on VNF.polyhedron() and the</span>
 <span class="sd">    ported path_sweep tube.</span>
 
-<span class="sd">    **CSG-only, and it says so now.** It marks control points with native spheres and returns a</span>
-<span class="sd">    `Bosl2Solid`, so it was never neutral -- but under `use_backend("sdf")` it got halfway through</span>
-<span class="sd">    and failed on the *combination*: "cannot combine a 'csg'-backend solid with a 'sdf'-backend</span>
-<span class="sd">    solid". A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.</span>
-<span class="sd">    It refuses up front under its own name now (SPEC B-9, E-5) -- the same fix `Region.debug_region`</span>
-<span class="sd">    got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the</span>
-<span class="sd">    active backend, each announcing it differently, and none of them saying what it was.</span>
+<span class="sd">    **It builds on either backend.** It used to fail halfway through under `use_backend("sdf")` --</span>
+<span class="sd">    "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid" -- and T57 marked it</span>
+<span class="sd">    `@backend_only("csg")` so it would at least refuse under its own name. That was a workaround</span>
+<span class="sd">    for a one-line defect: of its two markers, `_debug_tube` had always gone through `path_sweep`</span>
+<span class="sd">    (neutral), and only `_sphere_at` reached for `pythonscad.sphere` and wrapped the result. Taking</span>
+<span class="sd">    that one through the façade makes the whole helper neutral, which beats refusing well</span>
+<span class="sd">    (SPEC A-10, PAR-1).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        patches: A single patch or list of patches to debug-visualise.</span>
@@ -4099,12 +4098,10 @@
 <span class="sd">        style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patch</span>
-<span class="sd">        surfaces, control nets, and control-point markers.</span>
+<span class="sd">        The rendered patch surfaces, control nets and control-point markers, as a</span>
+<span class="sd">        :class:`~pybosl2._backend.Solid` on whichever backend is active.</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
-
     <span class="c1"># is_patch() only recognises a list/tuple, so a BezierPatch or an (R, C, 3) array -- both of</span>
     <span class="c1"># which the signature accepts -- used to fall through and be iterated as if each row were a</span>
     <span class="c1"># whole patch, failing with "patch rows must be a 3-D array".</span>
@@ -4162,9 +4159,11 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_VNF</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off."</span><span class="p">)</span>
-    <span class="c1"># Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the</span>
-    <span class="c1"># result with no bounding box of its own.</span>
-    <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="c1"># Every piece is already a `Solid` on whichever backend is active -- `path_sweep` returns one</span>
+    <span class="c1"># (SPEC S-19a), the façade sphere returns one, and `VNF.polyhedron()` dispatches. The wrap that</span>
+    <span class="c1"># stood here tested `isinstance(result, Bosl2Solid)` and so re-wrapped an `SdfSolid` into a CSG</span>
+    <span class="c1"># wrapper, which is how this returned a `CsgSolid` from inside `use_backend("sdf")` (SPEC A-6).</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Solid"</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
 
 </code></pre></div>
 
