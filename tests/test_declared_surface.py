@@ -33,10 +33,14 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 #: render tests skip rather than fail (PLAN X-2).
 APP_ONLY = frozenset({"roof"})
 
-#: `ScrewSpec` is the one spec object that is not a frozen dataclass: it has an 87-line
-#: constructor that parses a trade name and derives a dozen dimensions, so converting it is a
-#: refactor rather than a decorator. Recorded here so nothing *else* joins it.
-NOT_FROZEN = frozenset({"screws.py::ScrewSpec"})
+#: Empty, and it stays empty. `ScrewSpec` was the one exception -- an 88-line constructor that
+#: parses a trade name and derives eleven dimensions, which the row called "a refactor rather
+#: than a decorator". Both halves were true and the conclusion did not follow: the constructor
+#: takes a *specification* and the fields are what it derives, so `frozen=True, init=False` with
+#: a hand-written `__init__` fits exactly, and the refactor the row was waiting for turned out to
+#: be a separate gain (the parse and the table lookup split out, and the file's over-long
+#: function budget went 2 -> 1).
+NOT_FROZEN: frozenset[str] = frozenset()
 
 
 def test_every_forwarded_name_exists_on_the_wrapped_object() -> None:
@@ -86,15 +90,32 @@ def test_every_spec_object_is_frozen() -> None:
     assert not loose, f"spec objects that are not frozen dataclasses (PLAN O-5): {loose}"
 
 
-def test_the_known_exception_is_not_stale() -> None:
-    """If `ScrewSpec` is converted, its row comes out rather than sitting here as a lie."""
-    source = (ROOT / "pybosl2" / "parts" / "screws.py").read_text()
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.ClassDef) and node.name == "ScrewSpec":
-            if any("frozen=True" in ast.unparse(d) for d in node.decorator_list):
-                pytest.fail("ScrewSpec is frozen now -- remove it from NOT_FROZEN.")
-            return
-    pytest.fail("ScrewSpec is gone -- remove it from NOT_FROZEN.")
+def test_no_spec_object_claims_an_exception() -> None:
+    """PLAN O-5: the exception list is empty, and a new row needs a reason nobody has yet."""
+    assert not NOT_FROZEN, (
+        f"{sorted(NOT_FROZEN)} -- every spec object is a frozen dataclass. A constructor that "
+        f"cannot use the generated `__init__` is not a reason: `frozen=True, init=False` with "
+        f"`object.__setattr__` is the stdlib pattern, and it is what `ScrewSpec` uses."
+    )
+
+
+def test_a_resolved_dimension_does_not_change_under_the_caller() -> None:
+    """PLAN O-5: freezing is only worth recording if assignment actually raises.
+
+    The `frozen=True` scan above reads decorators, so it would pass for a class that had the
+    decorator and no immutability -- `init=False` plus a hand-written `__init__` is exactly the
+    shape where that could go wrong, since the fields are set through `object.__setattr__` and
+    a class could set them any other way without the scan noticing.
+    """
+    import dataclasses
+
+    from pybosl2.parts.screws import ScrewSpec
+
+    spec = ScrewSpec("M6")
+    assert spec.diameter == 6.0
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        spec.diameter = 99.0  # type: ignore[misc]
+    assert spec.diameter == 6.0, "the assignment raised but landed anyway"
 
 
 def test_the_package_is_not_wildcard_re_exported() -> None:

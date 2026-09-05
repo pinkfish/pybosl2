@@ -48,7 +48,7 @@ BUDGET: dict[str, int] = {
     "parts/gears.py": 4,
     "parts/hinges.py": 1,
     "parts/hooks.py": 1,
-    "parts/screws.py": 2,
+    "parts/screws.py": 1,
     "parts/sliders.py": 1,
     "parts/tripod_mounts.py": 1,
     "parts/walls.py": 1,
