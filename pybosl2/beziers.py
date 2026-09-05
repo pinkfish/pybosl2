@@ -58,11 +58,9 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
     from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point, PointLike
-    from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
-from pybosl2._backend import backend_only
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
 from pybosl2.enums import SweepMethod, VNFStyle
@@ -1726,7 +1724,7 @@ class BezierPatch:
         showpatch: bool = True,
         size: float | None = None,
         style: VNFStyle = VNFStyle.DEFAULT,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Visualize this patch as native geometry (BOSL2 debug_bezier_patches).
 
         Renders the surface, control-point net lines, and control points as
@@ -1742,8 +1740,8 @@ class BezierPatch:
             style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
 
         Returns:
-            A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered
-            patch surface, control net, and control-point markers.
+            The rendered patch surface, control net and control-point markers, as a
+            :class:`~pybosl2._backend.Solid` on whichever backend is active.
 
         Examples:
         .. pythonscad-example::
@@ -1790,15 +1788,16 @@ def _sphere_at(p: np.ndarray, diameter: float) -> Any:
     operator") while ``tube | sphere`` worked, so whether a caller's union succeeded came down to
     which kind of piece it happened to start with.
     """
-    from pythonscad import sphere
-
-    from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
+    from pybosl2.solid import sphere
 
     p3 = [float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0]
-    return _Bosl2Solid(sphere(d=diameter).translate(p3))  # the native takes r/d, not radius/diameter
+    # Through the façade, so the marker is built by whichever backend is active (SPEC A-10). It
+    # took `pythonscad.sphere` and wrapped the result in `Bosl2Solid`, which made this the one
+    # native call in an otherwise neutral debug helper -- `_debug_tube` beside it has always gone
+    # through `path_sweep`, which returns a `Solid` on either backend.
+    return sphere(diameter=diameter).translate(p3)
 
 
-@backend_only("csg")
 def debug_bezier_patches(
     patches: np.ndarray | Sequence[np.ndarray],
     size: float | None = None,
@@ -1807,20 +1806,20 @@ def debug_bezier_patches(
     showdots: bool = False,
     showpatch: bool = True,
     style: VNFStyle = VNFStyle.DEFAULT,
-) -> Bosl2Solid:
+) -> "Solid":
     """Native geometry showing bezier patches: surfaces, control points and control-net lines.
 
-    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.
+    Returns whichever :class:`~pybosl2._backend.Solid` the active backend builds.
     Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
     ported path_sweep tube.
 
-    **CSG-only, and it says so now.** It marks control points with native spheres and returns a
-    `Bosl2Solid`, so it was never neutral -- but under `use_backend("sdf")` it got halfway through
-    and failed on the *combination*: "cannot combine a 'csg'-backend solid with a 'sdf'-backend
-    solid". A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.
-    It refuses up front under its own name now (SPEC B-9, E-5) -- the same fix `Region.debug_region`
-    got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the
-    active backend, each announcing it differently, and none of them saying what it was.
+    **It builds on either backend.** It used to fail halfway through under `use_backend("sdf")` --
+    "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid" -- and T57 marked it
+    `@backend_only("csg")` so it would at least refuse under its own name. That was a workaround
+    for a one-line defect: of its two markers, `_debug_tube` had always gone through `path_sweep`
+    (neutral), and only `_sphere_at` reached for `pythonscad.sphere` and wrapped the result. Taking
+    that one through the façade makes the whole helper neutral, which beats refusing well
+    (SPEC A-10, PAR-1).
 
     Args:
         patches: A single patch or list of patches to debug-visualise.
@@ -1832,12 +1831,10 @@ def debug_bezier_patches(
         style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
 
     Returns:
-        A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patch
-        surfaces, control nets, and control-point markers.
+        The rendered patch surfaces, control nets and control-point markers, as a
+        :class:`~pybosl2._backend.Solid` on whichever backend is active.
 
     """
-    from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
-
     # is_patch() only recognises a list/tuple, so a BezierPatch or an (R, C, 3) array -- both of
     # which the signature accepts -- used to fall through and be iterated as if each row were a
     # whole patch, failing with "patch rows must be a 3-D array".
@@ -1895,6 +1892,8 @@ def debug_bezier_patches(
         result = _add(result, _VNF.join(surfaces).polyhedron())
     if result is None:
         raise Bosl2ValueError("debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off.")
-    # Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the
-    # result with no bounding box of its own.
-    return result if isinstance(result, _Bosl2Solid) else _Bosl2Solid(result)
+    # Every piece is already a `Solid` on whichever backend is active -- `path_sweep` returns one
+    # (SPEC S-19a), the façade sphere returns one, and `VNF.polyhedron()` dispatches. The wrap that
+    # stood here tested `isinstance(result, Bosl2Solid)` and so re-wrapped an `SdfSolid` into a CSG
+    # wrapper, which is how this returned a `CsgSolid` from inside `use_backend("sdf")` (SPEC A-6).
+    return cast("Solid", result)

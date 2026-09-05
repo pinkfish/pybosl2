@@ -322,18 +322,27 @@ def test_the_path_extrusions_take_a_profile_a_sweep_cannot() -> None:
         )
 
 
-def test_the_bezier_debug_helper_refuses_under_its_own_name() -> None:
-    """The third helper of this kind, and the third way of announcing the same thing badly.
+def test_the_bezier_debug_helper_builds_where_it_can_and_refuses_where_it_cannot() -> None:
+    """The third helper of this kind -- and the first where the gate was the wrong fix.
 
-    `debug_bezier_patches` marks control points with native spheres and returns a `Bosl2Solid`, so
-    it was never backend-neutral. Under `use_backend("sdf")` it got *halfway through* and failed on
-    the combination -- "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid" -- which
-    is a true sentence about the wrong thing. Nothing in it says the helper is a CSG feature.
+    `debug_bezier_patches` ended with `result if isinstance(result, Bosl2Solid) else
+    Bosl2Solid(result)`. Naming the CSG class by hand meant an `SdfSolid` -- which is not a
+    `Bosl2Solid` -- got re-wrapped into a CSG wrapper, so the helper returned a `CsgSolid` from
+    inside `use_backend("sdf")`, the A-6 defect. Under sdf it then failed on the *combine*:
+    "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid", a true sentence about the
+    wrong thing. T57 read that as "this helper is a CSG feature" and marked it `backend_only`.
 
-    Three now, each announcing it differently before being fixed: the path extrusions raised a raw
-    `AttributeError` from inside (T51), `Region.debug_region` surfaced `text3d`'s own name from
-    three frames down (T53), and this one blamed the union. All three build CSG regardless of the
-    active backend; none of them said so.
+    It is not. Every piece it assembles is already a `Solid` on whichever backend is active --
+    `_debug_tube` goes through `path_sweep`, and T58 sent the control-point markers through the
+    façade sphere -- so the wrap had nothing to do, and deleting it made the helper neutral. What
+    is left refusing on sdf is one real obstruction: the patch *surface*, an open non-convex mesh
+    that an SDF polyhedron cannot represent. So the assertions run both ways round -- the surface
+    is refused with the geometric reason, and everything else builds, on the active backend.
+
+    Three helpers now, each announcing the same thing differently: the path extrusions raised a
+    raw `AttributeError` from inside (T51), `Region.debug_region` surfaced `text3d`'s own name
+    from three frames down (T53), and this one blamed the union. Two of the three really were CSG
+    features. This one only looked like one.
     """
     import numpy as np
 
@@ -350,11 +359,22 @@ def test_the_bezier_debug_helper_refuses_under_its_own_name() -> None:
     )
 
     with use_backend("csg"):
-        assert beziers.debug_bezier_patches(patches=[patch]) is not None
+        built = beziers.debug_bezier_patches(patches=[patch])
+        assert type(built).__name__ == "CsgSolid", type(built).__name__
 
+    # The surface is the one part sdf cannot build, and the refusal says which part and why.
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
         beziers.debug_bezier_patches(patches=[patch])
     message = str(excinfo.value)
     assert isinstance(excinfo.value, Bosl2Error)
-    assert "debug_bezier_patches" in message, f"the refusal does not name the call: {message}"
-    assert "combine" not in message, f"it still blames the union rather than the helper: {message}"
+    assert "polyhedron" in message, f"the refusal does not name the part that failed: {message}"
+    assert "convex" in message, f"the refusal gives no geometric reason: {message}"
+    assert "combine" not in message, f"it still blames the union: {message}"
+
+    # Everything else builds -- and builds on the *active* backend, which is the A-6 half. A
+    # `CsgSolid` here is the wrap coming back, and it would go unnoticed: it is a real solid, it
+    # unions with other CSG solids, and it only misbehaves once something SDF touches it.
+    for kwargs in ({"showpatch": False}, {"showpatch": False, "showdots": True}):
+        with use_backend("sdf"):
+            result = beziers.debug_bezier_patches(patches=[patch], **kwargs)  # type: ignore[arg-type]
+        assert type(result).__name__ == "SdfSolid", f"{kwargs}: got {type(result).__name__}"

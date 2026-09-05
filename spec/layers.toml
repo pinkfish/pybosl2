@@ -63,6 +63,7 @@ L5_parts = ["parts"]
 [facade_bridges]
 "path2d -> flat" = "Path2D.polygon() builds through the façade (A-10)."
 "regions -> flat" = "Region.geometry() builds through the façade (A-10)."
+"beziers -> solid" = "`debug_bezier_patches` marks control points with spheres from the façade, so the marker is built by whichever backend is active (A-10). It reached `pythonscad.sphere` directly until T58 -- the one native call in a helper whose other piece, `_debug_tube`, had always gone through `path_sweep`."
 "masking -> solid" = "A mask cutter is built by whichever backend is active, so `masking` takes `cuboid` from the façade rather than from a backend module. It sat in known_violations until T56 measured it: the section's own check -- is the target a façade module? -- passes, and reaching *down* to the neutral façade is the thing A-10 asks for, not a layer being dodged."
 
 # Runtime module-level edges, plus the deferred ones that are not cycles. Every one is debt and
@@ -76,6 +77,13 @@ L5_parts = ["parts"]
 # left behind. Nothing checked for an edge appearing in two sections until T56 added it; T55 had
 # added that check for `capability_edges` alone, which was too narrow the day it was written.
 #
+# `beziers -> shapes3d` went in T58, and not by moving code. `debug_bezier_patches` ended with
+# `result if isinstance(result, Bosl2Solid) else Bosl2Solid(result)` -- a wrap that named the CSG
+# class by hand and so re-wrapped an `SdfSolid` into a CSG wrapper, returning `CsgSolid` from
+# inside `use_backend("sdf")` (an A-6 defect the edge was hiding). Every piece it assembles is
+# already a `Solid` on whichever backend is active, so the wrap had nothing to do: deleting it
+# closed the edge, fixed the defect, and let T57's `@backend_only("csg")` marker come off.
+#
 # Four entries were removed in T50 that had never belonged: `color -> _shape`,
 # `distributors -> _shape`, `path3d -> shapes3d` and `turtle3d -> shapes3d` exist **only** under
 # `if TYPE_CHECKING`, which the model above calls "allowed and unlisted". They made the debt look
@@ -83,7 +91,6 @@ L5_parts = ["parts"]
 # edge existed, not whether it was the *kind* of edge this list is for.
 [known_violations]
 "_helpers -> _native" = "`as_native_2d` coerces a bare point list into a native polygon, which means calling `native(\"polygon\")`. That is CSG machinery in a geometry module -- the same shape as `Extrudable`, one layer down -- and the fix is the same size: the coercion would have to build through the façade, which returns a wrapper rather than the raw handle its callers want."
-"beziers -> shapes3d" = "`debug_bezier_patches` marks control points with native spheres and wraps them in `Bosl2Solid` so a union works either way round. It is a *debug helper* that builds CSG whatever backend is active; T56 gave it the refusal `Region.debug_region` got in T53, so it says so under its own name instead of failing halfway through on a cross-backend combine. The edge stays: wrapping a composed native object needs the L3 class, and the backend protocol has no way to adopt one -- the same wall `Extrudable` hit in T52."
 "path3d -> _stroke3d" = "`Path3D.stroke` calls the 3-D stroke, which lives in a backend module. Its 2-D twin `path2d -> _stroke2d` is a legitimate cycle because `_stroke2d` takes a `Path2D`; this one is not, because `_stroke3d` takes a `PathLike`. T56 typed its three `path: Any` parameters (a C-20 defect on its own) and confirmed `PathLike` is the honest type -- narrowing to `Path3D` would have manufactured the cycle rather than found one."
 "skin -> sdf" = "`spiral_sweep` dispatches to the SDF backend's own exact form when that backend is active, because a helical sweep has a closed-form distance field and meshing one would be B-5's lossy conversion. It cannot go through the façade: `pybosl2.solid` carries no `spiral_sweep`. This is the `masking -> solid` case without a façade equivalent to reach."
 
