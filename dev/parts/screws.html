@@ -3386,10 +3386,13 @@ open upward from there.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Resolved dimensions for a metric screw.</p>
 <p>Construct directly (replaces the old <code class="docutils literal notranslate"><span class="pre">_parse_spec</span></code> helper):
-<code class="docutils literal notranslate"><span class="pre">ScrewSpec(&quot;M6&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">ScrewSpec(&quot;M8x1&quot;,</span> <span class="pre">head=ScrewHeadType.HEX)</span></code>, etc.
-Construct directly (replaces the old <code class="docutils literal notranslate"><span class="pre">_parse_spec</span></code> helper):
 <code class="docutils literal notranslate"><span class="pre">ScrewSpec(&quot;M6&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">ScrewSpec(&quot;M8x1&quot;,</span> <span class="pre">head=ScrewHeadType.HEX)</span></code>, etc.</p>
-<p>Attributes are set by the constructor and may be read freely.</p>
+<p>Every attribute is a resolved dimension, and resolved dimensions are values (PLAN O-5): the
+object is frozen, so assigning to one raises. <code class="docutils literal notranslate"><span class="pre">init=False</span></code> keeps the constructor below,
+which takes a <em>specification</em> – a trade name, a bare diameter, a mapping – rather than the
+eleven dimensions it derives; <cite>pitch</cite> is both an optional input and a resolved output, so the
+generated <code class="docutils literal notranslate"><span class="pre">__init__</span></code> could not express it. The fields are set through
+<code class="docutils literal notranslate"><span class="pre">object.__setattr__</span></code>, which is the stdlib pattern for exactly this.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screws.ScrewSpec-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -3422,13 +3425,33 @@ Construct directly (replaces the old <code class="docutils literal notranslate">
 <dd></dd></dl>
 
 <dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.drive">
-<span class="sig-name descname"><span class="pre">drive</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">ScrewDriveType</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.drive" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head">
+<span class="sig-name descname"><span class="pre">head</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">ScrewHeadType</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head">
-<span class="sig-name descname"><span class="pre">head</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">ScrewHeadType</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_size">
+<span class="sig-name descname"><span class="pre">head_size</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_size" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_height">
+<span class="sig-name descname"><span class="pre">head_height</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_height" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_angle">
+<span class="sig-name descname"><span class="pre">head_angle</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_angle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_size_sharp">
+<span class="sig-name descname"><span class="pre">head_size_sharp</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_size_sharp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.drive">
+<span class="sig-name descname"><span class="pre">drive</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">ScrewDriveType</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.drive" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute objdesc">
@@ -3439,26 +3462,6 @@ Construct directly (replaces the old <code class="docutils literal notranslate">
 <dl class="py attribute objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.drive_depth">
 <span class="sig-name descname"><span class="pre">drive_depth</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.drive_depth" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_size">
-<span class="sig-name descname"><span class="pre">head_size</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_size" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_size_sharp">
-<span class="sig-name descname"><span class="pre">head_size_sharp</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_size_sharp" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_angle">
-<span class="sig-name descname"><span class="pre">head_angle</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_angle" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.screws.ScrewSpec.head_height">
-<span class="sig-name descname"><span class="pre">head_height</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.screws.ScrewSpec.head_height" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

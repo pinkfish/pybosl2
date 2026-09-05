@@ -2463,15 +2463,19 @@
 
 <div class="viewcode-block" id="ScrewSpec">
 <a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.ScrewSpec">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScrewSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolved dimensions for a metric screw.</span>
 
 <span class="sd">    Construct directly (replaces the old ``_parse_spec`` helper):</span>
 <span class="sd">    ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.</span>
-<span class="sd">    Construct directly (replaces the old ``_parse_spec`` helper):</span>
-<span class="sd">    ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.</span>
 
-<span class="sd">    Attributes are set by the constructor and may be read freely.</span>
+<span class="sd">    Every attribute is a resolved dimension, and resolved dimensions are values (PLAN O-5): the</span>
+<span class="sd">    object is frozen, so assigning to one raises. ``init=False`` keeps the constructor below,</span>
+<span class="sd">    which takes a *specification* -- a trade name, a bare diameter, a mapping -- rather than the</span>
+<span class="sd">    eleven dimensions it derives; `pitch` is both an optional input and a resolved output, so the</span>
+<span class="sd">    generated ``__init__`` could not express it. The fields are set through</span>
+<span class="sd">    ``object.__setattr__``, which is the stdlib pattern for exactly this.</span>
 <span class="sd">    """</span>
 
     <span class="n">system</span><span class="p">:</span> <span class="nb">str</span>
@@ -2515,66 +2519,103 @@
 <span class="sd">            ValueError: If the specification cannot be resolved or the head type is unknown.</span>
 
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="s2">"ISO"</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_resolve_thread</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="n">_resolve_head</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">drive</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">"system"</span><span class="p">,</span> <span class="s2">"ISO"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"diameter"</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"pitch"</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"head"</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">NONE</span> <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span> <span class="k">else</span> <span class="n">head</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"drive"</span><span class="p">,</span> <span class="n">drive</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">dims</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+        <span class="p">):</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s2">"diameter"</span><span class="p">])</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pitch"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pitch"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"M"</span><span class="p">):</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="k">if</span> <span class="s2">"X"</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-                <span class="n">dpart</span><span class="p">,</span> <span class="n">ppart</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"X"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dpart</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ppart</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">diameter</span> <span class="o">=</span> <span class="n">d</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">p</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">head</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drive</span> <span class="o">=</span> <span class="n">drive</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head_angle</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head_size_sharp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drive_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drive_depth</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">NONE</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">NONE</span>
-            <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">drive_size</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_SETSCREW</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">drive_depth</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
-            <span class="n">spec_h</span><span class="p">:</span> <span class="n">_HexHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_HEX_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="n">spec_h</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">spec_h</span><span class="o">.</span><span class="n">height</span>
-        <span class="k">elif</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET_RIBBED</span><span class="p">):</span>
-            <span class="n">spec_s</span><span class="p">:</span> <span class="n">_SocketHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_SOCKET_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="n">spec_s</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">d</span>
-            <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">drive_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_depth</span> <span class="o">=</span> <span class="n">spec_s</span><span class="o">.</span><span class="n">hex_drive</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">BUTTON</span><span class="p">:</span>
-            <span class="n">spec_b</span><span class="p">:</span> <span class="n">_ButtonHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_BUTTON_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">height</span>
-            <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">drive_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_depth</span> <span class="o">=</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">hex_drive</span><span class="p">,</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">hex_depth</span>
-        <span class="k">elif</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">PAN</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">):</span>
-            <span class="n">spec_p</span><span class="p">:</span> <span class="n">_PanHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_PAN_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="n">spec_p</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">spec_p</span><span class="o">.</span><span class="n">height</span>
-        <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">FLAT</span><span class="p">:</span>
-            <span class="n">spec_f</span><span class="p">:</span> <span class="n">_FlatHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_FLAT_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size</span> <span class="o">=</span> <span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_size_sharp</span> <span class="o">=</span> <span class="n">spec_f</span><span class="o">.</span><span class="n">sharp_d</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_angle</span> <span class="o">=</span> <span class="mf">90.0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown head type "</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_thread</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span><span class="p">,</span>
+    <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve a screw specification to its nominal diameter and thread pitch.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        spec: ``"M6"``, ``"M8x1"``, a bare float diameter, or a mapping with ``diameter``.</span>
+<span class="sd">        thread: Pitch class used when the specification does not carry an explicit pitch.</span>
+<span class="sd">        pitch: Explicit pitch override, which an ``"M8x1"``-style specification outranks.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(diameter, pitch)`` pair, both in millimetres.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s2">"diameter"</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pitch"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pitch"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">))</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"M"</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="s2">"X"</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">dpart</span><span class="p">,</span> <span class="n">ppart</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"X"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">dpart</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ppart</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thread</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_head</span><span class="p">(</span><span class="n">head</span><span class="p">:</span> <span class="n">ScrewHeadType</span><span class="p">,</span> <span class="n">drive</span><span class="p">:</span> <span class="n">ScrewDriveType</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Look up the head and drive-recess dimensions for a head style at a nominal diameter.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        head: The head style, whose table supplies the dimensions.</span>
+<span class="sd">        drive: The drive recess, which several head styles size from their own table.</span>
+<span class="sd">        d: The nominal diameter in millimetres.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The six derived dimensions, keyed by field name, with ``None`` where the style has none.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: If *head* is not a head style this port has a table for.</span>
+
+<span class="sd">    """</span>
+    <span class="n">dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"head_size"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"head_height"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"head_angle"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"head_size_sharp"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"drive_size"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"drive_depth"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">NONE</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
+            <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_SETSCREW</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
+        <span class="n">spec_h</span><span class="p">:</span> <span class="n">_HexHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_HEX_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_h</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">spec_h</span><span class="o">.</span><span class="n">height</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET_RIBBED</span><span class="p">):</span>
+        <span class="n">spec_s</span><span class="p">:</span> <span class="n">_SocketHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_SOCKET_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_s</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">d</span>
+        <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
+            <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_s</span><span class="o">.</span><span class="n">hex_drive</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">BUTTON</span><span class="p">:</span>
+        <span class="n">spec_b</span><span class="p">:</span> <span class="n">_ButtonHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_BUTTON_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">height</span>
+        <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
+            <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">hex_drive</span><span class="p">,</span> <span class="n">spec_b</span><span class="o">.</span><span class="n">hex_depth</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">PAN</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">):</span>
+        <span class="n">spec_p</span><span class="p">:</span> <span class="n">_PanHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_PAN_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_p</span><span class="o">.</span><span class="n">head_d</span><span class="p">,</span> <span class="n">spec_p</span><span class="o">.</span><span class="n">height</span>
+    <span class="k">elif</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">FLAT</span><span class="p">:</span>
+        <span class="n">spec_f</span><span class="p">:</span> <span class="n">_FlatHead</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_FLAT_HEAD</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_size_sharp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_f</span><span class="o">.</span><span class="n">sharp_d</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_angle"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">90.0</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown head type "</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dims</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_lookup_pitch</span><span class="p">(</span><span class="n">diam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
