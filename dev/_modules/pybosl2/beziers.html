@@ -2213,6 +2213,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SweepMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
@@ -4064,6 +4065,7 @@
 
 <div class="viewcode-block" id="debug_bezier_patches">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.debug_bezier_patches">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">debug_bezier_patches</span><span class="p">(</span>
     <span class="n">patches</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4078,6 +4080,14 @@
 <span class="sd">    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.</span>
 <span class="sd">    Requires the real PythonSCAD app; builds on VNF.polyhedron() and the</span>
 <span class="sd">    ported path_sweep tube.</span>
+
+<span class="sd">    **CSG-only, and it says so now.** It marks control points with native spheres and returns a</span>
+<span class="sd">    `Bosl2Solid`, so it was never neutral -- but under `use_backend("sdf")` it got halfway through</span>
+<span class="sd">    and failed on the *combination*: "cannot combine a 'csg'-backend solid with a 'sdf'-backend</span>
+<span class="sd">    solid". A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.</span>
+<span class="sd">    It refuses up front under its own name now (SPEC B-9, E-5) -- the same fix `Region.debug_region`</span>
+<span class="sd">    got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the</span>
+<span class="sd">    active backend, each announcing it differently, and none of them saying what it was.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        patches: A single patch or list of patches to debug-visualise.</span>

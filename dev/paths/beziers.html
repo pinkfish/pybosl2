@@ -7329,6 +7329,13 @@ patch surface, control net, and control-point markers.</p>
 <p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered patches.
 Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
 ported path_sweep tube.</p>
+<p><strong>CSG-only, and it says so now.</strong> It marks control points with native spheres and returns a
+<cite>Bosl2Solid</cite>, so it was never neutral – but under <cite>use_backend(“sdf”)</cite> it got halfway through
+and failed on the <em>combination</em>: “cannot combine a ‘csg’-backend solid with a ‘sdf’-backend
+solid”. A true sentence about the wrong thing; nothing in it says this helper is a CSG feature.
+It refuses up front under its own name now (SPEC B-9, E-5) – the same fix <cite>Region.debug_region</cite>
+got in T53 and the path extrusions in T51. Three helpers that built CSG regardless of the
+active backend, each announcing it differently, and none of them saying what it was.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.debug_bezier_patches-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
