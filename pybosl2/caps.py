@@ -17,16 +17,22 @@ controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,
 Cap types
     ``NONE`` -- no cap (open end)
     ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)
-    ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)
-    ``CIRCLE`` -- round-over end cap (planned)
+    ``ROUND`` / ``SPHERE`` -- spherical end cap; one cap under two names
+    ``CIRCLE`` -- round-over end cap; not built yet, and refused rather than flattened
     ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles
+    ``X`` / ``LINE`` -- flat 2-D markers; the 3-D consumers refuse them
     ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)
 
 .. note::
-    Fancy sweep cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are
-    scaffolding only -- they resolve to flat caps. Full BOSL2 cap profiles
-    need the sweep's 3-D end-profile geometry exported into
-    :class:`~pybosl2.vnf.VNF` and are not yet ported.
+    A cap type that a consumer cannot build **refuses**; it never quietly returns a butt cap.
+    That is not free: each of the three consumers -- the sweep path, the 3-D stroke and the 2-D
+    stroke -- decides what it handles by listing the members it knows, and every fall-through
+    lands on a flat end (:func:`endcap_polys` returns ``[]``, ``_cap_style`` returns ``"flat"``).
+    A butt cap is a perfectly good solid, so nothing downstream notices. Four members were
+    falling through when this was measured, and this note used to describe two of them as
+    intended behaviour -- while ``ROUND`` and ``SPHERE``, which it called scaffolding, had been
+    doming the sweep all along. ``tests/test_cap_types_are_not_silently_flat.py`` compares every
+    member against ``BUTT`` in all three consumers so the next one cannot arrive unnoticed.
 """
 
 from __future__ import annotations
@@ -61,8 +67,8 @@ class CapType(Enum):
     Sweep/skin cap types:
         ``NONE`` -- no cap (open end)
         ``BUTT`` -- flat end cap
-        ``ROUND`` / ``SPHERE`` -- spherical (planned)
-        ``CIRCLE`` -- round-over (planned)
+        ``ROUND`` / ``SPHERE`` -- spherical dome; the two are one cap, not two
+        ``CIRCLE`` -- round-over; not built yet, and refused rather than flattened
         ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape
 
     Stroke endcap/joint types:
@@ -72,7 +78,12 @@ class CapType(Enum):
         ``BLOCK`` / ``SQUARE`` -- rectangular block
         ``CHISEL`` -- chisel edge
         ``TAIL`` / ``TAIL2`` -- tail shapes
-        ``CROSS`` / ``X`` / ``LINE`` -- line markers
+        ``CROSS`` -- line marker
+        ``X`` / ``LINE`` -- flat 2-D line markers. The 3-D consumers refuse these: a cap
+        profile is revolved about the path axis, and a revolved line is a disc.
+
+    Every member either changes the geometry or refuses by name in each of the three consumers
+    -- the sweep path, the 3-D stroke and the 2-D stroke. None of them quietly returns a butt cap.
 
     Examples:
         .. pythonscad-example::

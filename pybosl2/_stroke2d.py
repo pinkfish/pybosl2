@@ -44,11 +44,17 @@ def _ensure_closed(pts: Sequence[Sequence[float]], closed: bool | None, path_clo
 def _needs_decorative_cap(cap: CapSpec) -> bool:
     """Return True if this cap type produces a decorative polygon rather than a simple buffer end style."""
     ct = cap.cap_type
-    return ct not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SQUARE, CapType.CIRCLE, CapType.SPHERE)
+    # CIRCLE is deliberately absent: it has no buffer style, so leaving it here made it fall
+    # through to `_cap_style`'s "flat" default and render as BUTT with no warning. It is
+    # decorative as far as this gate is concerned, which routes it to `endcap_polys` and its
+    # refusal -- the same answer the 3-D stroke and the sweep already gave.
+    return ct not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SQUARE, CapType.SPHERE)
 
 
 def _cap_style(cap: CapSpec) -> str:
-    if cap.cap_type == CapType.ROUND:
+    # SPHERE is documented as a synonym of ROUND and is one on the sweep path; it reached this
+    # function's "flat" default instead, so a sphere-capped 2-D stroke came out butt-ended.
+    if cap.cap_type in (CapType.ROUND, CapType.SPHERE):
         return "round"
     if cap.cap_type == CapType.SQUARE:
         return "square"
