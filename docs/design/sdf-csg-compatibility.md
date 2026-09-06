@@ -38,11 +38,19 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
    about: the total double-counted an alias and the claim had not been rerun since parts were
    ported.*
-3. **2 options one backend takes and the other does not**, and neither is a gap in the usual sense. Parity is measured per option, not
-   per shape (`tests/test_option_parity.py`), and each missing one is refused with the parameter
-   named rather than dropped (B-9). What remains after T48 is `cuboid`/`cube`'s
-   `teardrop` (2), which raises `Bosl2NotImplementedError` on the CSG backend too -- a feature
-   neither backend has rather than something one can do and the other cannot.
+3. **0 options one backend takes and the other does not.** Parity is measured per option, not
+   per shape (`tests/test_option_parity.py`), and a missing one is refused with the parameter
+   named rather than dropped (B-9). The last two were `cuboid`/`cube`'s `teardrop`, which after
+   T48 were at parity only by neither backend having it -- CSG raised
+   `Bosl2NotImplementedError` and the SDF spelling had no such parameter. T64 built both.
+
+   *They are not identical, and the difference is worth stating rather than smoothing over. The
+   CSG rounded cuboid is a minkowski with a faceted sphere, so cutting at the exact requested
+   lean leaves the facet straddling the clip plane partly exposed --* `teardrop=60` *measured
+   **61.88 degrees**, over the ceiling it was asked to hold. The CSG side therefore snaps the
+   lean down to a facet boundary and can be up to one facet stricter than asked; the SDF field
+   is exact and needs no such step. Parity here means both respect the ceiling, not that both
+   land on the same micron.*
 
    Down from 176 when the measurement was first taken. What closed them was almost never a
    distance field somebody had to invent: it was reading what the CSG backend actually does, which

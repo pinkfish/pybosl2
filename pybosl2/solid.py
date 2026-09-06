@@ -259,7 +259,9 @@ def cube(
         except_edges: edges to exclude from chamfer/rounding (CSG backend).
         selection: Which edges to treat and which to spare, as one value (SPEC G-1). Giving it beside
             edges= or except_edges= raises (SPEC G-3).
-        teardrop: limit the overhang angle for FDM printing (default False) (CSG backend).
+        teardrop: Cap how far the bottom rounding may lean from vertical, for printability --
+            ``True`` for 45 degrees, a number for its angle. Needs ``rounding=`` on every edge:
+            without a rounding nothing overhangs, and on a restricted edge set the clip is refused.
         trimcorners: trim corners where 3+ edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
@@ -378,7 +380,8 @@ def cuboid(
             of those three raises, since the call cannot mean both (SPEC G-3).
         p1: align the cuboid's corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT) (CSG backend).
         p2: if given with p1, defines the cuboid's opposing cornerpoint (CSG backend).
-        teardrop: enable teardrop rounding (not supported by this pure-Python port) (CSG backend).
+        teardrop: Cap how far the bottom rounding may lean from vertical, for printability --
+            ``True`` for 45 degrees, a number for its angle. See :func:`cuboid`.
         trimcorners: round/chamfer corners where three treated edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend). Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out
