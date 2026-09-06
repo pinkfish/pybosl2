@@ -89,11 +89,11 @@ def as_path_list(
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:
-    """Return the library-wide normalization for 2-D point paths: an (n, 2) float array. Accepts.
+    """Normalize any array-like into the library-wide 2-D point path: an ``(n, 2)`` float array.
 
-    any array-like (lists, tuples, arrays, Vec-ish rows). Per the project convention, path
-    data is numpy everywhere INSIDE the libraries -- but must be `.tolist()`ed before
-    crossing any native boundary (frep bounds, polygon(), translate(), the osuse FFI):
+    Accepts lists, tuples, arrays, and Vec-ish rows. Per the project convention, path data is
+    numpy everywhere INSIDE the libraries -- but must be converted with ``.tolist()`` before
+    crossing any native boundary (frep bounds, ``polygon()``, ``translate()``, the osuse FFI):
     raw ndarrays there raise SystemError/TypeError and poison the interpreter.
 
     Args:

@@ -2206,6 +2206,50 @@ must not add height" had looked true. It was never flat. Each re-fit attached th
 a defect had produced, so the numbers outlived the fix. Every figure is derived from ARROW's table
 entry now.
 
+## T68 — A docstring is RST, and nothing was reading it as RST ✅
+
+**§12.2 item 33. DOC-2.**
+
+Reported from a CI log, not found by a gate:
+
+```
+caps.py:docstring of pybosl2.caps:12: ERROR: Unexpected indentation.
+caps.py:docstring of pybosl2.caps:13: WARNING: Block quote ends without a blank line.
+```
+
+A list item whose continuation line was indented deeper than the line above it, when a one-line
+entry grew into two. The docs build with Sphinx and napoleon, so a docstring is not free text —
+and every local gate reads docstrings as prose.
+
+### The instrument was wrong twice before it was right
+
+* Feeding raw docstrings to `docutils` reports **441** diagnostics, essentially all of them
+  Google-style `Args:` blocks that `napoleon` would have rewritten first. That noisy an
+  instrument would never be run.
+* Walking the package by name picks up any **stale copy installed in site-packages** — here a
+  v0.7.8 with the pre-rename `_sdf` layout, reporting a defect in a file no one can edit. It sent
+  me looking for it in the working tree.
+
+Napoleon first, then docutils, and only modules whose file is inside the repository.
+
+### Measured properly: the reported fault was fixed, three others were not
+
+| where | fault |
+|---|---|
+| `caps.py` module docstring | the reported one — already corrected at HEAD |
+| `sdf.shapes3d.cuboid` | the `Args:` block was **scrambled** — `except_edges`' closing text stranded after `trimcorners`' four-line description |
+| `textures.texture` | numpydoc section underlines (`-------`) inside a Google-style docstring, read as three too-short title underlines |
+| `sdf.paths.as_points` | `` `.tolist()`ed `` — inline markup cannot be closed when a letter follows |
+
+The scrambled `Args:` block had been read past several times in this campaign, twice while
+editing that very docstring. Prose survives being out of order in a way markup does not.
+
+### The check is narrow on purpose
+
+It fails on diagnostics that mean the *structure* was misread, and ignores Sphinx-only roles
+(`:class:`, `:func:`, `:mod:`) that bare docutils cannot resolve — a missing target is a different
+problem with a different fix, and including it would bury the structural faults.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

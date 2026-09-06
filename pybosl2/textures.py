@@ -715,16 +715,13 @@ def texture(
     from :data:`TEXTURES`. See the module docstring for which textures are ported.
 
     Returns:
-    -------
          list[list[float]]:
             The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     Raises:
-    ------
         ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.
 
     See Also:
-    --------
         pybosl2.paths.Path2D.texture()
         pybosl2.paths.Path2D.texture_v()
         pybosl2.shapes3d.Bosl2Solid.texture()
