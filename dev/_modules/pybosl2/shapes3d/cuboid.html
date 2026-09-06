@@ -2165,7 +2165,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span><span class="p">,</span> <span class="n">EdgeAtom</span>
@@ -2548,7 +2548,6 @@
 <span class="sd">    You cannot mix chamfering and rounding on the same call. Negative chamfers/roundings</span>
 <span class="sd">    create external fillets, but only apply to edges around the top or bottom face.</span>
 
-<span class="sd">    Note: `teardrop=` is not supported by this pure-Python port.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:         size of the cuboid, a number or length-3 vector</span>
@@ -2559,7 +2558,8 @@
 <span class="sd">        edges:        edges to mask (default ``"ALL"``)</span>
 <span class="sd">        except_edges: edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)</span>
 <span class="sd">        trimcorners:  round/chamfer corners where three treated edges meet (default True)</span>
-<span class="sd">        teardrop:     enable teardrop rounding (not supported by this pure-Python port)</span>
+<span class="sd">        teardrop:     cap the bottom rounding's lean from vertical for printability -- True for</span>
+<span class="sd">                      45 degrees, a number for its angle</span>
 <span class="sd">        anchor:       anchor point (default Anchor.CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        orient:       direction to rotate the top towards (default Anchor.TOP)</span>
@@ -2586,11 +2586,6 @@
 <span class="sd">            shape.show()</span>
 
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">teardrop</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
-            <span class="s2">"cuboid(): teardrop= is not built in this port yet. Round the edges with rounding= and "</span>
-            <span class="s2">"cut the overhang yourself, or build the teardrop profile as a Mask2D and sweep it."</span>
-        <span class="p">)</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">p1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">p2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2664,9 +2659,86 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocube</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">_teardrop_bottom</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">rounding_v</span><span class="p">,</span> <span class="n">chamfer_v</span><span class="p">,</span> <span class="n">edge_set</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_box3</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_teardrop_bottom</span><span class="p">(</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">sz</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">edge_set</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">teardrop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Union the fill that a teardrop clip leaves under a rounded cuboid's bottom edges.</span>
+
+<span class="sd">    Below the height where the bottom rounding reaches the requested lean, every horizontal slice</span>
+<span class="sd">    of the clipped solid is the same slice (see :func:`~pybosl2._helpers.teardrop_clip`), so the</span>
+<span class="sd">    fill is that slice extruded down to the floor -- a box inset by the rounding and grown back by</span>
+<span class="sd">    *keep*, with its four vertical edges rounded by *keep*. Minkowski with an upright cylinder is</span>
+<span class="sd">    how the rounded cuboid above builds its own edges, and it rounds exactly those four.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: The finished rounded cuboid, centred on the origin.</span>
+<span class="sd">        sz: Its size.</span>
+<span class="sd">        rounding: The rounding radius, zero if the edges are chamfered or sharp.</span>
+<span class="sd">        chamfer: The chamfer size, used only to refuse a combination this does not build.</span>
+<span class="sd">        edge_set: The resolved edge selection, likewise.</span>
+<span class="sd">        teardrop: ``True``, an angle, or ``False``.</span>
+<span class="sd">        fn: Segment count for the fill's rounded vertical edges.</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The cuboid with the fill unioned on, or unchanged when nothing is clipped.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2NotImplementedError: For a teardrop on a chamfer or on a restricted edge set.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">effective_clip</span><span class="p">,</span> <span class="n">teardrop_clip</span>
+
+    <span class="k">if</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">shape</span>
+    <span class="k">if</span> <span class="n">chamfer</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"cuboid(): teardrop= is built for rounding=, not chamfer=. A bottom chamfer already "</span>
+            <span class="s2">"leans at its chamfer angle, so set that angle rather than clipping it."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">rounding</span> <span class="ow">and</span> <span class="n">edge_set</span> <span class="o">!=</span> <span class="n">EDGES_ALL</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"cuboid(): teardrop= is built for the default edge set. On a restricted one the "</span>
+            <span class="s2">"bottom edges need not be rounded at all, and the slice below the clip is no longer "</span>
+            <span class="s2">"the cuboid's own cross-section. Round every edge, or clip the overhang yourself."</span>
+        <span class="p">)</span>
+    <span class="c1"># The rounded cuboid is a minkowski with a *faceted* sphere, so its surface is a staircase on a</span>
+    <span class="c1"># 360/sides grid rather than the analytic arc. Cutting at the exact requested lean leaves the</span>
+    <span class="c1"># facet straddling the clip plane partly exposed, and that facet's own lean can exceed what was</span>
+    <span class="c1"># asked -- measured, `teardrop=60` came out at 61.88 degrees. A ceiling that the geometry</span>
+    <span class="c1"># breaks by a facet is not a ceiling, so the lean is snapped *down* to a facet boundary: every</span>
+    <span class="c1"># exposed facet then lies wholly above the clip plane and leans by no more than the snapped</span>
+    <span class="c1"># value. The cost is that the clip can be up to one facet stricter than asked, which is the</span>
+    <span class="c1"># direction a printability guarantee should err in, and is what `cyl(teardrop=)` already does.</span>
+    <span class="n">sphere_sides</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">sphere_sides</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">lean</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">effective_clip</span><span class="p">(</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">)</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
+    <span class="n">drop</span><span class="p">,</span> <span class="n">keep</span> <span class="o">=</span> <span class="n">teardrop_clip</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="n">lean</span> <span class="k">if</span> <span class="n">lean</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">teardrop</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drop</span> <span class="o">&lt;=</span> <span class="mf">1e-12</span><span class="p">:</span>
+        <span class="c1"># No rounding, so no overhang -- the walls are already vertical and the floor is flat.</span>
+        <span class="k">return</span> <span class="n">shape</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rounding</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rounding</span><span class="p">),</span> <span class="n">drop</span><span class="p">]</span>
+    <span class="n">sides</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">fill</span> <span class="o">=</span> <span class="n">_ominkowski</span><span class="p">(</span><span class="n">_ocube</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">_ocylinder</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">keep</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">))</span>
+    <span class="c1"># `center=True` leaves the fill spanning +-drop/2 about the origin; drop it so its top sits at</span>
+    <span class="c1"># the clip plane and its bottom lands exactly on the cuboid's floor.</span>
+    <span class="k">return</span> <span class="n">shape</span> <span class="o">|</span> <span class="n">fill</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">drop</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="prismoid">
