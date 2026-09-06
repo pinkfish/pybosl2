@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from dataclasses import replace as _replace
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, TypeAlias, cast
 
@@ -167,11 +168,17 @@ class CapSpec:
     """
 
     cap_type: CapType = DEFAULT_CAP
-    length: float = 0.0
-    width: float = 0.0
-    height: float = 0.0
-    extent: float = 0.0
-    angle: float = 0.0
+    # `None`, not 0.0 (SPEC D-4): a dimension left out means "not supplied, decide for me", and
+    # `normalize_one` fills it from `_DEFAULTS`. These defaulted to 0.0, which D-4 reserves for
+    # *off* -- so a directly-built `CapSpec(CapType.ARROW)` declared every dimension off and
+    # produced a five-point polygon of zero size. It unions to nothing, so `CapSpec(ARROW,
+    # color="red")` silently lost the arrow, and even naming `length=3.5` did not help because
+    # `width` still multiplied it away. An explicit 0.0 still means off.
+    length: float | None = None
+    width: float | None = None
+    height: float | None = None
+    extent: float | None = None
+    angle: float | None = None
     color: str | None = None
     path: Sequence[Sequence[float]] | None = None
 
@@ -236,19 +243,38 @@ def norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
     return [result, result]
 
 
+def _dim(value: float | None) -> float:
+    """Return a cap dimension as a number; `normalize_one` fills every `None` before these are read."""
+    return 0.0 if value is None else float(value)
+
+
 def normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
     """Normalize a single cap value to a fully-resolved :class:`CapSpec`.
 
-    If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
-    from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it
-    unchanged.
+    A raw :class:`CapType` becomes its :data:`_DEFAULTS` entry. A :class:`CapSpec` keeps every
+    dimension it names and takes the rest from the same table, because `None` means "not supplied"
+    and not "off" (SPEC D-4).
+
+    This returned a `CapSpec` **unchanged**, one sentence after promising a "fully-resolved" one,
+    and the two cannot both hold for a spec that names only the fields its caller cared about.
 
     Args:
         cap: The cap to build.
 
+    Returns:
+        A :class:`CapSpec` carrying every dimension the table declares for its type. Fields the
+        table leaves unset stay ``None`` and read as 0, which is their documented neutral --
+        `height` computes itself from width and length, and `angle` is no rotation.
+
     """
     if isinstance(cap, CapSpec):
-        return cap
+        table = _DEFAULTS.get(cap.cap_type, _DEFAULTS[CapType.BUTT])
+        filled = {
+            name: getattr(table, name)
+            for name in ("length", "width", "height", "extent", "angle")
+            if getattr(cap, name) is None
+        }
+        return _replace(cap, **filled) if filled else cap
     if isinstance(cap, str):
         try:
             cap = CapType(cap)
@@ -332,6 +358,12 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         (X is the line direction, Y is perpendicular).
 
     """
+    # Resolve unconditionally rather than trusting the caller to have done it. `normalize_one` is
+    # idempotent -- a spec with no `None` left comes back as itself -- and skipping it is silent:
+    # an unresolved dimension reads as zero and yields a polygon of zero size, which unions to
+    # nothing. That is the same failure the `None` defaults were introduced to remove, one layer
+    # down, and the tests for the round-over walked straight into it.
+    spec = normalize_one(spec)
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return []
 
@@ -340,9 +372,9 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
             raise Bosl2ValueError("CapType.CUSTOM requires path= on the CapSpec")
         return [[[float(c) for c in pt] for pt in spec.path]]
 
-    w = spec.width
-    length = spec.length * spec.width
-    l2 = spec.extent * spec.width
+    w = _dim(spec.width)
+    length = _dim(spec.length) * w
+    l2 = _dim(spec.extent) * w
     w2 = w - l2
     s = (lw / 2) / w if w else lw / 2
     ss = s * w2
@@ -425,9 +457,9 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         pp = s * (length - 0.17)
         poly.append([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]])
 
-    if spec.angle != 0.0:
-        cos_a = math.cos(math.radians(spec.angle))
-        sin_a = math.sin(math.radians(spec.angle))
+    if _dim(spec.angle) != 0.0:
+        cos_a = math.cos(math.radians(_dim(spec.angle)))
+        sin_a = math.sin(math.radians(_dim(spec.angle)))
         poly = [[[pt[0] * cos_a - pt[1] * sin_a, pt[0] * sin_a + pt[1] * cos_a] for pt in p] for p in poly]
     return poly
 
@@ -443,11 +475,12 @@ def endcap_trim(spec: CapSpec, width: float) -> float:
         The trim distance in world units (0.0 for non-arrow styles).
 
     """
-    s = (width / 2) / spec.width if spec.width else width / 2
+    spec = normalize_one(spec)
+    s = (width / 2) / _dim(spec.width) if spec.width else width / 2
     if spec.cap_type in (CapType.ARROW, CapType.ARROW3):
-        return s * (spec.length * spec.width - 0.01)
+        return s * (_dim(spec.length) * _dim(spec.width) - 0.01)
     if spec.cap_type == CapType.ARROW2:
-        return s * (spec.length * spec.width * 3 / 4)
+        return s * (_dim(spec.length) * _dim(spec.width) * 3 / 4)
     return 0.0
 
 

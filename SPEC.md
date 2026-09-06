@@ -827,7 +827,8 @@ as the mathematics allows.
 * **D-3** Defaults MUST be immutable.
 * **D-4** `None` means "not supplied, decide for me" — never "off". "Off" is `0`, `False`, or an
   explicit
-  enum member.
+  enum member. A dataclass field that defaults to `0` therefore declares that dimension **off**, not
+  absent, and a partially-built object silently becomes a fully-specified request for nothing.
 * **D-5** Where a dimension has two conventional spellings (`radius`/`diameter`), the API MUST
   accept both
   and require neither. Giving both spellings of the **same** dimension is an error, not a silent
@@ -1177,6 +1178,14 @@ there in the same commit as the code (§13 rule 4).
 **A negative control caught the guard measuring the wrong thing, and it is the same class of miss as T59 and T63.** Centring both arcs on the axis turns the outline into a lens with no flat at all — and a lens of radius `p` *reaches exactly as far* as a round-over of radius `p`, so every extent-based test passed it. The defining feature of a round-over is the part that does not move: the end face stays square across `|y| <= s - p`. Asserted on the outline now, where the flat is a run of points sharing the maximum x rather than a single apex, with the companion assertion that the flat vanishes exactly once, at the value where the family ends.
 
 **With this the port advertises no capability it does not build.** `KNOWN_GAPS` is empty, the unbuilt-cap set is empty, and option parity was already zero — the three registries that have driven this campaign since T40 all read nothing.
+
+**T67 fixed a defect D-4 already described, in a requirement nothing was enforcing.** D-4 says `None` means "not supplied, decide for me" and never "off", and that off is `0`. `CapSpec` had it exactly backwards: every numeric field defaulted to `0.0`, so a spec built by naming the one thing the caller cared about declared every *other* dimension off. `CapSpec(CapType.ARROW, color="red")` — a caller who wanted a red arrow — drew **no arrow**, because a cap with no dimensions is not an error: `endcap_polys` returns a five-point polygon of zero size, which unions to nothing. Naming `length=3.5` did not help either, since the size is read as `length * width` and `width` was still zero.
+
+**`normalize_one` was the other half, and said so itself.** Its docstring promised a "fully-resolved" `CapSpec` and, one sentence later, that a `CapSpec` is "returned unchanged" — which cannot both hold for a spec that names only some of its fields. It fills from the same table now. **And the fix nearly stopped one layer short:** moving the defaults to `None` corrected every caller that went through `normalize_one` and left `endcap_polys` reading `None` as zero for anyone who did not — the same silent nothing, one level down. It resolves unconditionally now, which is cheap because resolution is idempotent.
+
+**D-4 had `enforced_by = []`** — a rule stated in the registry that nothing checked — which is the more interesting half of this. The defect was not a gap in the specification; it was a specification with no instrument, sitting beside code that contradicted it. The guard asserts both directions, because filling *every* unset field would put the right cap on the page while quietly ignoring a caller who asked for none of it: an explicit `0` still means off.
+
+**One test had now been re-derived three times, and the pattern is worth naming.** `test_linear_sweep_decorative_cap` asserted a 20×20×10 envelope unchanged by an arrow cap; T65 found the profile transposed and re-fitted it to the circumscribed circle; T67 found `spec.width` was 0, so the head was unscaled **and the arrow had no length at all** — which is why "a flat cap must not add height" had looked true. It was never flat. Each re-fit had attached the test to numbers produced by a defect, so the numbers outlived the fix. Every figure is derived from ARROW's table entry now, and the resulting cap is large — an arrow marker sized for a thin line, applied to a fat one — which is recorded as a consequence of those proportions rather than smoothed away with a special case for sweeps that nothing asked for.
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body

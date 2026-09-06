@@ -2166,6 +2166,46 @@ passed it. The defining feature is the part that does not move: the end face sta
 once, at the value where the family ends. Same class of miss as T59's even-count and T63's
 arithmetic-restating assertion.
 
+## T67 — A dimension left out is not a dimension set to zero ✅
+
+**§12.2 item 32. D-4, G-8. D-4 gains its first enforcement.**
+
+D-4 says `None` means "not supplied, decide for me" and never "off", and that off is `0`.
+`CapSpec` had it exactly backwards: every numeric field defaulted to `0.0`, so a spec built by
+naming the one thing the caller cared about declared every *other* dimension off.
+
+| construction | drew |
+|---|---|
+| `CapType.ARROW` | an arrow |
+| `CapSpec(CapType.ARROW)` | **nothing** |
+| `CapSpec(CapType.ARROW, color="red")` | **nothing** |
+| `CapSpec(CapType.ARROW, length=3.5)` | **nothing** — `width` was still 0, and size is `length * width` |
+
+A cap with no dimensions is not an error: `endcap_polys` returns a five-point polygon of zero size,
+which unions to nothing.
+
+`normalize_one` was the other half and said so itself — its docstring promised a "fully-resolved"
+`CapSpec` and, one sentence later, that a `CapSpec` is "returned unchanged". **The fix nearly
+stopped one layer short:** moving the defaults to `None` corrected every caller that went through
+`normalize_one` and left `endcap_polys` reading `None` as zero for anyone who did not. It resolves
+unconditionally now, which is cheap because resolution is idempotent.
+
+### The interesting half is that D-4 had no instrument
+
+`enforced_by = []` — a rule in the registry that nothing checked, sitting beside code that
+contradicted it. The guard asserts both directions: filling *every* unset field would put the
+right cap on the page while quietly ignoring a caller who asked for none of it, so an explicit `0`
+still means off.
+
+### A test re-derived three times
+
+`test_linear_sweep_decorative_cap` asserted a 20x20x10 envelope unchanged by an arrow cap. T65
+found the profile transposed and re-fitted it to the circumscribed circle; T67 found `spec.width`
+was 0, so the head was unscaled **and the arrow had no length at all** — which is why "a flat cap
+must not add height" had looked true. It was never flat. Each re-fit attached the test to numbers
+a defect had produced, so the numbers outlived the fix. Every figure is derived from ARROW's table
+entry now.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
