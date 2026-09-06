@@ -64,7 +64,7 @@ class Bosl2NotImplementedError(Bosl2Error, NotImplementedError):
 
     The same reasoning as :class:`Bosl2ValueError`, for the same reason. Four public callables
     raised a bare ``NotImplementedError`` -- ``cyl(texture=...)``, ``cuboid(teardrop=...)``,
-    ``CapType.CIRCLE`` and ``VNF.from_field`` with a range -- so ``except Bosl2Error`` missed
+    ``CapType.CIRCLE`` and ``VNF.from_field`` with a range (both built since) -- so ``except Bosl2Error`` missed
     them, and none named an alternative, which SPEC E-2 asks of every refusal.
 
     A parameter that raises this is one the signature advertises and the port does not honour. It
