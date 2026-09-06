@@ -46,8 +46,8 @@ def _needs_decorative_cap(cap: CapSpec) -> bool:
     ct = cap.cap_type
     # CIRCLE is deliberately absent: it has no buffer style, so leaving it here made it fall
     # through to `_cap_style`'s "flat" default and render as BUTT with no warning. It is
-    # decorative as far as this gate is concerned, which routes it to `endcap_polys` and its
-    # refusal -- the same answer the 3-D stroke and the sweep already gave.
+    # decorative as far as this gate is concerned, which routes it to `endcap_polys` -- where it
+    # is a round-over outline since T66, and was a refusal before that.
     return ct not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SQUARE, CapType.SPHERE)
 
 

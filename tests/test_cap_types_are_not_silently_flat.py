@@ -46,11 +46,10 @@ from pybosl2.path3d import Path3D
 #: Members that are flat by definition -- the only ones allowed to match `BUTT`.
 LEGITIMATELY_FLAT = frozenset({CapType.NONE, CapType.BUTT})
 
-#: Members no consumer builds yet. Each must raise, in every consumer, naming itself.
-#: `CIRCLE` is a round-over cap: the swept rim filleted rather than domed, which is a distinct
-#: shape from `ROUND` and unbuilt on both backends. Shrinking this set is the work; growing it
-#: is not, and the count below is the ratchet that says so.
-UNBUILT = frozenset({CapType.CIRCLE})
+#: Members no consumer builds. **Empty since T66**, which built `CIRCLE` as the round-over its
+#: docstring had always called it. Shrinking this set is the work; growing it is not, and the
+#: count below is the ratchet that says so.
+UNBUILT: frozenset[CapType] = frozenset()
 
 #: Flat annotation markers whose profile is a bare line. The 3-D consumers revolve a cap profile
 #: about the path axis, and a line revolved is a disc -- so these build in 2-D and refuse in 3-D.
@@ -145,6 +144,6 @@ def test_sphere_is_the_synonym_of_round_it_is_documented_as() -> None:
 
 def test_the_unbuildable_sets_only_shrink() -> None:
     """SPEC G-8: a new cap type may not join either list to avoid being built or refused."""
-    assert len(UNBUILT) <= 1, f"{sorted(c.name for c in UNBUILT)} -- the unbuilt set only shrinks"
+    assert not UNBUILT, f"{sorted(c.name for c in UNBUILT)} -- every cap type is built"
     assert len(TWO_D_ONLY) <= 2, f"{sorted(c.name for c in TWO_D_ONLY)} -- the 2-D-only set only shrinks"
     assert not (UNBUILT & TWO_D_ONLY), "a cap cannot be both wholly unbuilt and 2-D-only"

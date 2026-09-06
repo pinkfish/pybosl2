@@ -36,7 +36,6 @@ PACKAGE = ROOT / "pybosl2"
 KNOWN_GAPS: frozenset[str] = frozenset(
     {
         "_stroke3d.py::endcap_geometry_3d",  # CapType.LINE and X have no solid of revolution
-        "caps.py::endcap_polys",  # CapType.CIRCLE
     }
 )
 

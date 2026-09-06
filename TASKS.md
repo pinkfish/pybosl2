@@ -2129,6 +2129,43 @@ The sweep shares `endcap_geometry_3d`, so its decorative caps moved too.
 cap, which held only while the cap was too narrow. A solid of revolution on a square profile
 reaches the circumscribed circle — 20·√2, the diagonal exactly.
 
+## T66 — `CapType.CIRCLE`, the last unbuilt member ✅
+
+**§12.2 item 31. G-8, S-19a. `KNOWN_GAPS` is empty.**
+
+The difficulty was never the geometry. `_DEFAULTS` gives `CIRCLE` `length=1.0, width=1.0` —
+*identical* to `ROUND` — so the table never said what distinguished them, and the only
+distinguishing information anywhere in the port was one hyphenated word in a docstring:
+round-over. BOSL2's source is not vendored here, so there was nothing to check a construction
+against, which is why this outlived every other gap.
+
+### The specification is derivable, which is why it could be built at all
+
+A round-over is a flat end whose rim is filleted by `p`. At `p = s` the two fillets meet, the flat
+vanishes, and the outline is a semicircle — exactly `ROUND`'s cap. At `p = 0` there is no fillet
+and it is `BUTT`. So `length` is the fillet radius over the half-width and `CIRCLE` is the family
+`ROUND` is the extreme of, pinned at both ends by shapes the port already builds.
+
+| cap | reach past the endpoint |
+|---|---|
+| `BUTT` | 0.00 |
+| `CIRCLE` p=0.25 | 0.50 |
+| `CIRCLE` p=0.50 | 1.00 |
+| `CIRCLE` p=0.75 | 1.50 |
+| `CIRCLE` p=1.00 | 2.00 |
+| `ROUND` | 2.00 |
+
+Identical in both dimensions, on a width-4 stroke.
+
+### A control caught the guard measuring the wrong thing
+
+Centring both arcs on the axis turns the outline into a lens with no flat at all — and a lens of
+radius `p` **reaches exactly as far** as a round-over of radius `p`, so every extent-based test
+passed it. The defining feature is the part that does not move: the end face stays square across
+`|y| <= s - p`. Asserted on the outline now, with the companion that the flat vanishes exactly
+once, at the value where the family ends. Same class of miss as T59's even-count and T63's
+arithmetic-restating assertion.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

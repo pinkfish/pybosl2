@@ -132,3 +132,100 @@ def test_a_cap_that_adds_no_length_does_not_move_the_ends() -> None:
     with use_backend("csg"):
         assert _extent_3d(CapType.BUTT) == pytest.approx((0.0, LENGTH), abs=1e-6)
         assert _extent_2d(CapType.BUTT) == pytest.approx((0.0, LENGTH), abs=1e-6)
+
+
+# --- the round-over family (T66) ------------------------------------------------------------
+
+
+def _circle(radius_fraction: float) -> CapSpec:
+    """A round-over whose fillet radius is *radius_fraction* of the stroke's half-width.
+
+    `width=1.0` is not decoration. `CapSpec`'s own field default is `width=0.0`, and
+    `endcap_polys` reads the fillet radius as `spec.length * spec.width`, so a spec built without
+    it produces no cap at all -- a trap that predates this member and catches every cap type.
+    """
+    return CapSpec(CapType.CIRCLE, length=radius_fraction, width=1.0)
+
+
+def test_a_full_round_over_is_exactly_a_round_cap() -> None:
+    """SPEC S-19a: `CIRCLE` is the family `ROUND` is the extreme of, so the extreme must match.
+
+    `_DEFAULTS` gives `CIRCLE` the same numbers as `ROUND`, which is why the table alone never
+    said what distinguished them and the member went unbuilt: the only distinguishing information
+    in the port was the word "round-over" in a docstring. Read as a fillet radius over the
+    half-width, the shape is pinned at both ends by behaviour that already existed -- no external
+    reference required, which matters because BOSL2's source is not vendored here.
+    """
+    with use_backend("csg"):
+        assert _extent_2d(_circle(1.0)) == pytest.approx(_extent_2d(CapType.ROUND), abs=0.01)
+        assert _extent_2d(CapType.CIRCLE) == pytest.approx(_extent_2d(CapType.ROUND), abs=0.01)
+
+
+def test_a_round_over_of_no_radius_is_a_square_end() -> None:
+    """SPEC S-19a: the other end of the family. Zero fillet is `BUTT`, and that is a result.
+
+    An empty polygon list normally means a cap fell through to flat, which T59 exists to catch.
+    Here the caller asked for no fillet, so a flat end is the answer rather than the omission --
+    the one place the two look alike, and worth pinning so the distinction is deliberate.
+    """
+    with use_backend("csg"):
+        assert _extent_2d(_circle(0.0)) == pytest.approx(_extent_2d(CapType.BUTT), abs=1e-6)
+        assert _extent_3d(_circle(0.0)) == pytest.approx(_extent_3d(CapType.BUTT), abs=1e-6)
+
+
+@pytest.mark.parametrize("fraction", [0.25, 0.5, 0.75])
+def test_a_partial_round_over_lands_between_the_two(fraction: float) -> None:
+    """SPEC S-19a: the fillet radius is a length, so the end reaches exactly that much further."""
+    with use_backend("csg"):
+        flat, solid = _extent_2d(_circle(fraction)), _extent_3d(_circle(fraction))
+    reach = WIDTH / 2 * fraction
+    assert flat[1] == pytest.approx(LENGTH + reach, abs=0.01), "the 2-D round-over is mis-sized"
+    assert solid[1] == pytest.approx(LENGTH + reach, abs=0.01), "the 3-D round-over is mis-sized"
+
+
+def test_the_round_over_grows_with_its_radius() -> None:
+    """SPEC S-19a: monotone from `BUTT` to `ROUND`, which a mis-read of the radius would break."""
+    with use_backend("csg"):
+        reaches = [_extent_2d(_circle(f))[1] for f in (0.0, 0.25, 0.5, 0.75, 1.0)]
+    assert reaches == sorted(reaches), f"not monotone in the fillet radius: {reaches}"
+    assert reaches[0] == pytest.approx(LENGTH, abs=1e-6)
+    assert reaches[-1] > reaches[0] + 1.0, "the largest round-over barely differs from a butt end"
+
+
+@pytest.mark.parametrize("fraction", [0.25, 0.5, 0.75])
+def test_a_round_over_keeps_a_flat_end_between_its_fillets(fraction: float) -> None:
+    """SPEC S-19a: a round-over is a *flat* end with a filleted rim, which the reach cannot see.
+
+    Every test above measures how far the cap reaches, and a negative control that centred both
+    arcs on the axis -- turning the outline into a lens, with no flat at all -- passed all of them,
+    because a lens of radius `p` reaches exactly as far as a round-over of radius `p`. The defining
+    feature is the part that does not move: the end face stays square across `|y| <= s - p`, and
+    only the rim outside that is rolled off. Asserted on the outline, where the flat is a run of
+    points sharing the maximum x rather than a single apex.
+    """
+    from pybosl2.caps import endcap_polys
+
+    half = WIDTH / 2
+    radius = half * fraction
+    outline = endcap_polys(_circle(fraction), WIDTH)[0]
+    reach = max(point[0] for point in outline)
+    assert reach == pytest.approx(radius, abs=1e-9)
+
+    on_the_end = [point[1] for point in outline if point[0] == pytest.approx(reach, abs=1e-9)]
+    assert len(on_the_end) >= 2, f"the end comes to a point rather than a flat: {outline}"
+    assert max(on_the_end) == pytest.approx(half - radius, abs=1e-9), "the flat is the wrong height"
+    assert min(on_the_end) == pytest.approx(-(half - radius), abs=1e-9), "the flat is not centred"
+
+
+def test_a_full_round_over_is_the_one_that_comes_to_a_point() -> None:
+    """SPEC S-19a: at `p = s` the flat vanishes and the outline is a semicircle -- which is ROUND.
+
+    The companion to the test above: it requires a flat everywhere *except* the extreme, so the
+    two together say the flat shrinks to nothing exactly once, at the value where the family ends.
+    """
+    from pybosl2.caps import endcap_polys
+
+    outline = endcap_polys(_circle(1.0), WIDTH)[0]
+    reach = max(point[0] for point in outline)
+    on_the_end = [point[1] for point in outline if point[0] == pytest.approx(reach, abs=1e-9)]
+    assert max(on_the_end) == pytest.approx(0.0, abs=1e-9), "a full round-over still has a flat"

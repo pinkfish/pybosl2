@@ -18,7 +18,8 @@ Cap types
     ``NONE`` -- no cap (open end)
     ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)
     ``ROUND`` / ``SPHERE`` -- spherical end cap; one cap under two names
-    ``CIRCLE`` -- round-over end cap; not built yet, and refused rather than flattened
+    ``CIRCLE`` -- round-over end cap: a flat end with its rim filleted. `length` sets the
+        fillet radius as a fraction of the half-width, so 1.0 *is* ``ROUND`` and 0.0 is ``BUTT``
     ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles
     ``X`` / ``LINE`` -- flat 2-D markers; the 3-D consumers refuse them
     ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)
@@ -42,7 +43,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, TypeAlias, cast
 
-from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     from pybosl2._backend import Solid
@@ -68,7 +69,9 @@ class CapType(Enum):
         ``NONE`` -- no cap (open end)
         ``BUTT`` -- flat end cap
         ``ROUND`` / ``SPHERE`` -- spherical dome; the two are one cap, not two
-        ``CIRCLE`` -- round-over; not built yet, and refused rather than flattened
+        ``CIRCLE`` -- round-over: a flat end with a filleted rim. The family ``ROUND`` is the
+        extreme of -- `length` is the fillet radius over the half-width, 1.0 giving ``ROUND``
+        exactly and 0.0 giving ``BUTT``
         ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape
 
     Stroke endcap/joint types:
@@ -337,12 +340,6 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
             raise Bosl2ValueError("CapType.CUSTOM requires path= on the CapSpec")
         return [[[float(c) for c in pt] for pt in spec.path]]
 
-    if spec.cap_type == CapType.CIRCLE:
-        raise Bosl2NotImplementedError(
-            "CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "
-            "CapSpec with a custom path for an exact circle."
-        )
-
     w = spec.width
     length = spec.length * spec.width
     l2 = spec.extent * spec.width
@@ -365,6 +362,30 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     elif style == CapType.DIAMOND:
         p = s * length
         poly.append([[-p / 2, 0], [0, -s], [p / 2, 0], [0, s]])
+    elif style == CapType.CIRCLE:
+        # A round-over: the end stays flat in the middle and its rim is filleted by `p`. That makes
+        # it the family ROUND is the extreme of -- at `p = s` the two arcs meet and the outline is
+        # a semicircle, which is exactly ROUND's cap, and at `p = 0` there is no fillet and it is
+        # BUTT. Both ends are existing behaviour, so the shape is pinned without a reference to
+        # check against, which is the whole difficulty with this member: `_DEFAULTS` gives CIRCLE
+        # the same numbers as ROUND, so the table never said what distinguished them.
+        p = min(s * length, s)
+        if p <= 1e-12:
+            # A round-over of zero radius is a square end, which is BUTT. Returning no polygon is
+            # what says so: the callers read an empty list as "no cap", and the end is left flat.
+            # This is the one place an empty return is a *result* rather than the fall-through T59
+            # was written to catch -- the caller asked for no fillet and got none.
+            return poly
+        flat = s - p
+        steps = 8
+        rim: list[list[float]] = [[0.0, -s]]
+        for i in range(1, steps + 1):
+            a = -math.pi / 2 + (math.pi / 2) * i / steps
+            rim.append([math.cos(a) * p, -flat + math.sin(a) * p])
+        for i in range(steps + 1):
+            a = (math.pi / 2) * i / steps
+            rim.append([math.cos(a) * p, flat + math.sin(a) * p])
+        poly.append(rim)
     elif style == CapType.DOT:
         # `s * length`, like every branch around it. This used a bare `s`, dropping the `length=2.0`
         # that `_DEFAULTS` gives DOT to make it twice the size of ROUND -- so in 2-D a dot came out
