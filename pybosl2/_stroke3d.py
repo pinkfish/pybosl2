@@ -21,7 +21,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import builds_with
-from pybosl2.caps import CapSpec, CapType, endcap_polys, oriented_to
+from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, oriented_to, trim_ends
 from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
@@ -95,16 +95,38 @@ def endcap_geometry_3d(
         )
         with use_backend("csg"):
             return _sphere(radius=width / 2).translate([float(c) for c in at])
+    return oriented_to(_revolved_cap(polys, width), outdir, at)
+
+
+def _revolved_cap(polys: list[list[list[float]]], width: float) -> Any:
+    """Revolve endcap outline(s) about the path axis into a solid.
+
+    `endcap_polys` states its frame: X is the line direction, Y is perpendicular. `rotate_extrude`
+    reads a profile the other way round -- X is the radius, Y is the height -- so feeding it the
+    polygon as-is revolved each cap about its own *width*. An ARROW came out 10mm long and 7mm in
+    radius instead of 7 long and 5 in radius, which is why its tip sat 5mm past the point it was
+    meant to mark, and why the same call measured 20mm of arrow-capped stroke in 2-D and 30mm in
+    3-D. Transposing puts the length along the path, where it belongs.
+
+    Args:
+        polys: The cap outline(s) in `endcap_polys`' frame.
+        width: The stroke width, used to size the half-plane the profile is clipped to.
+
+    Returns:
+        The revolved cap, centred on the origin and pointing along +Z.
+
+    """
     from pythonscad import polygon as _opolygon
     from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import square as _osquare
 
     from pybosl2.shapes3d import Bosl2Solid
 
-    big = max(abs(v) for poly in polys for p in poly for v in p) * 4 + width
+    profiles = [[[p[1], p[0]] for p in poly] for poly in polys]
+    big = max(abs(v) for poly in profiles for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
-    solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in polys]
-    return oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
+    solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in profiles]
+    return Bosl2Solid(reduce(operator.or_, solids))
 
 
 def stroke_3d(
@@ -152,6 +174,14 @@ def _stroke_3d_csg(
     is_closed = closed if closed is not None else getattr(path, "closed", False)
     ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
     ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
+
+    # An arrow marks the point it is given, so the tube is pulled back to put the *tip* there
+    # rather than the base -- what `endcap_trim` is for, and what the 2-D stroke has always done.
+    # This did not, so the same call measured 20mm of arrow-capped stroke in 2-D and 30mm in 3-D.
+    if not is_closed:
+        trim1, trim2 = endcap_trim(ec1, width), endcap_trim(ec2, width)
+        if trim1 or trim2:
+            pts = trim_ends(pts, trim1, trim2)
 
     radius = width / 2
     shapes = []

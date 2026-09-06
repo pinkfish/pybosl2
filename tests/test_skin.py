@@ -667,12 +667,25 @@ def test_path_sweep_arrow_cap() -> None:
 
 
 def test_linear_sweep_decorative_cap() -> None:
-    """The capped extrusion keeps the profile's own 20x20x10 envelope."""
+    """A decorative cap is as wide as the profile it caps, so it reaches the circumscribed circle.
+
+    This asserted the 20x20x10 envelope was unchanged, which held only because the cap was built
+    from a transposed profile: `endcap_polys` puts the line direction on X and `rotate_extrude`
+    reads X as the radius, so the arrow was revolved about its own width and came out too narrow.
+    Corrected, the cap's width spans the profile's bounding circle -- 20*sqrt(2) across for a 20mm
+    square, which is the diagonal exactly -- and a solid of revolution on a square profile has to
+    exceed it somewhere. The height is unchanged: the arrow lies flat against the end.
+    """
+    import math
+
     from pybosl2.caps import CapSpec
 
     sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     capped = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
-    assert [float(v) for v in capped.bounds().size] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
+    size = [float(v) for v in capped.bounds().size]
+    assert size[0] == pytest.approx(20.0 * math.sqrt(2), abs=0.05), "not the circumscribed circle"
+    assert size[1] == pytest.approx(20.0 * math.sqrt(2), abs=0.2), "faceting of the revolve"
+    assert size[2] == pytest.approx(10.0, abs=0.01), "a flat cap must not add height"
 
 
 def test_rotate_sweep_decorative_cap() -> None:
