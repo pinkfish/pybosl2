@@ -34,7 +34,7 @@ import numpy as np
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.enums import SamplingType, SkinMethod, VNFStyle
-from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     import os
@@ -489,6 +489,43 @@ def _sample_field(
             pass
         vals = np.array([float(f(np.array([p[0], p[1], p[2]]))) for p in pts])
     return vals.reshape(gx.shape)
+
+
+def _isovalue_range(isovalue: "float | Sequence[float]") -> tuple[float, float]:
+    """Resolve an isovalue -- a threshold or a ``[lo, hi]`` band -- to its bounds (BOSL2 isosurface).
+
+    A bare number is the open-ended range ``[isovalue, inf)``, which is what "the solid is where
+    ``f >= isovalue``" already meant; a two-element sequence is the closed band BOSL2 writes as
+    ``[isovalmin, isovalmax]``. Either end may be infinite, but not both -- an unbounded field
+    encloses the whole grid, which is a bounding box rather than a surface.
+
+    Args:
+        isovalue: A scalar threshold, or a ``(lo, hi)`` pair.
+
+    Returns:
+        The ``(lo, hi)`` pair, with ``hi`` infinite for a bare threshold.
+
+    Raises:
+        Bosl2ValueError: If the pair is not two values, is not increasing, or is unbounded.
+
+    """
+    if isinstance(isovalue, (int, float)):
+        return float(isovalue), math.inf
+    values = [float(v) for v in isovalue]
+    if len(values) != 2:
+        raise Bosl2ValueError(f"from_field(): an isovalue range is [lo, hi], two values; got {len(values)}.")
+    lo, hi = values
+    if not lo < hi:
+        raise Bosl2ValueError(
+            f"from_field(): the isovalue range [{lo}, {hi}] does not increase, so it encloses "
+            f"nothing. Pass [lo, hi] with lo < hi, or a bare number for an open-ended threshold."
+        )
+    if lo == -math.inf and hi == math.inf:
+        raise Bosl2ValueError(
+            "from_field(): the isovalue range [-inf, inf] encloses every point in the grid, "
+            "which is the bounding box and not a surface."
+        )
+    return lo, hi
 
 
 def _marching_cubes(
@@ -1410,7 +1447,7 @@ class VNF:
     def from_field(
         cls,
         f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
-        isovalue: float,
+        isovalue: "float | Sequence[float]",
         bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]] | None = None,
         voxel_size: float | None = None,
         voxel_count: int | None = None,
@@ -1420,13 +1457,16 @@ class VNF:
     ) -> "VNF":
         """Mesh a scalar field into a :class:`VNF` via marching cubes.
 
-        The solid is the region where ``f >= isovalue``.
+        The solid is the region where ``f >= isovalue``. Given a ``[lo, hi]`` pair instead --
+        BOSL2's ``isovalmin``/``isovalmax`` -- it is the band ``lo <= f <= hi``, which for a
+        distance field is a shell. Either end may be infinite: ``[lo, inf]`` is the bare
+        threshold, and ``[-inf, hi]`` is the region below one.
 
         Args:
             f: A :class:`~pybosl2.path3d.Path3D`, a 3-D numpy array,
                 a ``(N,3) → (N,)`` callable, or a
                 ``(:class:`~pybosl2.path3d.Path3D`) → (N,)`` callable.
-            isovalue: Scalar threshold.
+            isovalue: A scalar threshold, or a ``[lo, hi]`` pair enclosing the band between two.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D` or ``None``
                 (auto-computed from array shape when *f* is an array).
             voxel_size: Isotropic voxel size.
@@ -1439,7 +1479,8 @@ class VNF:
             A :class:`VNF`.
 
         Raises:
-            Bosl2NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are built.
+            Bosl2ValueError: If an *isovalue* range is not two increasing values, or is unbounded
+                at both ends.
 
         Examples:
         .. pythonscad-example::
@@ -1512,13 +1553,7 @@ class VNF:
 
             f = _wrapped
 
-        if isinstance(isovalue, tuple):
-            raise Bosl2NotImplementedError(
-                "from_field(): tuple (lo, hi) isovalue ranges are not built in this port yet. "
-                "Use a single float isovalue, or mesh each threshold and subtract the inner "
-                "surface from the outer one."
-            )
-        iso = float(isovalue)
+        lo, hi = _isovalue_range(isovalue)
 
         if isinstance(f, np.ndarray) or (isinstance(f, (list, tuple)) and not callable(f)):
             field = np.asarray(f, dtype=float)
@@ -1547,6 +1582,16 @@ class VNF:
             xs, ys, zs = _grid_axes(bb, vs_final)
             field = _sample_field(f, xs, ys, zs)
 
+        # A range encloses `lo <= f <= hi`, and `min(f - lo, hi - f) >= 0` says exactly that -- so
+        # a band is one marching-cubes pass over a transformed field rather than two meshes and a
+        # difference, which is what the refusal here used to advise. `hi = inf` leaves `f - lo`
+        # untouched, so the open-ended range and the plain threshold are the same code path.
+        if hi == math.inf:
+            iso = lo
+        elif lo == -math.inf:
+            iso, field = 0.0, hi - field
+        else:
+            iso, field = 0.0, np.minimum(field - lo, hi - field)
         verts, faces = _marching_cubes(field, xs, ys, zs, iso, closed)
         vnf = cls(verts, faces)
         if len(faces):
@@ -1562,7 +1607,7 @@ class VNF:
         bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]],
         voxel_size: float | None = None,
         voxel_count: int | None = None,
-        isovalue: float = 1,
+        isovalue: "float | Sequence[float]" = 1,
         closed: bool = True,
         exact_bounds: bool = False,
     ) -> "VNF":
@@ -1574,7 +1619,8 @@ class VNF:
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.
             voxel_size: Isotropic voxel size.
             voxel_count: Approximate total voxel count.
-            isovalue: Field threshold.
+            isovalue: A field threshold, or a ``[lo, hi]`` pair enclosing the band between two,
+                which hollows the blob into a shell.
             closed: Close mesh at bounding-box faces.
             exact_bounds: Use *bounding_box* exactly.
 
