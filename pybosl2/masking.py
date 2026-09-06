@@ -1004,7 +1004,7 @@ class Mask3D:
         Only *width* is required (SPEC D-2): a groove's depth follows from its width unless you
         say otherwise -- half the width is the proportion that reads as a groove rather than a
         slot -- and its length is however long the thing being grooved is, which *size* supplies
-        when you pass it and :meth:`~pybosl2.shapes3d.base.CsgSolid.groove_edges` supplies for you
+        when you pass it and :func:`~pybosl2.masking.mask3d_groove` supplies for you
         (SPEC P-3, S-26a). This took three required positionals, which SPEC D-2 says is never
         acceptable.
 

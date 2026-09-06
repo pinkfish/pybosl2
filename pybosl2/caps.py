@@ -12,7 +12,7 @@
 
 Provides the :class:`CapType` enum, the :class:`CapSpec` dataclass for
 controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,
-:mod:`pybosl2.beziers`, and :mod:`pybosl2.drawing`.
+:mod:`pybosl2.beziers`, and the strokes in :mod:`pybosl2.path2d` / :mod:`pybosl2.path3d`.
 
 Cap types
     ``NONE`` -- no cap (open end)

@@ -11,7 +11,7 @@
 #    body, and a matching cap.
 #
 #    The neck profile (inner bore, support ring, tamper-ring channel and sealing lip) is built the
-#    same way BOSL2 does: a :func:`~pybosl2.drawing.turtle` outline revolved with rotate_extrude. The
+#    same way BOSL2 does: a :class:`~pybosl2.turtle.turtle2d.Turtle2D` outline revolved with rotate_extrude. The
 #    threads use this package's :class:`~pybosl2.parts.threading.ThreadHelix`, with the two thread
 #    breaks cut by the same zrot_copies-placed prismoids as BOSL2.
 #

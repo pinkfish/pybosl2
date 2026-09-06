@@ -250,7 +250,7 @@ def _edge_mask_negative(
 def roof(shape: object, method: str = "straight") -> Bosl2Solid:
     """Raise a hip roof over a 2-D *shape* via its straight skeleton (native ``roof()``).
 
-    Like :func:`~pybosl2.skin.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is
+    Like :func:`~pybosl2.skin.Sweepable.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is
     a peaked roof (each edge slopes inward at 45 degrees to the skeleton) rather than a flat
     extrusion. *shape* is any 2-D object -- a native ``square``/``circle``/``polygon``, a
     :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton

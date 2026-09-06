@@ -542,7 +542,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Return this shape's axis-aligned bounding box (SPEC S-2b).
 
         Exact and cheap -- every SDF constructor records its tight ``mn``/``mx``, so no meshing is
-        needed (unlike measuring a CSG solid). Matches :meth:`pybosl2.shapes3d.CsgSolid.bounds`.
+        needed (unlike measuring a CSG solid). Matches :meth:`pybosl2.shapes3d.base.CsgSolid.bounds`.
 
         Returns:
             The :class:`~pybosl2.bounds.Bounds3D` box, carrying ``min``/``max``, ``center``,

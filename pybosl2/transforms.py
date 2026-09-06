@@ -139,7 +139,7 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
 
     Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
-    *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
+    *center* and the axial translation are returned as :class:`~pybosl2.points.Vector`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen.
 
     Args:

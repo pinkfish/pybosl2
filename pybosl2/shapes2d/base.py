@@ -172,7 +172,7 @@ class CsgShape2D(BaseShape):
     chainable API that :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids.
 
     Every shape constructor in this file
-    returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and
+    returns one of these, as do :meth:`~pybosl2.path2d.Path2D.polygon` and
     :meth:`~pybosl2.regions.Region.geometry`.
 
     Transforms, CSG operators, colour, and distributor methods are inherited from
@@ -564,7 +564,7 @@ class CsgShape2D(BaseShape):
         """Return the convex hull of this shape (OpenSCAD ``hull()``).
 
         With arguments, the hull of this shape *together with* each of *others* -- any mix of
-        ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.paths.Path2D` /
+        ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.path2d.Path2D` /
         :class:`~pybosl2.regions.Region`, or plain ``[[x, y], ...]`` point lists.
 
         Examples:
@@ -687,7 +687,7 @@ class CsgShape2D(BaseShape):
     def path_extrude(self, path: "Path2D | Path3D", convexity: int | None = None) -> "Bosl2Solid":
         """Sweep this 2-D shape along *path* via the native ``path_extrude()``.
 
-        *path* is a :class:`~pybosl2.paths.Path3D` or a point list.
+        *path* is a :class:`~pybosl2.path3d.Path3D` or a point list.
 
 
         Args:
@@ -823,7 +823,7 @@ class CsgShape2D(BaseShape):
     def bounds(self) -> Bounds2D:
         """Return this shape's axis-aligned bounding box in its current frame (SPEC S-2b).
 
-        The 2-D form of :meth:`~pybosl2.shapes3d.CsgSolid.bounds`. Prefers the native bbox, which
+        The 2-D form of :meth:`~pybosl2.shapes3d.base.CsgSolid.bounds`. Prefers the native bbox, which
         always reflects the current geometry; falls back to the tracked nominal size/anchor when
         the native accessors aren't available (the numeric test mock).
 

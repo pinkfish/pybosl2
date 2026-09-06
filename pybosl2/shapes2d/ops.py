@@ -115,7 +115,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
 
     Args:
         children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a
-                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)
+                  :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)
 
     """
     return Bosl2Shape2D(_ofill(_as_native_2d(children)))
@@ -129,7 +129,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
 
     Args:
         children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,
-                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.
+                  :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.
                   A single list/tuple *of* shapes is also accepted.
 
     """

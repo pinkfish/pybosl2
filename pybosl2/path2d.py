@@ -305,7 +305,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sides: int = 100,
         angle: float | None = None,
     ) -> Path2D:
-        """Return the catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
+        """Return the catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.path2d.Path2D`.
 
         Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the
         slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and
@@ -3170,7 +3170,7 @@ def arc(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """Return a 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).
+    """Return a 2-D arc, returned as a :class:`~pybosl2.path2d.Path2D` of points (BOSL2's ``arc()``).
 
     All of BOSL2's 2-D arc specifications are supported (3-D arcs, which project onto a plane,
     are not):
@@ -3209,7 +3209,7 @@ def arc(
         fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
-        A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
+        A :class:`~pybosl2.path2d.Path2D` (closed when *wedge* is set).
 
     """
     from pybosl2._helpers import arc_points as _arc_points

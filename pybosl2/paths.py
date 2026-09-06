@@ -6,7 +6,7 @@
 
 """Abstract :class:`Path` base class for 2-D and 3-D path types.
 
-Concrete math helpers live in :mod:`pybosl2._path_math`.
+Concrete math helpers live in :mod:`pybosl2.path2d` and :mod:`pybosl2.path3d`.
 """
 
 # LibFile: pybosl2/paths.py

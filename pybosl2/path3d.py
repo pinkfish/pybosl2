@@ -134,7 +134,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     ) -> Path3D:
         """Return a 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
 
-        Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
+        Returned as a :class:`~pybosl2.path3d.Path3D` (the 3-D path object), so it carries the 3-D
         transforms/measurements and feeds straight into stroke or ``path_sweep``. Give
         exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
         is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
