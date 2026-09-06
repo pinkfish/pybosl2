@@ -993,6 +993,42 @@ def resolve_rect_tube(
     )
 
 
+def effective_clip(clip_angle: float, teardrop: "float | bool") -> float:
+    """Return the angle a rim's rounding is clipped flat at, in degrees.
+
+    `teardrop=` and `clip_angle=` are the same quantity -- the maximum overhang the rim's surface
+    may reach, in degrees from vertical -- so the tighter of the two wins and no conversion stands
+    between them. This returned ``min(clip, 90 - angle)`` until T62, under a docstring that said
+    in the same sentence that a teardrop "may not overhang by more than its angle". Both halves
+    cannot hold: the arc is swept ``clip`` degrees from its widest point, which *is* the overhang
+    from vertical, so subtracting from 90 made ``teardrop=30`` overhang **60** degrees -- less
+    printable than the 45 the bare flag gives, which is backwards for a printability option.
+    `teardrop2d()`, whose walls stand at exactly ``angle`` from vertical, had the sense right.
+
+    ``teardrop=True`` is 45 degrees, and 45 is the fixed point of ``90 - angle`` -- which is why
+    the inversion survived: the flag form, the one almost everyone uses, is identical either way.
+
+    ``bool`` is a subclass of ``int``, so reading the number before ruling the flag out takes
+    ``teardrop=True`` as **one degree** -- a rounding with an imperceptible flat rather than the
+    45 the flag means. The CSG backend did exactly that until T45, which is why this is written
+    once and both backends call it.
+
+    Args:
+        clip_angle: The angle to clip the rounding at, 90 for none.
+        teardrop: ``True`` for the default 45-degree teardrop, a number for its angle, ``False``
+            for none.
+
+    Returns:
+        The effective clip angle in degrees.
+
+    """
+    clip = float(clip_angle)
+    if teardrop is False or teardrop is None:
+        return clip
+    angle = 45.0 if isinstance(teardrop, bool) else float(teardrop)
+    return min(clip, angle)
+
+
 def teardrop_stations(
     length: float,
     rad1: float,

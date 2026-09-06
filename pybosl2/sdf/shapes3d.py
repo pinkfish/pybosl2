@@ -24,6 +24,7 @@ from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor, resolve_anchor
+from pybosl2._helpers import effective_clip
 from pybosl2._native import native
 from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
@@ -2970,34 +2971,6 @@ def _with_extra(
         return field
 
     return with_extra, mn, mx
-
-
-def effective_clip(clip_angle: float, teardrop: "float | bool") -> float:
-    """Return the angle a rim's rounding is clipped flat at, in degrees.
-
-    `teardrop=` is `clip_angle=` stated as an overhang instead: a teardrop that prints without
-    support may not overhang by more than its angle, so it clips at ``90 - angle``, and the
-    tighter of the two wins.
-
-    ``bool`` is a subclass of ``int``, so reading the number before ruling the flag out takes
-    ``teardrop=True`` as **one degree** -- a rounding with an imperceptible flat rather than the
-    45 the flag means. The CSG backend did exactly that until T45, which is why this is written
-    once and both backends call it.
-
-    Args:
-        clip_angle: The angle to clip the rounding at, 90 for none.
-        teardrop: ``True`` for the default 45-degree teardrop, a number for its angle, ``False``
-            for none.
-
-    Returns:
-        The effective clip angle in degrees.
-
-    """
-    clip = float(clip_angle)
-    if teardrop is False or teardrop is None:
-        return clip
-    angle = 45.0 if isinstance(teardrop, bool) else float(teardrop)
-    return min(clip, 90.0 - angle)
 
 
 def _clip_fillet(u: LVTree, w: LVTree, a: float, clip: float) -> LVTree:

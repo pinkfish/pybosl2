@@ -264,8 +264,11 @@ def test_a_boolean_teardrop_means_forty_five_degrees_not_one() -> None:
     from pybosl2.sdf.shapes3d import effective_clip
     from pybosl2.shapes3d.cylinder import cyl_profile
 
+    # T62: this line read `== 60.0`, restating `min(clip, 90 - angle)` rather than measuring
+    # anything -- and that formula inverted the angle. The lean is measured on the profile in
+    # `tests/test_teardrop_angles.py` now; what is left here is the bool-before-int rule.
     assert effective_clip(90.0, True) == pytest.approx(45.0)
-    assert effective_clip(90.0, 30) == pytest.approx(60.0)
+    assert effective_clip(90.0, 30) == pytest.approx(30.0)
     assert effective_clip(40.0, True) == pytest.approx(40.0), "the tighter of the two wins"
     assert effective_clip(90.0, False) == pytest.approx(90.0)
 
