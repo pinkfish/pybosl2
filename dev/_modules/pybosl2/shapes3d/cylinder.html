@@ -2802,15 +2802,13 @@
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">effective_clip</span>
 
-    <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># `bool` is a subclass of `int`, so an `isinstance(teardrop, (int, float))` test answers</span>
-        <span class="c1"># True for `teardrop=True` and takes the boolean itself as the angle -- a **1 degree**</span>
-        <span class="c1"># teardrop, which is a rounding with an imperceptible flat on it rather than the 45 the</span>
-        <span class="c1"># flag is supposed to mean. The bool has to be ruled out before the number is read.</span>
-        <span class="n">td_ang</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">teardrop</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">teardrop</span><span class="p">)</span>
-        <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">eff_clip</span><span class="p">,</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">td_ang</span><span class="p">)</span>
+    <span class="c1"># T45 said this rule was "written once and both backends read it". Only half of that was true:</span>
+    <span class="c1"># `effective_clip` was written, the SDF backend read it, and this function kept its own copy of</span>
+    <span class="c1"># the formula -- so when T62 corrected the copy in `effective_clip`, the CSG rim did not move.</span>
+    <span class="c1"># The duplicate is gone; there is one definition and this is a call to it.</span>
+    <span class="n">eff_clip</span> <span class="o">=</span> <span class="n">effective_clip</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">)</span>
 
     <span class="n">_check_rim_treatments</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">rounding1</span><span class="p">,</span> <span class="n">rounding2</span><span class="p">,</span> <span class="n">chamfer1</span><span class="p">,</span> <span class="n">chamfer2</span><span class="p">)</span>
 
