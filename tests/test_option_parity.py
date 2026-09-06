@@ -87,7 +87,7 @@ from pybosl2.sdf import SdfBackend
 TESSELLATION = frozenset({"fn", "fa", "fs", "res", "realign", "circumscribe"})
 
 #: How many options the SDF backend lacks, per shape. Honest parity debt: each is refused with the
-#: parameter named (B-9) rather than silently dropped. Only shrinks -- and as of T64 it is **empty**.
+#: parameter named (B-9) rather than silently dropped. Only shrinks -- and as of T63 it is **empty**.
 #: The last two were `cube`/`cuboid`'s `teardrop=`, which were at parity by neither backend having
 #: it: CSG refused and SDF had no such parameter. A row here is a promise one backend keeps and the
 #: other does not; adding one back needs a spec item saying which and why.
