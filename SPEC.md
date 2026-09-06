@@ -1170,6 +1170,14 @@ there in the same commit as the code (§13 rule 4).
 
 **The sweep shares `endcap_geometry_3d`, so its decorative caps moved too**, and one test had to be re-derived rather than re-fitted: `test_linear_sweep_decorative_cap` asserted a 20×20 square's envelope was unchanged by an arrow cap, which held only while the cap was too narrow. A solid of revolution on a square profile reaches the circumscribed circle — 20·√2, the diagonal exactly — and that is what it asserts now.
 
+**T66 built `CapType.CIRCLE`, the last unbuilt member, and the difficulty was never the geometry.** `_DEFAULTS` gives `CIRCLE` `length=1.0, width=1.0` — *identical* to `ROUND` — so the table never said what distinguished them, and the only distinguishing information anywhere in the port was one hyphenated word in a docstring: round-over. With BOSL2's source not vendored, that left nothing to check a construction against, which is why the member had outlived every other gap.
+
+**Read as a fillet radius, the shape is pinned at both ends by behaviour that already existed.** A round-over is a flat end whose rim is filleted by `p`; at `p = s` the two fillets meet, the flat vanishes, and the outline is a semicircle — which is exactly `ROUND`'s cap. At `p = 0` there is no fillet and it is `BUTT`. So `length` is the fillet radius over the half-width, `CIRCLE` is the family `ROUND` is the extreme of, and the specification needs no external reference: it is derived from two shapes the port already builds. Measured, the reach runs 20.0, 20.5, 21.0, 21.5, 22.0 against `BUTT`'s 20.0 and `ROUND`'s 22.0, identical in both dimensions.
+
+**A negative control caught the guard measuring the wrong thing, and it is the same class of miss as T59 and T63.** Centring both arcs on the axis turns the outline into a lens with no flat at all — and a lens of radius `p` *reaches exactly as far* as a round-over of radius `p`, so every extent-based test passed it. The defining feature of a round-over is the part that does not move: the end face stays square across `|y| <= s - p`. Asserted on the outline now, where the flat is a run of points sharing the maximum x rather than a single apex, with the companion assertion that the flat vanishes exactly once, at the value where the family ends.
+
+**With this the port advertises no capability it does not build.** `KNOWN_GAPS` is empty, the unbuilt-cap set is empty, and option parity was already zero — the three registries that have driven this campaign since T40 all read nothing.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).
