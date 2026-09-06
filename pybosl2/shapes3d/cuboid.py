@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor, EdgeAtom
@@ -389,7 +389,6 @@ def cuboid(
     You cannot mix chamfering and rounding on the same call. Negative chamfers/roundings
     create external fillets, but only apply to edges around the top or bottom face.
 
-    Note: `teardrop=` is not supported by this pure-Python port.
 
     Args:
         size:         size of the cuboid, a number or length-3 vector
@@ -400,7 +399,8 @@ def cuboid(
         edges:        edges to mask (default ``"ALL"``)
         except_edges: edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)
         trimcorners:  round/chamfer corners where three treated edges meet (default True)
-        teardrop:     enable teardrop rounding (not supported by this pure-Python port)
+        teardrop:     cap the bottom rounding's lean from vertical for printability -- True for
+                      45 degrees, a number for its angle
         anchor:       anchor point (default Anchor.CENTER)
         spin:         Z-axis rotation in degrees (default 0)
         orient:       direction to rotate the top towards (default Anchor.TOP)
@@ -427,11 +427,6 @@ def cuboid(
             shape.show()
 
     """
-    if teardrop:
-        raise Bosl2NotImplementedError(
-            "cuboid(): teardrop= is not built in this port yet. Round the edges with rounding= and "
-            "cut the overhang yourself, or build the teardrop profile as a Mask2D and sweep it."
-        )
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     if p1 is not None:
         if p2 is not None:
@@ -505,8 +500,85 @@ def cuboid(
     else:
         shape = _ocube(sz, center=True)
 
+    shape = _teardrop_bottom(shape, sz, rounding_v, chamfer_v, edge_set, teardrop, fn, fa, fs)
+
     offset = _anchor_offset_box3(sz, anchor)
     return _finish3(shape, offset, spin, orient, size=sz, anchor=anchor)
+
+
+def _teardrop_bottom(
+    shape: Any,
+    sz: list[float],
+    rounding: float,
+    chamfer: float,
+    edge_set: Any,
+    teardrop: bool | float,
+    fn: int | None,
+    fa: float | None,
+    fs: float | None,
+) -> Any:
+    """Union the fill that a teardrop clip leaves under a rounded cuboid's bottom edges.
+
+    Below the height where the bottom rounding reaches the requested lean, every horizontal slice
+    of the clipped solid is the same slice (see :func:`~pybosl2._helpers.teardrop_clip`), so the
+    fill is that slice extruded down to the floor -- a box inset by the rounding and grown back by
+    *keep*, with its four vertical edges rounded by *keep*. Minkowski with an upright cylinder is
+    how the rounded cuboid above builds its own edges, and it rounds exactly those four.
+
+    Args:
+        shape: The finished rounded cuboid, centred on the origin.
+        sz: Its size.
+        rounding: The rounding radius, zero if the edges are chamfered or sharp.
+        chamfer: The chamfer size, used only to refuse a combination this does not build.
+        edge_set: The resolved edge selection, likewise.
+        teardrop: ``True``, an angle, or ``False``.
+        fn: Segment count for the fill's rounded vertical edges.
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        The cuboid with the fill unioned on, or unchanged when nothing is clipped.
+
+    Raises:
+        Bosl2NotImplementedError: For a teardrop on a chamfer or on a restricted edge set.
+
+    """
+    from pybosl2._helpers import effective_clip, teardrop_clip
+
+    if teardrop is False or teardrop is None:
+        return shape
+    if chamfer:
+        raise Bosl2NotImplementedError(
+            "cuboid(): teardrop= is built for rounding=, not chamfer=. A bottom chamfer already "
+            "leans at its chamfer angle, so set that angle rather than clipping it."
+        )
+    if rounding and edge_set != EDGES_ALL:
+        raise Bosl2NotImplementedError(
+            "cuboid(): teardrop= is built for the default edge set. On a restricted one the "
+            "bottom edges need not be rounded at all, and the slice below the clip is no longer "
+            "the cuboid's own cross-section. Round every edge, or clip the overhang yourself."
+        )
+    # The rounded cuboid is a minkowski with a *faceted* sphere, so its surface is a staircase on a
+    # 360/sides grid rather than the analytic arc. Cutting at the exact requested lean leaves the
+    # facet straddling the clip plane partly exposed, and that facet's own lean can exceed what was
+    # asked -- measured, `teardrop=60` came out at 61.88 degrees. A ceiling that the geometry
+    # breaks by a facet is not a ceiling, so the lean is snapped *down* to a facet boundary: every
+    # exposed facet then lies wholly above the clip plane and leans by no more than the snapped
+    # value. The cost is that the clip can be up to one facet stricter than asked, which is the
+    # direction a printability guarantee should err in, and is what `cyl(teardrop=)` already does.
+    sphere_sides = int(quantup(_frag_count(rounding, fn, fa, fs), 4))
+    step = 360.0 / max(sphere_sides, 4)
+    lean = math.floor(effective_clip(90.0, teardrop) / step) * step
+    drop, keep = teardrop_clip(rounding, lean if lean > 0 else teardrop)
+    if drop <= 1e-12:
+        # No rounding, so no overhang -- the walls are already vertical and the floor is flat.
+        return shape
+    inner = [max(0.001, sz[0] - 2 * rounding), max(0.001, sz[1] - 2 * rounding), drop]
+    sides = int(quantup(_frag_count(keep, fn, fa, fs), 4))
+    fill = _ominkowski(_ocube(inner, center=True), _ocylinder(radius=keep, height=0.001, fn=sides))
+    # `center=True` leaves the fill spanning +-drop/2 about the origin; drop it so its top sits at
+    # the clip plane and its bottom lands exactly on the cuboid's floor.
+    return shape | fill.translate([0.0, 0.0, -sz[2] / 2 + drop / 2])
 
 
 @backend_only("csg", neutral="pybosl2.solid.prismoid")

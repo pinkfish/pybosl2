@@ -1029,6 +1029,36 @@ def effective_clip(clip_angle: float, teardrop: "float | bool") -> float:
     return min(clip, angle)
 
 
+def teardrop_clip(rounding: float, teardrop: "float | bool", clip_angle: float = 90.0) -> tuple[float, float]:
+    """Return how far a bottom rounding is clipped for printability, as ``(drop, keep)``.
+
+    A rounded bottom edge overhangs: its surface starts vertical at the wall and rotates to
+    horizontal at the floor, so the last of it cannot be printed without support. Clipping it at a
+    maximum lean *c* from vertical -- `effective_clip`'s job -- stops the arc there and drops
+    straight to the floor, and the useful way to say what that leaves is by cross-section. Below
+    the height where the arc reaches *c*, every horizontal slice is the **same** slice: a rectangle
+    inset by ``rounding`` and grown back by ``keep``, with its vertical edges rounded by ``keep``.
+
+    So a teardrop-clipped cuboid is the rounded one unioned with that slice extruded down, and both
+    backends build it from the two numbers here rather than from an arc -- the CSG side as a prism,
+    the SDF side by holding *z* at the clip plane below it.
+
+    Args:
+        rounding: The bottom edge rounding radius. Zero means nothing overhangs, so nothing clips.
+        teardrop: ``True`` for the default 45 degrees, a number for its angle, ``False`` for none.
+        clip_angle: An independent ceiling on the lean; the tighter of the two wins.
+
+    Returns:
+        ``(drop, keep)`` -- the height of the clipped-off region above the floor, and the
+        half-width the slice keeps of the rounding. ``(0.0, 0.0)`` when nothing is clipped.
+
+    """
+    if not rounding or rounding <= 0 or teardrop is False or teardrop is None:
+        return 0.0, 0.0
+    lean = math.radians(effective_clip(clip_angle, teardrop))
+    return rounding * (1.0 - math.sin(lean)), rounding * math.cos(lean)
+
+
 def teardrop_stations(
     length: float,
     rad1: float,

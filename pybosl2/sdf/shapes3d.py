@@ -30,7 +30,7 @@ from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
 from pybosl2.groups import resolve_center_anchor
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
@@ -2028,6 +2028,65 @@ def _cuboid_at_corner(
     return box.translate(corner)
 
 
+def _teardrop_bottom_sdf(
+    base: "Callable[[Any, Any, Any], Any]",
+    sz: list[float],
+    rounding: float,
+    chamfer: float,
+    edge_set: list[list[int]],
+    teardrop: bool | float,
+) -> "Callable[[Any, Any, Any], Any]":
+    """Wrap a cuboid field so its bottom rounding is clipped flat for printability.
+
+    Below the clip plane every horizontal slice of the clipped solid is the *same* slice, so the
+    field below it is the field *at* it: hold `z` at the plane and the cross-section extrudes down
+    for free, then intersect with the floor to stop it. No arc is re-derived and no fill solid is
+    unioned -- the CSG spelling has to build one, because a mesh has no way to say "this slice,
+    continued", and it pays for that with a facet-snapping step this does not need.
+
+    Args:
+        base: The cuboid's field, before clipping.
+        sz: The cuboid's size, whose Z gives the floor and the clip plane.
+        rounding: The rounding radius; without one there is no overhang to clip.
+        chamfer: The chamfer size, used only to refuse a combination this does not build.
+        edge_set: The resolved edge selection, likewise.
+        teardrop: ``True``, an angle, or ``False``.
+
+    Returns:
+        The clipped field, or *base* unchanged when nothing is clipped.
+
+    Raises:
+        Bosl2NotImplementedError: For a teardrop on a chamfer or on a restricted edge set.
+
+    """
+    from pybosl2._edges_lang import EDGES_ALL
+    from pybosl2._helpers import teardrop_clip
+
+    if teardrop is False or teardrop is None:
+        return base
+    if chamfer:
+        raise Bosl2NotImplementedError(
+            "cuboid(): teardrop= is built for rounding=, not chamfer=. A bottom chamfer already "
+            "leans at its chamfer angle, so set that angle rather than clipping it."
+        )
+    if rounding and edge_set != EDGES_ALL:
+        raise Bosl2NotImplementedError(
+            "cuboid(): teardrop= is built for the default edge set. On a restricted one the "
+            "bottom edges need not be rounded at all, and the slice below the clip is no longer "
+            "the cuboid's own cross-section. Round every edge, or clip the overhang yourself."
+        )
+    drop, _keep = teardrop_clip(rounding, teardrop)
+    if drop <= 1e-12:
+        return base
+    floor = -sz[2] / 2
+    plane = floor + drop
+
+    def clipped(x: "Any", y: "Any", z: "Any") -> "Any":
+        return lv.max(base(x, y, lv.max(z, plane)), floor - z)
+
+    return clipped
+
+
 def cuboid(
     size: float | list[float] | None = None,
     p1: "Sequence[float] | None" = None,
@@ -2037,6 +2096,7 @@ def cuboid(
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
     trimcorners: bool = True,
+    teardrop: bool | float = False,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -2071,6 +2131,9 @@ def cuboid(
             cylinders". Per-edge amounts are always untrimmed: a corner where three *differently*
             treated edges meet has no single amount to trim it by.
                       `except` is a Python keyword)
+        teardrop: Cap how far the bottom rounding may lean from vertical, for printability --
+            ``True`` for 45 degrees, a number for its angle. Unlike the CSG spelling this needs no
+            facet snapping: the field is exact, so the clip lands where it is asked to.
         res: libfive meshing resolution passed to frep() (default 10; higher = finer mesh). Omitted, the ambient
             ``use_defaults(res=...)`` value applies.
         anchor:       anchor point (default CENTER)
@@ -2137,6 +2200,7 @@ def cuboid(
     amount = chamfer if chamfer else rounding
     amounts, modes = _edge_matrices(amount, edge_set, mode)
     sdf_fn = lambda x, y, z: _cuboid_edge_sdf(x, y, z, sz, amounts, modes, trimcorners)  # noqa: E731
+    sdf_fn = _teardrop_bottom_sdf(sdf_fn, sz, rounding, chamfer, edge_set, teardrop)
     shape = PyShape(
         sdf_fn,
         [-half[0], -half[1], -half[2]],
@@ -2157,6 +2221,7 @@ def cube(
     edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
     except_edges: "list[EdgeAtom] | None" = None,
     trimcorners: bool = True,
+    teardrop: bool | float = False,
     center: bool | None = None,
     anchor: "Sequence[float]" = CENTER,
     spin: float = 0,
@@ -2175,6 +2240,8 @@ def cube(
             the three treatments meeting at a point, which is BOSL2's "intersection of three
             cylinders". Per-edge amounts are always untrimmed: a corner where three *differently*
             treated edges meet has no single amount to trim it by.
+        teardrop: Cap how far the bottom rounding may lean from vertical, for printability --
+            ``True`` for 45 degrees, a number for its angle.
         center: If given, overrides ``anchor``: True centres the shape on the origin, False sits
             it on FRONT+LEFT+BOTTOM (SPEC B2-3).
         anchor: anchor point (default Anchor.CENTER)
@@ -2191,6 +2258,7 @@ def cube(
         edges=edges,
         except_edges=except_edges,
         trimcorners=trimcorners,
+        teardrop=teardrop,
         anchor=anchor,
         spin=spin,
         orient=orient,

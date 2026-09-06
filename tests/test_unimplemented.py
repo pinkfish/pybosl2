@@ -37,7 +37,6 @@ KNOWN_GAPS: frozenset[str] = frozenset(
     {
         "_stroke3d.py::endcap_geometry_3d",  # CapType.LINE and X have no solid of revolution
         "caps.py::endcap_polys",  # CapType.CIRCLE
-        "shapes3d/cuboid.py::cuboid",  # teardrop=
     }
 )
 
@@ -103,11 +102,16 @@ def test_the_gap_list_is_not_stale() -> None:
 
 
 def test_the_refusal_is_both_bases_and_names_a_way_forward() -> None:
-    """SPEC E-1 and E-2, exercised rather than read off the class statement."""
+    """SPEC E-1 and E-2, exercised rather than read off the class statement.
+
+    This used `cuboid(rounding=, teardrop=)`, which builds since T64. The combination that still
+    refuses is a teardrop on a *chamfer*: a bottom chamfer already leans at its own angle, so
+    there is no arc to clip, and the refusal points at the parameter that does work.
+    """
     from pybosl2 import cuboid
 
     with pytest.raises(Bosl2NotImplementedError) as caught:
-        cuboid([20, 20, 20], rounding=3, teardrop=True)
+        cuboid([20, 20, 20], chamfer=3, teardrop=True)
     error = caught.value
     assert isinstance(error, Bosl2Error), "except Bosl2Error must catch it (E-1)"
     assert isinstance(error, NotImplementedError), "callers catching the stdlib type still work"

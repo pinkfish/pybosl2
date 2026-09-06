@@ -671,18 +671,28 @@ def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) 
     assert built.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
 
 
-@pytest.mark.parametrize("kwargs", [{"teardrop": True}])
-def test_a_real_request_the_backend_cannot_honour_is_still_refused(kwargs: dict[str, object]) -> None:
-    """The other half of the zero-is-not-a-request rule, on a gap that is still a gap.
+@pytest.mark.parametrize("kwargs", [{"chamfer": 3.0, "teardrop": True}])
+def test_a_real_request_the_library_cannot_honour_is_still_refused(kwargs: dict[str, object]) -> None:
+    """The other half of the zero-is-not-a-request rule, on a combination that is still unbuilt.
 
-    This used `prismoid(rounding=5)` until T43 built it. The pairing is what matters -- an
-    explicit zero passes quietly and a real request does not -- so the example moves to whatever
-    the parity budget still counts, the same way B-9's worked example does.
+    This used `prismoid(rounding=5)` until T43 built it, then `cuboid(teardrop=)` until T64 did.
+    The pairing is what matters -- an explicit zero passes quietly and a real request does not --
+    and the example moves as the gaps close, the same way B-9's worked example does.
+
+    It is no longer a *backend* asymmetry, because there is none left: the parity table is empty,
+    so nothing raises `UnsupportedByBackendError` for a cuboid option on one backend and builds on
+    the other. What is still refused is a combination neither backend builds -- a teardrop on a
+    chamfer, where there is no arc to clip -- so the expected class moves with it.
     """
-    from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.exceptions import Bosl2NotImplementedError
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
+    with use_backend("sdf"), pytest.raises(Bosl2NotImplementedError):
         solid.cuboid(size=[40, 40, 30], **kwargs)  # type: ignore[attr-defined]
+
+    # The pairing: the same call with the teardrop off is not a request, and passes quietly.
+    with use_backend("sdf"):
+        built = solid.cuboid(size=[40, 40, 30], chamfer=3.0, teardrop=False)  # type: ignore[attr-defined]
+    assert [float(v) for v in built.bounds().size] == pytest.approx([40.0, 40.0, 30.0], abs=0.05)
 
 
 def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
@@ -733,23 +743,28 @@ def test_no_option_is_left_that_one_backend_builds_and_the_other_refuses() -> No
 
     from test_option_parity import GAPS
 
-    from pybosl2.exceptions import Bosl2NotImplementedError
-
-    # `GAPS` is measured off the two signatures, so it still lists an option the CSG backend
-    # *declares* and refuses to build. That is a missing feature, not a parity gap -- and it is
-    # checked here rather than asserted, because "neither backend does it" is exactly the kind of
-    # claim that quietly stops being true.
-    unbuilt = {("cube", "teardrop"), ("cuboid", "teardrop")}
-    for shape, option in sorted(unbuilt):
-        with use_backend("csg"), pytest.raises(Bosl2NotImplementedError):
-            getattr(solid, shape)(size=10, **{option: True})
-
-    live = {shape: sorted(o for o in options if (shape, o) not in unbuilt) for shape, options in GAPS.items()}
-    live = {shape: options for shape, options in live.items() if options}
-    assert not live, (
-        f"an option one backend builds and the other refuses is back: {live}. Restore the refusal "
-        "test alongside it -- B-9 needs an example again."
+    assert not GAPS, (
+        f"an option one backend builds and the other refuses is back: "
+        f"{ {k: sorted(v) for k, v in GAPS.items()} }. Build it on both, or restore the refusal "
+        f"test alongside it -- B-9 needs an example again."
     )
+
+    # `GAPS` listed `cube`/`cuboid`'s `teardrop` until T64 -- an option the CSG backend *declared*
+    # and refused to build, at parity only because the SDF spelling had no such parameter. Both
+    # build it now, so the table is empty on the measurement rather than by exemption. Checked
+    # rather than asserted in prose, because "both backends do it" is exactly the kind of claim
+    # that quietly stops being true.
+    for shape in ("cube", "cuboid"):
+        for backend in ("csg", "sdf"):
+            with use_backend(backend):
+                built = getattr(solid, shape)(size=20, rounding=3, teardrop=True)
+                plain = getattr(solid, shape)(size=20, rounding=3)
+            # The clip fills material inside the box, so the bounds never grow past nominal, and
+            # never shrink below the plain rounded shape's. They need not equal it: CSG rounds by
+            # minkowski with an *inscribed* faceted sphere, so the plain floor sits a fraction of
+            # a facet above -h/2 while the fill is built at -h/2 exactly.
+            for got, was in zip(built.bounds().size, plain.bounds().size, strict=True):
+                assert float(was) - 1e-6 <= float(got) <= 20.0 + 1e-6, f"{shape} on {backend}"
 
 
 def test_a_renamed_option_builds_on_both_rather_than_refusing() -> None:
