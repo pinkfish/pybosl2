@@ -42,7 +42,7 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
    per shape (`tests/test_option_parity.py`), and a missing one is refused with the parameter
    named rather than dropped (B-9). The last two were `cuboid`/`cube`'s `teardrop`, which after
    T48 were at parity only by neither backend having it -- CSG raised
-   `Bosl2NotImplementedError` and the SDF spelling had no such parameter. T64 built both.
+   `Bosl2NotImplementedError` and the SDF spelling had no such parameter. T63 built both.
 
    *They are not identical, and the difference is worth stating rather than smoothing over. The
    CSG rounded cuboid is a minkowski with a faceted sphere, so cutting at the exact requested

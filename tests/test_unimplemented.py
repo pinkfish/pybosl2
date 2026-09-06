@@ -104,7 +104,7 @@ def test_the_gap_list_is_not_stale() -> None:
 def test_the_refusal_is_both_bases_and_names_a_way_forward() -> None:
     """SPEC E-1 and E-2, exercised rather than read off the class statement.
 
-    This used `cuboid(rounding=, teardrop=)`, which builds since T64. The combination that still
+    This used `cuboid(rounding=, teardrop=)`, which builds since T63. The combination that still
     refuses is a teardrop on a *chamfer*: a bottom chamfer already leans at its own angle, so
     there is no arc to clip, and the refusal points at the parameter that does work.
     """

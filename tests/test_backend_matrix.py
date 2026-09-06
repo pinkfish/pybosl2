@@ -675,7 +675,7 @@ def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) 
 def test_a_real_request_the_library_cannot_honour_is_still_refused(kwargs: dict[str, object]) -> None:
     """The other half of the zero-is-not-a-request rule, on a combination that is still unbuilt.
 
-    This used `prismoid(rounding=5)` until T43 built it, then `cuboid(teardrop=)` until T64 did.
+    This used `prismoid(rounding=5)` until T43 built it, then `cuboid(teardrop=)` until T63 did.
     The pairing is what matters -- an explicit zero passes quietly and a real request does not --
     and the example moves as the gaps close, the same way B-9's worked example does.
 
@@ -749,7 +749,7 @@ def test_no_option_is_left_that_one_backend_builds_and_the_other_refuses() -> No
         f"test alongside it -- B-9 needs an example again."
     )
 
-    # `GAPS` listed `cube`/`cuboid`'s `teardrop` until T64 -- an option the CSG backend *declared*
+    # `GAPS` listed `cube`/`cuboid`'s `teardrop` until T63 -- an option the CSG backend *declared*
     # and refused to build, at parity only because the SDF spelling had no such parameter. Both
     # build it now, so the table is empty on the measurement rather than by exemption. Checked
     # rather than asserted in prose, because "both backends do it" is exactly the kind of claim

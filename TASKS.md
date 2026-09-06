@@ -1907,9 +1907,189 @@ Three now, each announcing the same fact differently before being fixed:
 All three build CSG regardless of the active backend; none of them said so. All three refuse under
 their own names now.
 
-The layering edge stays: wrapping a composed native object needs the L3 class, and the backend
-protocol has no way to adopt one — the same wall `Extrudable` hit in T52.
+T57 read the third of these as a fourth CSG-only helper and gave it a marker. **That was wrong,
+and T58 took it off** — see below.
 
+
+## T58 — The adoption operation that was not needed ✅
+
+**§12.2 item 23. A-1, A-6. 4 known violations → 3.**
+
+Asked for an adoption operation on `SolidBackend`, on my own claim from T57 that one would unblock
+all four remaining edges. Measuring said otherwise — the four want four different things, and only
+`beziers -> shapes3d` was adoption at all:
+
+| edge | what it actually needs |
+|---|---|
+| `_helpers -> _native` | a raw native handle; adoption returns a wrapper, the opposite |
+| `path3d -> _stroke3d` | nothing — typed honestly as `PathLike` in T57 |
+| `skin -> sdf` | a façade `spiral_sweep`, which does not exist |
+| `beziers -> shapes3d` | adoption — and it turned out not to |
+
+There was also a design objection worth stating: A-1 exists so geometry modules need no backend, so
+a module that composes natives *is* backend code. An `adopt()` at L1 would hide that rather than
+fix it, and would have let `Extrudable` — which T52 established is backend machinery — be
+relabelled as geometry.
+
+### The one adoption case was a one-line bug
+
+`debug_bezier_patches` ended with `result if isinstance(result, Bosl2Solid) else Bosl2Solid(result)`,
+above a comment noting every piece is already a solid. Both are true and the conjunction is the
+defect: an `SdfSolid` is not a `Bosl2Solid`, so it took the *else* branch and was re-wrapped into a
+CSG wrapper — the helper returned a `CsgSolid` from inside `use_backend("sdf")`, an A-6 violation
+the layering edge was holding in place.
+
+The wrap had nothing to do. `_debug_tube` had always gone through `path_sweep`; the only native
+reach was one control-point marker, now a façade `sphere`. **Deleting the wrap closed the edge,
+fixed the defect, and let T57's `@backend_only("csg")` marker come off** — that marker gated a
+one-line bug and would have made it permanent. What still refuses on sdf is the one real
+obstruction: the patch surface is an open non-convex mesh, and the refusal names `polyhedron`.
+
+## T59 — A cap that cannot be built refuses instead of coming out flat ✅
+
+**§12.2 item 24. G-8, D-1.**
+
+Set out to build `CapType.CIRCLE` and found four cap types quietly doing nothing. Measuring every
+member against `BUTT` in each of the three consumers:
+
+| type | sweep | 3D stroke | 2D stroke |
+|---|---|---|---|
+| `SPHERE` | dome | **silently flat** | **silently flat** |
+| `CIRCLE` | refuses | refuses | **silently flat** |
+| `LINE` / `X` | **silently flat** | **silently flat** | builds |
+
+`SPHERE` is documented as a synonym of `ROUND` and was one only on the sweep. `LINE` and `X` were
+found by the guard written for the first two — they matched `BUTT` in **all six** bound components,
+their profile being a bare two-point line while 3-D caps are solids of revolution.
+
+The structural cause is why the guard is a matrix and not a case: each consumer lists the members it
+knows, every fall-through lands on a flat end, and **a butt cap is a perfectly good solid** — it
+unions, renders, has a bounding box, so nothing downstream objects. `test_every_endcap_style_builds_3d`
+asserted the decoration count was even so both ends agreed, and zero is even.
+
+`caps.py`'s module note called `ROUND`/`SPHERE`/`CIRCLE` "scaffolding only — they resolve to flat
+caps" while `ROUND` had been doming the sweep all along. Documentation describing a silent fallback
+as intended behaviour is what kept it invisible four members deep.
+
+## T60 — Freeze `ScrewSpec` ✅
+
+**§12.2 item 25. O-5. The `NOT_FROZEN` list is empty.**
+
+The exception's reason — an 88-line constructor parsing a trade name makes it "a refactor rather
+than a decorator" — was an accurate observation with a conclusion that did not follow. The
+constructor takes a *specification* and the eleven fields are what it derives, which is why the
+generated `__init__` cannot express it (`pitch` is both an optional input and a resolved output).
+That is what `frozen=True, init=False` is for.
+
+The refactor the exception was waiting on did not depend on the freeze and was worth doing anyway:
+the constructor is two phases sharing only the diameter, so `parts/screws.py`'s over-long function
+budget went **2 → 1**.
+
+`test_every_spec_object_is_frozen` scans decorators, so it passes any class carrying `frozen=True`
+whether or not assignment raises. A negative control keeping the decorator and restoring
+`__setattr__` **passed the scan**; a companion test now assigns and requires `FrozenInstanceError`.
+
+## T61 — `VNF.from_field` takes an isovalue range ✅
+
+**§12.2 item 26. G-8, S-31.**
+
+The refusal was the whole of the gap. It advised meshing each threshold and subtracting the inner
+surface from the outer — two passes, a boolean, and the orientation problem of a nested pair. The
+band `lo <= f <= hi` is exactly `min(f - lo, hi - f) >= 0`, so it is **one** pass over a transformed
+field. `[lo, inf]` leaves the field untouched, so the open-ended range and the bare threshold are
+the same code path, and `from_metaballs` forwards its isovalue and hollows a blob for free.
+
+**Where a refusal's own workaround is more work than the feature, measure it again** — the same
+shape as T58's marker gating a one-line bug.
+
+The instrument had to be analytic volume: bounds cannot tell a shell from the ball containing it,
+and losing the cavity while getting the outer surface right is what a band implementation risks.
+`f(p) = |p|` banded to `[5, 10]` matched `4/3 π (10³ - 5³)` to **0.06%**.
+
+One defect was written and caught during the build: for `[-inf, hi]` the region is `f <= hi`, and
+negating the *threshold* gives `f >= -hi`, the whole bounding box — a perfectly good closed mesh of
+the wrong solid. The field is what must be negated.
+
+## T62 — The teardrop angle is the overhang, not its complement ✅
+
+**§12.2 item 27. S-2b.**
+
+`effective_clip` returned `min(clip_angle, 90 - angle)` under a docstring saying, in the same
+sentence, that a teardrop "may not overhang by more than its angle". Both cannot hold: the rim's
+arc is swept `clip` degrees from its widest point, and that sweep **is** the overhang from
+vertical. Measured, `teardrop=30` leaned **58 degrees** — so asking for a gentler overhang gave a
+steeper one, and `teardrop=30` was less printable than the bare flag.
+
+Three things kept it invisible:
+
+* **45 is the fixed point of `90 - angle`**, and `teardrop=True` means 45, so the flag form cannot
+  show it.
+* **A test asserted `effective_clip(90, 30) == 60`** — restating the implementation, so it could
+  never disagree with it.
+* **`test_a_teardrop_rounding_clips_the_overhang` never measured an angle**, despite its name: it
+  asserted the bounds were unchanged and the program text differed, true of nearly any edit.
+
+T45's "written once and both backends read it" was half true — `effective_clip` existed and SDF
+called it, while `cyl_profile` kept the formula inline — so correcting the shared function moved
+the SDF rim and left the CSG rim where it was. The rule lives in `pybosl2._helpers` now, neutral
+ground: the obvious repair would have had a CSG shape module import from the SDF backend to learn
+what an angle means.
+
+## T63 — `cuboid(teardrop=)` on both backends ✅
+
+**§12.2 item 28. PAR-1, S-2b. Option parity: 2 → 0.**
+
+It stood at 176 when this campaign started measuring. The last two were `cuboid`/`cube`'s
+`teardrop`, at parity only in that neither backend had it.
+
+The construction is one observation: below the clip height **every horizontal slice is the same
+slice**, a rectangle inset by the rounding and grown back by `rounding·cos(lean)`. So CSG unions a
+prism of that slice and the SDF holds `z` at the clip plane, which extrudes it downward for free.
+
+**The two backends do not produce identical geometry, and that is stated rather than smoothed
+over.** CSG rounds by minkowski with a *faceted* sphere, so cutting at the exact lean leaves the
+straddling facet partly exposed — `teardrop=60` measured **61.88 degrees**, over the ceiling it had
+just been asked to hold. CSG snaps down to a facet boundary; the SDF field is exact. Parity is that
+both respect the ceiling, not that both land on the same micron.
+
+Two combinations refuse by name on both backends. The dangerous one is a restricted edge set: the
+bottom edges need not be rounded, so the slice below the clip is not the cuboid's cross-section and
+the fill would bulge outside the solid — while still being a closed, plausible shape.
+
+Three guards written against this gap had each predicted their own retirement in their docstrings,
+and all three came due at once.
+
+## T64 — The file about keeping the record honest had stopped keeping it ✅
+
+**§12.2 item 29. B2-1, DOC-2.**
+
+`TASKS.md` opens by calling itself "the contract between this file and the spec" and closes with
+the section below, naming the two ways it goes stale and saying to fix them in the same commit as
+the code. It then stopped at T57 while the spec narrative reached T63, and its last entry
+contradicted the code it described — it said the `beziers -> shapes3d` edge "stays", which T58 had
+closed. **The prose about honesty was written by the process that was not following it.** That is
+what makes prose a poor guard: it states an intention, and nothing reads it back.
+
+### The drift was hiding a plainer error
+
+The teardrop-inversion task was written up as **T62** in three source comments and **T63** in the
+spec — one task under two numbers, with T62 missing from the narrative and a hole in the sequence.
+Nothing could have noticed, because nothing compared the two records.
+
+### What the guard checks, and what it deliberately does not
+
+`tests/test_task_log_is_current.py` compares the two records rather than their contents. A test
+asking whether an entry *describes* its task would be checking prose against prose; what it can
+check is that neither record silently drops a task the other has, and that the numbering has no
+holes — which is what would have caught the split at the moment it was made, without needing to
+know which record was right.
+
+The reverse direction is a ratchet, not a rule: nineteen tasks predate the narrative's habit of
+citing numbers, and rewriting the spec's history to satisfy a test would be the test dictating the
+record instead of checking it.
+
+*It caught its own commit — the spec paragraph went in first and the test failed until this entry
+existed.*
 
 ## Keeping this file honest
 
