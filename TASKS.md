@@ -2091,6 +2091,44 @@ record instead of checking it.
 *It caught its own commit — the spec paragraph went in first and the test failed until this entry
 existed.*
 
+## T65 — The two strokes draw the same cap in the same place ✅
+
+**§12.2 item 30. PAR-4, S-19a, C-20.**
+
+Went looking at `CapType.CIRCLE` and found the 3-D stroke drawing every *other* cap wrong. The two
+strokes share `caps.py` and then build independently, so each is a check on the other — and
+nothing had ever compared them. **A 20mm arrow-capped stroke measured 20.1mm in 2-D and 30mm in
+3-D**, for three compounding reasons:
+
+| defect | effect |
+|---|---|
+| the 3-D cap profile was transposed | every cap revolved about its own width — `ARROW` 10mm long, 7mm radius, instead of 7 long and 5 radius |
+| the 3-D stroke never trimmed | the arrow's *base* sat on the point it marks, not its tip |
+| `trim_ends` was silently 2-D | ragged output on a 3-D path, and the trim measured along the XY shadow |
+
+`endcap_polys` documents its frame — "X is the line direction, Y is perpendicular" — and
+`rotate_extrude` reads X as the radius and Y as the height. `endcap_trim`'s docstring says what it
+is for; only `_stroke2d` called it, and `trim_ends` could not have answered in three dimensions if
+it had.
+
+Fixed, **all eleven decorative caps agree between the two dimensions to three decimals**. The
+agreement is the guard, and it needs no external reference — which matters, because BOSL2's source
+is not vendored here and the port's own two spellings were the only evidence available.
+
+### It found a fourth defect at once
+
+`_DEFAULTS` gives `DOT` `length=2.0` against `ROUND`'s `1.0`, making a dot twice a round cap.
+`endcap_polys`' DOT branch used a bare `s` where every branch around it uses `s * length`, so in
+2-D a dot was exactly the size of a round cap — the one thing it is not meant to be — while the
+3-D stroke hardcoded the doubling and was right by accident.
+
+### One test was re-derived rather than re-fitted
+
+The sweep shares `endcap_geometry_3d`, so its decorative caps moved too.
+`test_linear_sweep_decorative_cap` asserted a 20×20 square's envelope was unchanged by an arrow
+cap, which held only while the cap was too narrow. A solid of revolution on a square profile
+reaches the circumscribed circle — 20·√2, the diagonal exactly.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

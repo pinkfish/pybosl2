@@ -366,8 +366,14 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         p = s * length
         poly.append([[-p / 2, 0], [0, -s], [p / 2, 0], [0, s]])
     elif style == CapType.DOT:
+        # `s * length`, like every branch around it. This used a bare `s`, dropping the `length=2.0`
+        # that `_DEFAULTS` gives DOT to make it twice the size of ROUND -- so in 2-D a dot came out
+        # exactly the same size as a round cap, which is the one thing it is not meant to be. The
+        # 3-D stroke had hardcoded the doubling (`sphere(radius=width)`) and so was right by
+        # accident; the two now agree because both read the table.
+        r = s * length
         th = [i * 2 * math.pi / 16 for i in range(16)]
-        poly.append([[math.cos(t) * s, math.sin(t) * s] for t in th])
+        poly.append([[math.cos(t) * r, math.sin(t) * r] for t in th])
     elif style == CapType.X:
         p = s * length
         poly.append([[0, -ss], [p, -s]])
@@ -447,28 +453,37 @@ def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[fl
 def trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
     """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).
 
+    Pulling the body back is what puts an arrow's *tip* on the point the caller named instead of
+    its base -- see :func:`endcap_trim`, which is where the distance comes from.
+
+    This read `p[0]` and `p[1]` and wrote `[x, y]`, so it was two-dimensional while living in a
+    module both strokes share. Handed a 3-D path it returned a **ragged** list -- the trimmed end
+    lost its Z and the untouched points kept theirs -- and measured the trim along the XY shadow of
+    a segment that might be mostly vertical. Nothing called it with 3-D input, which is why that
+    went unnoticed, and is also why the 3-D stroke could not honour a trim it had no working
+    helper for. It works in whatever dimension it is given now.
+
     Args:
-        body: The stroke body the cap is attached to.
+        body: The stroke body the cap is attached to, in any dimension.
         trim1: How much to trim from the start so the cap keeps the requested end position.
         trim2: How much to trim from the end.
 
+    Returns:
+        The path with its end points moved inward, in the dimension it arrived in.
+
     """
-    body = [list(map(float, p)) for p in body]
-    if len(body) >= 2 and trim1 > 0:
-        a0, a1 = float(body[0][0]), float(body[0][1])
-        b0, b1 = float(body[1][0]), float(body[1][1])
-        dx, dy = b0 - a0, b1 - a1
-        seglen = math.hypot(dx, dy) or 1.0
-        t = min(trim1, 0.99 * seglen) / seglen
-        body[0] = [a0 + dx * t, a1 + dy * t]
-    if len(body) >= 2 and trim2 > 0:
-        a0, a1 = float(body[-1][0]), float(body[-1][1])
-        b0, b1 = float(body[-2][0]), float(body[-2][1])
-        dx, dy = b0 - a0, b1 - a1
-        seglen = math.hypot(dx, dy) or 1.0
-        t = min(trim2, 0.99 * seglen) / seglen
-        body[-1] = [a0 + dx * t, a1 + dy * t]
-    return body
+    points = [[float(c) for c in p] for p in body]
+    if len(points) < 2:
+        return points
+    for near, far, trim in ((0, 1, trim1), (-1, -2, trim2)):
+        if trim <= 0:
+            continue
+        a, b = points[near], points[far]
+        delta = [b[i] - a[i] for i in range(min(len(a), len(b)))]
+        seglen = math.sqrt(sum(d * d for d in delta)) or 1.0
+        t = min(trim, 0.99 * seglen) / seglen
+        points[near] = [a[i] + delta[i] * t for i in range(len(delta))]
+    return points
 
 
 def oriented_to(shape: Any, outdir: Sequence[float], at: Sequence[float]) -> Any:
