@@ -2185,7 +2185,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._mctable</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORNER_OFFSETS</span><span class="p">,</span> <span class="n">EDGE_CORNERS</span><span class="p">,</span> <span class="n">TRI_TABLE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds2D</span><span class="p">,</span> <span class="n">Bounds3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplingType</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -2643,6 +2643,43 @@
             <span class="k">pass</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]])))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">vals</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_isovalue_range</span><span class="p">(</span><span class="n">isovalue</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Resolve an isovalue -- a threshold or a ``[lo, hi]`` band -- to its bounds (BOSL2 isosurface).</span>
+
+<span class="sd">    A bare number is the open-ended range ``[isovalue, inf)``, which is what "the solid is where</span>
+<span class="sd">    ``f &gt;= isovalue``" already meant; a two-element sequence is the closed band BOSL2 writes as</span>
+<span class="sd">    ``[isovalmin, isovalmax]``. Either end may be infinite, but not both -- an unbounded field</span>
+<span class="sd">    encloses the whole grid, which is a bounding box rather than a surface.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        isovalue: A scalar threshold, or a ``(lo, hi)`` pair.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(lo, hi)`` pair, with ``hi`` infinite for a bare threshold.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: If the pair is not two values, is not increasing, or is unbounded.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isovalue</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">isovalue</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">isovalue</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"from_field(): an isovalue range is [lo, hi], two values; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lo</span> <span class="o">&lt;</span> <span class="n">hi</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"from_field(): the isovalue range [</span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">}</span><span class="s2">] does not increase, so it encloses "</span>
+            <span class="sa">f</span><span class="s2">"nothing. Pass [lo, hi] with lo &lt; hi, or a bare number for an open-ended threshold."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">lo</span> <span class="o">==</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span> <span class="ow">and</span> <span class="n">hi</span> <span class="o">==</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="s2">"from_field(): the isovalue range [-inf, inf] encloses every point in the grid, "</span>
+            <span class="s2">"which is the bounding box and not a surface."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_marching_cubes</span><span class="p">(</span>
@@ -3610,7 +3647,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">from_field</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">f</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Path3D</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path3D</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-        <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">isovalue</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span><span class="p">,</span>
         <span class="n">bounding_box</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">voxel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">voxel_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3620,13 +3657,16 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Mesh a scalar field into a :class:`VNF` via marching cubes.</span>
 
-<span class="sd">        The solid is the region where ``f &gt;= isovalue``.</span>
+<span class="sd">        The solid is the region where ``f &gt;= isovalue``. Given a ``[lo, hi]`` pair instead --</span>
+<span class="sd">        BOSL2's ``isovalmin``/``isovalmax`` -- it is the band ``lo &lt;= f &lt;= hi``, which for a</span>
+<span class="sd">        distance field is a shell. Either end may be infinite: ``[lo, inf]`` is the bare</span>
+<span class="sd">        threshold, and ``[-inf, hi]`` is the region below one.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            f: A :class:`~pybosl2.path3d.Path3D`, a 3-D numpy array,</span>
 <span class="sd">                a ``(N,3) → (N,)`` callable, or a</span>
 <span class="sd">                ``(:class:`~pybosl2.path3d.Path3D`) → (N,)`` callable.</span>
-<span class="sd">            isovalue: Scalar threshold.</span>
+<span class="sd">            isovalue: A scalar threshold, or a ``[lo, hi]`` pair enclosing the band between two.</span>
 <span class="sd">            bounding_box: A :class:`~pybosl2.bounds.Bounds3D` or ``None``</span>
 <span class="sd">                (auto-computed from array shape when *f* is an array).</span>
 <span class="sd">            voxel_size: Isotropic voxel size.</span>
@@ -3639,7 +3679,8 @@
 <span class="sd">            A :class:`VNF`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            Bosl2NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are built.</span>
+<span class="sd">            Bosl2ValueError: If an *isovalue* range is not two increasing values, or is unbounded</span>
+<span class="sd">                at both ends.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -3712,13 +3753,7 @@
 
             <span class="n">f</span> <span class="o">=</span> <span class="n">_wrapped</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isovalue</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
-                <span class="s2">"from_field(): tuple (lo, hi) isovalue ranges are not built in this port yet. "</span>
-                <span class="s2">"Use a single float isovalue, or mesh each threshold and subtract the inner "</span>
-                <span class="s2">"surface from the outer one."</span>
-            <span class="p">)</span>
-        <span class="n">iso</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">_isovalue_range</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">f</span><span class="p">)):</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -3747,6 +3782,16 @@
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">_sample_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
+        <span class="c1"># A range encloses `lo &lt;= f &lt;= hi`, and `min(f - lo, hi - f) &gt;= 0` says exactly that -- so</span>
+        <span class="c1"># a band is one marching-cubes pass over a transformed field rather than two meshes and a</span>
+        <span class="c1"># difference, which is what the refusal here used to advise. `hi = inf` leaves `f - lo`</span>
+        <span class="c1"># untouched, so the open-ended range and the plain threshold are the same code path.</span>
+        <span class="k">if</span> <span class="n">hi</span> <span class="o">==</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+            <span class="n">iso</span> <span class="o">=</span> <span class="n">lo</span>
+        <span class="k">elif</span> <span class="n">lo</span> <span class="o">==</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+            <span class="n">iso</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">field</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">iso</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">field</span> <span class="o">-</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">field</span><span class="p">)</span>
         <span class="n">verts</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">_marching_cubes</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">,</span> <span class="n">iso</span><span class="p">,</span> <span class="n">closed</span><span class="p">)</span>
         <span class="n">vnf</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">):</span>
@@ -3765,7 +3810,7 @@
         <span class="n">bounding_box</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
         <span class="n">voxel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">voxel_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">isovalue</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">exact_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
@@ -3777,7 +3822,8 @@
 <span class="sd">            bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.</span>
 <span class="sd">            voxel_size: Isotropic voxel size.</span>
 <span class="sd">            voxel_count: Approximate total voxel count.</span>
-<span class="sd">            isovalue: Field threshold.</span>
+<span class="sd">            isovalue: A field threshold, or a ``[lo, hi]`` pair enclosing the band between two,</span>
+<span class="sd">                which hollows the blob into a shell.</span>
 <span class="sd">            closed: Close mesh at bounding-box faces.</span>
 <span class="sd">            exact_bounds: Use *bounding_box* exactly.</span>
 
