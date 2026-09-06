@@ -2756,7 +2756,8 @@ controlling cap appearance, and the normaliser shared by <a class="reference int
 <dt>Cap types</dt><dd><p><code class="docutils literal notranslate"><span class="pre">NONE</span></code> – no cap (open end)
 <code class="docutils literal notranslate"><span class="pre">BUTT</span></code> – default flat end cap (<code class="docutils literal notranslate"><span class="pre">FLAT</span></code> is a module-level backward-compatible alias)
 <code class="docutils literal notranslate"><span class="pre">ROUND</span></code> / <code class="docutils literal notranslate"><span class="pre">SPHERE</span></code> – spherical end cap; one cap under two names
-<code class="docutils literal notranslate"><span class="pre">CIRCLE</span></code> – round-over end cap; not built yet, and refused rather than flattened
+<code class="docutils literal notranslate"><span class="pre">CIRCLE</span></code> – round-over end cap: a flat end with its rim filleted;
+<cite>length</cite> sets fillet radius as a fraction of the half-width (1.0 is <code class="docutils literal notranslate"><span class="pre">ROUND</span></code>, 0.0 is <code class="docutils literal notranslate"><span class="pre">BUTT</span></code>)
 <code class="docutils literal notranslate"><span class="pre">ARROW</span></code> / <code class="docutils literal notranslate"><span class="pre">DIAMOND</span></code> / <code class="docutils literal notranslate"><span class="pre">DOT</span></code> … – stroke endcap styles
 <code class="docutils literal notranslate"><span class="pre">X</span></code> / <code class="docutils literal notranslate"><span class="pre">LINE</span></code> – flat 2-D markers; the 3-D consumers refuse them
 <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> – user-supplied path shape (requires <em>path</em> on CapSpec)</p>
@@ -2783,7 +2784,9 @@ member against <code class="docutils literal notranslate"><span class="pre">BUTT
 <dt>Sweep/skin cap types:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">NONE</span></code> – no cap (open end)
 <code class="docutils literal notranslate"><span class="pre">BUTT</span></code> – flat end cap
 <code class="docutils literal notranslate"><span class="pre">ROUND</span></code> / <code class="docutils literal notranslate"><span class="pre">SPHERE</span></code> – spherical dome; the two are one cap, not two
-<code class="docutils literal notranslate"><span class="pre">CIRCLE</span></code> – round-over; not built yet, and refused rather than flattened
+<code class="docutils literal notranslate"><span class="pre">CIRCLE</span></code> – round-over: a flat end with a filleted rim. The family <code class="docutils literal notranslate"><span class="pre">ROUND</span></code> is the
+extreme of – <cite>length</cite> is the fillet radius over the half-width, 1.0 giving <code class="docutils literal notranslate"><span class="pre">ROUND</span></code>
+exactly and 0.0 giving <code class="docutils literal notranslate"><span class="pre">BUTT</span></code>
 <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> – user-supplied <a class="reference internal" href="#pybosl2.caps.CapSpec.path" title="pybosl2.caps.CapSpec.path (Python attribute)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CapSpec.path</span></code></a> shape</p>
 </dd>
 <dt>Stroke endcap/joint types:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">ARROW</span></code> / <code class="docutils literal notranslate"><span class="pre">ARROW2</span></code> / <code class="docutils literal notranslate"><span class="pre">ARROW3</span></code> – arrow heads

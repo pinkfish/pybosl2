@@ -2169,7 +2169,8 @@
 <span class="sd">    ``NONE`` -- no cap (open end)</span>
 <span class="sd">    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)</span>
 <span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap; one cap under two names</span>
-<span class="sd">    ``CIRCLE`` -- round-over end cap; not built yet, and refused rather than flattened</span>
+<span class="sd">    ``CIRCLE`` -- round-over end cap: a flat end with its rim filleted;</span>
+<span class="sd">    `length` sets fillet radius as a fraction of the half-width (1.0 is ``ROUND``, 0.0 is ``BUTT``)</span>
 <span class="sd">    ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles</span>
 <span class="sd">    ``X`` / ``LINE`` -- flat 2-D markers; the 3-D consumers refuse them</span>
 <span class="sd">    ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)</span>
@@ -2193,7 +2194,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
@@ -2221,7 +2222,9 @@
 <span class="sd">        ``NONE`` -- no cap (open end)</span>
 <span class="sd">        ``BUTT`` -- flat end cap</span>
 <span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical dome; the two are one cap, not two</span>
-<span class="sd">        ``CIRCLE`` -- round-over; not built yet, and refused rather than flattened</span>
+<span class="sd">        ``CIRCLE`` -- round-over: a flat end with a filleted rim. The family ``ROUND`` is the</span>
+<span class="sd">        extreme of -- `length` is the fillet radius over the half-width, 1.0 giving ``ROUND``</span>
+<span class="sd">        exactly and 0.0 giving ``BUTT``</span>
 <span class="sd">        ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape</span>
 
 <span class="sd">    Stroke endcap/joint types:</span>
@@ -2505,12 +2508,6 @@
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"CapType.CUSTOM requires path= on the CapSpec"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span><span class="p">]]</span>
 
-    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
-            <span class="s2">"CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "</span>
-            <span class="s2">"CapSpec with a custom path for an exact circle."</span>
-        <span class="p">)</span>
-
     <span class="n">w</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
     <span class="n">l2</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">extent</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
@@ -2533,6 +2530,30 @@
     <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DIAMOND</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="o">-</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
+        <span class="c1"># A round-over: the end stays flat in the middle and its rim is filleted by `p`. That makes</span>
+        <span class="c1"># it the family ROUND is the extreme of -- at `p = s` the two arcs meet and the outline is</span>
+        <span class="c1"># a semicircle, which is exactly ROUND's cap, and at `p = 0` there is no fillet and it is</span>
+        <span class="c1"># BUTT. Both ends are existing behaviour, so the shape is pinned without a reference to</span>
+        <span class="c1"># check against, which is the whole difficulty with this member: `_DEFAULTS` gives CIRCLE</span>
+        <span class="c1"># the same numbers as ROUND, so the table never said what distinguished them.</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">1e-12</span><span class="p">:</span>
+            <span class="c1"># A round-over of zero radius is a square end, which is BUTT. Returning no polygon is</span>
+            <span class="c1"># what says so: the callers read an empty list as "no cap", and the end is left flat.</span>
+            <span class="c1"># This is the one place an empty return is a *result* rather than the fall-through T59</span>
+            <span class="c1"># was written to catch -- the caller asked for no fillet and got none.</span>
+            <span class="k">return</span> <span class="n">poly</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">p</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">rim</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">rim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">flat</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">rim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="n">flat</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">])</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rim</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DOT</span><span class="p">:</span>
         <span class="c1"># `s * length`, like every branch around it. This used a bare `s`, dropping the `length=2.0`</span>
         <span class="c1"># that `_DEFAULTS` gives DOT to make it twice the size of ROUND -- so in 2-D a dot came out</span>
