@@ -443,6 +443,14 @@ there in the same commit as the code (§13 rule 4).
 
 **The resolver is checked in both directions, which matters more here than usual.** It walks a dotted name inwards from the longest importable prefix, so a method and a class are answerable without knowing which parts are modules, and `getattr` triggers lazy re-exports exactly as a reader following the link would. A resolver that answered "yes" to everything would pass the whole scan in silence, so it is asserted to say *no* to the exact stale reference this task fixed.
 
+**T70 executed the documented examples, which nothing had ever done.** The 322 `.. pythonscad-example::` snippets were already checked three ways — compiled, their imports and names resolved, and each run through `mypy --strict` — and none of the three *ran* them. Worse than invisible: the documentation build **swallows a failure**, emitting a warning and rendering the snippet's source anyway "rather than failing the build", so a broken example ships as documentation minus its viewer and the reader who copies it finds out first.
+
+**Two of 322 failed, and only one was a defect in the example** — which is the useful result, because the value here is the gate, not the yield. `osimport("part.stl")` referenced a file that exists nowhere, so it could never have worked for any reader; the other needs the PythonSCAD *app*'s `roof`, already recorded as `APP_ONLY` elsewhere for the same reason.
+
+**Making the broken one self-contained turned up a second defect it had been hiding.** Writing the mesh first and importing it back still failed — because `osimport` does not resolve relative paths at all, while its docstring promised they resolved "against the PROCESS working directory, not the calling module". Measured, a bare name fails with the file in the process working directory **and** with it in the directory the interpreter started in. The claim was about the native layer's behaviour and the native layer does not honour it; both spellings of `osimport` say what is true now, and the example passes an absolute path.
+
+**The pattern is the one this campaign keeps finding, one layer out.** A docstring that describes behaviour nobody exercises drifts from the code exactly as `caps.py`'s "scaffolding only" note did (T59) and `effective_clip`'s self-contradicting sentence did (T62). Here the drifting documentation *was* the example, and the thing that would have caught it — running it — is cheap: the whole gate takes eleven seconds.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

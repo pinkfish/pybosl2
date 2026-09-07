@@ -2288,6 +2288,41 @@ as a reader following the link would. A resolver that answered "yes" to everythi
 whole scan in silence, so it is asserted to say **no** to the exact stale reference this task
 fixed.
 
+## T70 — Run the examples ✅
+
+**§12.2 item 35. DOC-5, Q-6.**
+
+The 322 `.. pythonscad-example::` snippets were checked three ways and none of them ran the code:
+
+| existing check | what it does |
+|---|---|
+| `tests/validate_examples.py` | compiles, resolves imports and names |
+| `tests/test_docstring_examples.py` | `mypy --strict` over each example |
+| the docs build | renders the source; on failure **warns and renders it anyway** |
+
+That last row is the problem. A broken example ships as documentation minus its viewer, and the
+reader who copies it finds out first.
+
+**Two of 322 failed, and only one was a defect** — the useful result, because the value here is
+the gate rather than the yield. `osimport("part.stl")` referenced a file that exists nowhere, so
+it could never have worked for anyone. The other needs the PythonSCAD app's `roof`, already
+recorded as `APP_ONLY` in `tests/test_declared_surface.py` for the same reason.
+
+### Fixing it turned up a second defect it had been hiding
+
+Writing the mesh first and importing it back **still failed**: `osimport` does not resolve relative
+paths at all, while its docstring promised they resolved "against the PROCESS working directory,
+not the calling module". Measured, a bare name fails with the file in the process working directory
+*and* with it in the directory the interpreter started in. The claim was about the native layer and
+the native layer does not honour it. Both spellings of `osimport` say what is true now.
+
+### The pattern, one layer out
+
+A docstring describing behaviour nobody exercises drifts from the code exactly as `caps.py`'s
+"scaffolding only" note did (T59) and `effective_clip`'s self-contradicting sentence did (T62).
+Here the drifting documentation *was* the example, and the check that catches it takes eleven
+seconds.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
