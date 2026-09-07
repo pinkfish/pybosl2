@@ -2126,11 +2126,11 @@ def cuboid(
         edges:        edges to treat -- "ALL"/"NONE"/"X"/"Y"/"Z", a single edge vector (e.g.
                       TOP+LEFT), a list of edge vectors, or a raw 3x4 edge array (default "ALL")
         except_edges: edges to explicitly exclude from `edges` (BOSL2's `except=` synonym;
+            `except` is a Python keyword)
         trimcorners: Trim the corners where three treated edges meet (default True). False leaves
             the three treatments meeting at a point, which is BOSL2's "intersection of three
             cylinders". Per-edge amounts are always untrimmed: a corner where three *differently*
             treated edges meet has no single amount to trim it by.
-                      `except` is a Python keyword)
         teardrop: Cap how far the bottom rounding may lean from vertical, for printability --
             ``True`` for 45 degrees, a number for its angle. Unlike the CSG spelling this needs no
             facet snapping: the field is exact, so the clip lands where it is asked to.

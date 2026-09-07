@@ -667,25 +667,48 @@ def test_path_sweep_arrow_cap() -> None:
 
 
 def test_linear_sweep_decorative_cap() -> None:
-    """A decorative cap is as wide as the profile it caps, so it reaches the circumscribed circle.
+    """An arrow cap on a sweep is an arrow scaled to the profile, in every dimension.
 
-    This asserted the 20x20x10 envelope was unchanged, which held only because the cap was built
-    from a transposed profile: `endcap_polys` puts the line direction on X and `rotate_extrude`
-    reads X as the radius, so the arrow was revolved about its own width and came out too narrow.
-    Corrected, the cap's width spans the profile's bounding circle -- 20*sqrt(2) across for a 20mm
-    square, which is the diagonal exactly -- and a solid of revolution on a square profile has to
-    exceed it somewhere. The height is unchanged: the arrow lies flat against the end.
+    This test has been re-derived three times, and each time the reason was the same: the cap it
+    measured had been built from something degenerate, and the numbers it had been fitted to
+    outlived the break.
+
+    * It asserted a 20x20x10 envelope, unchanged by the cap.
+    * **T65**: the profile was transposed -- `endcap_polys` puts the line direction on X and
+      `rotate_extrude` reads X as the radius, so the arrow was revolved about its own width. The
+      envelope grew sideways, and the test was re-fitted to the circumscribed circle.
+    * **T67**: `spec.width` was 0. `CapSpec(CapType.ARROW, length=3)` named one field and left the
+      rest at `0.0`, so the head was unscaled *and the arrow had no length at all* -- which is why
+      "a flat cap must not add height" had looked true. It was never flat.
+
+    Resolved against the table, ARROW is `width=0.4` and here `length=3`: the head is 2.5x the
+    line width and the point stands 3x the half-width proud of each end. For a sweep the "line
+    width" is the profile's bounding *diameter*, 20*sqrt(2) for a 20mm square. Every figure below
+    follows from those two numbers rather than from anything this test decided.
+
+    That is a large cap for the thing it caps -- an arrow marker sized for a thin line, applied to
+    a fat one -- and it is recorded here as a consequence of ARROW's own proportions rather than
+    smoothed away, because the alternative is a special case for sweeps that nothing asked for.
     """
     import math
 
-    from pybosl2.caps import CapSpec
+    from pybosl2.caps import _DEFAULTS, CapSpec
 
     sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     capped = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
     size = [float(v) for v in capped.bounds().size]
-    assert size[0] == pytest.approx(20.0 * math.sqrt(2), abs=0.05), "not the circumscribed circle"
-    assert size[1] == pytest.approx(20.0 * math.sqrt(2), abs=0.2), "faceting of the revolve"
-    assert size[2] == pytest.approx(10.0, abs=0.01), "a flat cap must not add height"
+
+    bounding_diameter = 20.0 * math.sqrt(2)
+    head_width = _DEFAULTS[CapType.ARROW].width
+    assert head_width, "ARROW declares no width, so the derivation below has nothing to stand on"
+
+    across = bounding_diameter / head_width
+    proud = bounding_diameter / 2 * 3
+    # Relative, not absolute: the revolve's facets are a fraction of the radius, so an absolute
+    # tolerance silently tightens or loosens whenever the cap's size changes -- which it has twice.
+    assert size[0] == pytest.approx(across, rel=0.001), "the head is not scaled by ARROW's width"
+    assert size[1] == pytest.approx(across, rel=0.01), "faceting of the revolve"
+    assert size[2] == pytest.approx(10.0 + 2 * proud, rel=0.001), "the point is not scaled by length"
 
 
 def test_rotate_sweep_decorative_cap() -> None:

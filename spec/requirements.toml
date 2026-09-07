@@ -2423,12 +2423,19 @@ aliases = ["D-4"]
 layer = "contract"
 section = "8.1 Argument tiers"
 statement = '''
-`None` means "not supplied, decide for me" — never "off". "Off" is `0`, `False`, or an explicit enum member.
+`None` means "not supplied, decide for me" — never "off". "Off" is `0`, `False`, or an explicit enum member. A dataclass field that defaults to `0` therefore declares that dimension **off**, not absent, and a partially-built object silently becomes a fully-specified request for nothing.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_cap_spec_defaults.py::test_an_unnamed_dimension_defaults_to_not_supplied",
+    "tests/test_cap_spec_defaults.py::test_a_spec_naming_nothing_draws_what_the_bare_enum_draws",
+    "tests/test_cap_spec_defaults.py::test_naming_only_a_colour_does_not_erase_the_cap",
+    "tests/test_cap_spec_defaults.py::test_an_explicit_zero_still_means_off",
+]
+status = "enforced"
 note = '''
 Whether a `None` means 'decide for me' rather than 'off' is a reading of intent; T-9b is the same rule and the same answer.
+
+This had `enforced_by = []` until T67 — a rule in the registry that nothing checked — and `CapSpec` had it exactly backwards for as long as it existed. Every numeric field defaulted to `0.0`, so `CapSpec(CapType.ARROW, color="red")` was a fully-specified request for an arrow with no dimensions, which `endcap_polys` answered with a five-point polygon of zero size that unions to nothing. Naming `length=3.5` did not help either, because `width` stayed 0 and the size is read as `length * width`. The rule's own words name the fix: the sentinel is `None`, and `0` stays available for off.
 '''
 
 [[requirement]]

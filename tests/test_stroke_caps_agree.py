@@ -140,11 +140,12 @@ def test_a_cap_that_adds_no_length_does_not_move_the_ends() -> None:
 def _circle(radius_fraction: float) -> CapSpec:
     """A round-over whose fillet radius is *radius_fraction* of the stroke's half-width.
 
-    `width=1.0` is not decoration. `CapSpec`'s own field default is `width=0.0`, and
-    `endcap_polys` reads the fillet radius as `spec.length * spec.width`, so a spec built without
-    it produces no cap at all -- a trap that predates this member and catches every cap type.
+    This had to pass `width=1.0` as well, because `CapSpec`'s fields defaulted to `0.0` and
+    `endcap_polys` reads the fillet radius as `length * width` -- so a spec built without it
+    produced no cap at all. T67 made the fields default to `None`, so an unnamed dimension takes
+    the table's value and only the one being varied has to be given.
     """
-    return CapSpec(CapType.CIRCLE, length=radius_fraction, width=1.0)
+    return CapSpec(CapType.CIRCLE, length=radius_fraction)
 
 
 def test_a_full_round_over_is_exactly_a_round_cap() -> None:
