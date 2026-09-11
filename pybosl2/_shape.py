@@ -301,7 +301,7 @@ class BaseShape(Colorable, Distributable):
         Sweeps each of *others* over the whole of this shape, growing it by that shape: a
         sphere/circle grows it by a uniform margin with rounded corners, a cube/square with
         square ones -- the usual way to turn a part into the cutter that clears it. The
-        dilating opposite of :meth:`~pybosl2.miscellaneous.Miscellaneous.minkowski_difference`,
+        dilating opposite of :meth:`~pybosl2.miscellaneous.minkowski_difference`,
         which erodes.
 
         Defined here rather than on the CSG solid/shape classes so ONE implementation serves

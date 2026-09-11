@@ -176,7 +176,7 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
     """Return a raw native handle from *obj*.
 
     Accepts a :class:`Bosl2Solid` / ``Bosl2Shape2D`` wrapper, a native shape, or anything exposing
-    ``geometry()`` (a :class:`~pybosl2.vnf.VNF`, a :class:`~pybosl2.paths.Path2D`,
+    ``geometry()`` (a :class:`~pybosl2.vnf.VNF`, a :class:`~pybosl2.path2d.Path2D`,
     a :class:`~pybosl2.regions.Region`).
     """
     from pybosl2._helpers import unwrap

@@ -435,6 +435,14 @@ there in the same commit as the code (§13 rule 4).
 
 **The check is narrow on purpose.** It fails on diagnostics that mean the *structure* was misread, and ignores Sphinx-only roles (`:class:`, `:func:`, `:mod:`) that bare docutils cannot resolve — a missing target is a different problem with a different fix, and including it would bury the structural faults among hundreds of false positives.
 
+**T69 took the problem T68 had set aside by name.** That task's check ignored Sphinx roles whose targets do not exist, calling them "a different problem with a different fix" — true, and the reason to do it next rather than never. Of **938** role references in the package, **18 were dead links**.
+
+**Every one was a name that had moved module while the reference stayed put.** `:class:`pybosl2.paths.Path2D`` for what is now `pybosl2.path2d`, `:class:`pybosl2.enums.Anchor`` for `pybosl2._edges_lang`, `:class:`pybosl2.constants.Vector`` for `pybosl2.points` — thirteen of that kind, mechanical once measured. The other five pointed at things deleted outright: a `_path_math` module, a `drawing` module, `CsgSolid.groove_edges`, `solid._given`, and a `Bosl2Shape` class. Those were reworded rather than repointed, because a reference with no target is a claim about the code that is simply no longer true.
+
+**The reason none had been noticed is the same reason T68's fault was not:** a role that fails to resolve is a *warning* in a documentation build no local gate runs, and it reads perfectly well in the source — `:class:`pybosl2.paths.Path2D`` looks exactly as correct as `:class:`pybosl2.path2d.Path2D``. Renaming a module is a refactor the type checker, the tests and the linter all approve of; the docstrings that mention it are prose to every one of them.
+
+**The resolver is checked in both directions, which matters more here than usual.** It walks a dotted name inwards from the longest importable prefix, so a method and a class are answerable without knowing which parts are modules, and `getattr` triggers lazy re-exports exactly as a reader following the link would. A resolver that answered "yes" to everything would pass the whole scan in silence, so it is asserted to say *no* to the exact stale reference this task fixed.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

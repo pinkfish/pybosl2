@@ -395,13 +395,13 @@ def anchor_vector(anchor: Anchor | Sequence[float]) -> list[float]:
     """Return an anchor's direction vector, rejecting the legacy string form.
 
     Args:
-        anchor: An :class:`~pybosl2.enums.Anchor` member or a direction vector such as ``[1, 0, 0]``.
+        anchor: An :class:`~pybosl2._edges_lang.Anchor` member or a direction vector such as ``[1, 0, 0]``.
 
     Returns:
         The anchor's components as a list of floats.
 
     Raises:
-        ValueError: If *anchor* is a string; pass an :class:`~pybosl2.enums.Anchor` member instead.
+        ValueError: If *anchor* is a string; pass an :class:`~pybosl2._edges_lang.Anchor` member instead.
 
     """
     if isinstance(anchor, str):
@@ -654,7 +654,7 @@ def rect_path(
 def as_native_2d(obj: Any) -> Any:
     """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
-    a :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
+    a :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
 
     Args:
         obj: The object to inspect.
@@ -691,7 +691,7 @@ def is_child_2d(obj: Any) -> bool:
 
 
 def require_anchor(anchor: object, parameter: str) -> Anchor:
-    """Return *anchor* as an :class:`~pybosl2.enums.Anchor`, rejecting anything else clearly.
+    """Return *anchor* as an :class:`~pybosl2._edges_lang.Anchor`, rejecting anything else clearly.
 
     `attach()` and `align()` mate a *named face* against another, so unlike `anchor_vector()`
     they need a member rather than a direction vector. They previously reached straight for
@@ -704,10 +704,10 @@ def require_anchor(anchor: object, parameter: str) -> Anchor:
         parameter: Name of the parameter, so the message points at the argument that was wrong.
 
     Returns:
-        The anchor, unchanged, when it is an :class:`~pybosl2.enums.Anchor`.
+        The anchor, unchanged, when it is an :class:`~pybosl2._edges_lang.Anchor`.
 
     Raises:
-        Bosl2ValueError: If *anchor* is not an :class:`~pybosl2.enums.Anchor` member.
+        Bosl2ValueError: If *anchor* is not an :class:`~pybosl2._edges_lang.Anchor` member.
 
     """
     if isinstance(anchor, Anchor):

@@ -316,7 +316,7 @@ def resolve_center_anchor(
     silent wrong answer, and it survived because the rule had no single home to be right in.
 
     Both are named at the call site rather than defaulted, because each backend anchors in its own
-    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend
+    vocabulary: the CSG backend passes :class:`~pybosl2._edges_lang.Anchor` members and the SDF backend
     passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all
     three anchors so the resolver hands back exactly what it was given.
 

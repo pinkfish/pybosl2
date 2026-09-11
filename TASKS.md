@@ -2250,6 +2250,44 @@ It fails on diagnostics that mean the *structure* was misread, and ignores Sphin
 (`:class:`, `:func:`, `:mod:`) that bare docutils cannot resolve — a missing target is a different
 problem with a different fix, and including it would bury the structural faults.
 
+## T69 — The dead links T68 set aside ✅
+
+**§12.2 item 34. DOC-2.**
+
+T68's check ignored Sphinx roles whose targets do not exist, calling them "a different problem
+with a different fix" — true, and the reason to do it next rather than never. Of **938** role
+references in the package, **18 were dead links**.
+
+Thirteen were names that had moved module while the reference stayed put:
+
+| stale | actual |
+|---|---|
+| `pybosl2.paths.Path2D` / `Path3D` (+ four methods) | `pybosl2.path2d` / `pybosl2.path3d` |
+| `pybosl2.enums.Anchor` | `pybosl2._edges_lang.Anchor` |
+| `pybosl2.constants.Vector` | `pybosl2.points.Vector` |
+| `pybosl2.shapes3d.CsgSolid.bounds` | `pybosl2.shapes3d.base.CsgSolid.bounds` |
+| `pybosl2.skin.linear_sweep` / `path_sweep` | `pybosl2.skin.Sweepable.*` |
+| `pybosl2.miscellaneous.Miscellaneous.minkowski_difference` | `pybosl2.miscellaneous.minkowski_difference` |
+
+The other five pointed at things deleted outright — a `_path_math` module, a `drawing` module,
+`CsgSolid.groove_edges`, `solid._given`, a `Bosl2Shape` class — and were reworded rather than
+repointed, because a reference with no target is a claim about the code that is no longer true.
+
+### Why none had been noticed
+
+The same reason T68's fault was not: a role that fails to resolve is a *warning* in a build no
+local gate runs, and it reads perfectly well in the source. `:class:`pybosl2.paths.Path2D`` looks
+exactly as correct as `:class:`pybosl2.path2d.Path2D``. Renaming a module is a refactor that mypy,
+the tests and ruff all approve of; the docstrings mentioning it are prose to every one of them.
+
+### The resolver is checked in both directions
+
+It walks a dotted name inwards from the longest importable prefix, so a method and a class are
+answerable without knowing which parts are modules, and `getattr` triggers lazy re-exports exactly
+as a reader following the link would. A resolver that answered "yes" to everything would pass the
+whole scan in silence, so it is asserted to say **no** to the exact stale reference this task
+fixed.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

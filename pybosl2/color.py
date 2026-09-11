@@ -99,7 +99,7 @@ def rainbow(
 ) -> list[Bosl2Shape]:
     """Colour each object in *items* a different hue.
 
-    Each item must be a :class:`~pybosl2._shape.Bosl2Shape` (a
+    Each item must be a :class:`~pybosl2._shape.BaseShape` (a
     :class:`~pybosl2.shapes2d.Bosl2Shape2D` or
     :class:`~pybosl2.shapes3d.Bosl2Solid`).  Useful for telling apart the
     parts of a multi-piece model or debugging a list of paths.

@@ -75,7 +75,7 @@ from pybosl2.vnf import VNF
 class Bezier:
     """A Bezier curve or path: a list of control points, with every bezier operation as a method.
 
-    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the
+    Subclasses ``list`` (the same trick as :class:`pybosl2.path2d.Path2D`), so it is a drop-in for the
     raw control-point lists the toolkit passes around, while giving the chained object form::
 
         Bezier([[44, 5], [48, 6], [64, -15]]).points([0.2 * i for i in range(6)])
@@ -443,8 +443,8 @@ class Bezier:
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
         each segment uniformly and concatenating the results. Returns a
-        :class:`~pybosl2.paths.Path2D` for 2-D points or
-        :class:`~pybosl2.paths.Path3D` for 3-D.
+        :class:`~pybosl2.path2d.Path2D` for 2-D points or
+        :class:`~pybosl2.path3d.Path3D` for 3-D.
 
         Args:
             splinesteps: Number of uniform segments to sample per curve segment.
@@ -452,8 +452,8 @@ class Bezier:
             endpoint: Whether to include the final endpoint in the output.
 
         Returns:
-            A :class:`~pybosl2.paths.Path2D` for 2-D points or
-            :class:`~pybosl2.paths.Path3D` for 3-D points containing the
+            A :class:`~pybosl2.path2d.Path2D` for 2-D points or
+            :class:`~pybosl2.path3d.Path3D` for 3-D points containing the
             sampled bezier path.
 
         Examples:

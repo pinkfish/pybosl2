@@ -10,7 +10,7 @@
 #    (round every corner of a path -- ``"circle"``, ``"smooth"`` or ``"chamfer"``, sized by
 #    ``radius``/``cut``/``joint``/``width``) and :func:`smooth_path` (fit a continuous-curvature
 #    bezier through a path). Both work on 2-D and 3-D paths and are exposed as methods on
-#    :class:`~pybosl2.paths.Path2D` and :class:`~pybosl2.paths.Path3D`.
+#    :class:`~pybosl2.path2d.Path2D` and :class:`~pybosl2.path3d.Path3D`.
 #
 #    ``round_corners`` and ``smooth_path`` are pinned point-for-point to the real BOSL2 output in
 #    tests/test_bosl2_reorient.py. The smooth/chamfer corners reuse the toolkit's
@@ -354,9 +354,9 @@ def _as_solid(mesh: "VNF | Solid") -> "Solid":
 
 
 class Roundable:
-    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.
+    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.path2d.Path2D` and.
 
-    :class:`~pybosl2.paths.Path3D`.
+    :class:`~pybosl2.path3d.Path3D`.
     """
 
     def round_corners(
@@ -396,7 +396,7 @@ class Roundable:
             k: Smoothing parameter for continuous-curvature rounding, from 0 (sharp) to 1.
 
         Returns:
-            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+            A :class:`~pybosl2.path2d.Path2D` (2-D) or :class:`~pybosl2.path3d.Path3D` (3-D).
 
         Examples:
             A rounded, smoothed and chamfered square (three copies):
@@ -467,7 +467,7 @@ class Roundable:
             closed: Treat the path as closed.
 
         Returns:
-            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+            A :class:`~pybosl2.path2d.Path2D` (2-D) or :class:`~pybosl2.path3d.Path3D` (3-D).
 
         Examples:
             A wiggly control path smoothed into a flowing curve:
@@ -889,7 +889,7 @@ def _path_join(
         **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).
 
     Returns:
-        A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.
+        A :class:`~pybosl2.path2d.Path2D` or :class:`~pybosl2.path3d.Path3D` depending on the input dimensions.
 
     """
     from pybosl2.path2d import Path2D as _Path
@@ -991,7 +991,7 @@ def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
         geom: A ``shapely.Polygon`` or ``shapely.MultiPolygon``.
 
     Returns:
-        A list of :class:`~pybosl2.paths.Path2D` objects: outer ring, then holes.
+        A list of :class:`~pybosl2.path2d.Path2D` objects: outer ring, then holes.
 
     """
     from shapely.geometry import MultiPolygon, Polygon

@@ -43,7 +43,7 @@ __all__ = ["Bounds2D", "Bounds3D"]
 class Bounds2D:
     """Axis-aligned bounding box of a 2-D path.
 
-    Returned by :meth:`~pybosl2.paths.Path2D.bounds` with the min/max
+    Returned by :meth:`~pybosl2.path2d.Path2D.bounds` with the min/max
     corners and pre-computed width and length.
     """
 
@@ -129,7 +129,7 @@ class Bounds2D:
 class Bounds3D:
     """Axis-aligned bounding box of a 3-D path or solid.
 
-    Returned by :meth:`~pybosl2.paths.Path3D.bounds` and solid bounding-box
+    Returned by :meth:`~pybosl2.path3d.Path3D.bounds` and solid bounding-box
     methods with the min/max corners and pre-computed width, length, and
     height.
     """

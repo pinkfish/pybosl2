@@ -11,8 +11,8 @@
 #    form without a ``p=`` argument), and a matching method on the :class:`Distributable` mixin
 #    that applies those matrices to the object.
 #
-#    The mixin is inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`,
-#    and :class:`~pybosl2.paths.Path3D`, each of which implements ``_distribute(mats)`` to say what
+#    The mixin is inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.path2d.Path2D`,
+#    and :class:`~pybosl2.path3d.Path3D`, each of which implements ``_distribute(mats)`` to say what
 #    "a list of copies" means for it:
 #      * Bosl2Solid  -> the UNION of the transformed geometry copies (a new Bosl2Solid).
 #      * Path2D / Path3D -> a plain ``list`` of transformed path copies (BOSL2's function form).
@@ -757,8 +757,8 @@ class DistributableMatrix:
 class Distributable(ABC):
     """Return Mixin adding the distributors.scad copiers as methods.
 
-    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and
-    :class:`~pybosl2.paths.Path3D`. Each copier returns a ``list`` of positioned copies;
+    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.path2d.Path2D`, and
+    :class:`~pybosl2.path3d.Path3D`. Each copier returns a ``list`` of positioned copies;
     callers union, hull, or combine them as needed.
     """
 

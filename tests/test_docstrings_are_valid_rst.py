@@ -151,3 +151,79 @@ def test_the_scan_catches_the_fault_that_prompted_it() -> None:
     )
     assert _diagnostics(planted), "the planted over-indent was not caught"
     assert not _diagnostics(planted.replace("        the fillet", "    the fillet"))
+
+
+# --- cross-references (T69) --------------------------------------------------------------------
+
+#: Every Sphinx role that names a Python object. A reference to one that has moved is a dead link
+#: in the published docs, and dead links are what T68's structural check deliberately left out --
+#: "a different problem with a different fix". This is the fix.
+ROLE = re.compile(r":(class|func|meth|mod|data|attr|obj|exc):`~?([A-Za-z0-9_.]+)`")
+
+
+def _resolves(target: str) -> bool | None:
+    """Whether *target* names something that exists. `None` when it is not ours to check.
+
+    Walks the dotted name from the longest importable prefix inwards, so `pybosl2.path2d.Path2D`
+    and `pybosl2.path2d.Path2D.polygon` are both answerable without knowing which parts are
+    modules. Lazy re-exports resolve, because `getattr` triggers them exactly as a reader would.
+    """
+    if not target.startswith("pybosl2"):
+        return None
+    parts = target.split(".")
+    for cut in range(len(parts), 0, -1):
+        try:
+            obj: Any = importlib.import_module(".".join(parts[:cut]))
+        except Exception:
+            continue
+        for attr in parts[cut:]:
+            obj = getattr(obj, attr, None)
+            if obj is None:
+                return False
+        return True
+    return False
+
+
+def _references() -> dict[str, list[str]]:
+    """Every `pybosl2` role reference in the package, mapped to the docstrings that make it."""
+    found: dict[str, list[str]] = {}
+    for where, text in DOCSTRINGS:
+        for role, target in ROLE.findall(text):
+            found.setdefault(f":{role}:`{target}`", []).append(where)
+    return found
+
+
+REFERENCES = _references()
+
+
+def test_the_scan_found_the_references() -> None:
+    """A regex matching nothing would make the check below vacuous."""
+    assert len(REFERENCES) > 100, f"only {len(REFERENCES)} role references found; the scan is broken"
+
+
+def test_every_cross_reference_resolves() -> None:
+    """SPEC DOC-2: a role naming something that has moved is a dead link a reader clicks.
+
+    Eighteen were broken when this was written, every one of them a name that had moved module
+    while the reference stayed put -- `pybosl2.paths.Path2D` for what is now `pybosl2.path2d`,
+    `pybosl2.enums.Anchor` for `pybosl2._edges_lang`, and five pointing at things deleted outright.
+    Nothing had ever resolved them, because a role that fails to resolve is a Sphinx *warning* in a
+    build no local gate runs, and reads perfectly well in the source.
+    """
+    broken = {
+        ref: sorted(set(where))[:3]
+        for ref, where in REFERENCES.items()
+        if _resolves(ROLE.fullmatch(ref).group(2)) is False  # type: ignore[union-attr]
+    }
+    assert not broken, "cross-references that do not resolve:\n" + "\n".join(
+        f"  {ref}  <- {where}" for ref, where in sorted(broken.items())
+    )
+
+
+def test_the_resolver_answers_both_ways() -> None:
+    """SPEC DOC-2: a resolver that said yes to everything would pass the check above silently."""
+    assert _resolves("pybosl2.path2d.Path2D") is True
+    assert _resolves("pybosl2.path2d.Path2D.polygon") is True, "methods must resolve, not just types"
+    assert _resolves("pybosl2.paths.Path2D") is False, "the exact stale reference this task fixed"
+    assert _resolves("pybosl2.path2d.NoSuchThing") is False
+    assert _resolves("numpy.ndarray") is None, "other projects are not ours to check"
