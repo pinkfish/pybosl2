@@ -66,12 +66,18 @@ CUBETRUSS_CLIP_THICKNESS = 1.6
 _union = union
 
 
-def _cmask(length: float, chamfer: float, orient: str | None = None) -> "Solid":
-    """chamfer_edge_mask, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
+def _cmask(length: float, chamfer: float, orient: Anchor | None = None) -> "Solid":
+    """chamfer_edge_mask, optionally re-oriented to lie along *orient*'s axis.
+
+    *orient* was `str | None`, compared against the literals ``"RIGHT"`` and ``"BACK"`` -- the
+    same defect `flat.text()` carried with `anchor: str = "baseline"` until T36 (PLAN O-6b). A
+    direction is named in the anchor language, so a typo is a `NameError` at the call site rather
+    than a silently un-rotated mask.
+    """
     m = chamfer_edge_mask(length=length, chamfer=chamfer)
-    if orient == "RIGHT":
+    if orient == Anchor.RIGHT:
         return m.rotate([0, 90, 0])
-    if orient == "BACK":
+    if orient == Anchor.BACK:
         return m.rotate([90, 0, 0])
     return m
 
@@ -661,7 +667,7 @@ class TrussClip(Buildable):
             for mz in DistributableMatrix.zcopies(clipheight - st, num_copies=2):
                 clip = clip - cuboid([ct * 3, cliplen * 2, st], fn=fn, fa=fa, fs=fs).multmatrix(mz.tolist())
             for mz in DistributableMatrix.zcopies(clipheight - 2 * st, num_copies=2):
-                clip = clip - _cmask(cliplen * 2, ct, orient="BACK").right(ct).multmatrix(mz.tolist())
+                clip = clip - _cmask(cliplen * 2, ct, orient=Anchor.BACK).right(ct).multmatrix(mz.tolist())
             return clip
 
         pair = _union(
@@ -815,7 +821,7 @@ class TrussFoot(Buildable):
                 .up(ct - 0.01)
             )
             for my in DistributableMatrix.ycopies(sz - 2 * st - 4 * slop, num_copies=2):
-                plug = plug - _cmask(sz - st, st * 2 / 3, orient="RIGHT").up(ct + st).multmatrix(my.tolist())
+                plug = plug - _cmask(sz - st, st * 2 / 3, orient=Anchor.RIGHT).up(ct + st).multmatrix(my.tolist())
             for mz_ang in [-45, 45]:
                 plug = plug - cuboid(
                     [sz * 3, st / math.sqrt(2) + 2 * slop, sz * 3],

@@ -141,8 +141,11 @@ def osimport(
     fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be
     anchored, transformed, coloured and cut like any other solid.
 
-    Relative paths resolve against the PROCESS working directory, not the calling module, so
-    pass an absolute path if the asset lives beside your source.
+    **Pass an absolute path.** Relative paths do not resolve: the native ``osimport()`` reports
+    "file not found" for a bare name even when the file is in the process working directory *and*
+    when it is in the directory the interpreter started in -- both measured. The docstring here
+    claimed the process working directory until T70, which was a claim about the native layer that
+    the native layer does not honour. ``Path(name).resolve()`` is the reliable form.
 
     Use :func:`pybosl2.shapes2d.osimport` for 2-D drawings (SVG/DXF).
 
@@ -156,13 +159,19 @@ def osimport(
         A :class:`Bosl2Solid` wrapping the imported mesh.
 
     Examples:
-        An imported STL, cut down to its bottom half:
+        An imported STL, cut down to its bottom half. The example writes the mesh first, so it
+        runs as it stands; a caller with their own file skips that line:
 
         .. pythonscad-example::
 
-            from pybosl2.shapes3d import osimport, cuboid
+            from pathlib import Path
 
-            (osimport("part.stl") - cuboid([100, 100, 50]).up(25)).show()
+            from pybosl2.export import write_mesh
+            from pybosl2.shapes3d import cuboid, osimport
+
+            part = Path("part.stl").resolve()
+            write_mesh(cuboid([60, 60, 60], rounding=8).vnf(), part)
+            (osimport(str(part)) - cuboid([100, 100, 50]).up(25)).show()
 
     """
     kwargs: dict[str, object] = {}

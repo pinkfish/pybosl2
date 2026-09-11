@@ -353,9 +353,9 @@ def cube(
         except_edges=except_edges,
         trimcorners=trimcorners,
         teardrop=teardrop,
-        anchor=use_anchor,  # type: ignore[arg-type]
+        anchor=use_anchor,
         spin=spin,
-        orient=orient,  # type: ignore[arg-type]
+        orient=orient,
         fn=fn,
         fa=fa,
         fs=fs,
@@ -373,9 +373,9 @@ def cuboid(
     except_edges: list[EdgeAtom] | None = None,
     trimcorners: bool = True,
     teardrop: bool | float = False,
-    anchor: Anchor = Anchor.CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Anchor = Anchor.TOP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,

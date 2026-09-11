@@ -237,23 +237,88 @@ def test_every_facet_parameter_is_spelled_the_same_way() -> None:
     assert not wrong, "facet controls with another spelling (PLAN R-P1):\n  " + "\n  ".join(wrong)
 
 
+#: Validators, which take `object` precisely so they can reject anything that is not an anchor.
+#: Typing the parameter narrowly would make the rejection unreachable.
+ANCHOR_VALIDATORS = frozenset({"require_anchor", "_reject_anchor"})
+
+
+def _every_signature() -> list[tuple[str, str, ast.FunctionDef]]:
+    """Every function in the package, public or not, exported or not.
+
+    Deliberately wider than `CALLABLES`. The tier-order rules are about the *call surface* a user
+    sees, so the exported scope is right for them. O-6b is about a **type**, and a type is wrong
+    wherever it is written -- mypy reads every signature, and so does anyone calling a backend
+    module directly. Scoping it to the exported surface is what let the entire SDF backend type
+    `anchor: Sequence[float]` while the check reported nothing (T71).
+    """
+    found: list[tuple[str, str, ast.FunctionDef]] = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        relative = path.relative_to(PACKAGE).as_posix()
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:  # pragma: no cover - a file that does not parse is another test's job
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                found.append((relative, node.name, node))
+    return found
+
+
+EVERY_SIGNATURE = _every_signature()
+
+
+def test_the_signature_scan_reaches_the_backends() -> None:
+    """PLAN O-6b: the wide scan is only wide if it actually reaches past the exported surface.
+
+    `CALLABLES` covers 62 modules and, of the SDF package, only `sdf/textures.py`. That is correct
+    for the tier rules and was silently wrong for the type rule below.
+    """
+    modules = {path for path, _, _ in EVERY_SIGNATURE}
+    assert any(m.startswith("sdf/") for m in modules), "the scan does not reach the SDF backend"
+    assert len(modules) > len({p for p, _, _ in CALLABLES}), "the wide scan is no wider"
+
+
 def test_every_anchor_parameter_speaks_the_anchor_language() -> None:
-    """PLAN O-6b, SPEC C-10: an anchor is `Anchor | Sequence[float]`, never a bare string.
+    """PLAN O-6b, SPEC C-10: an anchor is `Anchor | Sequence[float]`, never a bare vector.
 
     `flat.text()` took `anchor: str = "baseline"` for as long as it existed and nothing noticed
     until T36 went looking by hand. `Any` is allowed only on the shape protocols, where PLAN T-6c
     sanctions it to bridge two backends' spellings.
+
+    Checked over **every** signature, not just the exported ones. Scoped to the exported surface
+    this reported nothing while 24 SDF constructors declared `anchor: Sequence[float]` -- a plain
+    vector, which the rule names explicitly -- and the annotation was not merely unidiomatic but
+    **false**: those functions accept an `Anchor` and always have, so `mypy --strict` rejected
+    `sdf.cuboid(size, anchor=Anchor.TOP)` while accepting the identical CSG call. `orient` in the
+    very same signatures was already `Anchor | Sequence[float]`, which is what makes it an
+    oversight rather than a decision.
     """
     wrong = [
-        f"{path}::{name} anchor: {ast.unparse(a.annotation)}"
-        for path, name, node in CALLABLES
+        f"{path}::{name} {a.arg}: {ast.unparse(a.annotation)}"
+        for path, name, node in EVERY_SIGNATURE
         for a in node.args.args + node.args.kwonlyargs
-        if a.arg == "anchor"
+        if a.arg in ("anchor", "orient")
+        and name not in ANCHOR_VALIDATORS
         and a.annotation is not None
         and "Anchor" not in ast.unparse(a.annotation)
         and ast.unparse(a.annotation) != "Any"
     ]
     assert not wrong, "anchors outside the anchor language (PLAN O-6b):\n  " + "\n  ".join(wrong)
+
+
+def test_an_anchor_parameter_is_annotated_at_all() -> None:
+    """PLAN O-6b: an unannotated anchor evades the check above by having nothing to read.
+
+    `sdf/joiners.py` carried three functions whose `anchor` and `orient` had no annotation and a
+    `# type: ignore[no-untyped-def]` above them, so both the type rule and mypy saw nothing.
+    """
+    bare = [
+        f"{path}::{name} {a.arg}"
+        for path, name, node in EVERY_SIGNATURE
+        for a in node.args.args + node.args.kwonlyargs
+        if a.arg in ("anchor", "orient") and a.annotation is None
+    ]
+    assert not bare, "anchor parameters with no annotation (PLAN O-6b):\n  " + "\n  ".join(bare)
 
 
 #: How many parameters *named for a type this project defines* are annotated `Any`, per file.
