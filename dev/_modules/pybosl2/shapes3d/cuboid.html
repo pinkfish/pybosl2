@@ -2509,9 +2509,9 @@
         <span class="n">except_edges</span><span class="o">=</span><span class="n">except_edges</span><span class="p">,</span>
         <span class="n">trimcorners</span><span class="o">=</span><span class="n">trimcorners</span><span class="p">,</span>
         <span class="n">teardrop</span><span class="o">=</span><span class="n">teardrop</span><span class="p">,</span>
-        <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">,</span>
         <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
-        <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>
         <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
@@ -2532,9 +2532,9 @@
     <span class="n">except_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EdgeAtom</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">trimcorners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">teardrop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

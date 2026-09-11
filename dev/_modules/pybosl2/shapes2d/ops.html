@@ -2229,8 +2229,11 @@
 <span class="sd">    fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be</span>
 <span class="sd">    offset, filled, hulled, coloured and extruded like any other 2-D shape.</span>
 
-<span class="sd">    Relative paths resolve against the PROCESS working directory, not the calling module, so</span>
-<span class="sd">    pass an absolute path if the asset lives beside your source.</span>
+<span class="sd">    **Pass an absolute path.** Relative paths do not resolve: the native ``osimport()`` reports</span>
+<span class="sd">    "file not found" for a bare name even when the file is in the process working directory *and*</span>
+<span class="sd">    when it is in the directory the interpreter started in -- both measured. The docstring here</span>
+<span class="sd">    claimed the process working directory until T70, which was a claim about the native layer that</span>
+<span class="sd">    the native layer does not honour. ``Path(name).resolve()`` is the reliable form.</span>
 
 <span class="sd">    Use :func:`pybosl2.shapes3d.osimport` for 3-D meshes (STL/OFF/3MF).</span>
 

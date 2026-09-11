@@ -2915,8 +2915,11 @@
 <p>The wrapped counterpart of the bare native <code class="docutils literal notranslate"><span class="pre">osimport()</span></code>, so an imported outline joins the
 fluent API instead of being a raw handle a caller has to keep unwrapping – it can be
 offset, filled, hulled, coloured and extruded like any other 2-D shape.</p>
-<p>Relative paths resolve against the PROCESS working directory, not the calling module, so
-pass an absolute path if the asset lives beside your source.</p>
+<p><strong>Pass an absolute path.</strong> Relative paths do not resolve: the native <code class="docutils literal notranslate"><span class="pre">osimport()</span></code> reports
+“file not found” for a bare name even when the file is in the process working directory <em>and</em>
+when it is in the directory the interpreter started in – both measured. The docstring here
+claimed the process working directory until T70, which was a claim about the native layer that
+the native layer does not honour. <code class="docutils literal notranslate"><span class="pre">Path(name).resolve()</span></code> is the reliable form.</p>
 <p>Use <code class="xref py py-func docutils literal notranslate"><span class="pre">pybosl2.shapes3d.osimport()</span></code> for 3-D meshes (STL/OFF/3MF).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.shapes2d.ops.osimport-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.ops.osimport-parameters" title="Permalink to this headline">¶</a></dt>
