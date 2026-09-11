@@ -504,7 +504,7 @@ def place(poly: "Path2D", theta_deg: float, at: Sequence[float]) -> list[list[fl
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
-def trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
+def trim_ends(body: Sequence[Sequence[float]], trim1: float, trim2: float) -> list[list[float]]:
     """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).
 
     Pulling the body back is what puts an arrow's *tip* on the point the caller named instead of

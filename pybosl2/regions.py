@@ -617,7 +617,7 @@ class Region:
 
     def round_corners(
         self,
-        radius: float | list[float] | None = None,
+        radius: float | Sequence[float] | None = None,
         method: RoundingMethod = RoundingMethod.CIRCLE,
         cut: float | None = None,
         joint: float | None = None,

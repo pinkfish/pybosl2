@@ -778,7 +778,7 @@ class Partitionable:
     def half_of(
         self,
         v: Any = UP,
-        center: bool | float | list[float] | None = None,
+        center: bool | float | Sequence[float] | None = None,
         s: float | None = None,
         cut_path: Path2D | None = None,
         cut_angle: float = 0,

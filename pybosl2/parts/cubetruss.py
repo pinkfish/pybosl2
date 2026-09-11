@@ -430,7 +430,7 @@ class TrussSupport(Buildable):
         smax = sz * (max(ex, ey, ez) + 1)
         octid = sz - 2 * st
 
-        def octprism(length_: float, rot: list[float] | None) -> "Solid":
+        def octprism(length_: float, rot: Sequence[float] | None) -> "Solid":
             p = regular_prism(8, inner_diameter=octid, height=length_, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
                 [0, 0, 180 / 8]
             )
