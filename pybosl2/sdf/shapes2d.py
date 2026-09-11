@@ -1045,7 +1045,7 @@ def rect2d(  # type: ignore[no-untyped-def]
     size,
     rounding: "float | Sequence[float]" = 0,
     chamfer: "float | Sequence[float]" = 0,
-    anchor: "Sequence[float]" = CENTER,
+    anchor: "Anchor | Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
     """Return an axis-aligned rectangle with optional corner rounding or chamfering -- a single radius.
@@ -1334,7 +1334,11 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-
 # ---------------------------------------------------------------------------
 
 
-def square2d(size: float | Sequence[float] = 10, anchor: Sequence[float] = CENTER, res: int = 10) -> PyShape2D:
+def square2d(
+    size: float | Sequence[float] = 10,
+    anchor: "Anchor | Sequence[float]" = CENTER,
+    res: int = 10,
+) -> PyShape2D:
     """Return a square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d().
 
     Args:
@@ -1506,7 +1510,7 @@ def trapezoid2d(
     width2: float | None = None,
     angle: float | None = None,
     shift: float = 0,
-    anchor: "Sequence[float]" = CENTER,
+    anchor: "Anchor | Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
     """Return a trapezoid with parallel front and back sides, as a signed-distance field.

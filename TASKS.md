@@ -2323,6 +2323,50 @@ A docstring describing behaviour nobody exercises drifts from the code exactly a
 Here the drifting documentation *was* the example, and the check that catches it takes eleven
 seconds.
 
+## T71 — Parity is a promise to the type checker too ✅
+
+**§12.2 item 36. PAR-1, C-10, O-6b.**
+
+T63 closed the last option gap by *calling* both spellings. Calling is not the whole contract.
+
+**Twenty-four SDF constructors declared `anchor: Sequence[float]`** — a plain vector, which O-6b
+names explicitly as the thing an anchor must not be — and the annotation was **false**. Those
+functions accept an `Anchor` and always have:
+
+```
+sdf.cuboid([20, 20, 20], anchor=Anchor.TOP)   # builds
+mypy --strict: Argument "anchor" to "cuboid" has incompatible type "Anchor";
+               expected "Sequence[float]"
+```
+
+`orient` in the same signatures, two lines away, was already `Anchor | Sequence[float]`. That is
+what makes it an oversight rather than a decision.
+
+### The scan had a scope hole, and the fix separates two rules
+
+`CALLABLES` covers the exported surface — `__all__` plus the lazy table — which is right for the
+**tier-order** rules (they are about the call surface a user sees) and wrong for the **type**
+rule. A type is wrong wherever it is written; mypy reads every signature. Of the sdf package,
+`CALLABLES` reached exactly one module. O-6b now runs over every signature, with validators
+exempt by name: `require_anchor(anchor: object)` takes `object` so it can reject anything.
+
+### The new parity guard found the mirror defect on its first run
+
+`cuboid` on the **CSG** side typed `anchor: Anchor` and `orient: Anchor`, rejecting the vector the
+SDF side accepts — alone among every sibling in its own file. Its two `# type: ignore[arg-type]`
+comments turned out to be at `cuboid`'s *own* internal call sites: the narrow annotation had been
+unworkable from the moment it was written, and the author suppressed the consequence rather than
+widening the type. Both suppressions are gone.
+
+### Two guards, deliberately complementary
+
+| guard | reads | blind to |
+|---|---|---|
+| widened O-6b scan | annotations | a signature consistent with itself but not its opposite number |
+| backend type parity | `mypy --strict` over user-style calls | a parameter that is merely unidiomatic |
+
+`cuboid: Anchor` passes the first and fails the second, which is why it took the second to find.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

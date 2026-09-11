@@ -30,16 +30,19 @@ from pybosl2.sdf.paths import (
 from pybosl2.sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pybosl2._edges_lang import Anchor
     from pybosl2.sdf.shapes3d import PyShape
 
 
-def _attach(  # type: ignore[no-untyped-def]
+def _attach(
     shape: PyShape,
     size: list[float],
     center_off: list[float],
-    anchor,
+    anchor: "Anchor | Sequence[float]",
     spin: float,
-    orient,
+    orient: "Anchor | Sequence[float]",
 ) -> PyShape:
     """BOSL2 attachable() emulation for a shape whose declared bounding box has dimensions.
 
@@ -69,7 +72,7 @@ def _attach(  # type: ignore[no-untyped-def]
     return shape
 
 
-def knuckle_hinge(  # type: ignore[no-untyped-def]
+def knuckle_hinge(
     length: float,
     segs: int,
     offset: float,
@@ -82,9 +85,9 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     pin_diam: float = 1.75,
     fill: bool = True,
     clear_top: bool = False,
-    anchor=(0, 0, -1),
+    anchor: "Anchor | Sequence[float]" = (0, 0, -1),
     spin: float = 0,
-    orient=(0, 0, 1),
+    orient: "Anchor | Sequence[float]" = (0, 0, 1),
     res: int = 10,
 ) -> PyShape:
     """Return a knuckle hinge: alternating cylinder segments (with a pin hole) on an arm, mounted.
@@ -163,7 +166,7 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     return _attach(shape, size, center_off, anchor, spin, orient)
 
 
-def rabbit_clip(  # type: ignore[no-untyped-def]
+def rabbit_clip(
     type: str,  # noqa: A002
     length: float,
     width: float,
@@ -175,8 +178,8 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     lock: bool = False,
     lock_clearance: float = 0,
     splinesteps: int = 8,
-    anchor=None,
-    orient=None,
+    anchor: "Anchor | Sequence[float] | None" = None,
+    orient: "Anchor | Sequence[float] | None" = None,
     spin: float = 0,
     res: int = 10,
 ) -> PyShape:
