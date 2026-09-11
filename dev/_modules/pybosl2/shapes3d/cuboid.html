@@ -2403,7 +2403,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">roof</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"straight"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Raise a hip roof over a 2-D *shape* via its straight skeleton (native ``roof()``).</span>
 
-<span class="sd">    Like :func:`~pybosl2.skin.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is</span>
+<span class="sd">    Like :func:`~pybosl2.skin.Sweepable.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is</span>
 <span class="sd">    a peaked roof (each edge slopes inward at 45 degrees to the skeleton) rather than a flat</span>
 <span class="sd">    extrusion. *shape* is any 2-D object -- a native ``square``/``circle``/``polygon``, a</span>
 <span class="sd">    :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton</span>

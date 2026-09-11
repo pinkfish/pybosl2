@@ -2271,7 +2271,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a</span>
-<span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)</span>
+<span class="sd">                  :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)</span>
 
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ofill</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">)))</span></div>
@@ -2288,7 +2288,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,</span>
-<span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.</span>
+<span class="sd">                  :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.</span>
 <span class="sd">                  A single list/tuple *of* shapes is also accepted.</span>
 
 <span class="sd">    """</span>

@@ -2161,7 +2161,7 @@
 <span class="c1">#    (round every corner of a path -- ``"circle"``, ``"smooth"`` or ``"chamfer"``, sized by</span>
 <span class="c1">#    ``radius``/``cut``/``joint``/``width``) and :func:`smooth_path` (fit a continuous-curvature</span>
 <span class="c1">#    bezier through a path). Both work on 2-D and 3-D paths and are exposed as methods on</span>
-<span class="c1">#    :class:`~pybosl2.paths.Path2D` and :class:`~pybosl2.paths.Path3D`.</span>
+<span class="c1">#    :class:`~pybosl2.path2d.Path2D` and :class:`~pybosl2.path3d.Path3D`.</span>
 <span class="c1">#</span>
 <span class="c1">#    ``round_corners`` and ``smooth_path`` are pinned point-for-point to the real BOSL2 output in</span>
 <span class="c1">#    tests/test_bosl2_reorient.py. The smooth/chamfer corners reuse the toolkit's</span>
@@ -2507,9 +2507,9 @@
 <div class="viewcode-block" id="Roundable">
 <a class="viewcode-back" href="../../paths/rounding.html#pybosl2.rounding.Roundable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Roundable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.path2d.Path2D` and.</span>
 
-<span class="sd">    :class:`~pybosl2.paths.Path3D`.</span>
+<span class="sd">    :class:`~pybosl2.path3d.Path3D`.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Roundable.round_corners">
@@ -2551,7 +2551,7 @@
 <span class="sd">            k: Smoothing parameter for continuous-curvature rounding, from 0 (sharp) to 1.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).</span>
+<span class="sd">            A :class:`~pybosl2.path2d.Path2D` (2-D) or :class:`~pybosl2.path3d.Path3D` (3-D).</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            A rounded, smoothed and chamfered square (three copies):</span>
@@ -2625,7 +2625,7 @@
 <span class="sd">            closed: Treat the path as closed.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).</span>
+<span class="sd">            A :class:`~pybosl2.path2d.Path2D` (2-D) or :class:`~pybosl2.path3d.Path3D` (3-D).</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            A wiggly control path smoothed into a flowing curve:</span>
@@ -3076,7 +3076,7 @@
 <span class="sd">        **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.</span>
+<span class="sd">        A :class:`~pybosl2.path2d.Path2D` or :class:`~pybosl2.path3d.Path3D` depending on the input dimensions.</span>
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
@@ -3178,7 +3178,7 @@
 <span class="sd">        geom: A ``shapely.Polygon`` or ``shapely.MultiPolygon``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A list of :class:`~pybosl2.paths.Path2D` objects: outer ring, then holes.</span>
+<span class="sd">        A list of :class:`~pybosl2.path2d.Path2D` objects: outer ring, then holes.</span>
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>

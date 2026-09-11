@@ -5114,7 +5114,7 @@ results are unioned – so different-colour parts of an SVG drawing
 become different-colour solids without manual splitting.</p>
 <p>The result depends on the active backend: a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> under
 the default CSG backend, or a <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code> under
-<code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>. See <code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.paths.Path2D.linear_extrude()</span></code> for per-backend
+<code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>. See <code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path2d.Path2D.linear_extrude()</span></code> for per-backend
 options.</p>
 <p>The SDF backend’s prism is the union of the outlines’ fields, so it can only express a
 region of DISJOINT islands; a region with holes raises

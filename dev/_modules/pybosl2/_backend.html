@@ -3351,7 +3351,7 @@
 <span class="w">        </span><span class="sd">"""Build the named shape constructor (e.g. ``"torus"``) in this backend's idiom.</span>
 
 <span class="sd">        *arguments* holds just the parameters the caller gave, so a backend never has to accept</span>
-<span class="sd">        an option it has no notion of (see :func:`pybosl2.solid._given`).</span>
+<span class="sd">        an option it has no notion of.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            shape: Name of the shape to build.</span>
@@ -3371,7 +3371,7 @@
 <span class="sd">        This is the one 2-D -&gt; 3-D entry point both backends can express, and it takes raw point</span>
 <span class="sd">        paths rather than a 2-D shape object deliberately: 2-D *geometry* is a CSG-only notion</span>
 <span class="sd">        (:class:`~pybosl2.shapes2d.Bosl2Shape2D`), whereas a path is backend-neutral. It is what</span>
-<span class="sd">        :meth:`pybosl2.paths.Path2D.linear_extrude` dispatches through, so the same call yields a</span>
+<span class="sd">        :meth:`pybosl2.path2d.Path2D.linear_extrude` dispatches through, so the same call yields a</span>
 <span class="sd">        Bosl2Solid on the CSG backend and a PyShape on the SDF one.</span>
 
 <span class="sd">        Args:</span>

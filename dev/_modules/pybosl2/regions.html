@@ -3061,7 +3061,7 @@
 
 <span class="sd">        The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under</span>
 <span class="sd">        the default CSG backend, or a :class:`~pybosl2.sdf.shapes3d.PyShape` under</span>
-<span class="sd">        ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend</span>
+<span class="sd">        ``use_backend("sdf")``. See :meth:`pybosl2.path2d.Path2D.linear_extrude` for per-backend</span>
 <span class="sd">        options.</span>
 
 <span class="sd">        The SDF backend's prism is the union of the outlines' fields, so it can only express a</span>
@@ -3278,7 +3278,7 @@
 <span class="sd">        Produces the filled region as a thin flat solid with every path's vertices labelled in</span>
 <span class="sd">        red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...`` (BOSL2</span>
 <span class="sd">        ``debug_region()``). A single-path region defers to</span>
-<span class="sd">        :meth:`~pybosl2.paths.Path2D.debug_polygon`.</span>
+<span class="sd">        :meth:`~pybosl2.path2d.Path2D.debug_polygon`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            size: Text size for vertex labels.</span>

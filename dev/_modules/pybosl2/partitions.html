@@ -2164,7 +2164,7 @@
 <span class="c1">#    mixin: a half-cut intersects the solid with a half-space mask, auto-sized from the object's</span>
 <span class="c1">#    native bounding box (so the BOSL2 ``s=`` mask-size argument is optional here). partition()</span>
 <span class="c1">#    returns the two interlocking pieces. The 2-D cut-path generators (:func:`partition_path` and</span>
-<span class="c1">#    friends) return :class:`~pybosl2.paths.Path2D` objects; the mask builders return Bosl2Solids.</span>
+<span class="c1">#    friends) return :class:`~pybosl2.path2d.Path2D` objects; the mask builders return Bosl2Solids.</span>
 <span class="c1">#</span>
 <span class="c1">#    Only matrix/path math and pybosl2.transforms/constants are imported at load time; native</span>
 <span class="c1">#    primitives, shapes2d.arc, and Bosl2Solid are imported lazily inside the functions that need</span>
@@ -2632,7 +2632,7 @@
 <span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.paths.Path2D` (closed when *y* is given).</span>
+<span class="sd">        A :class:`~pybosl2.path2d.Path2D` (closed when *y* is given).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A wall profile mixing jigsaw and hammerhead joints, stroked into a divider:</span>

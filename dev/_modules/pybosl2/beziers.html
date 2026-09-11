@@ -2228,7 +2228,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Bezier</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""A Bezier curve or path: a list of control points, with every bezier operation as a method.</span>
 
-<span class="sd">    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the</span>
+<span class="sd">    Subclasses ``list`` (the same trick as :class:`pybosl2.path2d.Path2D`), so it is a drop-in for the</span>
 <span class="sd">    raw control-point lists the toolkit passes around, while giving the chained object form::</span>
 
 <span class="sd">        Bezier([[44, 5], [48, 6], [64, -15]]).points([0.2 * i for i in range(6)])</span>
@@ -2628,8 +2628,8 @@
 
 <span class="sd">        Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling</span>
 <span class="sd">        each segment uniformly and concatenating the results. Returns a</span>
-<span class="sd">        :class:`~pybosl2.paths.Path2D` for 2-D points or</span>
-<span class="sd">        :class:`~pybosl2.paths.Path3D` for 3-D.</span>
+<span class="sd">        :class:`~pybosl2.path2d.Path2D` for 2-D points or</span>
+<span class="sd">        :class:`~pybosl2.path3d.Path3D` for 3-D.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            splinesteps: Number of uniform segments to sample per curve segment.</span>
@@ -2637,8 +2637,8 @@
 <span class="sd">            endpoint: Whether to include the final endpoint in the output.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.paths.Path2D` for 2-D points or</span>
-<span class="sd">            :class:`~pybosl2.paths.Path3D` for 3-D points containing the</span>
+<span class="sd">            A :class:`~pybosl2.path2d.Path2D` for 2-D points or</span>
+<span class="sd">            :class:`~pybosl2.path3d.Path3D` for 3-D points containing the</span>
 <span class="sd">            sampled bezier path.</span>
 
 <span class="sd">        Examples:</span>

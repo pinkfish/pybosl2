@@ -2466,7 +2466,7 @@
         <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.</span>
+<span class="w">        </span><span class="sd">"""Return the catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.path2d.Path2D`.</span>
 
 <span class="sd">        Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the</span>
 <span class="sd">        slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and</span>
@@ -5539,7 +5539,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return a 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).</span>
+<span class="w">    </span><span class="sd">"""Return a 2-D arc, returned as a :class:`~pybosl2.path2d.Path2D` of points (BOSL2's ``arc()``).</span>
 
 <span class="sd">    All of BOSL2's 2-D arc specifications are supported (3-D arcs, which project onto a plane,</span>
 <span class="sd">    are not):</span>
@@ -5578,7 +5578,7 @@
 <span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).</span>
+<span class="sd">        A :class:`~pybosl2.path2d.Path2D` (closed when *wedge* is set).</span>
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
