@@ -619,13 +619,13 @@ class Roundable:
         height: float | None = None,
         joint_top: float | dict[str, object] | None = None,
         joint_bottom: float | dict[str, object] | None = None,
-        joint_sides: float | list[float] | None = None,
-        curvature_sides: float | list[float] | None = None,
+        joint_sides: float | Sequence[float] | None = None,
+        curvature_sides: float | Sequence[float] | None = None,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         joint_bot: float | dict[str, object] | None = None,
-        k_sides: float | list[float] | None = None,
+        k_sides: float | Sequence[float] | None = None,
     ) -> "Solid":
         """Return the rounded prism between this path and a top path.
 
@@ -808,13 +808,13 @@ class Roundable:
     def path_join(
         self,
         other_paths: Sequence[Sequence[Sequence[float]]],
-        radius: float | list[float] | None = None,
-        cut: float | list[float] | None = None,
-        joint: float | list[float] | None = None,
-        curvature: float | list[float] | None = None,
+        radius: float | Sequence[float] | None = None,
+        cut: float | Sequence[float] | None = None,
+        joint: float | Sequence[float] | None = None,
+        curvature: float | Sequence[float] | None = None,
         relocate: bool = True,
         closed: bool | None = None,
-        k: float | list[float] | None = None,
+        k: float | Sequence[float] | None = None,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -857,13 +857,13 @@ class Roundable:
 
 def _path_join(
     paths: Sequence[Sequence[Sequence[float]]],
-    radius: float | list[float] | None = None,
-    cut: float | list[float] | None = None,
-    joint: float | list[float] | None = None,
-    curvature: float | list[float] | None = None,
+    radius: float | Sequence[float] | None = None,
+    cut: float | Sequence[float] | None = None,
+    joint: float | Sequence[float] | None = None,
+    curvature: float | Sequence[float] | None = None,
     relocate: bool = True,
     closed: bool = False,
-    k: float | list[float] | None = None,
+    k: float | Sequence[float] | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -943,7 +943,7 @@ def _path_join(
     size_list = [0.0] * sides
 
     # Map input size to joint indices
-    if isinstance(size, (list, tuple, np.ndarray)):
+    if not isinstance(size, (int, float)):
         # Assign elements sequentially to the joints
         for i, idx in enumerate(joint_indices):
             if i < len(size):
@@ -957,7 +957,7 @@ def _path_join(
     curv_val = curvature if curvature is not None else k  # `k` is BOSL2's name for curvature
     if curv_val is not None:
         k_list = [0.5] * sides
-        if isinstance(curv_val, (list, tuple, np.ndarray)):
+        if not isinstance(curv_val, (int, float)):
             for i, idx in enumerate(joint_indices):
                 if i < len(curv_val):
                     k_list[idx] = float(curv_val[i])

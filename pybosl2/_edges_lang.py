@@ -319,7 +319,7 @@ def _anchor_to_corner_set(anchor: Anchor) -> list[int]:
     return [1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
 
-def resolve_anchor(anchor: Anchor | list[int | float] | list[list[int]]) -> Anchor:
+def resolve_anchor(anchor: Anchor | Sequence[int | float] | list[Sequence[int]]) -> Anchor:
     """Normalize any anchor specifier (enum, legacy vector) to an Anchor enum.
 
     Args:

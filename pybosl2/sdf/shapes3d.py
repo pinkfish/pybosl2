@@ -71,6 +71,7 @@ if TYPE_CHECKING:
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2._helpers import RectTube
     from pybosl2.caps import CapSpec
+    from pybosl2.points import PointLike
     from pybosl2.textures import TextureData, TextureType
     from pybosl2.vnf import VNF
 
@@ -1073,7 +1074,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,
-        dist: list[float] | None = None,
+        dist: Sequence[float] | None = None,
         rotate_children: bool = True,
     ) -> PyShape:
         """Distribute copies of this solid along *path*, oriented to the 3-D path direction.
@@ -1975,9 +1976,9 @@ def _cuboid_flare_sdf(
 
 
 def _cuboid_at_corner(
-    p1: "Sequence[float]",
-    p2: "Sequence[float] | None",
-    size: "float | list[float] | None",
+    p1: "PointLike",
+    p2: "PointLike | None",
+    size: "float | Sequence[float] | None",
     rounding: float,
     chamfer: float,
     edges: "EdgeAtom | list[EdgeAtom]",
@@ -2088,9 +2089,9 @@ def _teardrop_bottom_sdf(
 
 
 def cuboid(
-    size: float | list[float] | None = None,
-    p1: "Sequence[float] | None" = None,
-    p2: "Sequence[float] | None" = None,
+    size: float | Sequence[float] | None = None,
+    p1: "PointLike | None" = None,
+    p2: "PointLike | None" = None,
     rounding: float = 0,
     chamfer: float = 0,
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
@@ -2171,7 +2172,7 @@ def cuboid(
         size = [1, 1, 1]
     if rounding and chamfer:
         raise Bosl2ValueError("Cannot specify nonzero value for both rounding and chamfer")
-    sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 3
+    sz: list[float] = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     edge_set = resolve_edges(edges, except_edges or [])
     half = [s / 2 for s in sz]
     if rounding < 0:
@@ -2215,7 +2216,7 @@ def cuboid(
 
 
 def cube(
-    size: float | list[float] = 1,
+    size: float | Sequence[float] = 1,
     rounding: float = 0,
     chamfer: float = 0,
     edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
@@ -2620,7 +2621,7 @@ def convex_polyhedron(points: "Path3D", res: int = 10) -> PyShape:
 
 
 def wedge(
-    size: list[float] | None = None,
+    size: Sequence[float] | None = None,
     center: bool | None = None,
     anchor: "Anchor | Sequence[float] | None" = None,
     spin: float = 0,
@@ -2864,7 +2865,7 @@ def _wall_line_sdf(
 
 
 def _cylinder_sdf(
-    x: LVTree, y: LVTree, z: LVTree, h: float, radius1: float, radius2: float, shift: list[float] | None = None
+    x: LVTree, y: LVTree, z: LVTree, h: float, radius1: float, radius2: float, shift: "Sequence[float] | None" = None
 ) -> LVTree:
     hb = h / 2
     if shift and (shift[0] or shift[1]):
@@ -3144,7 +3145,7 @@ def cylinder(
     extra2: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -3323,7 +3324,7 @@ def cyl(
     extra2: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -3480,7 +3481,7 @@ def _axis_local_xy(axis: int, others: "list[LVTree]") -> "tuple[LVTree, LVTree]"
     return local[0], local[1]
 
 
-def _axis_shift(axis: int, shift: "list[float] | None") -> "list[float] | None":
+def _axis_shift(axis: int, shift: "Sequence[float] | None") -> "list[float] | None":
     """Return `shift` resolved into the two non-axial coordinates, or None if there is no lean.
 
     Args:
@@ -3528,7 +3529,7 @@ def _cyl_axis(
     clip_angle: float = 90.0,
     spin: float = 0,
     orient: "Anchor | Sequence[float]" = TOP,
-    shift: "list[float] | None" = None,
+    shift: "Sequence[float] | None" = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -3613,7 +3614,7 @@ def xcyl(
     extra2: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -3741,7 +3742,7 @@ def ycyl(
     extra2: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -3869,7 +3870,7 @@ def zcyl(
     extra2: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     texture: "str | TextureType | TextureData | None" = None,
     tex_size: "float | Sequence[float] | None" = None,
     tex_reps: "int | Sequence[int] | None" = None,
@@ -4283,16 +4284,16 @@ def _prismoid_field(
 
 
 def prismoid(
-    size1: list[float],
-    size2: list[float],
+    size1: Sequence[float],
+    size2: Sequence[float],
     height: float | None = None,
-    shift: list[float] | None = None,
-    rounding: float | None = None,
-    rounding1: float | None = None,
-    rounding2: float | None = None,
-    chamfer: float | None = None,
-    chamfer1: float | None = None,
-    chamfer2: float | None = None,
+    shift: Sequence[float] | None = None,
+    rounding: float | Sequence[float] | None = None,
+    rounding1: float | Sequence[float] | None = None,
+    rounding2: float | Sequence[float] | None = None,
+    chamfer: float | Sequence[float] | None = None,
+    chamfer1: float | Sequence[float] | None = None,
+    chamfer2: float | Sequence[float] | None = None,
     length: float | None = None,
     center: bool | None = None,
     anchor: "Anchor | Sequence[float]" = BOTTOM,
@@ -5020,7 +5021,7 @@ def onion(
 
 def heightfield(
     data: Callable[[Any, Any], Any],
-    size: list[float] | None = None,
+    size: Sequence[float] | None = None,
     bottom: float = -20,
     maxz: float = 99,
     res: int = 10,
@@ -5128,7 +5129,7 @@ def regular_prism(
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
-    shift: list[float] | None = None,
+    shift: Sequence[float] | None = None,
     realign: bool = False,
     center: bool | None = None,
     anchor: "Anchor | Sequence[float]" = CENTER,

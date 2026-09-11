@@ -43,7 +43,7 @@ from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BACK, RIGHT, UP
 from pybosl2.enums import StaggerMode
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.points import Point
+from pybosl2.points import Point, PointLike
 from pybosl2.transforms import axis_angle_matrix
 
 if TYPE_CHECKING:
@@ -94,8 +94,8 @@ def _vec3(v: Any, fill: float = 0.0) -> np.ndarray:
 def line_copies(
     spacing: float | np.ndarray | None = None,
     length: float | np.ndarray | None = None,
-    p1: Point | None = None,
-    p2: Point | None = None,
+    p1: PointLike | None = None,
+    p2: PointLike | None = None,
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return translation matrices evenly spread along a line.
@@ -133,7 +133,7 @@ def line_copies(
 
 
 def _axis_copies(
-    direction: Point,
+    direction: PointLike,
     spacing: float | Sequence[float] | np.ndarray | None,
     length: float | None,
     start_pos: float | Point | None,
@@ -335,7 +335,7 @@ def grid_copies(
 
 def rot_copies(
     rots: Sequence[float] | None = None,
-    v: Point | None = None,
+    v: PointLike | None = None,
     center: bool | Sequence[float] = (0, 0, 0),
     sa: float = 0,
     offset: float = 0,
@@ -668,7 +668,7 @@ def path_copies(
 def mirror_copy(
     v: Sequence[float] = (0, 0, 1),
     offset: float = 0,
-    center: bool | list[float] | None = None,
+    center: bool | Sequence[float] | None = None,
 ) -> list[np.ndarray]:
     """Return the original plus a mirrored copy across the plane with normal *v*.
 
@@ -786,8 +786,8 @@ class Distributable(ABC):
         self,
         spacing: float | None = None,
         length: float | None = None,
-        p1: Point | None = None,
-        p2: Point | None = None,
+        p1: PointLike | None = None,
+        p2: PointLike | None = None,
         num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies spread along a line.
@@ -883,7 +883,7 @@ class Distributable(ABC):
     def rot_copies(
         self,
         rots: Sequence[float] | None = None,
-        v: Point | None = None,
+        v: PointLike | None = None,
         center: bool | Sequence[float] = (0, 0, 0),
         sa: float = 0,
         offset: float = 0,
@@ -1081,7 +1081,7 @@ class Distributable(ABC):
         self,
         v: Sequence[float] = (0, 0, 1),
         offset: float = 0,
-        center: bool | list[float] | None = None,
+        center: bool | Sequence[float] | None = None,
     ) -> list[_CopyType]:
         """Return this object plus a copy mirrored across the plane with normal *v*.
 
@@ -1131,7 +1131,7 @@ class Distributable(ABC):
     def distribute(
         children: "Sequence[Any]",
         spacing: float | None = None,
-        sizes: list[float] | None = None,
+        sizes: Sequence[float] | None = None,
         dir: Anchor | Point = RIGHT,  # noqa: A002
         length: float | None = None,
     ) -> BaseShape:
@@ -1189,7 +1189,7 @@ class Distributable(ABC):
 def xdistribute(
     children: "Sequence[Any]",
     spacing: float | None = None,
-    sizes: list[float] | None = None,
+    sizes: Sequence[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
     """Distribute distinct children along the X axis.
@@ -1215,7 +1215,7 @@ def xdistribute(
 def ydistribute(
     children: "Sequence[Any]",
     spacing: float | None = None,
-    sizes: list[float] | None = None,
+    sizes: Sequence[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
     """Distribute distinct children along the Y axis.
@@ -1233,7 +1233,7 @@ def ydistribute(
 def zdistribute(
     children: "Sequence[Any]",
     spacing: float | None = None,
-    sizes: list[float] | None = None,
+    sizes: Sequence[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
     """Distribute distinct children along the Z axis.
