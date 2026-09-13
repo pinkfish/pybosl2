@@ -306,6 +306,51 @@ def test_every_anchor_parameter_speaks_the_anchor_language() -> None:
     assert not wrong, "anchors outside the anchor language (PLAN O-6b):\n  " + "\n  ".join(wrong)
 
 
+#: Parameters whose `list[...]` is deliberate, with the reason. A `list` in an *input* position
+#: rejects a tuple, so it needs one -- and "the body happens to mutate it" is not one: copy it.
+INVARIANT_BY_DESIGN: dict[str, str] = {}
+
+
+def test_no_input_parameter_demands_a_list() -> None:
+    """SPEC C-10, PAR-1: `list` is invariant, so a `list[float]` parameter rejects a tuple.
+
+    Not a style point. `list[float]` on a parameter is a promise the function does not keep:
+    `cyl(shift=(2, 1))` builds on both backends and `mypy --strict` rejected it, and so did
+    `region.round_corners(radius=(1.0, 2.0, 1.0))` and `shape.mirror_copy(center=(1.0, 0.0, 0.0))`.
+    Fifty-one public parameters were annotated this way -- nineteen in the SDF backend and
+    thirty-two outside it, so it is not one backend's habit. It is the same defect class T71 fixed
+    for `anchor`, in a different parameter family: an annotation narrower than the behaviour, which
+    no runtime test can see because the call it rejects is a call that works.
+
+    `Sequence[float]` is the input type; `list[float]` remains right for a **return**, where being
+    precise about what is produced is the point. Only parameters are checked here.
+    """
+    demanding = [
+        f"{path}::{name} {a.arg}: {ast.unparse(a.annotation)}"
+        for path, name, node in EVERY_SIGNATURE
+        if not name.startswith("_")
+        for a in node.args.args + node.args.kwonlyargs
+        if a.annotation is not None
+        and f"{name}.{a.arg}" not in INVARIANT_BY_DESIGN
+        and any(t in ast.unparse(a.annotation) for t in ("list[float]", "list[int]", "list[list["))
+    ]
+    assert not demanding, (
+        "input parameters typed `list`, which rejects a tuple that works (SPEC C-10):\n  " + "\n  ".join(demanding)
+    )
+
+
+def test_the_list_rule_is_about_inputs_only() -> None:
+    """SPEC C-10: a return type may be a `list`, and the check above must not have eaten them.
+
+    If it had, the assertion would be passing because the package stopped returning lists, which
+    is not the same thing as the parameters being right.
+    """
+    returning = [
+        name for _, name, node in EVERY_SIGNATURE if node.returns is not None and "list[" in ast.unparse(node.returns)
+    ]
+    assert len(returning) > 50, f"only {len(returning)} functions return a list; the scan is broken"
+
+
 def test_an_anchor_parameter_is_annotated_at_all() -> None:
     """PLAN O-6b: an unannotated anchor evades the check above by having nothing to read.
 

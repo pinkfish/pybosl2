@@ -942,7 +942,7 @@ def total_length(path: "Path", closed: bool = False) -> float:
     return total
 
 
-def path_cut_points(path: "Path", cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
+def path_cut_points(path: "Path", cutdist: float | Sequence[float], closed: bool = False) -> list[list[Any]] | None:
     """Return the point(s) at the given arc-length distance(s) from the start of `path`, each as.
 
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances

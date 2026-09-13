@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from pybosl2.enums import StaggerMode
     from pybosl2.path3d import Path3D
     from pybosl2.paths import Path
-    from pybosl2.points import Point
+    from pybosl2.points import Point, PointLike
     from pybosl2.vnf import VNF
 
 
@@ -744,8 +744,8 @@ class Shape(Protocol):
         self,
         spacing: float | None = None,
         length: float | None = None,
-        p1: "Point | None" = None,
-        p2: "Point | None" = None,
+        p1: "PointLike | None" = None,
+        p2: "PointLike | None" = None,
         num_copies: int | None = None,
     ) -> list[Self]: ...
     def xcopies(
@@ -782,7 +782,7 @@ class Shape(Protocol):
     def rot_copies(
         self,
         rots: "Sequence[float] | None" = None,
-        v: "Point | None" = None,
+        v: "PointLike | None" = None,
         center: "bool | Sequence[float]" = (0, 0, 0),
         sa: float = 0,
         offset: float = 0,
@@ -856,7 +856,7 @@ class Shape(Protocol):
         self,
         v: "Sequence[float]" = (0, 0, 1),
         offset: float = 0,
-        center: "bool | list[float] | None" = None,
+        center: "bool | Sequence[float] | None" = None,
     ) -> list[Self]: ...
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[Self]: ...
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[Self]: ...

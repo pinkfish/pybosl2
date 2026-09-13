@@ -1221,6 +1221,16 @@ there in the same commit as the code (§13 rule 4).
 
 **Two guards, deliberately complementary.** The widened O-6b scan reads annotations and cannot see a signature that is internally consistent but disagrees with its opposite number; the parity test type-checks calls written the way the documentation writes them, against both spellings, and cannot see a parameter that is merely unidiomatic. `cuboid: Anchor` passes the first and fails the second, which is why it took the second to find it.
 
+**T72 replaced T71's sample with a sweep, and the sweep found the same defect in three more parameter families.** T71 checked eight hand-picked calls, which is how a sample fails: it covers what its author thought of. Comparing *every* parameter shared by both backends' spelling of the same constructor turned up **35 disagreements**.
+
+**`list[float]` on an input parameter is the largest family, and it is not a style point.** `list` is invariant, so `list[float]` rejects a tuple — and `cyl(shift=(2, 1))` builds on both backends while `mypy --strict` refuses it. So did `region.round_corners(radius=(1.0, 2.0, 1.0))` and `shape.mirror_copy(center=(1.0, 0.0, 0.0))`. **Fifty-one public parameters** were annotated this way, nineteen in the SDF backend and thirty-two outside it, so it was not one backend's habit. `Sequence[float]` is the input type; `list[float]` stays right for a *return*, where being precise about what is produced is the point, and the guard checks parameters only — with a companion assertion that the package still returns lists, so the check cannot start passing because they went away.
+
+**Two smaller families, both the same shape.** `prismoid`'s six rim parameters declared `float | None` on the SDF side while accepting a per-corner sequence — `prismoid(chamfer=[1,2,1,2])` builds on both. And `cuboid(p1=)` declared the concrete `Point` while accepting a plain list; `PointLike`, the alias that exists for precisely this, was sitting unused beside it in `pybosl2.points`.
+
+**What is *not* a defect is worth recording too, because it bounds the rule.** Twenty shared parameters still differ by a `| None`, and they are correct: the façade resolves `None` before either backend sees it, so `cuboid(rounding=None)` and `wedge(anchor=None)` both build on both backends through `pybosl2.solid`, which is the documented entry point (A-10). Reaching a backend module directly with a `None` its signature does not declare is a call mypy already refuses — there the type and the behaviour agree, and widening them would be work with no reader. So the assertion is shape-only, with the nullability count as a ratchet.
+
+**The two declared differences are both the SDF side being wider**, which is the harmless direction: nothing a CSG caller writes is refused. The dangerous direction — SDF narrower than CSG — has no rows and may not gain any, because that is precisely an annotation rejecting a call that works.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

@@ -1620,13 +1620,13 @@ def _rounded_prism(
     height: float | None = None,
     joint_top: float | dict[str, object] | None = None,
     joint_bottom: float | dict[str, object] | None = None,
-    joint_sides: float | list[float] | None = None,
-    curvature_sides: float | list[float] | None = None,
+    joint_sides: float | Sequence[float] | None = None,
+    curvature_sides: float | Sequence[float] | None = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
     joint_bot: float | dict[str, object] | None = None,
-    k_sides: float | list[float] | None = None,
+    k_sides: float | Sequence[float] | None = None,
 ) -> VNF | "Solid":
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 

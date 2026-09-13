@@ -414,7 +414,7 @@ class SdfShape2D(Colorable, Distributable):
             [self.mx[0] + tx, self.mx[1] + ty],
         )
 
-    def rotate(self, a: float | list[float]) -> PyShape2D:
+    def rotate(self, a: float | Sequence[float]) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native.
 
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
@@ -424,15 +424,17 @@ class SdfShape2D(Colorable, Distributable):
             a: The shape or value to combine.
 
         """
-        if isinstance(a, (list, tuple)):
+        if not isinstance(a, (int, float)):
             if not (len(a) == 3):
                 raise Bosl2ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
             if a[0]:
                 raise Bosl2ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
             if a[1]:
                 raise Bosl2ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
-            a = a[2]
-        angle = math.radians(a)
+            turn = float(a[2])
+        else:
+            turn = float(a)
+        angle = math.radians(turn)
         c, s = math.cos(angle), math.sin(angle)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(c * x + s * y, -s * x + c * y)  # noqa: E731
@@ -462,7 +464,7 @@ class SdfShape2D(Colorable, Distributable):
             [self.mx[0] * s[0], self.mx[1] * s[1]],
         )
 
-    def mirror(self, v: list[float]) -> PyShape2D:
+    def mirror(self, v: Sequence[float]) -> PyShape2D:
         """Mirror across the line through the origin whose NORMAL is `v` (native convention).
 
         Args:
@@ -938,7 +940,7 @@ class SdfShape2D(Colorable, Distributable):
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,
-        dist: list[float] | None = None,
+        dist: Sequence[float] | None = None,
         rotate_children: bool = True,
     ) -> PyShape2D:
         """Place copies of this shape along *path*, unioned into one shape (SPEC S-32).
@@ -1188,7 +1190,7 @@ def region2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
         if not (len(p) >= 3):
             raise Bosl2ValueError(f"region2d(): every outline needs >= 3 points, got {len(p)}")
 
-    def contains(poly: list[list[float]], pt: Sequence[float]) -> bool:
+    def contains(poly: Sequence[Sequence[float]], pt: Sequence[float]) -> bool:
         # Standard even-odd ray cast (+x direction).
         x, y = pt
         inside = False

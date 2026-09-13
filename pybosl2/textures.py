@@ -599,7 +599,7 @@ def _tex_hex_grid_vnf(border: float | None = None, **_: object) -> tuple[list[li
             1.0,
         ]
 
-    def add(a: list[float], b3: list[float]) -> list[float]:
+    def add(a: Sequence[float], b3: Sequence[float]) -> list[float]:
         return [a[0] + b3[0], a[1] + b3[1], a[2] + b3[2]]
 
     verts = (
@@ -885,7 +885,9 @@ def vnf_tile_to_solid(
     return VNF(*_close_to_base(v, f, bottom))
 
 
-def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], list[list[int]]]) -> bool:
+def is_heightfield_texture(
+    tex: Sequence[Sequence[float]] | tuple[Sequence[Sequence[float]], Sequence[Sequence[int]]],
+) -> bool:
     """Check if *tex* is a height-field: a 2-D array whose entries are plain numbers.
 
     Args:

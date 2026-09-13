@@ -25,7 +25,8 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
-    from pybosl2.points import Point
+    from pybosl2.points import PointLike
+
 
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import quantup
@@ -365,8 +366,8 @@ def cube(
 @backend_only("csg", neutral="pybosl2.solid.cuboid")
 def cuboid(
     size: float | Sequence[float] = (1, 1, 1),
-    p1: Point | None = None,
-    p2: Point | None = None,
+    p1: PointLike | None = None,
+    p2: PointLike | None = None,
     chamfer: float | None = None,
     rounding: float | None = None,
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,

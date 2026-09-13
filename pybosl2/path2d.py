@@ -3084,7 +3084,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def to_bezcornerpath(
         self,
-        parm: float | list[float] | None = None,
+        parm: float | Sequence[float] | None = None,
         closed: bool | None = None,
         fn: int = 0,
         fs: float = 2.0,

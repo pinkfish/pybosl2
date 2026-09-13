@@ -532,7 +532,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,
-        dist: list[float] | None = None,
+        dist: Sequence[float] | None = None,
         rotate_children: bool = True,
     ) -> "Bosl2Solid":
         """Distribute copies of this solid along *path*, oriented to the 3-D path direction.

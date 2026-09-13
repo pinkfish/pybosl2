@@ -2367,6 +2367,39 @@ widening the type. Both suppressions are gone.
 
 `cuboid: Anchor` passes the first and fails the second, which is why it took the second to find.
 
+## T72 — From a sample to a sweep ✅
+
+**§12.2 item 37. PAR-1, C-10.**
+
+T71 checked eight hand-picked calls, which is how a sample fails: it covers what its author
+thought of. Comparing **every** parameter shared by both backends' spelling of the same
+constructor turned up **35 disagreements**, in three families — all of them T71's defect again,
+an annotation narrower than the behaviour.
+
+| family | count | the call that works and did not type-check |
+|---|---|---|
+| `list[float]` on an input parameter | 51 | `cyl(shift=(2, 1))` |
+| `prismoid`'s rim parameters | 6 | `prismoid(chamfer=[1,2,1,2])` |
+| the concrete `Point` on an input | 12 | `cuboid(p1=[0,0,0])` |
+
+`list` is invariant, so `list[float]` rejects a tuple. Nineteen of the fifty-one were in the SDF
+backend and thirty-two outside it, so it was not one backend's habit. `Sequence[float]` is the
+input type; `list[float]` stays right for a **return**, and the guard checks parameters only —
+with a companion assertion that the package still returns lists, so it cannot start passing
+because they went away. `PointLike`, the alias that exists for exactly the `p1=` case, was sitting
+unused beside `Point` in `pybosl2.points`.
+
+### What is not a defect, which bounds the rule
+
+Twenty shared parameters still differ by a `| None`, and they are correct: the façade resolves
+`None` before either backend sees it, so `cuboid(rounding=None)` and `wedge(anchor=None)` build on
+both backends through `pybosl2.solid` (A-10). Reaching a backend module directly with an
+undeclared `None` is a call mypy already refuses — type and behaviour agree there. So the
+assertion is shape-only, with the nullability count as a ratchet.
+
+The two declared differences are both the SDF side being **wider**, the harmless direction. The
+dangerous direction has no rows and may not gain any.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

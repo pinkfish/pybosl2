@@ -95,3 +95,120 @@ def test_the_checker_is_actually_running() -> None:
     """SPEC PAR-1: a harness that always reports clean would pass every row above in silence."""
     assert _typecheck("x: int = 'not an int'\n"), "mypy reported nothing for a certain error"
     assert not _typecheck("x: int = 1\n"), "mypy reported something for correct code"
+
+
+# --- the sweep (T72) ----------------------------------------------------------------------------
+
+#: Parameters the two spellings may legitimately disagree about, with the reason. A row is a claim
+#: that the difference is intended, and has to say why -- not merely record it. Both rows are the
+#: SDF side being *wider*, which is the harmless direction: nothing a CSG caller writes is refused.
+#: The dangerous direction -- SDF narrower than CSG -- has no rows and may not gain any, because
+#: that is an annotation rejecting a call that works, which is the whole of T71 and T72.
+DECLARED_DIFFERENCES: dict[str, str] = {
+    "texture": "the SDF backend also accepts a TextureData tile; the CSG one takes a name only",
+    "data": "heightfield: the SDF field is a callable of libfive trees, not of floats",
+}
+
+#: Shared parameters whose annotations still differ, all of them a `| None` the façade normalises
+#: before either backend sees it. Measured, not chosen, and it only shrinks.
+DIFFERENCE_BUDGET = 20
+
+
+def _shared_signatures() -> list[tuple[str, str, str, str]]:
+    """Every parameter shared by both backends' spelling of the same constructor.
+
+    The rows above are a *sample* -- eight calls chosen by hand, which is how a sample fails: it
+    covers what its author thought of. This is the sweep, and it is a different instrument: it
+    compares annotations rather than type-checking calls, so it sees every parameter without
+    needing a plausible value for each, and it cannot see a signature that is wrong in the same
+    way on both sides. The two together are what the pair of guards in `test_signatures.py` is to
+    each other.
+    """
+    import inspect
+
+    import pybosl2.sdf.shapes3d as sdf
+    import pybosl2.shapes3d as csg
+
+    def normalise(text: str) -> str:
+        for noise in ("'", '"', "pybosl2._edges_lang.", "collections.abc.", "typing."):
+            text = text.replace(noise, "")
+        return text
+
+    rows: list[tuple[str, str, str, str]] = []
+    for name in sorted(dir(sdf)):
+        left, right = getattr(sdf, name, None), getattr(csg, name, None)
+        if name.startswith("_") or not inspect.isfunction(left) or not callable(right):
+            continue
+        try:
+            a = inspect.signature(left).parameters
+            b = inspect.signature(right).parameters
+        except (TypeError, ValueError):  # pragma: no cover - a builtin or C callable
+            continue
+        for parameter in sorted(set(a) & set(b)):
+            ta, tb = normalise(str(a[parameter].annotation)), normalise(str(b[parameter].annotation))
+            if ta != tb:
+                rows.append((name, parameter, ta, tb))
+    return rows
+
+
+SHARED = _shared_signatures()
+
+
+def test_the_sweep_reaches_the_shared_surface() -> None:
+    """A sweep that compared nothing would pass the check below in silence."""
+    import inspect
+
+    import pybosl2.sdf.shapes3d as sdf
+    import pybosl2.shapes3d as csg
+
+    shared = [
+        n
+        for n in dir(sdf)
+        if not n.startswith("_") and inspect.isfunction(getattr(sdf, n, None)) and callable(getattr(csg, n, None))
+    ]
+    assert len(shared) > 15, f"only {len(shared)} shared constructors found; the sweep is broken"
+
+
+def test_no_shared_parameter_differs_in_shape() -> None:
+    """SPEC PAR-1: the two spellings may differ in nullability, never in what they accept.
+
+    Thirty-five parameters disagreed when this was measured. The interesting ones were the SDF
+    side declaring *less* than it accepts: `prismoid(chamfer=[1,2,1,2])` builds on both backends
+    while the SDF annotation said `float | None`, and `cuboid(p1=[0,0,0])` builds on both while
+    the CSG annotation said `Point | None` -- `PointLike` is the alias that exists for exactly
+    that and was not being used. Each is T71's defect in another parameter family: an annotation
+    narrower than the behaviour, which no runtime test can see because the call it rejects works.
+
+    What is allowed through is a `| None` difference, because the façade resolves `None` before
+    either backend sees it -- both `cuboid(rounding=None)` and `wedge(anchor=None)` build on both
+    backends through `pybosl2.solid`, which is the documented entry point (A-10). Reaching a
+    backend module directly with a `None` its signature does not declare is a call mypy already
+    refuses, so there the type and the behaviour agree.
+    """
+    shaped = [
+        f"{name}.{parameter}: sdf={left!r} csg={right!r}"
+        for name, parameter, left, right in SHARED
+        if parameter not in DECLARED_DIFFERENCES and left.replace(" | None", "") != right.replace(" | None", "")
+    ]
+    assert not shaped, "the backends disagree about what a shared parameter accepts (SPEC PAR-1):\n  " + "\n  ".join(
+        shaped
+    )
+
+
+def test_the_nullability_differences_only_shrink() -> None:
+    """SPEC PAR-1: a `| None` gap is tolerable and is still a gap, so the count is a ratchet."""
+    nullable = [r for r in SHARED if r[1] not in DECLARED_DIFFERENCES]
+    assert len(nullable) <= DIFFERENCE_BUDGET, (
+        f"{len(nullable)} shared parameters differ, budget {DIFFERENCE_BUDGET}: "
+        f"{[f'{n}.{p}' for n, p, _, _ in nullable][:6]}"
+    )
+    assert len(nullable) == DIFFERENCE_BUDGET, (
+        f"down to {len(nullable)} from {DIFFERENCE_BUDGET} -- lower DIFFERENCE_BUDGET to hold it."
+    )
+
+
+def test_every_declared_difference_is_still_real() -> None:
+    """SPEC PAR-1: a row excusing a difference that has gone makes the pair look worse than it is."""
+    differing = {parameter for _, parameter, _, _ in SHARED}
+    stale = sorted(set(DECLARED_DIFFERENCES) - differing)
+    assert not stale, f"{stale} no longer differ -- take them out of DECLARED_DIFFERENCES"

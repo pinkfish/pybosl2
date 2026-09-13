@@ -752,7 +752,7 @@ class CsgShape2D(BaseShape):
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,
-        dist: list[float] | None = None,
+        dist: Sequence[float] | None = None,
         rotate_children: bool = True,
     ) -> "Bosl2Shape2D":
         """Distribute copies of this 2-D shape along *path*, oriented to the path normal.
