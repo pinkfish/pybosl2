@@ -31,7 +31,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
     from pybosl2._backend import Solid
 
@@ -297,7 +297,7 @@ class ThreadedRod(Buildable):
         d: float,
         l: float,  # noqa: E741
         pitch: float,
-        profile: list[list[float]] | ThreadProfile,
+        profile: Sequence[Sequence[float]] | ThreadProfile,
         starts: int = 1,
         left_handed: bool = False,
         fn: int | None = None,
@@ -330,7 +330,9 @@ class ThreadedRod(Buildable):
         self._d: float = d
         self._l: float = l
         self._pitch: float = pitch
-        self._profile: list[list[float]] | ThreadProfile = profile
+        self._profile: list[list[float]] | ThreadProfile = (
+            profile if isinstance(profile, ThreadProfile) else [list(row) for row in profile]
+        )
         self._starts: int = starts
         self._left_handed: bool = left_handed
         self._fn: int | None = fn
@@ -402,7 +404,7 @@ class ThreadedNut(Buildable):
         id: float,  # noqa: A002
         h: float,
         pitch: float,
-        profile: list[list[float]] | ThreadProfile,
+        profile: Sequence[Sequence[float]] | ThreadProfile,
         shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
@@ -435,7 +437,9 @@ class ThreadedNut(Buildable):
         self._id: float = id
         self._h: float = h
         self._pitch: float = pitch
-        self._profile: list[list[float]] | ThreadProfile = profile
+        self._profile: list[list[float]] | ThreadProfile = (
+            profile if isinstance(profile, ThreadProfile) else [list(row) for row in profile]
+        )
         self._shape: NutShape = shape
         self._starts: int = starts
         self._left_handed: bool = left_handed
@@ -530,7 +534,7 @@ class ThreadHelix(Buildable):
         turns: float = 1,
         starts: int = 1,
         left_handed: bool = False,
-        profile: list[list[float]] | ThreadProfile | None = None,
+        profile: Sequence[Sequence[float]] | ThreadProfile | None = None,
     ) -> None:
         """Create a single thread helix ridge for adding threads to your own cylinder.
 

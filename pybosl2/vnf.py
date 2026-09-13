@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from pybosl2.isosurface import MetaballSpec
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
 
 _EPS = 1e-9
 
@@ -303,7 +304,7 @@ def _marching_squares(
     return paths
 
 
-def _to_grid(points: Any) -> np.ndarray:
+def _to_grid(points: "PathLike | Sequence[PathLike]") -> np.ndarray:
     """Convert points (Path3D, list of Path3D, arrays) to a 3-D numpy grid."""
     from pybosl2.path3d import Path3D
 
@@ -743,7 +744,9 @@ class VNF:
 
     """
 
-    def __init__(self, vertices: list[list[float]] | None = None, faces: list[list[int]] | None = None) -> None:
+    def __init__(
+        self, vertices: Sequence[Sequence[float]] | None = None, faces: Sequence[Sequence[int]] | None = None
+    ) -> None:
         """Initialize the VNF with vertices and faces."""
         self.vertices = _rows_as_float(vertices)
         self.faces = _rows_as_int(faces)

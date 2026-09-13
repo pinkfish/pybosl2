@@ -31,6 +31,8 @@ from pybosl2.path2d import Path2D
 from pybosl2.solid import cuboid, cyl, prismoid
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pybosl2._backend import Solid
 
 _opolygon = native("polygon")
@@ -96,14 +98,14 @@ class RingHook(Buildable):
 
     def __init__(
         self,
-        base_size: list[float],
+        base_size: Sequence[float],
         hole_z: float,
         outer_radius: float | None = None,
         inner_radius: float | None = None,
         outer_diameter: float | None = None,
         inner_diameter: float | None = None,
         wall: float | None = None,
-        hole: HoleType | list[list[float]] = HoleType.CIRCLE,
+        hole: HoleType | Sequence[Sequence[float]] = HoleType.CIRCLE,
         rounding: float = 0,
         hole_rounding: float = 0,
         fillet: float = 0,
@@ -175,7 +177,7 @@ class RingHook(Buildable):
         tangents = _circle_point_tangents(ro, [0, hole_z], [bx / 2, 0])
         tx, tz = max(tangents, key=lambda t: t[1])
 
-        self._base_size: list[float] = base_size
+        self._base_size: list[float] = list(base_size)
         self._hole_z: float = hole_z
         self._outer_radius: float = ro
         self._inner_radius: float = ri
@@ -262,7 +264,7 @@ class RingHook(Buildable):
 
 
 def _hole_cutter(
-    hole: HoleType | list[list[float]],
+    hole: HoleType | Sequence[Sequence[float]],
     ri: float,
     w: float,
     hole_z: float,

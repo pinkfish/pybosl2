@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, SupportsIndex
+from typing import TYPE_CHECKING, Any, SupportsIndex
 
 # A sys.version_info split rather than try/except ImportError: type checkers evaluate the version
 # test statically and follow exactly one branch, where the try/except leaves them silencing a
@@ -44,13 +44,13 @@ class Vec3(list[float]):
             return NotImplemented
         return Vec3(a + b for a, b in zip(self, value, strict=False))
 
-    def __radd__(self, value: list[float]) -> Vec3:
+    def __radd__(self, value: Sequence[float]) -> Vec3:
         return Vec3(a + b for a, b in zip(value, self, strict=False))
 
-    def __sub__(self, value: list[float]) -> Vec3:
+    def __sub__(self, value: Sequence[float]) -> Vec3:
         return Vec3(a - b for a, b in zip(self, value, strict=False))
 
-    def __rsub__(self, value: list[float]) -> Vec3:
+    def __rsub__(self, value: Sequence[float]) -> Vec3:
         return Vec3(a - b for a, b in zip(value, self, strict=False))
 
     def __neg__(self) -> Vec3:
@@ -77,3 +77,6 @@ BOTTOM: Vec3 = Vec3([0, 0, -1])
 TOP: Vec3 = Vec3([0, 0, 1])
 
 CENTER: Vec3 = Vec3([0, 0, 0])
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence

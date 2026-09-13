@@ -28,6 +28,7 @@ from pybosl2.path2d import Path2D
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
     from collections.abc import Iterator, Sequence
+    from typing import TypeAlias
 
     from pybosl2._backend import Solid
     from pybosl2.color import Color
@@ -129,6 +130,17 @@ def nesting_depths(polys: "Sequence[Any]", probes: "Sequence[Any]") -> list[int]
     return [sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))]
 
 
+# `Region(paths=...)` is a constructor, and `Any` told a caller nothing about what it takes
+# (SPEC C-20): a sequence of outlines, a single flat point list, or a shapely geometry.
+if TYPE_CHECKING:
+    from pybosl2.paths import PathLike
+
+    #: What :class:`Region` accepts. Declared inside the type-checking block because its members
+    #: are: `PathLike` cannot be imported at runtime here without a cycle, and a string-valued
+    #: alias hides the reference from the linter, which then removes the import as unused.
+    RegionLike: TypeAlias = Sequence[PathLike] | PathLike | Polygon | MultiPolygon
+
+
 class Region:
     """A 2-D region backed by :mod:`shapely` (not OpenSCAD/PythonSCAD).
 
@@ -174,7 +186,7 @@ class Region:
 
     """
 
-    def __init__(self, paths: Any = ()) -> None:
+    def __init__(self, paths: "RegionLike" = ()) -> None:
         """Create a region from path outlines or a shapely geometry.
 
         When *paths* is a list of :class:`~pybosl2.path2d.Path2D` objects that

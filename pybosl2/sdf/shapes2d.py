@@ -936,7 +936,7 @@ class SdfShape2D(Colorable, Distributable):
 
     def distribute_on_path(
         self,
-        path: Any,
+        path: "Path2D",
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,

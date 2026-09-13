@@ -17,10 +17,11 @@ import operator
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
 
 from pybosl2._backend import (
     for_backend,
@@ -75,7 +76,12 @@ class CsgBackend:
         refuse_bad_dimensions(shape, arguments)
         return constructor(**for_backend(constructor, arguments))
 
-    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Any:
+    def polyhedron(
+        self,
+        points: "Sequence[Sequence[float]]",
+        faces: "Sequence[Sequence[int]] | None" = None,
+        convexity: int | None = None,
+    ) -> Any:
         from pybosl2._native import native
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -83,7 +89,7 @@ class CsgBackend:
             return Bosl2Solid(native("polyhedron")(points, faces))
         return Bosl2Solid(native("polyhedron")(points, faces, convexity=convexity))
 
-    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> Any:
+    def rotate_extrude(self, paths: "Sequence[PathLike]", angle: float, arguments: Mapping[str, Any]) -> Any:
         """Revolve *paths* about the Z axis with the native ``rotate_extrude()``.
 
         Args:
@@ -97,15 +103,18 @@ class CsgBackend:
         from pybosl2.shapes3d import Bosl2Solid
 
         options = {name: value for name, value in arguments.items() if value is not None}
-        outlines = paths if isinstance(paths, (list, tuple)) else [paths]
-        profile = native("polygon")([[float(v) for v in point] for point in outlines[0]])
+        # `paths` is a sequence of outlines, and each outline is a sequence of points. Coercing
+        # every point to a float pair up front is what makes that readable to the checker as well
+        # as to a reader -- the shape of the data is the loop, not an isinstance test on the way in.
+        outlines = [[[float(v) for v in point] for point in outline] for outline in paths]
+        profile = native("polygon")(outlines[0])
         for extra in outlines[1:]:
-            profile = profile | native("polygon")([[float(v) for v in point] for point in extra])
+            profile = profile | native("polygon")(extra)
         # `angle` goes by keyword: the native rejects a float positionally ("error during
         # parsing") while accepting one as `angle=`.
         return Bosl2Solid(unwrap(profile.rotate_extrude(angle=float(angle), **options)))
 
-    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> Any:
+    def linear_extrude(self, paths: "Sequence[PathLike]", height: float, arguments: Mapping[str, Any]) -> Any:
         """Extrude *paths* into an exact-CSG solid: the first outline, the rest cut out as holes.
 
         Goes through the native ``linear_extrude()`` and accepts every native option

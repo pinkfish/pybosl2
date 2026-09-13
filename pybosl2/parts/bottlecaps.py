@@ -34,7 +34,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2._helpers import union
 from pybosl2._native import native
@@ -176,7 +176,7 @@ def _turtle_start(x: float, y: float = 0.0) -> Turtle2DState:
     return Turtle2DState(path=[[float(x), float(y)]])
 
 
-def _pco1810_profile(diameter: BottleThreadSpec) -> Any:
+def _pco1810_profile(diameter: BottleThreadSpec) -> "Path2D":
     height = diameter.support_h + diameter.neck_h
     return turtle2d(
         [
@@ -214,7 +214,7 @@ def _pco1810_profile(diameter: BottleThreadSpec) -> Any:
     ).points()
 
 
-def _pco1881_profile(diameter: BottleThreadSpec) -> Any:
+def _pco1881_profile(diameter: BottleThreadSpec) -> "Path2D":
     height = diameter.support_h + diameter.neck_h
     return turtle2d(
         [
@@ -290,7 +290,7 @@ def _neck_thread(
 
 def _build_neck(
     diameter: BottleThreadSpec,
-    profile: Any,
+    profile: "Path2D",
     bottom_half: bool,
     fn: int | None = None,
     fa: float | None = None,

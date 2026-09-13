@@ -308,6 +308,9 @@ def test_every_anchor_parameter_speaks_the_anchor_language() -> None:
 
 #: Parameters whose `list[...]` is deliberate, with the reason. A `list` in an *input* position
 #: rejects a tuple, so it needs one -- and "the body happens to mutate it" is not one: copy it.
+#: Empty, and it stayed empty through T73: every candidate turned out to be a stored attribute
+#: aliasing the caller's sequence, which is a defect in its own right -- the caller's list is
+#: theirs to mutate afterwards -- and the fix is `list(row)`, not a narrower parameter.
 INVARIANT_BY_DESIGN: dict[str, str] = {}
 
 
@@ -328,7 +331,11 @@ def test_no_input_parameter_demands_a_list() -> None:
     demanding = [
         f"{path}::{name} {a.arg}: {ast.unparse(a.annotation)}"
         for path, name, node in EVERY_SIGNATURE
-        if not name.startswith("_")
+        # `not name.startswith("_")` was the first spelling of this, and it silently excluded
+        # every **dunder** -- so `VNF(vertices=[(0,0,0), ...])` kept failing `mypy --strict` for a
+        # task after the rule that forbids it was written. A constructor is the most public thing
+        # a class has, and an operator is public too; `_private` helpers are the only exemption.
+        if not (name.startswith("_") and not name.startswith("__"))
         for a in node.args.args + node.args.kwonlyargs
         if a.annotation is not None
         and f"{name}.{a.arg}" not in INVARIANT_BY_DESIGN
@@ -379,17 +386,13 @@ def test_an_anchor_parameter_is_annotated_at_all() -> None:
 #: *layering* edge in T56 -- it was the reason `path3d -> _stroke3d` could not be seen as a cycle
 #: -- and measuring the class immediately turned up its 2-D twin, `_stroke2d.stroke_2d`, with the
 #: identical defect. Both are `PathLike` now.
-DOMAIN_TYPED_ANY: dict[str, int] = {
-    "_backend.py": 3,
-    "_csg.py": 3,
-    "parts/bottlecaps.py": 1,
-    "regions.py": 1,
-    "sdf/__init__.py": 5,
-    "sdf/shapes2d.py": 1,
-    "sdf/shapes3d.py": 2,
-    "solid.py": 1,
-    "vnf.py": 1,
-}
+#: **Empty since T73.** Every one had an honest type already written down somewhere: `polyhedron`'s
+#: `points` is the `Sequence[Sequence[float]]` a `VNF` hands it, `stroke_3d`'s `path` is the
+#: `PathLike` its 2-D twin was given in T56, and `distribute_on_path`'s `path` is the `Path3D` the
+#: CSG spelling had declared all along. Two of them were the type being *wrong* rather than
+#: missing: `Region(paths=)` needed a name that did not exist, and the bottlecap profile helpers
+#: turned out to return `Path2D`, not the `Turtle2D` their own annotations claimed.
+DOMAIN_TYPED_ANY: dict[str, int] = {}
 
 #: Parameter names that mean a type the project defines, so `Any` on one is throwing that type
 #: away rather than describing something genuinely unconstrained.

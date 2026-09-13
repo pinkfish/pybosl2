@@ -18,10 +18,11 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
 
 import numpy as np
 
@@ -41,7 +42,7 @@ from pybosl2.sdf import shapes3d as _s
 __all__: list[str] = []
 
 
-def _describes_a_convex_solid(points: Any, faces: Any) -> bool:
+def _describes_a_convex_solid(points: "Sequence[Sequence[float]]", faces: "Sequence[Sequence[int]]") -> bool:
     """Report whether *faces* over *points* bound a convex solid.
 
     The SDF backend builds a polyhedron as the max of its faces' signed half-space distances,
@@ -100,7 +101,7 @@ def _takes_res(constructor: Callable[..., Any]) -> bool:
         return False
 
 
-def _as_outlines(paths: Any) -> "list[Path2D]":
+def _as_outlines(paths: "Sequence[PathLike]") -> "list[Path2D]":
     """Normalize the backend protocol's `paths` to `Path2D` outlines.
 
     `Backend.linear_extrude`/`rotate_extrude` are typed `Any` and documented to carry raw point
@@ -177,7 +178,12 @@ class SdfBackend:
                 named["res"] = ambient
         return fn(**named)
 
-    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> _s.PyShape:
+    def polyhedron(
+        self,
+        points: "Sequence[Sequence[float]]",
+        faces: "Sequence[Sequence[int]] | None" = None,
+        convexity: int | None = None,
+    ) -> _s.PyShape:
         """Return `points` as an SDF, built from its face half-spaces.
 
         This form can only describe a **convex** solid, so a `faces` list that bounds anything else
@@ -208,7 +214,7 @@ class SdfBackend:
             )
         return _s.convex_polyhedron(Path3D(points))
 
-    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> _s.PyShape:
+    def rotate_extrude(self, paths: "Sequence[PathLike]", angle: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Revolve *paths* about the Z axis via :func:`~pybosl2.sdf.shapes3d.rotate_extrude`.
 
         The CSG-only rendering options (``convexity``, ``fn``/``fa``/``fs``) describe tessellation
@@ -226,7 +232,7 @@ class SdfBackend:
             options.pop(name, None)
         return _s.rotate_extrude(_as_outlines(paths), angle=angle, res=res)
 
-    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
+    def linear_extrude(self, paths: "Sequence[PathLike]", height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Extrude *paths* into an SDF prism via :func:`~pybosl2.sdf.shapes3d.polygon_prism`.
 
         *paths* is one outline or a list of DISJOINT outlines -- the SDF prism is the min (union)

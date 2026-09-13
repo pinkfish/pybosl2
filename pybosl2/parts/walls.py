@@ -39,6 +39,8 @@ from pybosl2.solid import cuboid
 from pybosl2.vnf import VNF
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pybosl2._backend import Solid
 
 _opolygon = native("polygon")
@@ -327,7 +329,7 @@ class SparseCuboid(Buildable):
 
     def __init__(
         self,
-        size: float | list[float],
+        size: float | Sequence[float],
         dir: SparseAxis = SparseAxis.Y,  # noqa: A002
         strut: float = 5,
         maxang: float = 30,
@@ -346,7 +348,7 @@ class SparseCuboid(Buildable):
             None.
 
         """
-        self._size = list(size) if isinstance(size, (list, tuple)) else [size, size, size]
+        self._size = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
 
         sx, sy, sz = (float(v) for v in self._size)
         if dir == SparseAxis.X:

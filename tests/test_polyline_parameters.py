@@ -93,7 +93,24 @@ EXCLUDED = frozenset(
 #: Public parameters still accepting a raw sequence. This list only shrinks (SPEC §12.2 item 3).
 #: **Empty**: every public parameter that means an ordered set of points now takes a `Path`.
 #: The list stays, and the scan with it, so a new signature cannot quietly re-open the debt.
-STILL_RAW: frozenset[str] = frozenset()
+#: `stroke_3d`'s `path` was `Any` until T73 -- invisible to this scan, because `Any` is not read
+#: as a polyline. Typed honestly it is a raw sequence, and it has to stay one for now: the CSG
+#: twin `_stroke3d.stroke_3d` takes a `PathLike` too (T56) and lives in a private module this scan
+#: does not reach, so requiring a `Path3D` on the SDF side alone would refuse a call that works on
+#: the other backend. The pair converts together or not at all.
+STILL_RAW: frozenset[str] = frozenset({"pybosl2/sdf/shapes3d.py::stroke_3d::path"})
+
+#: Parameters the scan reads as a polyline because of their *name*, and which are not one. The
+#: rule above is about "an ordered set of points"; these are not ordered, so wrapping them in a
+#: `Path` would be calling them something they are not. Each row says why.
+#:
+#: `polyhedron(points, faces)` is the case: `faces` holds indices into `points`, so `points` is an
+#: unordered vertex *pool* and the traversal order lives in `faces`. It was invisible here until
+#: T73 typed it -- it had been `Any`, which the scan does not read as a polyline at all -- and the
+#: documented example passes a raw list, as the OpenSCAD primitive it wraps does.
+NOT_A_POLYLINE: dict[str, str] = {
+    "pybosl2/solid.py::polyhedron::points": "a vertex pool indexed by `faces`, not a traversal",
+}
 
 
 def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
@@ -140,7 +157,7 @@ def _raw_polyline_parameters() -> set[str]:
 
 def test_no_new_parameter_takes_raw_points() -> None:
     """A new or edited signature uses a Path type (SPEC C-7a)."""
-    added = sorted(_raw_polyline_parameters() - STILL_RAW)
+    added = sorted(_raw_polyline_parameters() - STILL_RAW - set(NOT_A_POLYLINE))
     assert not added, (
         f"these public parameters mean a sequence of points but accept a bare sequence: {added}. "
         f"Type them Path2D/Path3D and call require_path() on the first line (PLAN T-4b)."
@@ -151,6 +168,16 @@ def test_the_list_is_not_stale() -> None:
     """A converted parameter comes off the list, so the debt cannot be overstated."""
     fixed = sorted(STILL_RAW - _raw_polyline_parameters())
     assert not fixed, f"these take a Path now -- remove them from STILL_RAW: {fixed}"
+
+
+def test_the_not_a_polyline_rows_are_still_found_by_the_scan() -> None:
+    """A row excusing a parameter the scan no longer reports is a claim about nothing.
+
+    It would also hide a real regression: if the parameter were retyped or renamed, the row would
+    sit there excusing a name that has gone while the scan quietly stopped covering it.
+    """
+    stale = sorted(set(NOT_A_POLYLINE) - _raw_polyline_parameters())
+    assert not stale, f"the scan no longer reports these -- remove them from NOT_A_POLYLINE: {stale}"
 
 
 def test_require_path_returns_a_path_untouched() -> None:
@@ -467,6 +494,10 @@ GUARDED_BY_DELEGATION = {
     "pybosl2/distributors.py::path_copies::path": "the method form calls the module function, which guards",
     "pybosl2/shapes2d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
     "pybosl2/shapes3d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
+    # T73 typed these; they were `Any`, which the scan does not read as a path at all. Both reach
+    # the same guard their CSG twins above do -- the SDF spelling delegates identically.
+    "pybosl2/sdf/shapes2d.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
+    "pybosl2/sdf/shapes3d.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
     "pybosl2/shapes3d/extrusions.py::path_text::path": "calls Path2D/Path3D methods that guard",
     "pybosl2/vnf.py::from_skin::profiles": "calls skin.slice_profiles(), which guards",
 }
