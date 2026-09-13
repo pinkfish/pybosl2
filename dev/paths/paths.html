@@ -13848,7 +13848,7 @@ in 2-D and 3-D (SPEC C-7a).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.path2d.Path2D.to_bezcornerpath.parm"><span class="sig-name descname">parm</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | list[float] | None</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.to_bezcornerpath.parm" title="Permalink to this definition">¶</a></dt><dd><p>Distance from corner to control point (scalar for all corners,
+<dt id="pybosl2.path2d.Path2D.to_bezcornerpath.parm"><span class="sig-name descname">parm</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.to_bezcornerpath.parm" title="Permalink to this definition">¶</a></dt><dd><p>Distance from corner to control point (scalar for all corners,
 <code class="docutils literal notranslate"><span class="pre">[d,</span> <span class="pre">k]</span></code> for asymmetrical, or per-corner list).  <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>
 leaves a corner sharp.</p>
 </dd>
@@ -13865,7 +13865,7 @@ value applies; <code class="docutils literal notranslate"><span class="pre">fn=0
 <dd class="field-even"><p>A new <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> with bezier-rounded corners.</p>
 </dd>
 <dt class="field-odd" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><em>Path2D</em></p>
+<dd class="field-odd"><p>Path2D</p>
 </dd>
 </dl>
 </dd></dl>
