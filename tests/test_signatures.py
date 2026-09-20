@@ -59,12 +59,10 @@ TOO_MANY_REQUIRED: dict[str, int] = {
 
 #: Public callables taking a tier parameter positionally, per file. Only shrinks.
 POSITIONAL_TIERS: dict[str, int] = {
-    "_backend.py": 18,
-    "_edges_lang.py": 3,
+    "_backend.py": 12,
     "_shape.py": 1,
     "beziers.py": 1,
-    "bounds.py": 2,
-    "defaults.py": 4,
+    "defaults.py": 3,
     "distributors.py": 5,
     "groups.py": 3,
     "masking.py": 9,
@@ -184,7 +182,40 @@ def _builds_geometry(node: ast.FunctionDef) -> bool:
 
 
 TOO_MANY = _counts(lambda n: _builds_geometry(n) and len(_required(n)) > 2)
-POSITIONAL = _counts(lambda n: any(a.arg in TIERS for a in n.args.args if a.arg not in ("self", "cls")))
+
+
+def _tier_in_the_tail(node: ast.FunctionDef) -> bool:
+    """Whether a tier parameter sits *past* the subject argument, which is what T-9a forbids.
+
+    PLAN T-9a says "everything past the subject argument goes after a bare `*`", so a tier name at
+    position 0 is the subject and is compliant: `shape.align(Anchor.TOP, child)` names the face the
+    operation is about, and `resolve_anchor(anchor)` takes the anchor as its operand. This counted
+    those too, which inflated the figure by twelve against the rule's own words.
+    """
+    positional = [a.arg for a in node.args.args if a.arg not in ("self", "cls")]
+    return any(name in TIERS for name in positional[1:])
+
+
+POSITIONAL = _counts(_tier_in_the_tail)
+
+
+def test_the_subject_exemption_is_only_the_first_parameter() -> None:
+    """PLAN T-9a: "past the subject argument" is position 0, and nothing wider.
+
+    The exemption is the one place this scan can be quietly weakened -- widen it by one and the
+    count drops without a line of code changing. So it is exercised on both sides: a tier name at
+    position 0 is compliant, and the same name one place later is not.
+    """
+    subject = ast.parse("def f(anchor, size): ...").body[0]
+    tail = ast.parse("def f(size, anchor): ...").body[0]
+    assert isinstance(subject, ast.FunctionDef)
+    assert isinstance(tail, ast.FunctionDef)
+    assert not _tier_in_the_tail(subject), "a tier name at position 0 is the subject argument"
+    assert _tier_in_the_tail(tail), "a tier name past the subject is what the rule forbids"
+
+    method = ast.parse("def f(self, anchor, child): ...").body[0]
+    assert isinstance(method, ast.FunctionDef)
+    assert not _tier_in_the_tail(method), "`self` is the receiver, not the subject argument"
 
 
 @pytest.mark.parametrize("path", sorted(set(TOO_MANY) | set(TOO_MANY_REQUIRED)))

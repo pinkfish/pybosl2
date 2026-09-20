@@ -2441,6 +2441,37 @@ as a polyline, so both had been invisible to it.
   accepts raw points, so requiring a `Path3D` on the SDF side alone refuses a call that works on
   the other backend. Recorded in `STILL_RAW` as debt the pair converts together.
 
+## T74 — The positional-tier figure was twelve too high ✅
+
+**§12.2 item 39. P-5, D-1, T-9a. 114 → 102.**
+
+PLAN T-9a says "everything **past the subject argument** goes after a bare `*`". The scan flagged
+any tier name in a positional slot, including position 0 — so `shape.align(Anchor.TOP, child)` and
+`resolve_anchor(anchor)`, where the anchor *is* the subject, were counted as violations.
+
+The exemption is exercised in both directions, because it is the one place this scan can be
+quietly weakened: widen it by one and the count drops without a line of code changing.
+
+### The conversion was attempted, measured, and reverted
+
+Inserting the bare `*` across all 102 is mechanical — 95 are a one-line insert — and only **34**
+call sites in the whole repository reach a tier position. But it makes a class of callable worse:
+
+| callable | why the rule mis-fires |
+|---|---|
+| `resolve_facets(fn, fa, fs)` | every parameter is a tier; the rule puts `*` after `fn` |
+| `set_defaults(fn, fa, fs, res)` | same |
+| `Facets.resolved(fn, fa, fs, res)` | same |
+
+Each internal call becomes `resolve_facets(fn, fa=fa, fs=fs)` — noise in service of a rule about
+callers not depending on positional order, where the caller is this package.
+
+**So the remaining debt is two kinds, not one**, and a single count conflates them: constructors
+where placement trails real shape arguments (what P-5 is about), and resolvers whose subject *is*
+the tier. A first attempt at separating them by heuristic drifted toward "the cases that broke" —
+how an exemption list becomes a dumping ground — so it was reverted rather than shipped with a
+rule nobody could restate.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
