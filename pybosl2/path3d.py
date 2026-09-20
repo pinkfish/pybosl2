@@ -128,6 +128,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         diameter: float | None = None,
         diameter1: float | None = None,
         diameter2: float | None = None,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,

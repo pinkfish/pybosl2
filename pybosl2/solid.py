@@ -187,7 +187,11 @@ def _groups(
     """
     if {"anchor", "spin", "orient"} & set(arguments):
         arguments["anchor"], arguments["spin"], arguments["orient"] = resolve_placement(
-            placement, arguments.get("anchor"), arguments.get("spin"), arguments.get("orient"), function
+            placement,
+            anchor=arguments.get("anchor"),
+            spin=arguments.get("spin"),
+            orient=arguments.get("orient"),
+            function=function,
         )
     if {"rounding", "chamfer"} & set(arguments):
         arguments["rounding"], arguments["chamfer"] = resolve_edge_treatment(
@@ -2602,7 +2606,10 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Defa
 
 
 def polyhedron(
-    points: "Sequence[Sequence[float]]", faces: "Sequence[Sequence[int]] | None" = None, convexity: int | None = None
+    points: "Sequence[Sequence[float]]",
+    faces: "Sequence[Sequence[int]] | None" = None,
+    *,
+    convexity: int | None = None,
 ) -> Solid:
     """Return a polyhedron on the active backend.
 

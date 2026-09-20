@@ -114,6 +114,7 @@ def extrude_from_to(
     twist: float = 0,
     scale: float = 1,
     slices: int | None = None,
+    *,
     convexity: int = 10,
 ) -> Bosl2Solid:
     """Linearly extrude a 2-D *profile* between two 3-D points.
@@ -171,6 +172,7 @@ def cylindrical_extrude(
     outer_diameter: float | None = None,
     inner_diameter: float | None = None,
     size: float | Sequence[float] | None = None,
+    *,
     spin: float = 0,
     orient: Anchor | Sequence[float] = UP,
     convexity: int = 10,
@@ -348,6 +350,7 @@ class Extrudable:
         caps: bool = False,
         closed: bool | None = None,
         s: float | None = None,
+        *,
         convexity: int = 10,
     ) -> Bosl2Solid:
         """Extrude a 2-D *profile* along this 2-D path, standing it vertically.
@@ -429,6 +432,7 @@ class Extrudable:
     def path_extrude(
         self,
         profile: object,
+        *,
         convexity: int = 10,
         clipsize: float = 100,
     ) -> Bosl2Solid:

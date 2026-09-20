@@ -157,7 +157,7 @@ def circle(
             circle(radius=15).linear_extrude(height=5).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "circle")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="circle")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import circle2d
 
@@ -230,7 +230,7 @@ def square(
 
     """
     rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "square")
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "square")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="square")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import square2d
 
@@ -305,7 +305,7 @@ def rect(
 
     """
     rounding, chamfer = resolve_edge_treatment(treatment, rounding, chamfer, "rect")
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "rect")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="rect")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import rect2d
 
@@ -373,7 +373,7 @@ def polygon(
             polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "polygon")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="polygon")
     from pybosl2.path2d import Path2D
     from pybosl2.paths import require_path
 
@@ -448,7 +448,7 @@ def text(
             text(text="BOSL2", size=10).linear_extrude(height=3).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "text")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="text")
     if current_backend() == "sdf":
         raise UnsupportedByBackendError(
             "text",
@@ -518,7 +518,7 @@ def ellipse(
             ellipse(radius=[20, 10]).linear_extrude(height=4).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "ellipse")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="ellipse")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import ellipse2d
 
@@ -572,7 +572,7 @@ def star(
             star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "star")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="star")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import star2d
 
@@ -659,7 +659,7 @@ def regular_ngon(
             regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "regular_ngon")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="regular_ngon")
     if current_backend() == "sdf":
         if rounding:
             raise UnsupportedByBackendError(
@@ -744,7 +744,7 @@ def trapezoid(
             trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()
 
     """
-    anchor, spin = resolve_placement_2d(placement, anchor, spin, "trapezoid")
+    anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="trapezoid")
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import trapezoid2d
 

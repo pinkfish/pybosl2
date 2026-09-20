@@ -426,6 +426,7 @@ def pentagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
+    *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
@@ -493,6 +494,7 @@ def hexagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
+    *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
@@ -560,6 +562,7 @@ def octagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
+    *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
@@ -616,6 +619,7 @@ def octagon(
 @backend_only("csg")
 def right_triangle(
     size: Sequence[float] = (1, 1),
+    *,
     center: bool | None = None,
     rounding: float = 0,
     chamfer: float = 0,

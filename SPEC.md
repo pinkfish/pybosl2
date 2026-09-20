@@ -1247,6 +1247,16 @@ there in the same commit as the code (§13 rule 4).
 
 **The honest shape of the remaining debt is therefore two kinds, not one**, and a single count conflates them: constructors where placement and resolution trail real shape arguments, which is what P-5 is about — "positional arguments are for the one or two things everyone supplies" — and resolvers whose subject *is* the tier. A first attempt at separating them by heuristic started to drift toward "the cases that broke", which is how an exemption list becomes a dumping ground, so it was reverted rather than shipped with a rule nobody could restate.
 
+**T75 did the conversion T74 measured: 102 exported callables put their tier parameters behind a bare `*`, and the ratchet is empty.** Placement, resolution and escape-hatch arguments — `anchor`, `spin`, `orient`, `center`, `fn`, `fa`, `fs`, `res`, `convexity` — are keyword-only wherever they trail a real shape argument, so no caller can depend on their position. `cuboid(...).with_nominal_size([1,1,1], Anchor.TOP)` and `BottleCaps.pco1881_neck(32, 6)` are refused now; the keyword forms are unchanged.
+
+**The exemption T74 could not state is stated, and it has two halves because one is not enough.** A callable is a *resolver* when **every** positional parameter is a tier — so there is no shape argument for them to trail — **and** it builds no geometry. The second half is what keeps this from being a list of whatever was inconvenient: `BottleCaps.pco1881_neck(fn, fa, fs)` passes the first test and fails this one, because a constructor whose only parameters are tiers is still a constructor, and `pco1881_neck(32)` is exactly the call the rule prevents. Four callables use the exemption — `set_defaults`, `use_defaults`, `resolve_facets`, `Facets.resolved` — and the test asserts that set by name.
+
+**It asserts only the four where the exemption does any work.** Nine callables satisfy `_resolves_tiers`; five of them take a single tier, which is already the subject argument, so they are exempt twice over and say nothing about whether the rule is too wide. Asserting all nine would have looked stricter and tested less.
+
+**Two guards changed shape because the debt went to zero.** The per-file ratchet parametrizes over the files carrying debt, so with none left it parametrizes over nothing — the right shape for a ratchet and the wrong one for a finished rule, since a scan returning an empty result *for any reason* would pass it. The rule is now stated directly as well, with a floor on how many callables the walk must reach.
+
+**A negative control caught the exemption's geometry half being cosmetic, and then caught it not being.** Removing that half alone changes nothing, because the code is already compliant; removing it *and* un-converting `pco1881_neck` is what shows it load-bearing. A control that plants only the guard's weakening, on code with no defect left to find, measures nothing.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

@@ -339,11 +339,11 @@ def resolve_center_anchor(
 
 def resolve_placement(
     placement: "Placement | None",
+    *,
     anchor: "Anchor | Sequence[float] | None",
     spin: float | None,
     orient: "Anchor | Sequence[float] | None",
     function: str,
-    *,
     defaults: "Placement | None" = None,
 ) -> tuple["Anchor | Sequence[float] | None", float | None, "Anchor | Sequence[float] | None"]:
     """Resolve a placement group against the loose members, refusing a call that gives both.
@@ -406,10 +406,10 @@ _SpinT = TypeVar("_SpinT", bound="float | None")
 
 def resolve_placement_2d(
     placement: "Placement | None",
+    *,
     anchor: _AnchorT,
     spin: _SpinT,
     function: str,
-    *,
     defaults: "Placement | None" = None,
 ) -> "tuple[_AnchorT | Anchor | Sequence[float], _SpinT | float]":
     """Resolve a placement for a 2-D constructor, which has an anchor and a spin but no orient.

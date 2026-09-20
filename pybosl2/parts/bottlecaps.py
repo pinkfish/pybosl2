@@ -373,7 +373,7 @@ class BottleCaps:
     """
 
     @staticmethod
-    def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> "Solid":
+    def pco1810_neck(fn: int | None = None, *, fa: float | None = None, fs: float | None = None) -> "Solid":
         """Return a PCO-1810 threaded beverage-bottle neck.
 
         Args:
@@ -402,6 +402,7 @@ class BottleCaps:
     def pco1810_cap(
         wall: float = 2,
         texture: str | BottleCapTexture = BottleCapTexture.NONE,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -435,7 +436,7 @@ class BottleCaps:
         return _build_cap(_PCO1810, wall, texture, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
-    def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> "Solid":
+    def pco1881_neck(fn: int | None = None, *, fa: float | None = None, fs: float | None = None) -> "Solid":
         """Return a PCO-1881 threaded beverage-bottle neck.
 
         Args:
@@ -464,6 +465,7 @@ class BottleCaps:
     def pco1881_cap(
         wall: float = 2,
         texture: str | BottleCapTexture = BottleCapTexture.NONE,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,

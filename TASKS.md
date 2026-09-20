@@ -2472,6 +2472,49 @@ the tier. A first attempt at separating them by heuristic drifted toward "the ca
 how an exemption list becomes a dumping ground — so it was reverted rather than shipped with a
 rule nobody could restate.
 
+## T75 — Tiers behind the star ✅
+
+**§12.2 item 40. P-5, D-1, T-9a. 102 → 0.**
+
+The conversion T74 measured. 102 exported callables put `anchor`, `spin`, `orient`, `center`,
+`fn`, `fa`, `fs`, `res` and `convexity` behind a bare `*` wherever they trail a real shape
+argument. `cuboid(...).with_nominal_size([1,1,1], Anchor.TOP)` and `pco1881_neck(32, 6)` are
+refused now; the keyword forms are unchanged. Ten call sites inside the package and two in the
+tests moved to keyword form.
+
+### The exemption T74 could not state
+
+A callable is a **resolver** when *every* positional parameter is a tier — so there is no shape
+argument for them to trail — **and** it builds no geometry.
+
+The second half is what keeps this from being a list of whatever was inconvenient:
+
+| callable | all tiers? | builds geometry? | exempt |
+|---|---|---|---|
+| `resolve_facets(fn, fa, fs)` | yes | no | yes |
+| `set_defaults(fn, fa, fs, res)` | yes | no | yes |
+| `BottleCaps.pco1881_neck(fn, fa, fs)` | yes | **yes** | **no** |
+
+A constructor whose only parameters are tiers is still a constructor, and `pco1881_neck(32)` is
+exactly the call T-9a prevents.
+
+The test asserts the exempt set by name — but **only the four where the exemption does work**.
+Nine callables satisfy `_resolves_tiers`; five take a single tier and are already the subject
+argument, so they are exempt twice over. Asserting all nine would look stricter and test less.
+
+### Two guards changed shape at zero
+
+The per-file ratchet parametrizes over files carrying debt, so with none left it parametrizes
+over nothing — right for a ratchet, wrong for a finished rule, since a scan returning an empty
+result *for any reason* would pass it. The rule is stated directly now, with a floor on how many
+callables the walk must reach.
+
+### A control that measured nothing, then did
+
+Removing the exemption's geometry half alone changes nothing: the code is already compliant.
+Removing it **and** un-converting `pco1881_neck` is what shows it load-bearing. A control that
+plants only the guard's weakening, on code with no defect left to find, measures nothing.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

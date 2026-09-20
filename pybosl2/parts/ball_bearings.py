@@ -894,6 +894,7 @@ class BallBearings:
         width: float | None = None,
         shield: bool = True,
         color: Color | None = None,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,

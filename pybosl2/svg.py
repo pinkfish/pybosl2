@@ -66,6 +66,7 @@ def _curve_point_count(segment: object, fn: int | None, fs: float) -> int:
 
 def svg_outlines(
     file: str,
+    *,
     fn: int | None = DEFAULT_FN,
     fa: float | None = DEFAULT_FA,
     fs: float = DEFAULT_FS,
@@ -137,6 +138,7 @@ def svg_outlines(
 
 def region_from_svg(
     file: str,
+    *,
     fn: int | None = DEFAULT_FN,
     fa: float | None = DEFAULT_FA,
     fs: float = DEFAULT_FS,
@@ -451,6 +453,7 @@ def _resolve_clip(
 
 def svg_element_groups(
     file: str,
+    *,
     fn: int | None = DEFAULT_FN,
     fa: float | None = DEFAULT_FA,
     fs: float = DEFAULT_FS,
@@ -569,6 +572,7 @@ def svg_element_groups(
 
 def svg_rings_with_colors(
     file: str,
+    *,
     fn: int | None = DEFAULT_FN,
     fa: float | None = DEFAULT_FA,
     fs: float = DEFAULT_FS,
@@ -704,6 +708,7 @@ def _stroke_to_polygon(
 
 def regions_from_svg(
     file: str,
+    *,
     fn: int | None = DEFAULT_FN,
     fa: float | None = DEFAULT_FA,
     fs: float = DEFAULT_FS,
