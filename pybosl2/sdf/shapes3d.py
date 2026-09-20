@@ -71,6 +71,7 @@ if TYPE_CHECKING:
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2._helpers import RectTube
     from pybosl2.caps import CapSpec
+    from pybosl2.paths import PathLike
     from pybosl2.points import PointLike
     from pybosl2.textures import TextureData, TextureType
     from pybosl2.vnf import VNF
@@ -400,8 +401,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         res: int = 10,
         cuboid_size: Sequence[float] | None = None,
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
-        cuboid_edge_amounts: list[list[float]] | None = None,
-        cuboid_edge_modes: list[list[EdgeMode]] | None = None,
+        cuboid_edge_amounts: Sequence[Sequence[float]] | None = None,
+        cuboid_edge_modes: Sequence[Sequence[EdgeMode]] | None = None,
     ) -> None:
         self._sdf_fn = sdf_fn
         self.mn = list(mn)
@@ -412,8 +413,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         # 3x4 per-edge treatment state (EDGE_OFFSETS order) for cuboid-shaped instances --
         # round()/chamfer() MERGE into these and rebuild one single-pass SDF instead of
         # max()-wrapping treatment layers (see _cuboid_edge_sdf's docstring for why).
-        self.cuboid_edge_amounts = [row[:] for row in cuboid_edge_amounts] if cuboid_edge_amounts is not None else None
-        self.cuboid_edge_modes = [row[:] for row in cuboid_edge_modes] if cuboid_edge_modes is not None else None
+        self.cuboid_edge_amounts = (
+            [list(row) for row in cuboid_edge_amounts] if cuboid_edge_amounts is not None else None
+        )
+        self.cuboid_edge_modes = [list(row) for row in cuboid_edge_modes] if cuboid_edge_modes is not None else None
         self._mesh_cache = None
         self._baked_cache = None
         # appearance travels with the field and is applied when it is realized (SPEC C-19)
@@ -432,8 +435,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         mx: Sequence[float],
         cuboid_size: Sequence[float] | None = None,
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
-        cuboid_edge_amounts: list[list[float]] | None = None,
-        cuboid_edge_modes: list[list[EdgeMode]] | None = None,
+        cuboid_edge_amounts: Sequence[Sequence[float]] | None = None,
+        cuboid_edge_modes: Sequence[Sequence[EdgeMode]] | None = None,
         symmetry: "Symmetry | None" = None,
     ) -> PyShape:
         out = PyShape(
@@ -1070,7 +1073,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
     def distribute_on_path(
         self,
-        path: Any,
+        path: "Path3D",
         num_copies: int | None = None,
         spacing: float | None = None,
         start_pos: float | None = None,
@@ -5458,7 +5461,7 @@ def bezier_sweep(
 
 
 def stroke_3d(
-    path: Any,
+    path: "PathLike",
     width: float = 1,
     closed: bool | None = None,
     endcap1: CapSpec | None = None,

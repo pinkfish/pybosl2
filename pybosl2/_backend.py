@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from pybosl2.caps import CapSpec
     from pybosl2.enums import StaggerMode
     from pybosl2.path3d import Path3D
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point, PointLike
     from pybosl2.vnf import VNF
 
@@ -1068,12 +1068,17 @@ class SolidBackend(Protocol):
         """
         ...
 
-    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Solid: ...
+    def polyhedron(
+        self,
+        points: "Sequence[Sequence[float]]",
+        faces: "Sequence[Sequence[int]] | None" = None,
+        convexity: int | None = None,
+    ) -> Solid: ...
     def union(self, solids: Any) -> Solid: ...
     def difference(self, solids: Any) -> Solid: ...
     def intersection(self, solids: Any) -> Solid: ...
 
-    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> Solid:
+    def linear_extrude(self, paths: "Sequence[PathLike]", height: float, arguments: Mapping[str, Any]) -> Solid:
         """Extrude 2-D outlines (a list of ``[[x, y], ...]`` paths) *height* along +Z.
 
         This is the one 2-D -> 3-D entry point both backends can express, and it takes raw point
@@ -1090,7 +1095,7 @@ class SolidBackend(Protocol):
         """
         ...
 
-    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> Solid:
+    def rotate_extrude(self, paths: "Sequence[PathLike]", angle: float, arguments: Mapping[str, Any]) -> Solid:
         """Revolve 2-D outlines about the Z axis.
 
         The second 2-D -> 3-D entry point both backends can express, and the one that suits a

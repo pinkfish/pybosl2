@@ -217,7 +217,7 @@ class CsgShape2D(BaseShape):
         shape: PyOpenSCAD,
         size: Sequence[float] | None = None,
         anchor: Anchor | Sequence[float] | None = None,
-        _bbox: tuple[list[float], list[float]] | None = None,
+        _bbox: tuple[Sequence[float], Sequence[float]] | None = None,
     ):
         """Initialize the instance."""
         self.shape = shape
@@ -238,7 +238,7 @@ class CsgShape2D(BaseShape):
 
         # Setup manual bbox tracking for fallback bounds
         if _bbox is not None:
-            self._bbox = _bbox
+            self._bbox = ([float(v) for v in _bbox[0]], [float(v) for v in _bbox[1]])
         elif self.size is not None:
             sz = [float(v) for v in self.size]
             center = _anchor_offset_box(sz, a_val)

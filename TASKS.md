@@ -2400,6 +2400,47 @@ assertion is shape-only, with the nullability count as a ratchet.
 The two declared differences are both the SDF side being **wider**, the harmless direction. The
 dangerous direction has no rows and may not gain any.
 
+## T73 — The domain-named `Any` list is empty ✅
+
+**§12.2 item 38. C-20, C-7a, PAR-1. 18 → 0.**
+
+Every one had an honest type already written down somewhere:
+
+| parameter | the type that existed |
+|---|---|
+| `polyhedron(points=)` | the coordinate sequence a `VNF` hands it |
+| `stroke_3d(path=)` | the `PathLike` its 2-D twin was given in T56 |
+| `distribute_on_path(path=)` | the `Path3D` **the CSG spelling had declared all along** |
+
+Two were the annotation being *wrong* rather than missing: `Region(paths=)` needed a name that did
+not exist (`RegionLike`, now declared where its members resolve), and the bottlecap profile helpers
+were annotated `-> Turtle2D` while returning `Path2D` — the call ends `.points()`, four lines below
+the annotation, and nothing had read both.
+
+### A hole in T72's own guard, one day old
+
+T72 forbids `list[...]` on an input parameter. Its scan said `if not name.startswith("_")`, which
+silently excluded every **dunder** — so `VNF(vertices=[(0,0,0), ...])` still failed `mypy --strict`
+a task after the rule that forbids it was written. Sixteen constructors and operators were behind
+it. The negative control is the pair: the same defect, invisible to the narrow scan and caught by
+the widened one.
+
+`INVARIANT_BY_DESIGN`, created empty in T72, stayed empty: every candidate was a stored attribute
+**aliasing the caller's sequence** — a bug in its own right, since the caller's list is theirs to
+mutate afterwards — and the fix is `list(row)` at the assignment, not a narrower parameter.
+
+### An existing guard became visible, and was right twice
+
+PLAN T-4b requires a points parameter to be a `Path` guarded by `require_path()`. `Any` is not read
+as a polyline, so both had been invisible to it.
+
+* **`polyhedron`** — the rule is *wrong* here. `faces` holds indices into `points`, so `points` is
+  an unordered vertex **pool**; the rule's own words are "an ordered set of points". Recorded in
+  `NOT_A_POLYLINE` with the reason, plus a test that the row is still one the scan reports.
+* **`stroke_3d`** — adding the guard **created a parity gap**: the CSG twin takes a `PathLike` and
+  accepts raw points, so requiring a `Path3D` on the SDF side alone refuses a call that works on
+  the other backend. Recorded in `STILL_RAW` as debt the pair converts together.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

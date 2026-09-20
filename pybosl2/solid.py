@@ -63,7 +63,9 @@ if TYPE_CHECKING:
     from typing import TypeAlias
 
     from pybosl2._edges_lang import EdgeAtom
-    from pybosl2.points import Point  # noqa: F401  # used by the DefaultValue alias (a string, so ruff cannot see it)
+    from pybosl2.points import (
+        Point,  # noqa: F401  # used by the DefaultValue alias (a string, so ruff cannot see it)
+    )
 
 _SHARED_3D = (
     "cube",
@@ -2599,7 +2601,9 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Defa
     return {**owned, **backend_own}
 
 
-def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> Solid:
+def polyhedron(
+    points: "Sequence[Sequence[float]]", faces: "Sequence[Sequence[int]] | None" = None, convexity: int | None = None
+) -> Solid:
     """Return a polyhedron on the active backend.
 
     Backends differ on what a polyhedron means (this is not part of the shared primitive surface):

@@ -30,6 +30,8 @@ from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pybosl2._backend import Solid
 
 
@@ -215,7 +217,7 @@ class HoseSegment(Buildable):
         self,
         size: float,
         type: HoseType = HoseType.SEGMENT,  # noqa: A002
-        clearance: float | list[float] = 0,
+        clearance: float | Sequence[float] = 0,
         waist_len: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
@@ -240,7 +242,7 @@ class HoseSegment(Buildable):
 
         """
         ind = _size_index(size)
-        cl = clearance if isinstance(clearance, (list, tuple)) else [clearance, clearance]
+        cl = [float(clearance)] * 2 if isinstance(clearance, (int, float)) else [float(v) for v in clearance]
         small, big = _SMALL[ind], _BIG[ind]
         (_sx, smy), _ = _bounds(small)
         (_bx, bmy), _ = _bounds(big)

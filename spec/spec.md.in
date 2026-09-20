@@ -471,6 +471,16 @@ there in the same commit as the code (§13 rule 4).
 
 **The two declared differences are both the SDF side being wider**, which is the harmless direction: nothing a CSG caller writes is refused. The dangerous direction — SDF narrower than CSG — has no rows and may not gain any, because that is precisely an annotation rejecting a call that works.
 
+**T73 emptied the domain-named `Any` ratchet, 18 to 0, and every one had an honest type already written down somewhere.** `polyhedron`'s `points` is the coordinate sequence a `VNF` hands it; `stroke_3d`'s `path` is the `PathLike` its 2-D twin was given in T56; `distribute_on_path`'s `path` is the `Path3D` **the CSG spelling had declared all along**. None was a type nobody knew — each was a type nobody had written on that side.
+
+**Two were the annotation being wrong rather than missing, which is the more interesting failure.** `Region(paths=)` needed a name that did not exist, so `RegionLike` is declared where its members resolve. And the bottlecap profile helpers were annotated `-> Turtle2D` while returning `Path2D` — the call ends `.points()`, four lines below the annotation, and nothing had read both.
+
+**The task also found a hole in T72's own guard, one day old.** That rule forbids `list[...]` on an input parameter because `list` is invariant and rejects a tuple. Its scan said `if not name.startswith("_")` — which silently excluded every **dunder**, so `VNF(vertices=[(0,0,0), ...])` still failed `mypy --strict` a task after the rule that forbids it was written. Sixteen constructors and operators were behind that, and a constructor is the most public thing a class has. The negative control is the pair: the same defect planted, invisible to the narrow scan and caught by the widened one.
+
+**Every candidate for a deliberate `list` turned out to be a defect of its own.** `INVARIANT_BY_DESIGN` was created empty in T72 for parameters whose invariance is intended, and it stayed empty: each one was a stored attribute *aliasing the caller's sequence*, which is a bug in its own right — the caller's list is theirs to mutate afterwards — and the fix is `list(row)` at the assignment, not a narrower parameter.
+
+**Typing two things honestly made an existing guard visible, and it was right twice.** PLAN T-4b requires a points parameter to be a `Path` with a `require_path()` on the first line; `Any` is not read as a polyline, so both had been invisible to it. It caught `polyhedron` — where it is **wrong**, because `faces` holds indices into `points`, so `points` is an unordered vertex *pool* and the traversal order lives in `faces`, which is not what the rule's own words ("an ordered set of points") describe. It also caught `stroke_3d`, where adding the guard **created a parity gap**: the CSG twin takes a `PathLike` and accepts raw points, so requiring a `Path3D` on the SDF side alone refuses a call that works on the other backend. Recorded as debt that converts as a pair, rather than tightened one side at a time.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

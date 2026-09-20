@@ -21,6 +21,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pybosl2._backend import Solid
 
 import math
@@ -127,7 +129,7 @@ class WireBundle(Buildable):
 
     def __init__(
         self,
-        path: list[list[float]],
+        path: Sequence[Sequence[float]],
         wires: int,
         wirediam: float = 2,
         rounding: float = 10,
