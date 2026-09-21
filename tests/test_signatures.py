@@ -301,7 +301,7 @@ def test_the_resolver_exemption_covers_what_it_should_and_no_more() -> None:
 #: `edge_mask(*args, **kwargs)` has declared the *name* of an operation and nothing else, which is
 #: the same defect as omitting it (C-20) arriving by a different road.
 OPAQUE_KWARGS: dict[str, int] = {
-    "_backend.py": 15,
+    "_backend.py": 7,
     "_shape.py": 1,
     "flat.py": 6,
 }
@@ -309,7 +309,7 @@ OPAQUE_KWARGS: dict[str, int] = {
 #: Exported callables whose `*args` carries no element type. `*shapes: Solid` says what an n-ary
 #: operation accepts; `*args: Any` says only that there may be several of something. Only shrinks.
 UNTYPED_VARARGS: dict[str, int] = {
-    "_backend.py": 16,
+    "_backend.py": 8,
     "_shape.py": 2,
     "flat.py": 5,
     "miscellaneous.py": 2,

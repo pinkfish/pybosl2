@@ -966,6 +966,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def edge_profile(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        *,
         except_edges: list[EdgeAtom] | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
@@ -1105,7 +1106,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             raise Bosl2ValueError("round_edges(): give radius= or diameter=.")
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.roundover(rad, fn=fn, fa=fa, fs=fs),
             bbox=bbox,
             tag=tag,
@@ -1148,7 +1149,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.chamfer(chamfer, height),
             bbox=bbox,
             tag=tag,
@@ -1208,7 +1209,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             raise Bosl2ValueError("cove_edges(): give radius= or diameter=.")
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.cove(rad, fn=fn, fa=fa, fs=fs),
             bbox=bbox,
             tag=tag,
@@ -1217,6 +1218,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def edge_profile_asym(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        *,
         except_edges: list[EdgeAtom] | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
@@ -1267,6 +1269,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def corner_profile(
         self,
         corners: Anchor = Anchor.ALL,
+        *,
         except_corners: list[Anchor] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
@@ -1343,6 +1346,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def face_profile(
         self,
         faces: Anchor | list[Anchor] = Anchor.ALL,
+        *,
         radius: float | None = None,
         diameter: float | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,

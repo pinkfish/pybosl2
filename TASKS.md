@@ -2554,6 +2554,44 @@ Two more needed `Self` rather than `Solid`: `chain_hull` and `minkowski_differen
 *their own* backend, since a CSG solid and an SDF one cannot be combined (A-6). `Solid` promised a
 cross-backend call neither honours.
 
+## T77 — The variadic was never the obstacle ✅
+
+**§12.2 item 42. P-5b, C-20, T-6c. 22 → 14 `**kwargs`, 25 → 17 untyped `*args`.**
+
+T76 called these eight "an SDF implementation that abdicated". They are **refusal stubs** —
+`def round_edges(self, *_args, **_kwargs) -> NoReturn` calling `self._refuse(...)` — variadic
+because a refusal does not care what it was passed.
+
+That is a good reason for the *implementation* and never was one for the protocol: **a
+`(*args, **kwargs)` implementation is maximally permissive, so it satisfies whatever the protocol
+declares.** All eight are declared from the CSG spelling now and not one refusal stub changed.
+
+### The first attempt changed them, and the cost was the signal
+
+Giving each refusal the full parameter list produced **forty** `ARG002 Unused method argument`
+warnings — a refusal ignores its arguments by definition. Checking the premise took four lines: a
+protocol, a variadic implementation, `mypy --strict`, and it passes.
+
+```
+Solid.round_edges(radius=2)        type-checks
+Solid.round_edges(radius="two")    caught
+```
+
+C-20's worked example, on an operation the protocol had declared as `*args: Any` — which could
+express neither.
+
+### Declaring an operation pulls it into other rules' scope
+
+`CsgSolid.face_profile` is **not** in the tier scan's exported scope (`__all__` plus the lazy
+table), so T75 never reached it, and four of these still had `radius`, `fn`, `fa`, `fs` trailing
+positionally. The protocol declaration *is* in scope, so writing it surfaced them. Both spellings
+converted.
+
+The asymmetry that let them drift is worth naming: a more permissive implementation satisfies a
+stricter protocol, so mypy is content when the concrete class takes positionally what the protocol
+declares keyword-only. A caller holding a `Solid` gets the rule; one holding a `CsgSolid` does
+not. A negative control confirms it — removing the `*` from the CSG original alone is not caught.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

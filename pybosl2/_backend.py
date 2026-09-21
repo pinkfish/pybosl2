@@ -39,10 +39,11 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path as FilePath
 
-    from pybosl2._edges_lang import Anchor
+    from pybosl2._edges_lang import Anchor, EdgeAtom
     from pybosl2.bounds import Bounds2D, Bounds3D
     from pybosl2.caps import CapSpec
-    from pybosl2.enums import StaggerMode
+    from pybosl2.enums import AttachTag, StaggerMode
+    from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point, PointLike
@@ -716,13 +717,13 @@ class Shape(Protocol):
     def tag_this(self, name: "AttachTag | str") -> Self: ...
     def diff(
         self,
-        remove: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.REMOVE,
-        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+        remove: "AttachTag | str | Sequence[AttachTag | str]" = ...,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = ...,
     ) -> Self: ...
     def intersect(
         self,
-        intersect: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.INTERSECT,
-        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+        intersect: "AttachTag | str | Sequence[AttachTag | str]" = ...,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = ...,
     ) -> Self: ...
 
     def realize(self) -> Self:
@@ -1003,17 +1004,122 @@ class Solid(Shape, Protocol):
     def partition(self, *args: Any, **kwargs: Any) -> tuple[Self, Self]: ...
     # Edge, corner and face treatments (SPEC S-26, S-27) and the one way down to 2-D (C-17).
     # As above: the SDF backend refuses each by name.
-    def edge_mask(self, *args: Any, **kwargs: Any) -> Self: ...
-    def edge_profile(self, *args: Any, **kwargs: Any) -> Self: ...
-    def edge_profile_asym(self, *args: Any, **kwargs: Any) -> Self: ...
-    def corner_profile(self, *args: Any, **kwargs: Any) -> Self: ...
-    def face_profile(self, *args: Any, **kwargs: Any) -> Self: ...
+    def edge_mask(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Solid | None" = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
+    def edge_profile(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        *,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        bbox: Sequence[Sequence[float]] | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def edge_profile_asym(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        *,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def corner_profile(
+        self,
+        corners: Anchor = ...,
+        *,
+        except_corners: list[Anchor] | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
+    def face_profile(
+        self,
+        faces: Anchor | list[Anchor] = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
 
     # The named edge treatments (SPEC S-26b): `round_edges`/`chamfer_edges`/`cove_edges` are the
     # spellings a caller reaches for, so they belong on the contract like anything else (C-20).
-    def round_edges(self, *args: Any, **kwargs: Any) -> Self: ...
-    def chamfer_edges(self, *args: Any, **kwargs: Any) -> Self: ...
-    def cove_edges(self, *args: Any, **kwargs: Any) -> Self: ...
+    # Declared from the CSG spelling, which is the caller's view (T-6c): the SDF side is a
+    # refusal stub, and a `(*args, **kwargs)` implementation is maximally permissive, so it
+    # satisfies whatever the protocol declares. The variadic there was never the obstacle.
+    def round_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def chamfer_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        chamfer: float,
+        height: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+    ) -> Self: ...
+    def cove_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
     def projection(self, cut: bool = False) -> Any: ...
     # The CSG spelling also takes `size`, `convexity` and the facet controls; a field has no
     # facets to control (B-9), so the shared contract is the radius both honour.
