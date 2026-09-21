@@ -185,10 +185,12 @@ Positional arguments are for the one or two things everyone supplies; everything
 '''
 enforced_by = [
     "tests/test_signatures.py::test_no_file_grows_its_positional_tier_parameters",
+    "tests/test_signatures.py::test_every_exported_callable_keeps_its_tiers_behind_a_star",
+    "tests/test_signatures.py::test_the_resolver_exemption_covers_what_it_should_and_no_more",
 ]
 status = "enforced"
 note = '''
-Ratcheted: 114 exported callables still take a tier parameter positionally, and no file may grow its count.
+Closed by T75: every exported callable puts its placement, resolution and escape-hatch parameters behind a bare `*`. The figure read 114 until T74 found twelve of those were the scan counting a tier at the *subject* position, which T-9a exempts; 102 were converted. Four resolvers are exempt — see `SPEC-P-5b`.
 '''
 
 [[requirement]]
@@ -514,6 +516,31 @@ candidates = [
     "tests/test_shape_contract.py",
 ]
 status = "enforced"
+
+[[requirement]]
+id = "SPEC-P-5b"
+aliases = ["P-5b"]
+layer = "contract"
+section = "3. Driving principles"
+title = "— A public signature names its parameters."
+keyword = "MUST"
+statement = '''
+A public callable MUST declare every parameter it accepts. `**kwargs` never does this and is not permitted on the public surface: it accepts anything, documents nothing, and leaves a typed caller — the caller PLAN §2 asks for — with no way to learn what the call takes short of reading the implementation it forwards to. A variadic `*args` is permitted only where the operation is genuinely n-ary (`union(*shapes)`, `hull(*others)`, `Region.with_holes(outline, *holes)`) and MUST carry the element type, because `*shapes: Solid` says what it accepts and `*args: Any` does not.
+
+This is P-5 from the other side. P-5 governs *where* a parameter may appear; this governs whether it appears at all. The two together are what make a signature readable as a contract rather than a hint, and both are what C-20 means by "the contract is the whole object": a protocol declaring `edge_mask(*args, **kwargs)` has declared the *name* of an operation and nothing else, which is the same defect as omitting it, arriving by a different road.
+
+The bare `*` separator is not an instance of this rule and is required by D-1 — it names every parameter and only fixes how they are passed.
+'''
+enforced_by = [
+    "tests/test_signatures.py::test_no_public_callable_takes_untyped_variadics",
+    "tests/test_signatures.py::test_a_variadic_is_only_for_a_genuinely_n_ary_operation",
+]
+status = "enforced"
+note = '''
+Ratcheted rather than closed. It stood at 27 `**kwargs` and 30 untyped `*args`; T76 declared five protocol members and it reads 22 and 25. Most of the remainder are on `Shape`/`Solid` themselves, where the cost is highest — those signatures *are* the contract.
+
+The five were reachable because both backends already spelled them out; the measurement that found them also found why the rest are harder. `Shape.distribute_on_path` is the instructive one: the 2-D implementations take a `Path2D` and the 3-D ones a `Path3D`, and parameters are contravariant, so **no single type satisfies both** — `Path2D | Path3D` is wider than either accepts and every class stops conforming. That is T-6c's sanctioned exception, earned by measurement rather than assumed, and it now carries the comment T-6c asks for. Eight more are opaque on the SDF side only, where the CSG side has real parameters: those are an SDF implementation that abdicated, not two spellings that cannot be reconciled.
+'''
 
 [[requirement]]
 id = "SPEC-C-20"

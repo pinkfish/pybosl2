@@ -94,6 +94,22 @@ mesh kernel of its own, and does not aim for byte-identical output with the orig
   quaternions are **classes** that own their operations and expose derived values as properties. A
   family of free functions sharing a prefix and a pile of parameters MUST instead be a class. The
   *design* is Python's, not a transliteration of `.scad`.
+* **P-5b — A public signature names its parameters.** A public callable MUST declare every parameter
+  it accepts. `**kwargs` never does this and is not
+  permitted on the public surface: it accepts anything, documents nothing, and leaves a typed caller
+  — the caller PLAN §2 asks for — with no way to learn what the call takes short of reading the
+  implementation it forwards to. A variadic `*args` is permitted only where the operation is
+  genuinely n-ary (`union(*shapes)`, `hull(*others)`, `Region.with_holes(outline, *holes)`) and MUST
+  carry the element type, because `*shapes: Solid` says what it accepts and `*args: Any` does not.
+
+  This is P-5 from the other side. P-5 governs *where* a parameter may appear; this governs whether
+  it appears at all. The two together are what make a signature readable as a contract rather than a
+  hint, and both are what C-20 means by "the contract is the whole object": a protocol declaring
+  `edge_mask(*args, **kwargs)` has declared the *name* of an operation and nothing else, which is
+  the same defect as omitting it, arriving by a different road.
+
+  The bare `*` separator is not an instance of this rule and is required by D-1 — it names every
+  parameter and only fixes how they are passed.
 
 **Review test:** if the example in a new function's docstring passes more than three arguments to
 show the basic case, the defaults are wrong, not the example.
@@ -1256,6 +1272,14 @@ there in the same commit as the code (§13 rule 4).
 **Two guards changed shape because the debt went to zero.** The per-file ratchet parametrizes over the files carrying debt, so with none left it parametrizes over nothing — the right shape for a ratchet and the wrong one for a finished rule, since a scan returning an empty result *for any reason* would pass it. The rule is now stated directly as well, with a floor on how many callables the walk must reach.
 
 **A negative control caught the exemption's geometry half being cosmetic, and then caught it not being.** Removing that half alone changes nothing, because the code is already compliant; removing it *and* un-converting `pco1881_neck` is what shows it load-bearing. A control that plants only the guard's weakening, on code with no defect left to find, measures nothing.
+
+**T76 added SPEC P-5b: a public callable declares every parameter it accepts.** `**kwargs` never does this and is not permitted on the public surface — it accepts anything, documents nothing, and leaves the typed caller PLAN §2 asks for with no way to learn what a call takes short of reading the implementation it forwards to. A variadic `*args` is permitted only where the operation is genuinely n-ary — `union(*shapes)`, `hull(*others)`, `Region.with_holes(outline, *holes)` — and must carry the element type, because `*shapes: Solid` says what it accepts and `*args: Any` does not. This is P-5 from the other side: P-5 governs *where* a parameter may appear, P-5b whether it appears at all. The bare `*` separator is explicitly not an instance of it, and is required by D-1.
+
+**The rule landed with its guard rather than as prose, which is the lesson T71 recorded about D-4** — a requirement carrying `enforced_by = []` sat beside code that contradicted it for the life of the project. The baseline was **27** exported callables taking `**kwargs` and **30** whose `*args` names no element type.
+
+**Measuring why they were loose was more informative than the count.** 21 of the 27 are on `Shape`/`Solid` themselves, where the cost is highest, and the protocol's licence for this — PLAN T-6c — covers signatures that "differ in ways the checker cannot reconcile". Nineteen differ; the question is whether they differ *irreconcilably*, and the answer for most is no. **Eight are opaque on the SDF side only**, with real parameters on the CSG side — an implementation that abdicated, not two spellings in conflict. **Six were already spelled out on both sides** and could be declared immediately; five were, and the ratchets read 22 and 25.
+
+**The sixth is the one worth keeping.** `Shape.distribute_on_path` takes a `Path2D` in two dimensions and a `Path3D` in three, and parameters are contravariant — so `Path2D | Path3D` is *wider* than either implementation accepts and every class stops conforming. Declaring it broke a documented 2-D example, which is what caught it. That is genuinely T-6c's case, earned by measurement instead of assumed, and it now carries the comment T-6c asks for and never had. Two others needed `Self` rather than `Solid` for the same reason in a different guise: `chain_hull` and `minkowski_difference` take shapes of *their own* backend, because a CSG solid and an SDF one cannot be combined (A-6), and `Solid` promised a cross-backend call neither honours.
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
