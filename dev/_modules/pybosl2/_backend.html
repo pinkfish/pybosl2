@@ -2853,6 +2853,7 @@
         <span class="n">child</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
         <span class="n">child_anchor</span><span class="p">:</span> <span class="s2">"Anchor | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">bbox</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
@@ -2943,6 +2944,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rots</span><span class="p">:</span> <span class="s2">"Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="s2">"PointLike | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="s2">"bool | Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="n">sa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2953,6 +2955,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">xrot_copies</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rots</span><span class="p">:</span> <span class="s2">"Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="s2">"bool | Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="n">sa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2963,6 +2966,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">yrot_copies</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rots</span><span class="p">:</span> <span class="s2">"Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="s2">"bool | Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="n">sa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2973,6 +2977,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">zrot_copies</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rots</span><span class="p">:</span> <span class="s2">"Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="s2">"bool | Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="n">sa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3016,6 +3021,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="s2">"bool | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
@@ -3041,7 +3047,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">reanchor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">bbox</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="c1"># The nominal anchor box a shape was designed around (SPEC S-2a).</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">with_nominal_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_nominal_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).</span>
 
 <span class="sd">        Backend-neutral, so a shape can name the frame it anchors to without reaching for a native</span>
@@ -3174,6 +3180,7 @@
 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3264,7 +3271,7 @@
 
 <div class="viewcode-block" id="Solid.wrap">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.wrap">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 <div class="viewcode-block" id="Solid.oversample">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.oversample">[docs]</a>
@@ -3309,6 +3316,7 @@
 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">orient</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
         <span class="n">bbox</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3319,6 +3327,7 @@
 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">direction</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">bbox</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
@@ -3364,6 +3373,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span>
         <span class="n">faces</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[int]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solids</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span> <span class="o">...</span>

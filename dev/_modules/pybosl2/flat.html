@@ -2340,7 +2340,7 @@
 <span class="sd">            circle(radius=15).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"circle"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"circle"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle2d</span>
 
@@ -2416,7 +2416,7 @@
 
 <span class="sd">    """</span>
     <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span> <span class="o">=</span> <span class="n">resolve_edge_treatment</span><span class="p">(</span><span class="n">treatment</span><span class="p">,</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="s2">"square"</span><span class="p">)</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"square"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"square"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">square2d</span>
 
@@ -2494,7 +2494,7 @@
 
 <span class="sd">    """</span>
     <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span> <span class="o">=</span> <span class="n">resolve_edge_treatment</span><span class="p">(</span><span class="n">treatment</span><span class="p">,</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="s2">"rect"</span><span class="p">)</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"rect"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"rect"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect2d</span>
 
@@ -2565,7 +2565,7 @@
 <span class="sd">            polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"polygon"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"polygon"</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_path</span>
 
@@ -2643,7 +2643,7 @@
 <span class="sd">            text(text="BOSL2", size=10).linear_extrude(height=3).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"text"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
             <span class="s2">"text"</span><span class="p">,</span>
@@ -2716,7 +2716,7 @@
 <span class="sd">            ellipse(radius=[20, 10]).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"ellipse"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"ellipse"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">ellipse2d</span>
 
@@ -2773,7 +2773,7 @@
 <span class="sd">            star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"star"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"star"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">star2d</span>
 
@@ -2863,7 +2863,7 @@
 <span class="sd">            regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"regular_ngon"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"regular_ngon"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rounding</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
@@ -2951,7 +2951,7 @@
 <span class="sd">            trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"trapezoid"</span><span class="p">)</span>
+    <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">resolve_placement_2d</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s2">"trapezoid"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid2d</span>
 

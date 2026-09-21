@@ -2338,7 +2338,11 @@
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="p">{</span><span class="s2">"anchor"</span><span class="p">,</span> <span class="s2">"spin"</span><span class="p">,</span> <span class="s2">"orient"</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
         <span class="n">arguments</span><span class="p">[</span><span class="s2">"anchor"</span><span class="p">],</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">"spin"</span><span class="p">],</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">"orient"</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_placement</span><span class="p">(</span>
-            <span class="n">placement</span><span class="p">,</span> <span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"anchor"</span><span class="p">),</span> <span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"spin"</span><span class="p">),</span> <span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orient"</span><span class="p">),</span> <span class="n">function</span>
+            <span class="n">placement</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"anchor"</span><span class="p">),</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"spin"</span><span class="p">),</span>
+            <span class="n">orient</span><span class="o">=</span><span class="n">arguments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"orient"</span><span class="p">),</span>
+            <span class="n">function</span><span class="o">=</span><span class="n">function</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="p">{</span><span class="s2">"rounding"</span><span class="p">,</span> <span class="s2">"chamfer"</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
         <span class="n">arguments</span><span class="p">[</span><span class="s2">"rounding"</span><span class="p">],</span> <span class="n">arguments</span><span class="p">[</span><span class="s2">"chamfer"</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolve_edge_treatment</span><span class="p">(</span>
@@ -4815,7 +4819,10 @@
 <div class="viewcode-block" id="polyhedron">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.polyhedron">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">polyhedron</span><span class="p">(</span>
-    <span class="n">points</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="n">faces</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[int]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">points</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span>
+    <span class="n">faces</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[int]] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a polyhedron on the active backend.</span>
 

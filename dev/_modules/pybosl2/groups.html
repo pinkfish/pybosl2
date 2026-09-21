@@ -2525,11 +2525,11 @@
 <a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement</span><span class="p">(</span>
     <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
     <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
     <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Resolve a placement group against the loose members, refusing a call that gives both.</span>
@@ -2595,10 +2595,10 @@
 <a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement_2d">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement_2d</span><span class="p">(</span>
     <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">_AnchorT</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">_SpinT</span><span class="p">,</span>
     <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
     <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[_AnchorT | Anchor | Sequence[float], _SpinT | float]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolve a placement for a 2-D constructor, which has an anchor and a spin but no orient.</span>
