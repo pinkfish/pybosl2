@@ -69,7 +69,11 @@ class TestPlacement:
 
     def test_resolve_placement_passes_the_loose_values_through(self) -> None:
         """With no group, the loose arguments are returned unchanged."""
-        assert resolve_placement(None, Anchor.TOP, 30, Anchor.LEFT, "f") == (Anchor.TOP, 30, Anchor.LEFT)
+        assert resolve_placement(None, anchor=Anchor.TOP, spin=30, orient=Anchor.LEFT, function="f") == (
+            Anchor.TOP,
+            30,
+            Anchor.LEFT,
+        )
 
 
 class TestPlacementInThePlane:
@@ -112,7 +116,7 @@ class TestPlacementInThePlane:
 
     def test_resolve_placement_2d_passes_the_loose_values_through(self) -> None:
         """With no group, the loose arguments come back unchanged."""
-        assert resolve_placement_2d(None, Anchor.TOP, 30, "f") == (Anchor.TOP, 30)
+        assert resolve_placement_2d(None, anchor=Anchor.TOP, spin=30, function="f") == (Anchor.TOP, 30)
 
     def test_text_takes_the_anchor_language_like_every_other_constructor(self) -> None:
         """`text()` was the ninth 2-D constructor and the one `placement=` could not reach.

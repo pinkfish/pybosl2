@@ -370,6 +370,7 @@ class Region:
     def from_svg(
         cls,
         file: str,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float = 2.0,
@@ -599,6 +600,7 @@ class Region:
         radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -636,6 +638,7 @@ class Region:
         width: float | None = None,
         curvature: float | None = None,
         closed: bool | None = None,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -855,6 +858,7 @@ class Region:
     def linear_extrude(
         self,
         height: float,
+        *,
         center: bool = False,
         twist: float = 0.0,
         scale: float = 1.0,
@@ -988,6 +992,7 @@ class Region:
     def rotate_extrude(
         self,
         angle: float = 360.0,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,

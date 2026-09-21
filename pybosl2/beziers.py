@@ -1508,6 +1508,7 @@ class BezierPatch:
     def flat(
         size: float | Sequence[float],
         n_degree: int = 1,
+        *,
         spin: float = 0.0,
         orient: Anchor | Sequence[float] = UP,
         trans: Sequence[float] = (0.0, 0.0, 0.0),

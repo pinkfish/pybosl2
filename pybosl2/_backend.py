@@ -693,6 +693,7 @@ class Shape(Protocol):
         child: object,
         child_anchor: "Anchor | None" = None,
         overlap: float = 0.0,
+        *,
         spin: float = 0.0,
         bbox: "Sequence[Sequence[float]] | None" = None,
     ) -> Self: ...
@@ -783,6 +784,7 @@ class Shape(Protocol):
         self,
         rots: "Sequence[float] | None" = None,
         v: "PointLike | None" = None,
+        *,
         center: "bool | Sequence[float]" = (0, 0, 0),
         sa: float = 0,
         offset: float = 0,
@@ -793,6 +795,7 @@ class Shape(Protocol):
     def xrot_copies(
         self,
         rots: "Sequence[float] | None" = None,
+        *,
         center: "bool | Sequence[float]" = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -803,6 +806,7 @@ class Shape(Protocol):
     def yrot_copies(
         self,
         rots: "Sequence[float] | None" = None,
+        *,
         center: "bool | Sequence[float]" = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -813,6 +817,7 @@ class Shape(Protocol):
     def zrot_copies(
         self,
         rots: "Sequence[float] | None" = None,
+        *,
         center: "bool | Sequence[float]" = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -856,6 +861,7 @@ class Shape(Protocol):
         self,
         v: "Sequence[float]" = (0, 0, 1),
         offset: float = 0,
+        *,
         center: "bool | Sequence[float] | None" = None,
     ) -> list[Self]: ...
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[Self]: ...
@@ -881,7 +887,7 @@ class Shape(Protocol):
     def reanchor(self, anchor: Any, bbox: Any = None) -> Self: ...
 
     # The nominal anchor box a shape was designed around (SPEC S-2a).
-    def with_nominal_size(self, size: "Sequence[float]", anchor: Any = None) -> Self:
+    def with_nominal_size(self, size: "Sequence[float]", *, anchor: Any = None) -> Self:
         """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
 
         Backend-neutral, so a shape can name the frame it anchors to without reaching for a native
@@ -970,6 +976,7 @@ class Solid(Shape, Protocol):
     def half_of(
         self,
         v: Any = ...,
+        *,
         center: Any = None,
         s: float | None = None,
         cut_path: Any = None,
@@ -1004,7 +1011,7 @@ class Solid(Shape, Protocol):
     def projection(self, cut: bool = False) -> Any: ...
     def offset3d(self, *args: Any, **kwargs: Any) -> Self: ...
     def round3d(self, *args: Any, **kwargs: Any) -> Self: ...
-    def wrap(self, radius: float, fn: int | None = None) -> Self: ...
+    def wrap(self, radius: float, *, fn: int | None = None) -> Self: ...
     def oversample(self, *args: Any, **kwargs: Any) -> Self: ...
     def repair(self, *args: Any, **kwargs: Any) -> Self: ...
     def chain_hull(self, *args: Any, **kwargs: Any) -> Self: ...
@@ -1021,6 +1028,7 @@ class Solid(Shape, Protocol):
     def reorient(
         self,
         anchor: Any = ...,
+        *,
         spin: float = 0,
         orient: Any = ...,
         bbox: "Sequence[Sequence[float]] | None" = None,
@@ -1028,6 +1036,7 @@ class Solid(Shape, Protocol):
     def orient(
         self,
         direction: Any = ...,
+        *,
         spin: float = 0,
         bbox: "Sequence[Sequence[float]] | None" = None,
     ) -> Self: ...
@@ -1072,6 +1081,7 @@ class SolidBackend(Protocol):
         self,
         points: "Sequence[Sequence[float]]",
         faces: "Sequence[Sequence[int]] | None" = None,
+        *,
         convexity: int | None = None,
     ) -> Solid: ...
     def union(self, solids: Any) -> Solid: ...

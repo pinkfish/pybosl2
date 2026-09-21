@@ -704,6 +704,7 @@ def texture(
     gap: float | None = None,
     roughness: float | None = None,
     inset: float | None = None,
+    *,
     fn: int | None = None,
 ) -> list[list[float]] | tuple[list[list[float]], list[list[int]]]:
     """Look up the named texture *tex*.

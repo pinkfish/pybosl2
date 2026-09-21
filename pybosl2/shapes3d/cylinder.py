@@ -1318,6 +1318,7 @@ def cone(
     radius: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
+    *,
     center: bool | None = None,
     diameter: float | None = None,
     diameter1: float | None = None,

@@ -884,6 +884,7 @@ class Distributable(ABC):
         self,
         rots: Sequence[float] | None = None,
         v: PointLike | None = None,
+        *,
         center: bool | Sequence[float] = (0, 0, 0),
         sa: float = 0,
         offset: float = 0,
@@ -909,6 +910,7 @@ class Distributable(ABC):
     def xrot_copies(
         self,
         rots: Sequence[float] | None = None,
+        *,
         center: bool | Sequence[float] = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -933,6 +935,7 @@ class Distributable(ABC):
     def yrot_copies(
         self,
         rots: Sequence[float] | None = None,
+        *,
         center: bool | Sequence[float] = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -957,6 +960,7 @@ class Distributable(ABC):
     def zrot_copies(
         self,
         rots: Sequence[float] | None = None,
+        *,
         center: bool | Sequence[float] = (0, 0, 0),
         sa: float = 0,
         radius: float | None = None,
@@ -1081,6 +1085,7 @@ class Distributable(ABC):
         self,
         v: Sequence[float] = (0, 0, 1),
         offset: float = 0,
+        *,
         center: bool | Sequence[float] | None = None,
     ) -> list[_CopyType]:
         """Return this object plus a copy mirrored across the plane with normal *v*.

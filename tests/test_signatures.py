@@ -58,36 +58,12 @@ TOO_MANY_REQUIRED: dict[str, int] = {
 }
 
 #: Public callables taking a tier parameter positionally, per file. Only shrinks.
-POSITIONAL_TIERS: dict[str, int] = {
-    "_backend.py": 18,
-    "_edges_lang.py": 3,
-    "_shape.py": 1,
-    "beziers.py": 1,
-    "bounds.py": 2,
-    "defaults.py": 4,
-    "distributors.py": 5,
-    "groups.py": 3,
-    "masking.py": 9,
-    "miscellaneous.py": 4,
-    "partitions.py": 5,
-    "parts/ball_bearings.py": 1,
-    "parts/bottlecaps.py": 4,
-    "parts/linear_bearings.py": 3,
-    "path2d.py": 8,
-    "path3d.py": 1,
-    "regions.py": 5,
-    "rounding.py": 4,
-    "shapes2d/circle.py": 4,
-    "shapes2d/curves.py": 4,
-    "shapes2d/ops.py": 2,
-    "shapes2d/square.py": 4,
-    "shapes3d/cylinder.py": 1,
-    "shapes3d/extrusions.py": 5,
-    "solid.py": 1,
-    "surfaces3d.py": 6,
-    "svg.py": 5,
-    "textures.py": 1,
-}
+#: **Empty since T75.** Every exported callable puts placement, resolution and escape-hatch
+#: parameters behind a bare `*`. The four exceptions are not listed here but recognised by
+#: `_resolves_tiers`: a callable whose every positional parameter is a tier and which builds no
+#: geometry is deciding what the placement will be, not placing a shape, and has nothing for a
+#: `*` to separate.
+POSITIONAL_TIERS: dict[str, int] = {}
 
 
 def _lazy_exports() -> dict[str, set[str]]:
@@ -184,7 +160,61 @@ def _builds_geometry(node: ast.FunctionDef) -> bool:
 
 
 TOO_MANY = _counts(lambda n: _builds_geometry(n) and len(_required(n)) > 2)
-POSITIONAL = _counts(lambda n: any(a.arg in TIERS for a in n.args.args if a.arg not in ("self", "cls")))
+
+
+def _resolves_tiers(node: ast.FunctionDef) -> bool:
+    """Whether this callable's subject *is* the tier, so there is nothing for a `*` to separate.
+
+    `resolve_facets(fn, fa, fs)` and `set_defaults(fn, fa, fs, res)` take tiers and hand tiers
+    back; they are not placing a shape, they are deciding what the placement will be. Putting a
+    bare `*` after the first one, which is what T-9a says literally, turns every internal call
+    into `resolve_facets(fn, fa=fa, fs=fs)` -- noise in service of a rule about callers not
+    depending on positional order, where the caller is this package.
+
+    The rule has two halves and needs both. *Every* positional parameter is a tier, so there is no
+    shape argument for them to trail; **and** it does not build geometry, because a constructor
+    whose only parameters are tiers is still a constructor. That second half is what keeps this
+    from being a list of whatever was inconvenient: `BottleCaps.pco1881_neck(fn, fa, fs)` passes
+    the first test and fails this one, and `pco1881_neck(32)` is exactly the call T-9a prevents.
+    """
+    positional = [a.arg for a in node.args.args if a.arg not in ("self", "cls")]
+    return bool(positional) and all(name in TIERS for name in positional) and not _builds_geometry(node)
+
+
+def _tier_in_the_tail(node: ast.FunctionDef) -> bool:
+    """Whether a tier parameter sits *past* the subject argument, which is what T-9a forbids.
+
+    PLAN T-9a says "everything past the subject argument goes after a bare `*`", so a tier name at
+    position 0 is the subject and is compliant: `shape.align(Anchor.TOP, child)` names the face the
+    operation is about, and `resolve_anchor(anchor)` takes the anchor as its operand. This counted
+    those too, which inflated the figure by twelve against the rule's own words.
+    """
+    if _resolves_tiers(node):
+        return False
+    positional = [a.arg for a in node.args.args if a.arg not in ("self", "cls")]
+    return any(name in TIERS for name in positional[1:])
+
+
+POSITIONAL = _counts(_tier_in_the_tail)
+
+
+def test_the_subject_exemption_is_only_the_first_parameter() -> None:
+    """PLAN T-9a: "past the subject argument" is position 0, and nothing wider.
+
+    The exemption is the one place this scan can be quietly weakened -- widen it by one and the
+    count drops without a line of code changing. So it is exercised on both sides: a tier name at
+    position 0 is compliant, and the same name one place later is not.
+    """
+    subject = ast.parse("def f(anchor, size): ...").body[0]
+    tail = ast.parse("def f(size, anchor): ...").body[0]
+    assert isinstance(subject, ast.FunctionDef)
+    assert isinstance(tail, ast.FunctionDef)
+    assert not _tier_in_the_tail(subject), "a tier name at position 0 is the subject argument"
+    assert _tier_in_the_tail(tail), "a tier name past the subject is what the rule forbids"
+
+    method = ast.parse("def f(self, anchor, child): ...").body[0]
+    assert isinstance(method, ast.FunctionDef)
+    assert not _tier_in_the_tail(method), "`self` is the receiver, not the subject argument"
 
 
 @pytest.mark.parametrize("path", sorted(set(TOO_MANY) | set(TOO_MANY_REQUIRED)))
@@ -201,7 +231,7 @@ def test_no_file_grows_its_three_argument_callables(path: str) -> None:
         pytest.fail(f"{path} is down to {actual} from {budget}; lower its entry in TOO_MANY_REQUIRED.")
 
 
-@pytest.mark.parametrize("path", sorted(set(POSITIONAL) | set(POSITIONAL_TIERS)))
+@pytest.mark.parametrize("path", sorted(set(POSITIONAL) | set(POSITIONAL_TIERS)) or ["(none)"])
 def test_no_file_grows_its_positional_tier_parameters(path: str) -> None:
     """SPEC P-5 and D-1, PLAN T-9a: placement, resolution and escape hatches are keyword-only."""
     actual, budget = len(POSITIONAL.get(path, [])), POSITIONAL_TIERS.get(path, 0)
@@ -212,6 +242,56 @@ def test_no_file_grows_its_positional_tier_parameters(path: str) -> None:
         )
     if actual < budget:
         pytest.fail(f"{path} is down to {actual} from {budget}; lower its entry in POSITIONAL_TIERS.")
+
+
+def test_every_exported_callable_keeps_its_tiers_behind_a_star() -> None:
+    """SPEC P-5, D-1, PLAN T-9a -- the whole rule in one assertion, now that it holds everywhere.
+
+    The per-file ratchet above parametrizes over the files that carry debt, so with the debt gone
+    it parametrizes over nothing and runs as a single placeholder. That is the right shape for a
+    ratchet and the wrong shape for a finished rule: a scan that returned an empty result for any
+    reason would pass it. This states the rule directly instead, and is what would fail if the
+    exemption were widened or the walk stopped reaching a package.
+    """
+    offenders = {path: sorted(names) for path, names in POSITIONAL.items() if names}
+    assert not offenders, (
+        f"exported callables taking a tier parameter positionally: {offenders}. Put a bare `*` "
+        f"before it -- or, if its subject *is* the tier, see `_resolves_tiers`."
+    )
+    assert len(CALLABLES) > 500, f"only {len(CALLABLES)} callables scanned; the walk is broken"
+
+
+def test_the_resolver_exemption_covers_what_it_should_and_no_more() -> None:
+    """PLAN T-9a: the exemption is the one way this rule can be emptied without changing code.
+
+    Four callables use it, and each is checked by name: they take tiers and hand tiers back. The
+    pairing is `BottleCaps.pco1881_neck(fn, fa, fs)`, whose parameters are *also* all tiers and
+    which is not exempt, because it builds geometry -- a constructor whose only parameters are
+    tiers is still a constructor, and `pco1881_neck(32)` is exactly the call T-9a prevents.
+    """
+    # Scoped to `CALLABLES`, the exported surface the rule applies to. `EVERY_SIGNATURE` is the
+    # wide walk O-6b uses for a *type* rule; a private helper taking tiers positionally is nobody's
+    # call surface, and counting one would put an entry on this list that no conversion removes.
+    # Scoped to `CALLABLES`, the exported surface the rule applies to -- `EVERY_SIGNATURE` is the
+    # wide walk O-6b uses for a *type* rule, and a private helper taking tiers positionally is
+    # nobody's call surface.
+    #
+    # Only the ones with **two or more** positional tiers are asserted, because those are where
+    # this exemption does any work. Nine callables satisfy `_resolves_tiers`; five take a single
+    # tier and are already the subject argument, so they are exempt twice over and say nothing
+    # about whether this rule is too wide.
+    load_bearing = {
+        f"{path}::{name}"
+        for path, name, node in CALLABLES
+        if _resolves_tiers(node)
+        and sum(1 for a in node.args.args if a.arg in TIERS and a.arg not in ("self", "cls")) >= 2
+    }
+    assert load_bearing == {
+        "defaults.py::set_defaults",
+        "defaults.py::use_defaults",
+        "defaults.py::resolve_facets",
+        "groups.py::Facets.resolved",
+    }, sorted(load_bearing)
 
 
 def test_the_budgets_name_no_file_that_is_gone() -> None:

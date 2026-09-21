@@ -1126,6 +1126,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -1548,6 +1549,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         mitre_limit: float = 5.0,
         single_sided: bool = False,
         quad_segs: int | None = None,
+        *,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -1654,7 +1656,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D([[float(x), float(y)] for x, y in coords], closed=True)
 
     @classmethod
-    def circle2d(cls, radius: float = 10, fn: int = 64) -> "Path2D":
+    def circle2d(cls, radius: float = 10, *, fn: int = 64) -> "Path2D":
         """Create a closed :class:`Path2D` approximating a circle of *radius*.
 
         Uses *fn* uniform segments around the origin.
@@ -1673,7 +1675,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cls(pts, closed=True)
 
     @classmethod
-    def ellipse2d(cls, rx: float = 10, ry: float = 5, fn: int = 64) -> "Path2D":
+    def ellipse2d(cls, rx: float = 10, ry: float = 5, *, fn: int = 64) -> "Path2D":
         """Create a closed :class:`Path2D` approximating an ellipse.
 
         Uses *fn* uniform parametric segments with semi‑axes *rx* and *ry*
@@ -1844,6 +1846,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def linear_extrude(
         self,
         height: float,
+        *,
         center: bool | None = None,
         twist: float | None = None,
         scale: float | Sequence[float] | None = None,
@@ -1920,6 +1923,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def rotate_extrude(
         self,
         angle: float = 360.0,
+        *,
         convexity: int | None = None,
         fn: int | None = None,
         fa: float | None = None,
@@ -3086,6 +3090,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self,
         parm: float | Sequence[float] | None = None,
         closed: bool | None = None,
+        *,
         fn: int = 0,
         fs: float = 2.0,
     ) -> "Path2D":
@@ -3155,6 +3160,7 @@ def arc(
     radius: float | None = None,
     angle: float | Sequence[float] | None = None,
     diameter: float | None = None,
+    *,
     center: Sequence[float] | None = None,
     points: "Path2D | None" = None,
     corner: Sequence[Sequence[float]] | None = None,

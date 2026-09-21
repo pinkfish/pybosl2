@@ -191,6 +191,7 @@ class BaseShape(Colorable, Distributable):
     def with_nominal_size(
         self,
         size: Sequence[float],
+        *,
         anchor: Any = None,
     ) -> Self:
         """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
