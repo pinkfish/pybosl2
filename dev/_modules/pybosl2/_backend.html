@@ -3028,6 +3028,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
     <span class="c1"># `distribute_on_path` places copies and unions them, so it is one shape, not a list.</span>
+    <span class="c1"># T-6c's sanctioned `Any`, and the comment it requires: the two spellings are</span>
+    <span class="c1"># `CsgShape2D.distribute_on_path(path: Path2D)` and `CsgSolid.distribute_on_path(path: Path3D)`.</span>
+    <span class="c1"># `Shape` spans both dimensions (C-22) and parameters are contravariant, so no single type</span>
+    <span class="c1"># satisfies both -- `Path2D | Path3D` is *wider* than either implementation accepts, and each</span>
+    <span class="c1"># class stops conforming. Measured in T76, which is why this one member keeps the loose form</span>
+    <span class="c1"># while the five beside it were spelled out.</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">distribute_on_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="c1"># Transforms that both dimensions honour (SPEC C-22): a flip and a Z-rotation are not</span>
@@ -3261,21 +3267,31 @@
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.projection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
 
+    <span class="c1"># The CSG spelling also takes `size`, `convexity` and the facet controls; a field has no</span>
+    <span class="c1"># facets to control (B-9), so the shared contract is the radius both honour.</span>
 <div class="viewcode-block" id="Solid.offset3d">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.offset3d">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
+    <span class="c1"># The three radii are the shared contract. The CSG spelling also takes `size` and the facet</span>
+    <span class="c1"># controls; a field has no facets to control (B-9), so those are not part of what both honour.</span>
 <div class="viewcode-block" id="Solid.round3d">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.round3d">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">round3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">round3d</span><span class="p">(</span></div>
 
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 <div class="viewcode-block" id="Solid.wrap">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.wrap">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 <div class="viewcode-block" id="Solid.oversample">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.oversample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">oversample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oversample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 <div class="viewcode-block" id="Solid.repair">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.repair">[docs]</a>
@@ -3283,11 +3299,14 @@
 
 <div class="viewcode-block" id="Solid.chain_hull">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.chain_hull">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">chain_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chain_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
+    <span class="c1"># n-ary and typed (P-5b), and `Self` rather than `Solid` because it is the honest type: each</span>
+    <span class="c1"># backend's implementation takes its own kind, since a CSG solid and an SDF one cannot be</span>
+    <span class="c1"># combined (A-6). Declaring `Solid` here promised a cross-backend call that neither honours.</span>
 <div class="viewcode-block" id="Solid.minkowski_difference">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.minkowski_difference">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">diffs</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 <div class="viewcode-block" id="Solid.to_csg">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.to_csg">[docs]</a>
