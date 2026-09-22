@@ -2515,6 +2515,45 @@ Removing the exemption's geometry half alone changes nothing: the code is alread
 Removing it **and** un-converting `pco1881_neck` is what shows it load-bearing. A control that
 plants only the guard's weakening, on code with no defect left to find, measures nothing.
 
+## T76 — A public signature names its parameters ✅
+
+**§12.2 item 41. New requirement SPEC P-5b. C-20, T-6c.**
+
+`**kwargs` on a public callable accepts anything and documents nothing. A variadic is permitted
+only where the operation is genuinely n-ary, and must carry the element type: `*shapes: Solid`
+says what it accepts, `*args: Any` says only "several of something".
+
+This is P-5 from the other side — P-5 governs *where* a parameter may appear, P-5b whether it
+appears at all. The bare `*` separator is explicitly not an instance of it and is required by D-1.
+
+The rule landed with its guard, not as prose: T71 found D-4 carrying `enforced_by = []` beside
+code that contradicted it for the life of the project. Baseline **27** `**kwargs` and **30**
+untyped `*args`.
+
+### Measuring why they were loose beat counting them
+
+21 of the 27 are on `Shape`/`Solid`, and PLAN T-6c licenses `Any` where the two backends "differ
+in ways the checker cannot reconcile". Nineteen differ; most not irreconcilably:
+
+| | count | what it means |
+|---|---|---|
+| opaque on **both** sides | 4 | nobody wrote either |
+| opaque on **SDF only** | 8 | an implementation that abdicated, not a conflict |
+| opaque on **CSG only** | 1 | same |
+| spelled out on both | 6 | declarable today — five were |
+
+### The sixth is the one worth keeping
+
+`Shape.distribute_on_path` takes a `Path2D` in two dimensions and a `Path3D` in three, and
+parameters are contravariant — so `Path2D | Path3D` is **wider** than either implementation
+accepts and every class stops conforming. Declaring it broke a documented 2-D example, which is
+what caught it. Genuinely T-6c's case, earned by measurement rather than assumed, and it now
+carries the comment T-6c asks for and never had.
+
+Two more needed `Self` rather than `Solid`: `chain_hull` and `minkowski_difference` take shapes of
+*their own* backend, since a CSG solid and an SDF one cannot be combined (A-6). `Solid` promised a
+cross-backend call neither honours.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

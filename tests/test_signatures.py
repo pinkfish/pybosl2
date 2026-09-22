@@ -294,6 +294,97 @@ def test_the_resolver_exemption_covers_what_it_should_and_no_more() -> None:
     }, sorted(load_bearing)
 
 
+#: Exported callables taking `**kwargs`, per file. A public signature that accepts anything and
+#: documents nothing is not a contract (SPEC P-5b). Only shrinks.
+#:
+#: 21 of these are on `Shape`/`Solid` themselves, where the cost is highest: a protocol declaring
+#: `edge_mask(*args, **kwargs)` has declared the *name* of an operation and nothing else, which is
+#: the same defect as omitting it (C-20) arriving by a different road.
+OPAQUE_KWARGS: dict[str, int] = {
+    "_backend.py": 15,
+    "_shape.py": 1,
+    "flat.py": 6,
+}
+
+#: Exported callables whose `*args` carries no element type. `*shapes: Solid` says what an n-ary
+#: operation accepts; `*args: Any` says only that there may be several of something. Only shrinks.
+UNTYPED_VARARGS: dict[str, int] = {
+    "_backend.py": 16,
+    "_shape.py": 2,
+    "flat.py": 5,
+    "miscellaneous.py": 2,
+}
+
+#: Annotations that name no type. `object` is here with `Any`: a variadic typed `object` accepts
+#: everything, which is what the rule is about, whatever the spelling.
+UNTYPED = frozenset({"Any", "object", "(none)"})
+
+
+def _variadics() -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Exported callables taking `**kwargs`, and those whose `*args` names no element type."""
+    kwargs_users: dict[str, list[str]] = {}
+    untyped: dict[str, list[str]] = {}
+    for path, name, node in CALLABLES:
+        if node.args.kwarg is not None:
+            kwargs_users.setdefault(path, []).append(name)
+        vararg = node.args.vararg
+        if vararg is None:
+            continue
+        annotation = ast.unparse(vararg.annotation).strip("\"'") if vararg.annotation else "(none)"
+        if annotation in UNTYPED:
+            untyped.setdefault(path, []).append(name)
+    return kwargs_users, untyped
+
+
+KWARGS_USERS, UNTYPED_VARIADICS = _variadics()
+
+
+@pytest.mark.parametrize("path", sorted(set(KWARGS_USERS) | set(OPAQUE_KWARGS)) or ["(none)"])
+def test_no_public_callable_takes_untyped_variadics(path: str) -> None:
+    """SPEC P-5b: `**kwargs` on a public signature accepts anything and documents nothing."""
+    actual, budget = len(KWARGS_USERS.get(path, [])), OPAQUE_KWARGS.get(path, 0)
+    if actual > budget:
+        pytest.fail(
+            f"{path} has {actual} exported callables taking `**kwargs`, budget {budget}: "
+            f"{sorted(KWARGS_USERS[path])[:4]}. Name the parameters the call actually takes."
+        )
+    if actual < budget:
+        pytest.fail(f"{path} is down to {actual} from {budget}; lower its entry in OPAQUE_KWARGS.")
+
+
+@pytest.mark.parametrize("path", sorted(set(UNTYPED_VARIADICS) | set(UNTYPED_VARARGS)) or ["(none)"])
+def test_a_variadic_is_only_for_a_genuinely_n_ary_operation(path: str) -> None:
+    """SPEC P-5b: `*shapes: Solid` says what it accepts; `*args: Any` says only "several"."""
+    actual, budget = len(UNTYPED_VARIADICS.get(path, [])), UNTYPED_VARARGS.get(path, 0)
+    if actual > budget:
+        pytest.fail(
+            f"{path} has {actual} exported callables whose `*args` names no element type, budget "
+            f"{budget}: {sorted(UNTYPED_VARIADICS[path])[:4]}. Type it, or spell the parameters out."
+        )
+    if actual < budget:
+        pytest.fail(f"{path} is down to {actual} from {budget}; lower its entry in UNTYPED_VARARGS.")
+
+
+def test_a_typed_n_ary_variadic_is_not_counted() -> None:
+    """SPEC P-5b: the rule permits `*shapes: Solid`, so the scan must not report one.
+
+    Without this the two budgets above could be satisfied by a scan that flags everything, and
+    `union(*shapes: Solid)` -- the shape the rule explicitly allows -- would be debt it can never
+    pay off. `Region.hull(*args: Region | Path2D)` is the worked example.
+    """
+    typed = [
+        f"{path}::{name}"
+        for path, name, node in CALLABLES
+        if node.args.vararg is not None
+        and node.args.vararg.annotation is not None
+        and ast.unparse(node.args.vararg.annotation).strip("\"'") not in UNTYPED
+    ]
+    assert typed, "no typed n-ary variadic found; the scan cannot be distinguishing them"
+    for entry in typed:
+        path, name = entry.split("::")
+        assert name not in UNTYPED_VARIADICS.get(path, []), f"{entry} is typed and was counted anyway"
+
+
 def test_the_budgets_name_no_file_that_is_gone() -> None:
     """A row for a deleted file makes the debt look larger than it is."""
     for label, budget in (("TOO_MANY_REQUIRED", TOO_MANY_REQUIRED), ("POSITIONAL_TIERS", POSITIONAL_TIERS)):
