@@ -2592,6 +2592,42 @@ stricter protocol, so mypy is content when the concrete class takes positionally
 declares keyword-only. A caller holding a `Solid` gets the rule; one holding a `CsgSolid` does
 not. A negative control confirms it — removing the `*` from the CSG original alone is not caught.
 
+## T78 — Protocol and implementation may not drift ✅
+
+**§12.2 item 43. C-20, P-5, D-1.**
+
+The gap T77 named. Fifteen members had drifted: `Solid.wrap(radius, *, fn)` against
+`CsgSolid.wrap(radius, fn)`, so a caller holding a `Solid` got P-5's rule and a caller holding a
+`CsgSolid` did not.
+
+Two scopes stopped short of each other:
+
+| | why it missed |
+|---|---|
+| the tier scan | covers the *exported* surface — `__all__` plus the lazy table — which `CsgSolid` is not in |
+| `mypy` | **a more permissive implementation satisfies a stricter protocol** — invisible by construction, not oversight |
+
+### The first version of the scan got two things wrong
+
+* A member still declared `(*args, **kwargs)` constrains nothing. Treating it as "zero positional"
+  demanded every implementation make *all* parameters keyword-only; it rewrote
+  `distribute_on_path` and `partition` that way and the distributor tests caught it.
+* Matching by member **name** over-matches: `BezierPatch.vnf(splinesteps)` is a different
+  operation from `Shape.vnf()`, and a `BezierPatch` is not a `Shape`. Scoped now to the four
+  classes `tests/test_shape_contract.py` walks, for the same reason it keeps a list.
+
+### `wrap` had a third spelling
+
+`_shape.pyi` declared `wrap(self, radius, fn)`, drifted from both the protocol and the class —
+which is what a hand-written stub beside a real class is for. **mypy catches that one and the new
+scan does not**, so the two are recorded as complementary rather than one stretched to cover the
+other: the scan reads `.py` sources, and a stub's job is to disagree with them loudly.
+
+### The control that did not bite in T77
+
+Removing the `*` from `CsgSolid.face_profile` passed unremarked a task ago. It fails now, which is
+the whole of what this task was for.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

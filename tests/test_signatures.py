@@ -385,6 +385,81 @@ def test_a_typed_n_ary_variadic_is_not_counted() -> None:
         assert name not in UNTYPED_VARIADICS.get(path, []), f"{entry} is typed and was counted anyway"
 
 
+def _protocol_declarations() -> dict[str, int]:
+    """How many parameters each protocol member declares positionally.
+
+    A member the protocol still declares as `(*args, **kwargs)` is skipped: a loose declaration
+    constrains nothing, and treating it as "zero positional" would demand that every
+    implementation make *all* its parameters keyword-only. The first version of this scan did
+    exactly that and rewrote signatures that were never in question.
+    """
+    declared: dict[str, int] = {}
+    source = (PACKAGE / "_backend.py").read_text()
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.ClassDef) or node.name not in ("Shape", "Flat", "Solid"):
+            continue
+        for member in node.body:
+            if not isinstance(member, ast.FunctionDef) or member.name.startswith("_"):
+                continue
+            if member.args.vararg or member.args.kwarg:
+                continue
+            declared[member.name] = len([a for a in member.args.args if a.arg != "self"])
+    return declared
+
+
+PROTOCOL_DECLARATIONS = _protocol_declarations()
+
+
+def test_the_protocol_scan_found_the_declarations() -> None:
+    """A scan matching nothing would make the check below vacuous."""
+    assert len(PROTOCOL_DECLARATIONS) > 50, f"only {len(PROTOCOL_DECLARATIONS)} found; scan broken"
+
+
+def test_no_implementation_accepts_positionally_what_its_protocol_declares_keyword_only() -> None:
+    """SPEC C-20, P-5: the protocol is the contract, and an implementation may not be looser.
+
+    A *more permissive* implementation satisfies a stricter protocol, so `mypy` is content when a
+    concrete class takes positionally what the protocol declares keyword-only -- and the tier scan
+    reaches only the exported surface, which `CsgSolid` is not part of. Between them, protocol and
+    implementation drifted on fifteen members: `Solid.wrap(radius, *, fn)` against
+    `CsgSolid.wrap(radius, fn)`, so a caller holding a `Solid` got the rule and a caller holding a
+    `CsgSolid` did not. Nothing was checking, because each rule's scope stopped short of the gap.
+
+    `wrap` had a third spelling in `_shape.pyi` that had drifted from both, which is what a
+    hand-written stub beside a real class is for.
+    """
+    # Only the classes that actually implement a protocol. Matching by member *name* across the
+    # whole package over-matches: `BezierPatch.vnf(splinesteps)` is a different operation from
+    # `Shape.vnf()`, and a `BezierPatch` is not a `Shape`. The list is the one
+    # `tests/test_shape_contract.py` walks as `IMPLEMENTATIONS`, for the same reason it keeps one.
+    implementations = {"CsgSolid", "SdfSolid", "CsgShape2D", "PyShape2D"}
+    looser = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        relative = path.relative_to(PACKAGE).as_posix()
+        if relative == "_backend.py":
+            continue
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:  # pragma: no cover - another test's problem
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef) or node.name not in implementations:
+                continue
+            for member in node.body:
+                if not isinstance(member, ast.FunctionDef):
+                    continue
+                declared = PROTOCOL_DECLARATIONS.get(member.name)
+                if declared is None or member.args.vararg or member.args.kwarg:
+                    continue
+                positional = [a.arg for a in member.args.args if a.arg != "self"]
+                if len(positional) > declared:
+                    looser.append(
+                        f"{relative}::{node.name}.{member.name} takes {positional[declared]!r} "
+                        f"positionally; the protocol declares it keyword-only"
+                    )
+    assert not looser, "implementations looser than the protocol they satisfy:\n  " + "\n  ".join(looser)
+
+
 def test_the_budgets_name_no_file_that_is_gone() -> None:
     """A row for a deleted file makes the debt look larger than it is."""
     for label, budget in (("TOO_MANY_REQUIRED", TOO_MANY_REQUIRED), ("POSITIONAL_TIERS", POSITIONAL_TIERS)):

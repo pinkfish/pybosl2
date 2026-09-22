@@ -1433,7 +1433,7 @@ class BezierPatch:
 
     # -- meshing ---------------------------------------------------------------------------
 
-    def vnf(self, splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
+    def vnf(self, splinesteps: int = 16, *, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
         """Mesh this patch into a :class:`~pybosl2.vnf.VNF`.
 
         Samples the patch at *splinesteps* intervals in both *u* and *v*
@@ -1501,8 +1501,8 @@ class BezierPatch:
             return value if isinstance(value, BezierPatch) else BezierPatch(value)
 
         if isinstance(patches, BezierPatch) or BezierPatch.is_patch(patches):
-            return _as_patch(cast("np.ndarray", patches)).vnf(splinesteps, style)
-        return VNF.union([_as_patch(p).vnf(splinesteps, style) for p in patches])
+            return _as_patch(cast("np.ndarray", patches)).vnf(splinesteps, style=style)
+        return VNF.union([_as_patch(p).vnf(splinesteps, style=style) for p in patches])
 
     @staticmethod
     def flat(

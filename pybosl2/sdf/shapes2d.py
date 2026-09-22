@@ -262,7 +262,7 @@ class SdfShape2D(Colorable, Distributable):
         point = self.anchor_point(anchor, bbox=bbox)
         return self.translate([-point[0], -point[1]])
 
-    def with_nominal_size(self, size: "Sequence[float]", anchor: Any = None) -> PyShape2D:
+    def with_nominal_size(self, size: "Sequence[float]", *, anchor: Any = None) -> PyShape2D:
         """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
 
         Args:

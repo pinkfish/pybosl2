@@ -187,6 +187,7 @@ enforced_by = [
     "tests/test_signatures.py::test_no_file_grows_its_positional_tier_parameters",
     "tests/test_signatures.py::test_every_exported_callable_keeps_its_tiers_behind_a_star",
     "tests/test_signatures.py::test_the_resolver_exemption_covers_what_it_should_and_no_more",
+    "tests/test_signatures.py::test_no_implementation_accepts_positionally_what_its_protocol_declares_keyword_only",
 ]
 status = "enforced"
 note = '''

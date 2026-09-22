@@ -435,6 +435,7 @@ class CsgShape2D(BaseShape):
         child: object,
         child_anchor: Anchor | None = None,
         overlap: float = 0.0,
+        *,
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "CsgShape2D":

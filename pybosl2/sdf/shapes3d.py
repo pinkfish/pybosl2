@@ -457,7 +457,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         out._nominal_anchor = self._nominal_anchor
         return out
 
-    def with_nominal_size(self, size: Sequence[float], anchor: Any = None) -> PyShape:
+    def with_nominal_size(self, size: Sequence[float], *, anchor: Any = None) -> PyShape:
         """Return this field carrying *size* as its nominal anchor box (SPEC S-2a).
 
         The SDF twin of :meth:`pybosl2.shapes3d.Bosl2Solid.with_nominal_size`, so a part can name
@@ -1259,6 +1259,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def round3d(
         self,
         radius: float | None = None,
+        *,
         outer_radius: float | None = None,
         inner_radius: float | None = None,
     ) -> PyShape:
@@ -1525,6 +1526,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def half_of(
         self,
         v: "Any" = Anchor.TOP,
+        *,
         center: "bool | float | Sequence[float] | None" = None,
         s: float | None = None,
         cut_path: "Any" = None,
@@ -1605,7 +1607,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([-1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
+        return self.half_of([-1.0, 0.0, 0.0], center=[float(x), 0.0, 0.0], s=s)
 
     def right_half(self, x: float = 0, s: float | None = None) -> PyShape:
         """Keep the half of this solid where x ≥ *x* (positive-X half).
@@ -1617,7 +1619,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
+        return self.half_of([1.0, 0.0, 0.0], center=[float(x), 0.0, 0.0], s=s)
 
     def front_half(self, y: float = 0, s: float | None = None) -> PyShape:
         """Keep the half of this solid where y ≤ *y* (negative-Y half).
@@ -1629,7 +1631,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([0.0, -1.0, 0.0], [0.0, float(y), 0.0], s)
+        return self.half_of([0.0, -1.0, 0.0], center=[0.0, float(y), 0.0], s=s)
 
     def back_half(self, y: float = 0, s: float | None = None) -> PyShape:
         """Keep the half of this solid where y ≥ *y* (positive-Y half).
@@ -1641,7 +1643,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([0.0, 1.0, 0.0], [0.0, float(y), 0.0], s)
+        return self.half_of([0.0, 1.0, 0.0], center=[0.0, float(y), 0.0], s=s)
 
     def bottom_half(self, z: float = 0, s: float | None = None) -> PyShape:
         """Keep the half of this solid where z ≤ *z* (negative-Z half).
@@ -1653,7 +1655,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([0.0, 0.0, -1.0], [0.0, 0.0, float(z)], s)
+        return self.half_of([0.0, 0.0, -1.0], center=[0.0, 0.0, float(z)], s=s)
 
     def top_half(self, z: float = 0, s: float | None = None) -> PyShape:
         """Keep the half of this solid where z ≥ *z* (positive-Z half).
@@ -1665,7 +1667,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
-        return self.half_of([0.0, 0.0, 1.0], [0.0, 0.0, float(z)], s)
+        return self.half_of([0.0, 0.0, 1.0], center=[0.0, 0.0, float(z)], s=s)
 
     # ---- native CSG passthrough methods (delegate via to_csg()) ----
 
@@ -1742,7 +1744,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         return self.to_csg().separate()  # type: ignore[no-any-return]
 
-    def wrap(self, radius: float, fn: int | None = None) -> PyShape:
+    def wrap(self, radius: float, *, fn: int | None = None) -> PyShape:
         """Bend this solid around a cylinder of *radius* via CSG conversion.
 
         Args:
