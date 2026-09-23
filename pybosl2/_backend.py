@@ -39,10 +39,11 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path as FilePath
 
-    from pybosl2._edges_lang import Anchor
+    from pybosl2._edges_lang import Anchor, EdgeAtom
     from pybosl2.bounds import Bounds2D, Bounds3D
     from pybosl2.caps import CapSpec
-    from pybosl2.enums import StaggerMode
+    from pybosl2.enums import AttachTag, StaggerMode
+    from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point, PointLike
@@ -716,13 +717,13 @@ class Shape(Protocol):
     def tag_this(self, name: "AttachTag | str") -> Self: ...
     def diff(
         self,
-        remove: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.REMOVE,
-        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+        remove: "AttachTag | str | Sequence[AttachTag | str]" = ...,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = ...,
     ) -> Self: ...
     def intersect(
         self,
-        intersect: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.INTERSECT,
-        keep: "AttachTag | str | Sequence[AttachTag | str]" = AttachTag.KEEP,
+        intersect: "AttachTag | str | Sequence[AttachTag | str]" = ...,
+        keep: "AttachTag | str | Sequence[AttachTag | str]" = ...,
     ) -> Self: ...
 
     def realize(self) -> Self:
@@ -880,7 +881,9 @@ class Shape(Protocol):
     # three-dimensional ideas, and `spin` living only on Flat was historical.
     def multmatrix(self, m: Any) -> Self: ...
     def rotate(self, *args: Any, **kwargs: Any) -> Self: ...
-    def minkowski(self, *others: Any) -> Self: ...
+    # `Self`: each backend's implementation takes its own kind, since a CSG solid and an SDF one
+    # cannot be combined (A-6). `Any` promised a cross-backend call neither honours.
+    def minkowski(self, *others: Self) -> Self: ...
 
     # Directional moves within the plane both dimensions share.
     def left(self, x: float) -> Self: ...
@@ -970,7 +973,9 @@ class Solid(Shape, Protocol):
     # `**kwargs` because the SDF hull takes sampling controls (`directions`, `res`) the CSG
     # one has no notion of -- the caller's view is "hull these", and the extras are backend
     # detail (PLAN T-6c).
-    def hull(self, *others: Any, **kwargs: Any) -> Self: ...
+    # The SDF spelling also takes `directions` and `res`, which sample its field; a mesh backend
+    # has no field to sample (B-9), so the shared contract is the operands.
+    def hull(self, *others: Self) -> Self: ...
 
     # Partitioning. Both backends implement the whole family; it was simply never declared.
     # The parameters are `Any` because the two spell their accepted forms differently (a list on
@@ -1000,20 +1005,140 @@ class Solid(Shape, Protocol):
     # `partition` splits, so it returns the pieces rather than one shape -- exactly two of them,
     # which a 2-tuple states and a list only implies. The backends used to disagree on the
     # container (`list` on CSG, `tuple` on SDF), which is what forced this to be `Any`.
-    def partition(self, *args: Any, **kwargs: Any) -> tuple[Self, Self]: ...
+    def partition(
+        self,
+        spread: float = 10,
+        # The CSG spelling also takes a per-axis `cutsize` and a `Path2D` cutpath; the SDF one
+        # takes neither, and refuses them at runtime, so the shared contract is the scalar form.
+        cutsize: float = 10,
+        cutpath: str = "jigsaw",
+        gap: float = 0,
+        cutpath_centered: bool = True,
+        *,
+        spin: float = 0,
+        slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> tuple[Self, Self]: ...
     # Edge, corner and face treatments (SPEC S-26, S-27) and the one way down to 2-D (C-17).
     # As above: the SDF backend refuses each by name.
-    def edge_mask(self, *args: Any, **kwargs: Any) -> Self: ...
-    def edge_profile(self, *args: Any, **kwargs: Any) -> Self: ...
-    def edge_profile_asym(self, *args: Any, **kwargs: Any) -> Self: ...
-    def corner_profile(self, *args: Any, **kwargs: Any) -> Self: ...
-    def face_profile(self, *args: Any, **kwargs: Any) -> Self: ...
+    def edge_mask(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Solid | None" = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
+    def edge_profile(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        *,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        bbox: Sequence[Sequence[float]] | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def edge_profile_asym(
+        self,
+        edges: EdgeAtom | list[EdgeAtom] = ...,
+        *,
+        except_edges: list[EdgeAtom] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def corner_profile(
+        self,
+        corners: Anchor = ...,
+        *,
+        except_corners: list[Anchor] | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
+    def face_profile(
+        self,
+        faces: Anchor | list[Anchor] = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
+        convexity: int = 10,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+        bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
+    ) -> Self: ...
 
     # The named edge treatments (SPEC S-26b): `round_edges`/`chamfer_edges`/`cove_edges` are the
     # spellings a caller reaches for, so they belong on the contract like anything else (C-20).
-    def round_edges(self, *args: Any, **kwargs: Any) -> Self: ...
-    def chamfer_edges(self, *args: Any, **kwargs: Any) -> Self: ...
-    def cove_edges(self, *args: Any, **kwargs: Any) -> Self: ...
+    # Declared from the CSG spelling, which is the caller's view (T-6c): the SDF side is a
+    # refusal stub, and a `(*args, **kwargs)` implementation is maximally permissive, so it
+    # satisfies whatever the protocol declares. The variadic there was never the obstacle.
+    def round_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
+    def chamfer_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        chamfer: float,
+        height: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+    ) -> Self: ...
+    def cove_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = ...,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Self: ...
     def projection(self, cut: bool = False) -> Any: ...
     # The CSG spelling also takes `size`, `convexity` and the facet controls; a field has no
     # facets to control (B-9), so the shared contract is the radius both honour.
@@ -1029,14 +1154,14 @@ class Solid(Shape, Protocol):
     ) -> Self: ...
     def wrap(self, radius: float, *, fn: int | None = None) -> Self: ...
     def oversample(self, sides: int) -> Self: ...
-    def repair(self, *args: Any, **kwargs: Any) -> Self: ...
+    def repair(self) -> Self: ...
     def chain_hull(self, *others: Self) -> Self: ...
     # n-ary and typed (P-5b), and `Self` rather than `Solid` because it is the honest type: each
     # backend's implementation takes its own kind, since a CSG solid and an SDF one cannot be
     # combined (A-6). Declaring `Solid` here promised a cross-backend call that neither honours.
     def minkowski_difference(self, *diffs: Self, size: float = 1000) -> Self: ...
-    def to_csg(self, *args: Any, **kwargs: Any) -> Any: ...
-    def to_sdf(self, *args: Any, **kwargs: Any) -> Any: ...
+    def to_csg(self) -> Any: ...
+    def to_sdf(self) -> Any: ...
 
     def anchor_point(
         self,

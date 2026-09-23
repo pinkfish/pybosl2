@@ -367,7 +367,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """
         return self._wrap(self.shape.repair())
 
-    def wrap(self, radius: float, fn: int | None = None) -> "Bosl2Solid":
+    def wrap(self, radius: float, *, fn: int | None = None) -> "Bosl2Solid":
         """Wrap this solid around a cylinder of radius *radius*, bending +X into.
 
         the cylinder's circumference (native ``wrap()``). *fn* sets the
@@ -851,6 +851,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         child: object,
         child_anchor: Anchor | None = None,
         overlap: float = 0.0,
+        *,
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
@@ -966,6 +967,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def edge_profile(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        *,
         except_edges: list[EdgeAtom] | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
@@ -1105,7 +1107,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             raise Bosl2ValueError("round_edges(): give radius= or diameter=.")
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.roundover(rad, fn=fn, fa=fa, fs=fs),
             bbox=bbox,
             tag=tag,
@@ -1148,7 +1150,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.chamfer(chamfer, height),
             bbox=bbox,
             tag=tag,
@@ -1208,7 +1210,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             raise Bosl2ValueError("cove_edges(): give radius= or diameter=.")
         return self.edge_profile(
             edges,
-            except_edges,
+            except_edges=except_edges,
             mask=Mask2D.cove(rad, fn=fn, fa=fa, fs=fs),
             bbox=bbox,
             tag=tag,
@@ -1217,6 +1219,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def edge_profile_asym(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        *,
         except_edges: list[EdgeAtom] | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
@@ -1267,6 +1270,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def corner_profile(
         self,
         corners: Anchor = Anchor.ALL,
+        *,
         except_corners: list[Anchor] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
@@ -1343,6 +1347,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def face_profile(
         self,
         faces: Anchor | list[Anchor] = Anchor.ALL,
+        *,
         radius: float | None = None,
         diameter: float | None = None,
         mask: "Path2D | Sequence[Sequence[float]] | None" = None,
@@ -1433,6 +1438,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def offset3d(
         self,
         radius: float,
+        *,
         size: float = 1000,
         convexity: int = 10,
         fn: int | None = None,
@@ -1474,6 +1480,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     def round3d(
         self,
         radius: float | None = None,
+        *,
         outer_radius: float | None = None,
         inner_radius: float | None = None,
         size: float = 1000,

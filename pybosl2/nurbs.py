@@ -1155,6 +1155,7 @@ class NurbsPatch:
 
     def vnf(
         self,
+        *,
         splinesteps: tuple[int, int] = (16, 16),
         style: VnfStyle = VnfStyle.DEFAULT,
         reverse: bool = False,

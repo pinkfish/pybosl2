@@ -42,28 +42,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 #: deleting its row.
 LOOSE: frozenset[str] = frozenset(
     {
-        "Flat.hull",
-        "Flat.linear_extrude",
-        "Flat.offset",
-        "Flat.rotate_extrude",
-        "Flat.xflip",
-        "Flat.yflip",
-        "Shape.minkowski",
         "Shape.rotate",
-        "Solid.chamfer_edges",
-        "Solid.corner_profile",
-        "Solid.cove_edges",
-        "Solid.edge_mask",
-        "Solid.edge_profile",
-        "Solid.edge_profile_asym",
-        "Solid.face_profile",
-        "Solid.hull",
-        "Solid.partition",
+        "Flat.offset",
         "Shape.distribute_on_path",
-        "Solid.repair",
-        "Solid.round_edges",
-        "Solid.to_csg",
-        "Solid.to_sdf",
     }
 )
 

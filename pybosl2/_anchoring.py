@@ -120,6 +120,7 @@ class Anchorable:
     def reorient(
         self,
         anchor: Anchor | Sequence[float] = Anchor.CENTER,
+        *,
         spin: float = 0,
         orient: Anchor | Sequence[float] = Anchor.TOP,
         bbox: Sequence[Sequence[float]] | None = None,
@@ -155,6 +156,7 @@ class Anchorable:
     def orient(
         self,
         direction: Anchor | Sequence[float] = Anchor.TOP,
+        *,
         spin: float = 0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> Self:
