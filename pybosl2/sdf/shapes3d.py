@@ -1799,6 +1799,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         cutpath: str = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
+        *,
         spin: float = 0,
         slop: float = 0.0,
         fn: int | None = None,

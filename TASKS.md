@@ -2628,6 +2628,59 @@ other: the scan reads `.py` sources, and a stub's job is to disagree with them l
 Removing the `*` from `CsgSolid.face_profile` passed unremarked a task ago. It fails now, which is
 the whole of what this task was for.
 
+## T79 — P-5b down to three ✅
+
+**§12.2 item 44. P-5b, C-20, B-9. 14 → 4 `**kwargs`, 17 → 7 untyped `*args`.**
+
+Ten more protocol members declared, and all but two needed no judgement:
+
+| members | why it was easy |
+|---|---|
+| `repair`, `to_csg`, `to_sdf` | **no parameters** on either backend |
+| `xflip`, `yflip` | `(self, x: float = 0.0)` on both, identically |
+| `rotate_extrude` | agrees but for the SDF backend's own `res`, which B-9 exempts |
+| `minkowski`, `Solid.hull`, `Flat.hull` | the `Self` case from T76 — each backend takes its own kind (A-6) |
+
+They were not hard problems held back by a hard problem; they sat behind one row of a ratchet that
+did not distinguish them.
+
+### `partition` needed measuring, and the measurement changed the answer
+
+Both backends list the same ten parameter *names*, so it looked identical. The SDF spelling
+declares `cutsize: float` and `cutpath: str` where CSG takes `float | Sequence[float]` and
+`str | Path2D`. After T71–T73 the expectation was another false annotation. **It is not** —
+`partition(cutsize=[10, 10])` genuinely fails on the SDF side, so the protocol declares the scalar
+form both keep.
+
+*What it fails with is a separate defect*: `TypeError: invalid argument left to operator`, raw from
+inside, where B-9 and E-4 ask for a refusal naming the parameter.
+
+### Declaring an operation keeps pulling it into other rules' scope
+
+Third time now. T77 found T75's tier rule had never reached `CsgSolid`. Here, giving
+`Flat.rotate_extrude` its `fn`/`fa`/`fs` put it under **R-4** (every facet parameter must say that
+omitting it inherits the ambient default), and `offset`/`xflip`/`yflip` gained parameters and so
+came under **D-P4**'s `Args:` requirement.
+
+Each was a real omission the moment the signature stopped being `**kwargs`. A guard cannot check
+what a signature does not say — the rules were all in force, and the opaque signature was standing
+outside all of them at once.
+
+### What is left, and why
+
+| member | reason |
+|---|---|
+| `Shape.rotate`, `BaseShape.rotate` | the **CSG implementation** is itself `(*a, **k)` — the abdication is one layer down |
+| `Shape.distribute_on_path` | the contravariance case T76 measured |
+| `Flat.offset` | **two rules collide** — see below |
+
+`Flat.offset` is the interesting one. `offset(radius=)` rounds the corners, so **R-1** requires the
+facet controls with it; the SDF side has none, because a field is sampled by `res`, not by
+fragments (**B-9**). Declaring `fn` makes `SdfShape2D` stop conforming and declaring the pair
+without it breaks R-1, so it stays loose with the reason written down. It was declared first and
+the facet rule caught it — which is the fourth time in three tasks that writing a signature pulled
+it into a rule it had been standing outside.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

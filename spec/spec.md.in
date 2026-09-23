@@ -521,6 +521,12 @@ there in the same commit as the code (§13 rule 4).
 
 **The negative control is the one that did not bite in T77.** Removing the `*` from `CsgSolid.face_profile` — a change that passed unremarked a task ago — now fails, which is the whole of what this task was for.
 
+**T79 took P-5b from 14 `**kwargs` to 4, and all but two of the ten needed no judgement at all.** `repair`, `to_csg` and `to_sdf` take **no parameters** on either backend; `xflip` and `yflip` are `(self, x: float = 0.0)` on both, identically; `rotate_extrude` agrees except for the SDF backend's own `res`, which B-9 already exempts. `minkowski` and both `hull`s are the `Self` case T76 established — each backend's implementation takes its own kind, because a CSG solid and an SDF one cannot be combined (A-6), and `Any` had been promising a cross-backend call neither honours. These were not hard problems held back by a hard problem; they were sitting behind one row of a ratchet that did not distinguish them.
+
+**`partition` is the one that needed measuring, and the measurement changed the answer.** Both backends list the same ten parameter names, so it looked identical — but the SDF spelling declares `cutsize: float` and `cutpath: str` where the CSG one takes `float | Sequence[float]` and `str | Path2D`. Given the pattern of T71 through T73 the expectation was another false annotation, and it is not: `partition(cutsize=[10, 10])` genuinely fails on the SDF side. So the protocol declares the scalar form, which is the contract both keep. *What it fails with is a separate defect*: `TypeError: invalid argument left to operator`, raw from inside, where B-9 and E-4 ask for a refusal naming the parameter.
+
+**Declaring an operation keeps pulling it into other rules' scope, which is the third time now.** T77 found T75's tier rule had never reached `CsgSolid`; here, giving `Flat.rotate_extrude` its `fn`, `fa` and `fs` put it under R-4, which requires every facet parameter to say that omitting it inherits the ambient default — and `offset`, `xflip` and `yflip` gained parameters and so came under D-P4's `Args:` requirement. Each was a real omission the moment the signature stopped being `**kwargs`. A guard cannot check what a signature does not say, and this is what that costs: the rules were all in force, and the opaque signature was standing outside all of them at once.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

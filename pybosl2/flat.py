@@ -67,12 +67,21 @@ class Flat(Shape, Protocol):
         """
         ...
 
-    def linear_extrude(self, height: float, **kwargs: Any) -> Solid:
+    # `height`, `center` and `convexity` are what both extruders take. The CSG spelling adds
+    # `twist`, `scale`, `slices` and the facet controls; the SDF one adds the roundings and `res`.
+    def linear_extrude(
+        self,
+        height: float,
+        *,
+        center: bool = False,
+        convexity: int | None = None,
+    ) -> Solid:
         """Extrude this 2-D shape into a 3-D solid.
 
         Args:
             height: Height of the extrusion.
-            **kwargs: Options the active backend's extruder declares.
+            center: Centre the result on Z instead of sitting it on the XY plane.
+            convexity: Convexity hint for preview rendering.
 
         """
         ...
@@ -80,15 +89,45 @@ class Flat(Shape, Protocol):
     # The rest of the way up into three dimensions (SPEC C-17), and the operations only an outline
     # has. Declared because the objects have them and C-20 says the contract is the whole object;
     # `Any` where the two backends spell an option differently (PLAN T-6c).
-    def rotate_extrude(self, *args: Any, **kwargs: Any) -> Solid:
-        """Revolve this 2-D shape about the Z axis into a solid."""
+    # The SDF spelling also takes `res`, which is its own resolution control; a mesh backend has
+    # no field to sample (B-9), so the shared contract stops at the facet parameters.
+    def rotate_extrude(
+        self,
+        angle: float = 360.0,
+        *,
+        convexity: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Solid:
+        """Revolve this 2-D shape about the Z axis into a solid.
+
+        Args:
+            angle: Sweep angle in degrees; 360 for a full revolution.
+            convexity: Convexity hint for preview rendering.
+            fn: Segment count. Omitted, the ambient ``use_defaults(fn=...)`` value applies.
+            fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+            fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+
+        Returns:
+            The revolved solid, on whichever backend is active.
+
+        """
         ...
 
+    # T-6c's sanctioned `Any`, and the comment it requires. The two spellings are
+    # `CsgShape2D.offset(radius, delta, chamfer, fn, fa, fs)` and `SdfShape2D.offset(delta, radius)`.
+    # The shared pair is `radius`/`delta` -- but `offset(radius=)` rounds the corners, so R-1
+    # requires the facet controls with it, and the SDF side has none: a field is sampled by `res`,
+    # not by fragments (B-9). Declaring `fn` would make `SdfShape2D` stop conforming; declaring the
+    # pair without it breaks R-1. T79 measured both ways round and left this one loose.
     def offset(self, *args: Any, **kwargs: Any) -> Self:
         """Return this outline grown or shrunk by a distance."""
         ...
 
-    def hull(self, *others: Any, **kwargs: Any) -> Self:
+    # `Self`, not a shared type: each backend's implementation takes its own kind, since a CSG
+    # shape and an SDF one cannot be combined (A-6). The same reasoning as `chain_hull` in T76.
+    def hull(self, *others: Self) -> Self:
         """Return the convex hull of this shape and any others."""
         ...
 
@@ -104,12 +143,28 @@ class Flat(Shape, Protocol):
     # In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put
     # these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is
     # the C-21 synonym work (SPEC §12.2).
-    def xflip(self, *args: Any, **kwargs: Any) -> Self:
-        """Mirror this shape across the YZ plane."""
+    def xflip(self, x: float = 0.0) -> Self:
+        """Mirror this shape across the YZ plane.
+
+        Args:
+            x: The plane's X position; 0 mirrors across the origin.
+
+        Returns:
+            The mirrored shape.
+
+        """
         ...
 
-    def yflip(self, *args: Any, **kwargs: Any) -> Self:
-        """Mirror this shape across the XZ plane."""
+    def yflip(self, y: float = 0.0) -> Self:
+        """Mirror this shape across the XZ plane.
+
+        Args:
+            y: The plane's Y position; 0 mirrors across the origin.
+
+        Returns:
+            The mirrored shape.
+
+        """
         ...
 
 
