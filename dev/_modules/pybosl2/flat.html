@@ -2226,14 +2226,23 @@
         <span class="o">...</span></div>
 
 
+    <span class="c1"># `height`, `center` and `convexity` are what both extruders take. The CSG spelling adds</span>
+    <span class="c1"># `twist`, `scale`, `slices` and the facet controls; the SDF one adds the roundings and `res`.</span>
 <div class="viewcode-block" id="Flat.linear_extrude">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.linear_extrude">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            height: Height of the extrusion.</span>
-<span class="sd">            **kwargs: Options the active backend's extruder declares.</span>
+<span class="sd">            center: Centre the result on Z instead of sitting it on the XY plane.</span>
+<span class="sd">            convexity: Convexity hint for preview rendering.</span>
 
 <span class="sd">        """</span>
         <span class="o">...</span></div>
@@ -2242,13 +2251,41 @@
     <span class="c1"># The rest of the way up into three dimensions (SPEC C-17), and the operations only an outline</span>
     <span class="c1"># has. Declared because the objects have them and C-20 says the contract is the whole object;</span>
     <span class="c1"># `Any` where the two backends spell an option differently (PLAN T-6c).</span>
+    <span class="c1"># The SDF spelling also takes `res`, which is its own resolution control; a mesh backend has</span>
+    <span class="c1"># no field to sample (B-9), so the shared contract stops at the facet parameters.</span>
 <div class="viewcode-block" id="Flat.rotate_extrude">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate_extrude">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Revolve this 2-D shape about the Z axis into a solid."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Revolve this 2-D shape about the Z axis into a solid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            angle: Sweep angle in degrees; 360 for a full revolution.</span>
+<span class="sd">            convexity: Convexity hint for preview rendering.</span>
+<span class="sd">            fn: Segment count. Omitted, the ambient ``use_defaults(fn=...)`` value applies.</span>
+<span class="sd">            fa: Minimum fragment angle. Omitted, the ambient ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">            fs: Minimum fragment size. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The revolved solid, on whichever backend is active.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
+    <span class="c1"># T-6c's sanctioned `Any`, and the comment it requires. The two spellings are</span>
+    <span class="c1"># `CsgShape2D.offset(radius, delta, chamfer, fn, fa, fs)` and `SdfShape2D.offset(delta, radius)`.</span>
+    <span class="c1"># The shared pair is `radius`/`delta` -- but `offset(radius=)` rounds the corners, so R-1</span>
+    <span class="c1"># requires the facet controls with it, and the SDF side has none: a field is sampled by `res`,</span>
+    <span class="c1"># not by fragments (B-9). Declaring `fn` would make `SdfShape2D` stop conforming; declaring the</span>
+    <span class="c1"># pair without it breaks R-1. T79 measured both ways round and left this one loose.</span>
 <div class="viewcode-block" id="Flat.offset">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.offset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
@@ -2256,9 +2293,11 @@
         <span class="o">...</span></div>
 
 
+    <span class="c1"># `Self`, not a shared type: each backend's implementation takes its own kind, since a CSG</span>
+    <span class="c1"># shape and an SDF one cannot be combined (A-6). The same reasoning as `chain_hull` in T76.</span>
 <div class="viewcode-block" id="Flat.hull">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.hull">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the convex hull of this shape and any others."""</span>
         <span class="o">...</span></div>
 
@@ -2280,15 +2319,31 @@
     <span class="c1"># the C-21 synonym work (SPEC §12.2).</span>
 <div class="viewcode-block" id="Flat.xflip">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.xflip">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">xflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Mirror this shape across the YZ plane."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the YZ plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: The plane's X position; 0 mirrors across the origin.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mirrored shape.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.yflip">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.yflip">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Mirror this shape across the XZ plane."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the XZ plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            y: The plane's Y position; 0 mirrors across the origin.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mirrored shape.</span>
+
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 </div>
 
