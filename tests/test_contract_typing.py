@@ -42,7 +42,6 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 #: deleting its row.
 LOOSE: frozenset[str] = frozenset(
     {
-        "Shape.rotate",
         "Flat.offset",
         "Shape.distribute_on_path",
     }

@@ -277,17 +277,29 @@ class CsgShape2D(BaseShape):
             )
         return out
 
-    def rotate(self, *a: object, **k: object) -> "CsgShape2D":
-        """Rotate the shape."""
-        out = super().rotate(*a, **k)
+    def rotate(
+        self,
+        a: "float | Sequence[float] | None" = None,
+        v: "Sequence[float] | None" = None,
+    ) -> "CsgShape2D":
+        """Rotate the shape.
+
+        Args:
+            a: Rotation in degrees: a bare angle, or a 3-vector whose Z component is used.
+            v: The axis to rotate about; a 2-D shape only turns about Z, so this is carried for
+                the signature it shares with `Shape.rotate` rather than used here.
+
+        Returns:
+            The rotated shape.
+
+        """
+        out = super().rotate(a, v)
         if self._bbox is not None:
             angle = 0.0
-            if len(a) == 1 and isinstance(a[0], (int, float)):
-                angle = float(a[0])
-            elif "a" in k:
-                angle = float(k["a"])  # type: ignore[arg-type]
-            elif len(a) == 1 and isinstance(a[0], (list, tuple)) and len(a[0]) == 3:
-                angle = float(a[0][2])
+            if isinstance(a, (int, float)):
+                angle = float(a)
+            elif isinstance(a, (list, tuple)) and len(a) == 3:
+                angle = float(a[2])
             rad = math.radians(angle)
             cos_a, sin_a = math.cos(rad), math.sin(rad)
             lo, hi = self._bbox

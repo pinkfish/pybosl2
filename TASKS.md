@@ -2681,6 +2681,46 @@ without it breaks R-1, so it stays loose with the reason written down. It was de
 the facet rule caught it — which is the fourth time in three tasks that writing a signature pulled
 it into a rule it had been standing outside.
 
+## T80 — The abdication was one layer down ✅
+
+**§12.2 item 45. P-5b, C-20. 4 → 2 `**kwargs`, 7 → 5 untyped `*args`.**
+
+`Shape.rotate` could not be declared on the protocol because there was nothing to declare *from*:
+the CSG implementation was `(*a: object, **k: object)` too. Reading it settled the question — the
+body only ever touches `a` and `v`, the two the SDF backend had declared all along.
+
+Every call site agreed: **131 calls**, all one or two positional arguments. The three passing
+`origin=` turned out to be **shapely's** `affinity.rotate`, not this one.
+
+### Typing it surfaced two more spellings of the same method
+
+* `CsgShape2D.rotate` had its own `(*a, **k)` override that re-derived the angle by inspecting the
+  variadic — `len(a) == 1 and isinstance(a[0], (int, float))`, then `"a" in k`, then the 3-vector
+  case. That is the parameter list written out as control flow; with real parameters it is three
+  lines.
+* `Flat.rotate(a)` declared no `v` at all, so the protocol's `rotate(a, v)` did not fit it.
+
+Four spellings of one operation, each slightly different, none checkable against the others until
+one of them said what it took.
+
+### It is a retyping, not a redesign
+
+All five documented call forms behave identically afterwards — bare angle, 3-vector, angle with
+axis, `a=`, and `a=` with `v=`. `Shape.rotate(a="forty-five")` is caught now.
+
+### A control re-confirmed T78's division of labour
+
+Reverting the `.pyi` stub to `(*a, **k)` **passes the signature scan and fails mypy** — exactly as
+recorded when that pair was established. Worth re-running rather than assuming: it is the kind of
+claim that stops being true quietly.
+
+### What is left
+
+| member | reason |
+|---|---|
+| `Shape.distribute_on_path` | the contravariance case T76 measured |
+| `Flat.offset` | R-1 and B-9 collide, as T79 recorded |
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
