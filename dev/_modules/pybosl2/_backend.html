@@ -3237,10 +3237,8 @@
 
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">spread</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-        <span class="c1"># The CSG spelling also takes a per-axis `cutsize` and a `Path2D` cutpath; the SDF one</span>
-        <span class="c1"># takes neither, and refuses them at runtime, so the shared contract is the scalar form.</span>
-        <span class="n">cutsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-        <span class="n">cutpath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"jigsaw"</span><span class="p">,</span>
+        <span class="n">cutsize</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">cutpath</span><span class="p">:</span> <span class="s2">"str | Path2D"</span> <span class="o">=</span> <span class="s2">"jigsaw"</span><span class="p">,</span>
         <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">cutpath_centered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
