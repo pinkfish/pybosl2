@@ -58,11 +58,20 @@ class Flat(Shape, Protocol):
         """Return the 2-D axis-aligned bounding box (SPEC S-2b)."""
         ...
 
-    def rotate(self, a: float | Sequence[float]) -> Flat:
+    def rotate(
+        self,
+        a: float | Sequence[float] | None = None,
+        v: Sequence[float] | None = None,
+    ) -> Flat:
         """Rotate this shape *a* degrees about Z.
 
         Args:
-            a: The rotation angle in degrees.
+            a: The rotation angle in degrees, or a 3-vector whose Z component is used.
+            v: The axis to rotate about. A 2-D shape only turns about Z, so this is carried for
+                the signature it shares with :meth:`~pybosl2._backend.Shape.rotate`.
+
+        Returns:
+            The rotated shape.
 
         """
         ...

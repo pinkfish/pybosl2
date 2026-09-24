@@ -527,6 +527,14 @@ there in the same commit as the code (§13 rule 4).
 
 **Declaring an operation keeps pulling it into other rules' scope, which is the third time now.** T77 found T75's tier rule had never reached `CsgSolid`; here, giving `Flat.rotate_extrude` its `fn`, `fa` and `fs` put it under R-4, which requires every facet parameter to say that omitting it inherits the ambient default — and `offset`, `xflip` and `yflip` gained parameters and so came under D-P4's `Args:` requirement. Each was a real omission the moment the signature stopped being `**kwargs`. A guard cannot check what a signature does not say, and this is what that costs: the rules were all in force, and the opaque signature was standing outside all of them at once.
 
+**T80 took the last tractable `**kwargs`, and the reason it had survived was that the abdication was one layer down.** `Shape.rotate` could not be declared on the protocol because there was nothing to declare *from*: the CSG implementation was `(*a: object, **k: object)` too. Reading it settled the question in a minute — the body only ever touches `a` and `v`, the two the SDF backend had declared all along, so the variadic was carrying no information the names do not. Every call site in the package and the tests confirmed it: 131 calls, all one or two positional arguments, and the three passing `origin=` turned out to be **shapely's** `affinity.rotate`, not this one.
+
+**Typing it surfaced two more spellings of the same method.** `CsgShape2D.rotate` had its own `(*a, **k)` override that re-derived the angle by inspecting the variadic — `len(a) == 1 and isinstance(a[0], (int, float))`, then `"a" in k`, then the 3-vector case — which is the parameter list written out as control flow. With real parameters it is three lines. And `Flat.rotate(a)` declared no `v` at all, so the protocol's `rotate(a, v)` did not fit it. Four spellings of one operation, each slightly different, none of them checkable against the others until one of them said what it took.
+
+**All five documented call forms behave identically after the rewrite** — bare angle, 3-vector, angle with axis, `a=`, and `a=` with `v=` — which is what makes this a retyping rather than a redesign. `Shape.rotate(a="forty-five")` is now caught, and `P-5b` reads **2**: `Shape.distribute_on_path`, the contravariance case T76 measured, and `Flat.offset`, where R-1 and B-9 collide as T79 recorded.
+
+**A negative control re-confirmed T78's division of labour.** Reverting the `.pyi` stub to `(*a, **k)` passes the signature scan and fails `mypy` — exactly as recorded when that pair was established, and worth re-running rather than assuming, since it is the kind of claim that stops being true quietly.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

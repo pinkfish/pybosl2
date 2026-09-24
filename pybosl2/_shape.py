@@ -245,20 +245,39 @@ class BaseShape(Colorable, Distributable):
         out.attachments = [att.translate(v) for att in self.attachments]
         return out
 
-    def rotate(self, *a: object, **k: object) -> Self:
-        # The native rotate() only takes a 3-vector, so a bare angle is spun about +Z. Both spellings
-        # OpenSCAD accepts for it -- positional and ``a=`` -- need the same widening.
-        if len(a) == 1 and _is_angle(a[0]) and "v" not in k:
-            a = ([0.0, 0.0, float(a[0])],)  # type: ignore[arg-type]
-        elif not a and _is_angle(k.get("a")) and "v" not in k:
-            k = {**k, "a": [0.0, 0.0, float(k["a"])]}  # type: ignore[arg-type]
-        if a and not _is_angle(a[0]):
-            a = (_numeric_vector(a[0], "rotate", "a"), *a[1:])
-        for name in ("a", "v"):
-            if name in k and not _is_angle(k[name]):
-                k = {**k, name: _numeric_vector(k[name], "rotate", name)}
-        out = self._wrap(self.shape.rotate(*a, **k))  # type: ignore[attr-defined]
-        out.attachments = [att.rotate(*a, **k) for att in self.attachments]
+    def rotate(
+        self,
+        a: "float | Sequence[float] | None" = None,
+        v: "Sequence[float] | None" = None,
+    ) -> Self:
+        """Rotate by *a* degrees, about *v* if given (OpenSCAD ``rotate()``).
+
+        This took `(*a: object, **k: object)` until T80, which is the only reason `Shape.rotate`
+        could not be declared on the protocol (SPEC P-5b): there was no spelling to declare from.
+        The body only ever read `a` and `v` -- the two the SDF backend declares -- so the variadic
+        was carrying no information that the names do not.
+
+        Args:
+            a: Rotation in degrees: a bare angle spins about +Z, a 3-vector is per-axis, and with
+                *v* it is the angle about that axis.
+            v: The axis to rotate about, when *a* is a single angle.
+
+        Returns:
+            The rotated shape.
+
+        """
+        # The native rotate() only takes a 3-vector, so a bare angle is spun about +Z.
+        angle: object = a
+        if v is None and _is_angle(a):
+            angle = [0.0, 0.0, float(a)]  # type: ignore[arg-type]
+        elif a is not None and not _is_angle(a):
+            angle = _numeric_vector(a, "rotate", "a")
+        axis = None if v is None or _is_angle(v) else _numeric_vector(v, "rotate", "v")
+        passed: dict[str, object] = {} if angle is None else {"a": angle}
+        if v is not None:
+            passed["v"] = axis if axis is not None else v
+        out = self._wrap(self.shape.rotate(**passed))  # type: ignore[attr-defined]
+        out.attachments = [att.rotate(**passed) for att in self.attachments]
         return out
 
     def mirror(self, v: Sequence[float]) -> Self:
