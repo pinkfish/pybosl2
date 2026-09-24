@@ -2644,16 +2644,14 @@ Ten more protocol members declared, and all but two needed no judgement:
 They were not hard problems held back by a hard problem; they sat behind one row of a ratchet that
 did not distinguish them.
 
-### `partition` needed measuring, and the measurement changed the answer
+### `partition` needed measuring, and the measurement was wrong — corrected in T81
 
-Both backends list the same ten parameter *names*, so it looked identical. The SDF spelling
-declares `cutsize: float` and `cutpath: str` where CSG takes `float | Sequence[float]` and
-`str | Path2D`. After T71–T73 the expectation was another false annotation. **It is not** —
-`partition(cutsize=[10, 10])` genuinely fails on the SDF side, so the protocol declares the scalar
-form both keep.
+Both backends list the same ten parameter *names*. The SDF spelling declared `cutsize: float` and
+`cutpath: str` where CSG takes `float | Sequence[float]` and `str | Path2D`. Passing the wider
+forms raised `TypeError`, which was read as confirming the narrow types.
 
-*What it fails with is a separate defect*: `TypeError: invalid argument left to operator`, raw from
-inside, where B-9 and E-4 ask for a refusal naming the parameter.
+**It confirmed nothing.** The scalar form raises too, and so does `partition()` with no arguments:
+the method forwards to `to_csg()`, and a field cannot be meshed without libfive. See T81.
 
 ### Declaring an operation keeps pulling it into other rules' scope
 
@@ -2720,6 +2718,45 @@ claim that stops being true quietly.
 |---|---|
 | `Shape.distribute_on_path` | the contravariance case T76 measured |
 | `Flat.offset` | R-1 and B-9 collide, as T79 recorded |
+
+## T81 — A probe that could not distinguish ✅
+
+**§12.2 item 46. PAR-1, C-10, B-9. Corrects T79.**
+
+`SdfSolid.partition` declared `cutsize: float` and `cutpath: str` against CSG's
+`float | Sequence[float]` and `str | Path2D`, on the evidence that the wider forms raised
+`TypeError`. They do.
+
+**So does the scalar form. So does `partition()` with no arguments.**
+
+The method is `self.to_csg().partition(**everything)`, and a field cannot be meshed without
+libfive, which this environment does not have. The probe answered "raises" for every input, and
+"raises for the wide form" was read as "refuses the wide form". Widened back to what it forwards
+to.
+
+### The evidence was already written down
+
+`test_partition_returns_two_parts` carries a skip marker reading *"no libfive: a meshed SDF solid
+cannot enter the CSG operators"* — the sentence that says the probe cannot work. It was not
+consulted, and that skip is one of the five the suite reports on every run.
+
+### The guard is static, because the defect is in the method
+
+A runtime probe against a backend whose dependency is absent tells you nothing about that backend,
+so no runtime check fixes this. What is checkable without running anything is the claim: a
+parameter forwarded untouched is a claim about the **callee**, and may not be narrower than the
+callee's. Read off the AST — which keyword arguments pass through as themselves — and it fails on
+exactly the annotation T79 wrote.
+
+### Twice now, and they failed differently
+
+| task | probe | outcome |
+|---|---|---|
+| T71 | `anchor: Sequence[float]` vs an `Anchor` that builds | **disproved** the narrow type, correctly |
+| T79 | `cutsize: float` vs a sequence that raises | proved nothing — the operation cannot run here |
+
+The difference is whether the code path is reachable in the environment doing the testing. A skip
+marker is where that is recorded.
 
 ## Keeping this file honest
 
