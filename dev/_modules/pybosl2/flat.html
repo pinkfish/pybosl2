@@ -2216,11 +2216,20 @@
 
 <div class="viewcode-block" id="Flat.rotate">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Rotate this shape *a* degrees about Z.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            a: The rotation angle in degrees.</span>
+<span class="sd">            a: The rotation angle in degrees, or a 3-vector whose Z component is used.</span>
+<span class="sd">            v: The axis to rotate about. A 2-D shape only turns about Z, so this is carried for</span>
+<span class="sd">                the signature it shares with :meth:`~pybosl2._backend.Shape.rotate`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The rotated shape.</span>
 
 <span class="sd">        """</span>
         <span class="o">...</span></div>
