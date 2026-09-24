@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 __all__ = [
+    "BackendRuntimeMissingError",
     "Bosl2Error",
     "Bosl2ValueError",
     "Bosl2NotImplementedError",
@@ -101,6 +102,38 @@ class UnsupportedByBackendError(Bosl2Error, AttributeError):
         if hint:
             msg += f". {hint}"
         super().__init__(msg)
+
+
+class BackendRuntimeMissingError(Bosl2Error, ModuleNotFoundError):
+    """A backend's engine is not installed, raised where the engine is first needed.
+
+    PLAN M-3 keeps both engines out of the import path: `import pybosl2` works with neither
+    installed, and each is reached through a lazy handle. That is deliberate and it left a gap at
+    the other end -- nothing converted the eventual failure into a library error. A caller without
+    libfive could select the SDF backend, build a whole model, and meet
+    ``ModuleNotFoundError: No module named 'libfive'`` from four frames down at render time, with
+    no mention of pybosl2, of which backend, or of what to install (SPEC E-2, E-4). The CSG side
+    said the same about `pythonscad`.
+
+    Derives from :class:`ModuleNotFoundError` as well as :class:`Bosl2Error`, so code already
+    catching the import failure keeps working and ``except Bosl2Error`` now catches it too (E-1) --
+    the same pairing :class:`Bosl2ValueError` uses.
+    """
+
+    def __init__(self, module: str, backend: str, install: str) -> None:
+        """Build the message naming the backend, the module, and how to get it.
+
+        Args:
+            module: The missing module's import name.
+            backend: Which pybosl2 backend needs it.
+            install: How to install it.
+
+        """
+        super().__init__(
+            f"the '{backend}' backend needs {module!r}, which is not installed. Install it with "
+            f"{install}, or build on the other backend with `use_backend(...)`."
+        )
+        self.name = module
 
 
 class CrossBackendError(Bosl2Error):

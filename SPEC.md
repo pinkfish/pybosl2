@@ -1319,6 +1319,14 @@ there in the same commit as the code (§13 rule 4).
 
 **This is the second time a false narrowing has been argued from a raised exception**, and the two failed differently. T71's `anchor: Sequence[float]` was narrower than behaviour and the runtime probe *disproved* it, correctly. Here the same shape of probe proved nothing, because the operation cannot run here at all. The difference is whether the code path under test is reachable in the environment doing the testing — and a skip marker is where that is recorded.
 
+**T82 followed T81's method outward and found the defect the method was hiding.** T81 established that a runtime probe tells you nothing about a backend whose engine is absent; asking *which* operations are in that position turned up five, and asking what a caller without the engine actually sees turned up something better: **`use_backend("sdf")` succeeds, `cuboid([20, 20, 20])` succeeds and returns an `SdfSolid`, and the failure arrives only at `.vnf()` as a bare `ModuleNotFoundError: No module named 'libfive'`** — four frames down, naming neither pybosl2, nor which backend, nor what to install. A caller builds a whole model before anything says the engine is missing.
+
+**PLAN M-3 is why, and M-3 is right.** Keeping both engines out of the import path is deliberate and valuable: `import pybosl2` works with neither installed. But deferring an import *moves* the failure rather than removing it, and nothing was waiting at the other end. The rule now says both halves, and each lazy handle converts the `ModuleNotFoundError` into a `BackendRuntimeMissingError` naming the backend, the engine and the install command. **The CSG side said exactly the same about `pythonscad`**, so the fix is one error class and two call sites.
+
+**It derives from `ModuleNotFoundError` as well as `Bosl2Error`**, the pairing `Bosl2ValueError` uses: `except Bosl2Error` catches it now (E-1), and a caller who had wrapped a render in `except ModuleNotFoundError` is not broken by the improvement. `error.name` is set, because that is the attribute such a caller reads.
+
+**The suite could not see this, and the reason is worth stating.** `tests/conftest.py` installs a libfive mock, so the import always succeeds here — the defect was invisible for the same reason T81's probe was uninformative, and it took removing the mock deliberately to observe what a caller observes. One guard asserts M-3's other half in the same file: that the conversion did not drag either engine into the import path, which every other assertion in the file would pass with the import moved to module level.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

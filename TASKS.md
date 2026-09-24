@@ -2758,6 +2758,45 @@ exactly the annotation T79 wrote.
 The difference is whether the code path is reachable in the environment doing the testing. A skip
 marker is where that is recorded.
 
+## T82 — A missing engine says which engine ✅
+
+**§12.2 item 47. E-1, E-2, E-4, M-3. New error: `BackendRuntimeMissingError`.**
+
+Following T81's method outward — *which* operations cannot run without their engine — turned up
+five, and asking what a caller without libfive actually sees turned up better:
+
+```
+use_backend("sdf")        succeeds
+cuboid([20, 20, 20])      succeeds -> SdfSolid
+      .vnf()              ModuleNotFoundError: No module named 'libfive'
+```
+
+Four frames down, naming neither pybosl2, nor which backend, nor what to install. A caller builds
+a whole model before anything says the engine is missing. **The CSG side said the same about
+`pythonscad`.**
+
+### M-3 is why, and M-3 is right
+
+Keeping both engines out of the import path is deliberate: `import pybosl2` works with neither
+installed. But deferring an import **moves** the failure rather than removing it, and nothing was
+waiting at the other end. The rule says both halves now, and each lazy handle converts the
+`ModuleNotFoundError` into a `BackendRuntimeMissingError` naming the backend, the engine and the
+install command. One error class, two call sites.
+
+It derives from `ModuleNotFoundError` **as well as** `Bosl2Error` — the pairing `Bosl2ValueError`
+uses. `except Bosl2Error` catches it (E-1), and a caller who wrapped a render in
+`except ModuleNotFoundError` is not broken by the improvement; `error.name` is set, because that
+is the attribute such a caller reads.
+
+### Why the suite could not see it
+
+`tests/conftest.py` installs a libfive mock, so the import always succeeds here — invisible for
+the same reason T81's probe was uninformative. Observing it took removing the mock deliberately.
+
+One guard asserts M-3's *other* half in the same file: that the conversion did not drag either
+engine into the import path. Every other assertion there would pass with the import moved to
+module level, which is exactly the mistake worth guarding against.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

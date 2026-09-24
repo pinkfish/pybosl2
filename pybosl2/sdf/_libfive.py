@@ -33,7 +33,16 @@ class _LazyLibfive:
     def __getattr__(self, name: str) -> Any:
         mod = _LazyLibfive._mod
         if mod is None:
-            import libfive as mod2  # deferred: only needed to build/mesh SDF fields
+            try:
+                import libfive as mod2  # deferred: only needed to build/mesh SDF fields
+            except ModuleNotFoundError as missing:
+                # M-3 keeps the import out of the load path; this is the other end of it. Without
+                # this the failure arrives here as a bare `No module named 'libfive'`, from four
+                # frames down, after the caller has built a whole model -- naming neither pybosl2,
+                # nor which backend, nor what to install (SPEC E-2, E-4).
+                from pybosl2.exceptions import BackendRuntimeMissingError
+
+                raise BackendRuntimeMissingError("libfive", "sdf", "`pip install libfive`") from missing
 
             _LazyLibfive._mod = mod2
             mod = mod2

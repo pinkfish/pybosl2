@@ -4504,9 +4504,14 @@ section = "6. Modules, imports, and laziness"
 keyword = "MUST"
 statement = '''
 No native runtime at import time. PythonSCAD primitives are reached through `pybosl2._native.native("cube")`, which defers `import pythonscad` to the first call; libfive is a lazy handle in `pybosl2/sdf/_libfive.py`. `import pybosl2` MUST work with neither installed.
+
+Deferring the import moves the failure rather than removing it, so each handle MUST convert the `ModuleNotFoundError` it may raise into a `BackendRuntimeMissingError` naming the backend, the engine and how to install it (SPEC E-2, E-4). Until T82 neither did: a caller without libfive could select the SDF backend, build a whole model, and meet `ModuleNotFoundError: No module named 'libfive'` from four frames down at render time. The error derives from `ModuleNotFoundError` as well as `Bosl2Error`, so code already catching the import failure is unaffected.
 '''
 enforced_by = [
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
+    "tests/test_missing_backend_runtime.py::test_the_sdf_backend_names_libfive_and_how_to_get_it",
+    "tests/test_missing_backend_runtime.py::test_the_csg_backend_names_pythonscad_and_how_to_get_it",
+    "tests/test_missing_backend_runtime.py::test_the_import_of_pybosl2_still_needs_neither_engine",
 ]
 status = "enforced"
 note = '''

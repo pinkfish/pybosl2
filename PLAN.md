@@ -502,6 +502,13 @@ Python that means:
 * **M-3** No native runtime at import time. PythonSCAD primitives are reached through
   `pybosl2._native.native("cube")`, which defers `import pythonscad` to the first call; libfive is a
   lazy handle in `pybosl2/sdf/_libfive.py`. `import pybosl2` MUST work with neither installed.
+
+  Deferring the import moves the failure rather than removing it, so each handle MUST convert the
+  `ModuleNotFoundError` it may raise into a `BackendRuntimeMissingError` naming the backend, the
+  engine and how to install it (SPEC E-2, E-4). Until T82 neither did: a caller without libfive
+  could select the SDF backend, build a whole model, and meet `ModuleNotFoundError: No module named
+  'libfive'` from four frames down at render time. The error derives from `ModuleNotFoundError` as
+  well as `Bosl2Error`, so code already catching the import failure is unaffected.
 * **M-4** Type-only imports go under `if TYPE_CHECKING:`.
 * **M-5** Import direction follows the spec's layering (SPEC A-1); a cycle is resolved by moving the
   shared
