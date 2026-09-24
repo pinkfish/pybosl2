@@ -2797,6 +2797,46 @@ One guard asserts M-3's *other* half in the same file: that the conversion did n
 engine into the import path. Every other assertion there would pass with the import moved to
 module level, which is exactly the mistake worth guarding against.
 
+## T83 — A ratchet that reaches zero must say so ✅
+
+**§12.2 item 48. B2-1.**
+
+The ratchets parametrize over the files carrying debt — which is what makes a failure name the
+thing to fix, and what makes them stop at zero:
+
+```
+SKIPPED [1] tests/test_option_parity.py:138: got empty parameter set for (shape)
+```
+
+**Option parity has been at zero since T63; the domain-named `Any` measure since T73. Both had
+been silently skipped on every run since.** T75 fixed this exact hole in the positional-tier rule
+without recognising it as a class.
+
+The success case and the broken-scan case report identically: a scan returning `{}` because its
+walk stopped reaching the package looks the same as one with nothing left to find — and looks
+like a *skip*, in a suite that reports five and had trained everyone to expect a few.
+
+Five parametrizations had the hole; all five now carry `or ["(none)"]`, and the two at zero state
+their rule directly. A placeholder parameter proves the test ran; only the assertion says anything
+holds.
+
+### The guard was built twice, and the first version was the mistake it prevents
+
+Matching the **source** of each `parametrize` and guessing ratchet-vs-data-table — set operation?
+filter? — flagged eight ordinary data tables, then seven after tuning, then a different seven.
+That is a heuristic fitted to the cases it flags, which T74 named as how an exemption list becomes
+a dumping ground.
+
+The symptom is directly measurable: import each test module, read the `parametrize` marks, report
+any whose argument list collects nothing. No pattern, no exceptions, no tuning as the suite grows.
+
+### Its control needed the combination, for the third time
+
+Neutering the scan alone changes nothing — with no defect present, a scan that finds nothing is
+indistinguishable from one that cannot. Only *defect planted **and** scan neutered* shows which is
+load-bearing. Same as T75's geometry check and T73's dunder exclusion, and worth stating as a
+rule: **a control that plants only the guard's weakening, on clean code, measures nothing.**
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

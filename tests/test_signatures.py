@@ -217,7 +217,7 @@ def test_the_subject_exemption_is_only_the_first_parameter() -> None:
     assert not _tier_in_the_tail(method), "`self` is the receiver, not the subject argument"
 
 
-@pytest.mark.parametrize("path", sorted(set(TOO_MANY) | set(TOO_MANY_REQUIRED)))
+@pytest.mark.parametrize("path", sorted(set(TOO_MANY) | set(TOO_MANY_REQUIRED)) or ["(none)"])
 def test_no_file_grows_its_three_argument_callables(path: str) -> None:
     """SPEC D-2: three required parameters is never acceptable."""
     actual, budget = len(TOO_MANY.get(path, [])), TOO_MANY_REQUIRED.get(path, 0)
@@ -664,7 +664,20 @@ def _domain_typed_any() -> dict[str, list[str]]:
     return found
 
 
-@pytest.mark.parametrize("path", sorted(set(DOMAIN_TYPED_ANY) | set(_domain_typed_any())))
+def test_no_parameter_named_for_a_type_is_typed_any() -> None:
+    """SPEC C-20, stated directly now that the measure is zero (T73).
+
+    Same shape as the option-parity rule: the per-file ratchet parametrizes over the files with
+    debt, so at zero it parametrized over nothing and reported a skip -- indistinguishable from
+    the scan having broken. The floor on `CALLABLES` is the other half: a walk that stopped
+    reaching the package would empty this too, and silently.
+    """
+    live = {path: sorted(names) for path, names in _domain_typed_any().items() if names}
+    assert not live, f"parameters named for a type the project defines, typed `Any`: {live}"
+    assert len(CALLABLES) > 500, f"only {len(CALLABLES)} callables scanned; the walk is broken"
+
+
+@pytest.mark.parametrize("path", sorted(set(DOMAIN_TYPED_ANY) | set(_domain_typed_any())) or ["(none)"])
 def test_no_file_grows_its_domain_named_any_parameters(path: str) -> None:
     """SPEC C-20, PLAN T-9a: a parameter named for a type should carry it."""
     found = _domain_typed_any()

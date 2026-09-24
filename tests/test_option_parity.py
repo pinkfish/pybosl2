@@ -135,7 +135,22 @@ def test_both_backends_were_actually_compared() -> None:
     assert len(shared) > 15, f"only {len(shared)} shapes are built by both backends"
 
 
-@pytest.mark.parametrize("shape", sorted(set(GAPS) | set(OPTION_GAPS)))
+def test_no_shape_has_an_option_gap_at_all() -> None:
+    """SPEC PAR-4, stated directly now that the measure is zero.
+
+    The per-shape ratchet below parametrizes over the shapes carrying debt, so with none left it
+    parametrizes over nothing. Before T83 that reported as a **skip** -- and a skip is what it
+    would also report if `GAPS` were empty because the scan had broken. The `or ["(none)"]`
+    fallback stops the silence; this states the rule, which is the part a fallback cannot do.
+    """
+    live = {shape: sorted(options) for shape, options in GAPS.items() if options}
+    assert not live, f"options one backend takes and the other does not: {live}"
+    # `GAPS` holds only the shapes that *have* a gap, so it is empty when the measure is zero and
+    # says nothing about whether anything was compared. `test_both_backends_were_actually_compared`
+    # above is the floor -- which is why it exists separately, and why this does not repeat it.
+
+
+@pytest.mark.parametrize("shape", sorted(set(GAPS) | set(OPTION_GAPS)) or ["(none)"])
 def test_no_shape_grows_its_option_gap(shape: str) -> None:
     """SPEC PAR-4: the two backends' option sets converge, never diverge."""
     actual, budget = len(GAPS.get(shape, [])), OPTION_GAPS.get(shape, 0)
