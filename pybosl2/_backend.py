@@ -1012,10 +1012,8 @@ class Solid(Shape, Protocol):
     def partition(
         self,
         spread: float = 10,
-        # The CSG spelling also takes a per-axis `cutsize` and a `Path2D` cutpath; the SDF one
-        # takes neither, and refuses them at runtime, so the shared contract is the scalar form.
-        cutsize: float = 10,
-        cutpath: str = "jigsaw",
+        cutsize: "float | Sequence[float]" = 10,
+        cutpath: "str | Path2D" = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
         *,

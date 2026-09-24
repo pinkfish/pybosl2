@@ -1795,8 +1795,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def partition(
         self,
         spread: float = 10,
-        cutsize: float = 10,
-        cutpath: str = "jigsaw",
+        cutsize: "float | Sequence[float]" = 10,
+        cutpath: "str | Path2D" = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
         *,
@@ -1824,6 +1824,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A ``(left, right)`` tuple of :class:`PyShape` solids.
         """
+        # Everything is forwarded to the CSG implementation unchanged, so this accepts exactly what
+        # that accepts -- including a per-axis `cutsize` and a `Path2D` cutpath. T79 declared the
+        # narrower `float`/`str` on the evidence that the wider forms raised; they do, and so does
+        # the scalar form, because `to_csg()` cannot mesh without libfive. The measurement could
+        # not distinguish "unsupported" from "unmeasurable here", and read as the former (T81).
         parts = self.to_csg().partition(
             spread=spread,
             cutsize=cutsize,
