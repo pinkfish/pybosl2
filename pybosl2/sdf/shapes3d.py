@@ -928,6 +928,29 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         return self.translate([0.0, -y, 0.0])
 
+    # SPEC C-22, with the CSG spelling: a mirror about the YZ or XZ plane is not two-dimensional.
+    def xflip(self, x: float = 0.0) -> PyShape:
+        """Mirror across the plane at *x*, perpendicular to X.
+
+        Args:
+            x: The X coordinate of the mirror plane.
+
+        Returns:
+            The mirrored shape.
+        """
+        return self.translate([-x, 0.0, 0.0]).mirror([1, 0, 0]).translate([x, 0.0, 0.0])
+
+    def yflip(self, y: float = 0.0) -> PyShape:
+        """Mirror across the plane at *y*, perpendicular to Y.
+
+        Args:
+            y: The Y coordinate of the mirror plane.
+
+        Returns:
+            The mirrored shape.
+        """
+        return self.translate([0.0, -y, 0.0]).mirror([0, 1, 0]).translate([0.0, y, 0.0])
+
     def up(self, z: float) -> PyShape:
         """Move this shape *z* along +Z.
 

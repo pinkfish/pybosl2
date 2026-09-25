@@ -327,6 +327,34 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """
         return self.translate([0.0, -y, 0.0])
 
+    # SPEC C-22: `xflip`/`yflip` lived on `Flat` alone, which C-22 names as the shape of the
+    # defect -- nothing about three dimensions forbids a mirror about the YZ or XZ plane, and the
+    # `*_copy` forms of all three axes were already here, inherited from `Distributable`. So a
+    # solid could make a mirrored *copy* of itself and could not simply flip.
+    def xflip(self, x: float = 0.0) -> "Bosl2Solid":
+        """Mirror across the plane at *x*, perpendicular to X.
+
+        Args:
+            x: The X coordinate of the mirror plane.
+
+        Returns:
+            The mirrored solid.
+
+        """
+        return self.translate([-x, 0.0, 0.0]).mirror([1, 0, 0]).translate([x, 0.0, 0.0])
+
+    def yflip(self, y: float = 0.0) -> "Bosl2Solid":
+        """Mirror across the plane at *y*, perpendicular to Y.
+
+        Args:
+            y: The Y coordinate of the mirror plane.
+
+        Returns:
+            The mirrored solid.
+
+        """
+        return self.translate([0.0, -y, 0.0]).mirror([0, 1, 0]).translate([0.0, y, 0.0])
+
     def up(self, z: float) -> "Bosl2Solid":
         """Move the solid up.
 

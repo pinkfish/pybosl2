@@ -605,12 +605,16 @@ keyword = "MUST"
 statement = '''
 A member present on one of `Flat`/ `Solid` and absent from the other MUST be genuinely dimensional (C-15). `xflip`/`yflip` on `Flat` alone, `spin` on `Flat` alone, `up`/`down` on `Solid` alone are the shape of the defect: nothing about two dimensions forbids the first two, and nothing about three requires a separate name for the third. A member that both dimensions can honour belongs on `Shape`.
 '''
-enforced_by = []
+enforced_by = [
+    "tests/test_the_dimensional_split_is_earned.py::test_every_one_sided_member_is_genuinely_dimensional",
+    "tests/test_the_dimensional_split_is_earned.py::test_the_reasons_do_not_outlive_the_members",
+    "tests/test_the_dimensional_split_is_earned.py::test_the_flips_are_on_shape_where_c22_says_they_belong",
+]
 candidates = [
     "tests/test_sdf_flat_parity.py::test_distribute_on_path_unions_the_copies_into_one_shape",
     "tests/test_shape_contract.py::test_the_contract_is_the_whole_object",
 ]
-status = "reviewed"
+status = "enforced"
 note = '''
 The contract test walks what each protocol declares, but nothing asks whether a member landing on `Flat` alone is *genuinely dimensional* -- that is a judgement about the operation, which is why xflip/yflip sat on Flat alone for so long.
 '''

@@ -868,6 +868,35 @@ class Shape(Protocol):
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[Self]: ...
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[Self]: ...
     def zflip_copy(self, offset: float = 0, z: float = 0) -> list[Self]: ...
+
+    # SPEC C-22: on `Flat` alone until T87, which the rule names as the shape of the defect --
+    # nothing about three dimensions forbids a mirror about the YZ or XZ plane. The `*_copy` forms
+    # above were already on both, inherited from `Distributable`, so a solid could make a mirrored
+    # copy of itself and could not simply flip.
+    def xflip(self, x: float = 0.0) -> Self:
+        """Mirror this shape across the YZ plane.
+
+        Args:
+            x: The plane's X position; 0 mirrors across the origin.
+
+        Returns:
+            The mirrored shape.
+
+        """
+        ...
+
+    def yflip(self, y: float = 0.0) -> Self:
+        """Mirror this shape across the XZ plane.
+
+        Args:
+            y: The plane's Y position; 0 mirrors across the origin.
+
+        Returns:
+            The mirrored shape.
+
+        """
+        ...
+
     # `distribute_on_path` places copies and unions them, so it is one shape, not a list.
     # T-6c's sanctioned `Any`, and the comment it requires: the two spellings are
     # `CsgShape2D.distribute_on_path(path: Path2D)` and `CsgSolid.distribute_on_path(path: Path3D)`.
