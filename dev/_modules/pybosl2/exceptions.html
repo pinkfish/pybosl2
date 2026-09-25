@@ -2168,6 +2168,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"BackendRuntimeMissingError"</span><span class="p">,</span>
     <span class="s2">"Bosl2Error"</span><span class="p">,</span>
     <span class="s2">"Bosl2ValueError"</span><span class="p">,</span>
     <span class="s2">"Bosl2NotImplementedError"</span><span class="p">,</span>
@@ -2255,6 +2256,38 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">". </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackendRuntimeMissingError</span><span class="p">(</span><span class="n">Bosl2Error</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A backend's engine is not installed, raised where the engine is first needed.</span>
+
+<span class="sd">    PLAN M-3 keeps both engines out of the import path: `import pybosl2` works with neither</span>
+<span class="sd">    installed, and each is reached through a lazy handle. That is deliberate and it left a gap at</span>
+<span class="sd">    the other end -- nothing converted the eventual failure into a library error. A caller without</span>
+<span class="sd">    libfive could select the SDF backend, build a whole model, and meet</span>
+<span class="sd">    ``ModuleNotFoundError: No module named 'libfive'`` from four frames down at render time, with</span>
+<span class="sd">    no mention of pybosl2, of which backend, or of what to install (SPEC E-2, E-4). The CSG side</span>
+<span class="sd">    said the same about `pythonscad`.</span>
+
+<span class="sd">    Derives from :class:`ModuleNotFoundError` as well as :class:`Bosl2Error`, so code already</span>
+<span class="sd">    catching the import failure keeps working and ``except Bosl2Error`` now catches it too (E-1) --</span>
+<span class="sd">    the same pairing :class:`Bosl2ValueError` uses.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">install</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the message naming the backend, the module, and how to get it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            module: The missing module's import name.</span>
+<span class="sd">            backend: Which pybosl2 backend needs it.</span>
+<span class="sd">            install: How to install it.</span>
+
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"the '</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">' backend needs </span><span class="si">{</span><span class="n">module</span><span class="si">!r}</span><span class="s2">, which is not installed. Install it with "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">install</span><span class="si">}</span><span class="s2">, or build on the other backend with `use_backend(...)`."</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">module</span>
 
 
 <div class="viewcode-block" id="CrossBackendError">
