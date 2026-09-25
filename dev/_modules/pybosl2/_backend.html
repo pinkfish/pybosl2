@@ -3028,6 +3028,35 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span> <span class="o">...</span>
+
+    <span class="c1"># SPEC C-22: on `Flat` alone until T87, which the rule names as the shape of the defect --</span>
+    <span class="c1"># nothing about three dimensions forbids a mirror about the YZ or XZ plane. The `*_copy` forms</span>
+    <span class="c1"># above were already on both, inherited from `Distributable`, so a solid could make a mirrored</span>
+    <span class="c1"># copy of itself and could not simply flip.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the YZ plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: The plane's X position; 0 mirrors across the origin.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mirrored shape.</span>
+
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the XZ plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            y: The plane's Y position; 0 mirrors across the origin.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mirrored shape.</span>
+
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
     <span class="c1"># `distribute_on_path` places copies and unions them, so it is one shape, not a list.</span>
     <span class="c1"># T-6c's sanctioned `Any`, and the comment it requires: the two spellings are</span>
     <span class="c1"># `CsgShape2D.distribute_on_path(path: Path2D)` and `CsgSolid.distribute_on_path(path: Path3D)`.</span>
