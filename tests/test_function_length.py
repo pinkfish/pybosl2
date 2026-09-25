@@ -35,6 +35,16 @@ LIMIT = 50
 
 #: How many over-long functions each file still has. Lower a number when you split one; delete the
 #: row when it reaches zero. Nothing may be added.
+#:
+#: The total mixes two things. Most entries have real multi-statement bodies -- `_rounded_prism`
+#: at 204 lines and 41 statements is the type -- and some are a **single statement** spread over
+#: many physical lines. `solid.py`'s five are the clearest case and its whole entry: the façade's
+#: cylinder spellings, whose body is one `return` across 55 lines because it names 44 parameters
+#: twice, once in the signature and once as a dict key. They cannot be split, because there is
+#: nothing to split; what they have is duplication, which
+#: `tests/test_the_facade_forwards_what_it_declares.py` guards. Counting them here is not wrong --
+#: a 55-line expression is hard to read -- but a reader lowering this budget should know that
+#: `solid.py`'s five will not come down by splitting.
 BUDGET: dict[str, int] = {
     "_shape.py": 1,
     "_stroke3d.py": 1,
@@ -157,6 +167,30 @@ def test_the_budget_has_no_rows_for_files_that_are_gone() -> None:
     """A row for a deleted file makes the debt look larger than it is."""
     missing = sorted(name for name in BUDGET if not (PACKAGE / name).exists())
     assert not missing, f"BUDGET names files that no longer exist: {missing}"
+
+
+def test_the_facade_forwarders_are_single_statement_and_named_as_such() -> None:
+    """PLAN S-2: five of this budget cannot be split, and a reader should not try.
+
+    `solid.py`'s cylinder spellings are one `return` each. The measure counts physical lines, which
+    is right for readability and wrong as a hint about what to do: splitting a function with one
+    statement is not an available move. Asserting the count keeps the note above honest -- if a
+    sixth appears, or one of these is rewritten, the comment stops describing the table.
+    """
+    import ast
+
+    # Scoped to `solid.py`, which is the claim the note makes. A package-wide count is not
+    # answerable this way: `sdf/shapes3d.py` defines seven nested closures all named `sdf_fn`, so
+    # matching an entry by name finds whichever the walk reaches last. Asserting a number that
+    # cannot be computed reliably would be worse than asserting the one that can.
+    tree = ast.parse((PACKAGE / "solid.py").read_text())
+    by_name = {n.name: n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    entries = OVER_LONG.get("solid.py", [])
+    assert len(entries) == 5, f"solid.py has {len(entries)} over-long functions, not the five"
+    for name, _ in entries:
+        node = by_name[name]
+        body = node.body[1:] if node.body and isinstance(node.body[0], ast.Expr) else node.body
+        assert len(body) == 1, f"solid.py::{name} has {len(body)} statements; the note is stale"
 
 
 def test_the_total_is_recorded() -> None:
