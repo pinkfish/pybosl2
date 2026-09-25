@@ -1335,6 +1335,14 @@ there in the same commit as the code (§13 rule 4).
 
 **Its own negative control needed the combination, for the third time in this campaign.** Neutering the scan alone changes nothing, because with no defect present a scan that finds nothing is indistinguishable from one that cannot. Only planting a defect *and* neutering the scan shows which is load-bearing — the same lesson as T75's geometry check and T73's dunder exclusion, and worth stating as a rule: a control that plants only the guard's weakening, on clean code, measures nothing.
 
+**T84 went after the function-length budget, the largest measure left at 88, and found the number mixes two different things.** Most entries have real multi-statement bodies — `skin._rounded_prism` at 204 lines and 41 statements is the type. But `solid.py`'s whole entry, five of the 88, is a **single statement** each: the façade's cylinder spellings, whose body is one `return` spread across 55 physical lines because it names **44 parameters twice**, once in the signature and once as a dict key. They cannot be split, because there is nothing to split. A reader lowering that budget should know which five will not come down.
+
+**What they have instead is duplication, and duplication of exactly the kind nothing was watching.** A parameter present in the signature and missing from the forwarded dict is accepted and then **silently dropped** — no error, no warning, and the shape comes back as though the argument had never been passed. That is D-4's failure by a different road: not `None` misread as "off", but a value discarded between the door and the workshop. Measured, all 44 do reach the backend today; the guard keeps it that way, across 20 forwarding constructors on both façades.
+
+**The guard's first run reported nineteen false positives, and the reason is a design decision it had to learn.** The argument-group objects — `placement`, `treatment`, `selection`, `texturing` — are not dict keys and are not meant to be: `_groups` takes them as keyword arguments and resolves them into the dict in place. A scan that knows only about dict keys sees a third of the parameters vanish. Checking both routes is what makes the result mean something.
+
+**One number could not be measured reliably, and is not asserted.** A package-wide count of single-statement over-long functions is not answerable by matching a budget entry to a function name: `sdf/shapes3d.py` defines **seven** nested closures all called `sdf_fn`, so the lookup finds whichever the walk reaches last, and the count came out 5 or 7 depending on which. The assertion is scoped to `solid.py`, where the claim is exact. Asserting a figure that cannot be computed twice the same way would be worse than asserting the one that can.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

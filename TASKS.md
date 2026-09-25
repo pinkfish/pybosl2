@@ -2837,6 +2837,46 @@ indistinguishable from one that cannot. Only *defect planted **and** scan neuter
 load-bearing. Same as T75's geometry check and T73's dunder exclusion, and worth stating as a
 rule: **a control that plants only the guard's weakening, on clean code, measures nothing.**
 
+## T84 — The façade forwards what it declares ✅
+
+**§12.2 item 49. B-9, A-10, D-4, S-2.**
+
+Went after the function-length budget — the largest measure left, at 88 — and found the number
+mixes two things:
+
+| kind | example |
+|---|---|
+| real multi-statement bodies | `skin._rounded_prism`, 204 lines, 41 statements |
+| **a single statement** | `solid.py`'s five cylinder spellings, one `return` across 55 lines |
+
+The five name **44 parameters twice**, once in the signature and once as a dict key. They cannot
+be split, because there is nothing to split. A reader lowering that budget should know which five
+will not come down.
+
+### What they have instead is duplication nothing was watching
+
+A parameter in the signature and missing from the forwarded dict is accepted and then **silently
+dropped** — no error, no warning, the shape comes back as though it was never passed. D-4's
+failure by a different road: not `None` misread as "off", but a value discarded between the door
+and the workshop.
+
+All 44 do reach the backend today. The guard keeps it so, across 20 forwarding constructors on
+both façades, and its control plants the real defect rather than weakening the scan (T83's rule).
+
+### Nineteen false positives, and the design decision behind them
+
+The argument-group objects — `placement`, `treatment`, `selection`, `texturing` — are not dict
+keys and are not meant to be: `_groups` takes them as keywords and resolves them into the dict in
+place. A scan knowing only about dict keys sees a third of the parameters vanish. Checking both
+routes is what makes the result mean anything.
+
+### One number is not asserted, because it cannot be measured twice the same way
+
+A package-wide count of single-statement over-long functions is not answerable by matching a
+budget entry to a name: `sdf/shapes3d.py` defines **seven** nested closures all called `sdf_fn`,
+so the lookup finds whichever the walk reaches last, and the count came out 5 or 7 depending. The
+assertion is scoped to `solid.py`, where the claim is exact.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
