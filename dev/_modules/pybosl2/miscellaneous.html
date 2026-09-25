@@ -2184,8 +2184,22 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.flat</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flat</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+
+    <span class="c1">#: What the extrusions take as a 2-D cross-section. The module docstring has always named</span>
+    <span class="c1">#: these four -- a native 2-D shape, a `Path2D`/`Region`, a wrapper around 2-D geometry, or a</span>
+    <span class="c1">#: zero-argument factory returning fresh geometry -- and the signatures said `object`, which</span>
+    <span class="c1">#: names none of them. The `Any` is the first member: a raw native handle has no type to give,</span>
+    <span class="c1">#: so this union cannot be narrower than `Any` for the checker. It is still worth naming, for</span>
+    <span class="c1">#: the reason `PathLike` and `RegionLike` are: a reader learns what to pass, which `object`</span>
+    <span class="c1">#: never says. Declared inside the block because its members are (T73's `RegionLike` again).</span>
+    <span class="n">ProfileLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Flat</span> <span class="o">|</span> <span class="n">Solid</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Any</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
@@ -2216,7 +2230,7 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.</span>
 
 <span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.</span>
@@ -2226,7 +2240,7 @@
     <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Callable[[], Any]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.</span>
 
 <span class="sd">    (the "children" form, safe for frep handles); anything else is meshed once and reused.</span>
@@ -2261,7 +2275,7 @@
 <div class="viewcode-block" id="extrude_from_to">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.extrude_from_to">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extrude_from_to</span><span class="p">(</span>
-    <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
     <span class="n">pt1</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">pt2</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2322,7 +2336,7 @@
 <div class="viewcode-block" id="cylindrical_extrude">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.cylindrical_extrude">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cylindrical_extrude</span><span class="p">(</span>
-    <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2513,7 +2527,7 @@
     <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude2d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2601,7 +2615,7 @@
     <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">clipsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>

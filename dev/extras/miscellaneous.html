@@ -2876,7 +2876,7 @@ them. <em>profile</em> is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or 
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.miscellaneous.extrude_from_to-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.miscellaneous.extrude_from_to-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.miscellaneous.extrude_from_to.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">object</span></span><a class="headerlink" href="#pybosl2.miscellaneous.extrude_from_to.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
+<dt id="pybosl2.miscellaneous.extrude_from_to.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">ProfileLike</span></span><a class="headerlink" href="#pybosl2.miscellaneous.extrude_from_to.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
 </dd>
 <dt id="pybosl2.miscellaneous.extrude_from_to.pt1"><span class="sig-name descname">pt1</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.miscellaneous.extrude_from_to.pt1" title="Permalink to this definition">¶</a></dt><dd><p>The first point.</p>
 </dd>
@@ -2916,7 +2916,7 @@ onto a curved wall. The profile’s X spans one revolution by default (override 
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.miscellaneous.cylindrical_extrude-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.miscellaneous.cylindrical_extrude.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">object</span></span><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude.profile" title="Permalink to this definition">¶</a></dt><dd><p>The 2-D shape to wrap around the cylinder.</p>
+<dt id="pybosl2.miscellaneous.cylindrical_extrude.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">ProfileLike</span></span><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude.profile" title="Permalink to this definition">¶</a></dt><dd><p>The 2-D shape to wrap around the cylinder.</p>
 </dd>
 <dt id="pybosl2.miscellaneous.cylindrical_extrude.inner_radius"><span class="sig-name descname">inner_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude.inner_radius" title="Permalink to this definition">¶</a></dt><dd><p>Radius the wrapped profile starts at.</p>
 </dd>
@@ -3029,7 +3029,7 @@ size (defaults to the path’s bounding-box diagonal).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.miscellaneous.Extrudable.path_extrude2d-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude2d-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.miscellaneous.Extrudable.path_extrude2d.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">object</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude2d.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
+<dt id="pybosl2.miscellaneous.Extrudable.path_extrude2d.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">ProfileLike</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude2d.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
 </dd>
 <dt id="pybosl2.miscellaneous.Extrudable.path_extrude2d.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude2d.caps" title="Permalink to this definition">¶</a></dt><dd><p>Close the open ends.</p>
 </dd>
@@ -3058,7 +3058,7 @@ native 2-D object (text, multi-part shapes) that is not a single polygon.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.miscellaneous.Extrudable.path_extrude-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.miscellaneous.Extrudable.path_extrude.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">object</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
+<dt id="pybosl2.miscellaneous.Extrudable.path_extrude.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">ProfileLike</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude.profile" title="Permalink to this definition">¶</a></dt><dd><p>The cross-section to sweep or extrude.</p>
 </dd>
 <dt id="pybosl2.miscellaneous.Extrudable.path_extrude.convexity"><span class="sig-name descname">convexity</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.miscellaneous.Extrudable.path_extrude.convexity" title="Permalink to this definition">¶</a></dt><dd><p>Convexity hint for the renderer.</p>
 </dd>
