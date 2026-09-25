@@ -2877,6 +2877,40 @@ budget entry to a name: `sdf/shapes3d.py` defines **seven** nested closures all 
 so the lookup finds whichever the walk reaches last, and the count came out 5 or 7 depending. The
 assertion is scoped to `solid.py`, where the claim is exact.
 
+## T85 — One spelling of "untyped" ✅
+
+**§12.2 item 50. C-20, D-2.**
+
+The domain-named `Any` measure read **zero** because it checked one spelling. Four
+`profile: object` parameters stood on the exported surface the whole time — `object` accepts
+everything and names nothing, the same defect in a different word.
+
+**The same file had counted `object` as untyped since T79**, twenty lines away, in the variadic
+rule. Two scans, one file, two definitions of the thing they both measure.
+
+A second blind spot: the scan read `node.args.args` and not `kwonlyargs`, so a domain-named
+parameter moved behind the bare `*` — which **T75 did to a hundred of them** — would have left the
+measure without ever being retyped. Nothing had, by luck rather than design.
+
+### The missing type was in the module's own docstring
+
+`miscellaneous.py` has always said a profile is "a native 2-D shape, a `Path2D`/`Region`, a
+`Bosl2Solid` wrapping 2-D geometry, or a zero-argument factory" — four members, named, in prose,
+while the signatures said `object`.
+
+`ProfileLike` says it in the type now and is honest about its limit: one member is a raw FFI
+handle with no type to give, so the union cannot be narrower than `Any` for the checker. **The
+gain is for the reader, not for mypy** — worth saying plainly rather than implying the annotation
+catches something it does not.
+
+### D-2's eight, measured and mostly left alone
+
+Seven are internal: backend-protocol plumbing carrying the façade's forwarding dict, and helpers
+taking six positional operands. The one on the public surface is `extrude_from_to(profile, pt1,
+pt2)`, and three operands is what the operation **is** — extrude this profile from here to there.
+No default can invent a destination, and no argument group helps, because they are the operands
+rather than the configuration. A rule's remedy has to fit the case, and here it does not.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

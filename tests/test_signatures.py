@@ -639,13 +639,25 @@ def test_an_anchor_parameter_is_annotated_at_all() -> None:
 #: turned out to return `Path2D`, not the `Turtle2D` their own annotations claimed.
 DOMAIN_TYPED_ANY: dict[str, int] = {}
 
-#: Parameter names that mean a type the project defines, so `Any` on one is throwing that type
-#: away rather than describing something genuinely unconstrained.
+#: Parameter names that mean a type the project defines, so an untyped annotation on one is
+#: throwing that type away rather than describing something genuinely unconstrained.
 DOMAIN_NAMES = frozenset({"path", "paths", "region", "profile", "vnf", "point", "points"})
+
+#: What counts as untyped. `object` is here with `Any` because it is the same defect in a
+#: different spelling: it accepts everything and names nothing. The scan read `Any` alone until
+#: T85, so the measure reported **zero** while four `profile: object` parameters stood on the
+#: exported surface -- and `test_signatures.py`'s own variadic rule had counted `object` as
+#: untyped since T79, in the same file, twenty lines away.
+UNTYPED_ANNOTATIONS = frozenset({"Any", "object"})
 
 
 def _domain_typed_any() -> dict[str, list[str]]:
-    """Return, per file, the domain-named parameters annotated exactly `Any`."""
+    """Return, per file, the domain-named parameters carrying an untyped annotation.
+
+    Keyword-only parameters are read as well as positional ones. The scan looked at `node.args.args`
+    alone until T85, so a domain-named parameter moved behind the bare `*` -- which T75 did to a
+    hundred of them -- left this measure without ever being retyped.
+    """
     import ast
 
     found: dict[str, list[str]] = {}
@@ -653,11 +665,11 @@ def _domain_typed_any() -> dict[str, list[str]]:
         for node in ast.walk(ast.parse(path.read_text())):
             if not isinstance(node, ast.FunctionDef):
                 continue
-            for argument in node.args.args:
+            for argument in node.args.args + node.args.kwonlyargs:
                 annotation = argument.annotation
                 if argument.arg not in DOMAIN_NAMES or annotation is None:
                     continue
-                if ast.unparse(annotation).strip("\"'") == "Any":
+                if ast.unparse(annotation).strip("\"'") in UNTYPED_ANNOTATIONS:
                     found.setdefault(str(path.relative_to(ROOT / "pybosl2")), []).append(
                         f"{node.name}({argument.arg}=)"
                     )

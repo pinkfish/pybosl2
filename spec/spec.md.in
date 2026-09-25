@@ -567,6 +567,14 @@ there in the same commit as the code (§13 rule 4).
 
 **One number could not be measured reliably, and is not asserted.** A package-wide count of single-statement over-long functions is not answerable by matching a budget entry to a function name: `sdf/shapes3d.py` defines **seven** nested closures all called `sdf_fn`, so the lookup finds whichever the walk reaches last, and the count came out 5 or 7 depending on which. The assertion is scoped to `solid.py`, where the claim is exact. Asserting a figure that cannot be computed twice the same way would be worse than asserting the one that can.
 
+**T85 found the domain-named `Any` measure reading zero because it checked one spelling of "untyped".** T73 emptied it; T83 made it assert its rule directly rather than skip. Neither noticed that four `profile: object` parameters stood on the exported surface the whole time — `object` accepts everything and names nothing, which is the same defect as `Any` in a different word. **The same file had counted `object` as untyped since T79**, twenty lines away, in the variadic rule. Two scans, one file, two definitions of the thing they both measure.
+
+**It had a second blind spot, and T75 is what would have exercised it.** The scan read `node.args.args` and not `node.args.kwonlyargs` — so a domain-named parameter moved behind the bare `*`, which T75 did to a hundred of them, would have left the measure without ever being retyped. Nothing had, by luck rather than design; it is read now.
+
+**The type the four were missing was written in their own module docstring.** `miscellaneous.py` has always said a profile is "a native 2-D shape, a `Path2D`/`Region`, a `Bosl2Solid` wrapping 2-D geometry, or a zero-argument factory that returns fresh geometry" — four members, named, in prose, while the signatures said `object`. `ProfileLike` says it in the type now, and the claim it makes is honest about its own limit: one member is a raw FFI handle with no type to give, so the union cannot be narrower than `Any` for the checker. **The gain is for the reader, not for mypy**, which is worth stating plainly rather than implying the annotation now catches something it does not.
+
+**D-2's eight were measured and mostly left alone.** Seven are internal — backend-protocol plumbing carrying the façade's forwarding dict, and helpers taking six positional operands. The one on the public surface is `extrude_from_to(profile, pt1, pt2)`, and three operands is what the operation *is*: extrude this profile from here to there. No default can invent a destination, and no argument group helps, because they are the operands rather than the configuration. A rule's remedy has to fit the case, and here it does not.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).
