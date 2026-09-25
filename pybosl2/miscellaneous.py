@@ -33,8 +33,22 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import TypeAlias
 
+    from pybosl2._backend import Solid
+    from pybosl2.flat import Flat
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
+
+    #: What the extrusions take as a 2-D cross-section. The module docstring has always named
+    #: these four -- a native 2-D shape, a `Path2D`/`Region`, a wrapper around 2-D geometry, or a
+    #: zero-argument factory returning fresh geometry -- and the signatures said `object`, which
+    #: names none of them. The `Any` is the first member: a raw native handle has no type to give,
+    #: so this union cannot be narrower than `Any` for the checker. It is still worth naming, for
+    #: the reason `PathLike` and `RegionLike` are: a reader learns what to pass, which `object`
+    #: never says. Declared inside the block because its members are (T73's `RegionLike` again).
+    ProfileLike: TypeAlias = Flat | Solid | PathLike | Callable[[], Any] | Any
+
 import operator
 from functools import reduce
 
@@ -65,7 +79,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _as_native_2d(profile: object) -> Any:
+def _as_native_2d(profile: "ProfileLike") -> Any:
     """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
     a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.
@@ -75,7 +89,7 @@ def _as_native_2d(profile: object) -> Any:
     return _coerce(profile)
 
 
-def _profile_factory(profile: object) -> Callable[[], Any]:
+def _profile_factory(profile: "ProfileLike") -> "Callable[[], Any]":
     """Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.
 
     (the "children" form, safe for frep handles); anything else is meshed once and reused.
@@ -108,7 +122,7 @@ def _planar_half(shape: Any, keep_positive_x: bool, s: float) -> Any:
 
 
 def extrude_from_to(
-    profile: object,
+    profile: "ProfileLike",
     pt1: Sequence[float],
     pt2: Sequence[float],
     twist: float = 0,
@@ -166,7 +180,7 @@ def extrude_from_to(
 
 
 def cylindrical_extrude(
-    profile: object,
+    profile: "ProfileLike",
     inner_radius: float | None = None,
     outer_radius: float | None = None,
     outer_diameter: float | None = None,
@@ -346,7 +360,7 @@ class Extrudable:
     @backend_only("csg")
     def path_extrude2d(
         self,
-        profile: object,
+        profile: "ProfileLike",
         caps: bool = False,
         closed: bool | None = None,
         s: float | None = None,
@@ -431,7 +445,7 @@ class Extrudable:
     @backend_only("csg")
     def path_extrude(
         self,
-        profile: object,
+        profile: "ProfileLike",
         *,
         convexity: int = 10,
         clipsize: float = 100,
