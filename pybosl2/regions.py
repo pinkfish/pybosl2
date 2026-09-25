@@ -18,7 +18,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
-from shapely.geometry import MultiPolygon, Polygon
+from shapely.geometry import MultiPolygon, Point, Polygon
 
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
@@ -79,7 +79,7 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
     return paths
 
 
-def inward_probe(poly: Any) -> Any:
+def inward_probe(poly: Polygon) -> Point:
     """Return a point strictly inside *poly* and on no other polygon's boundary.
 
     The midpoint of the first edge, nudged inward. WHICH side is inward depends on the winding, so

@@ -17,6 +17,7 @@ import re
 import pytest
 
 import pybosl2
+from tests.signature_vocabulary import DOMAIN_NAMES, NOT_A_POLYLINE
 
 MODULES = sorted(
     name
@@ -104,7 +105,8 @@ def test_no_top_level_name_builds_on_the_wrong_backend() -> None:
 
 #: Parameter names that mean "a polyline" -- the thing SPEC C-7 is about. Deliberately excludes
 #: `points`/`pts`, which are just as often a point *cloud* (hull inputs) or a sample grid.
-_POLYLINE_PARAMETERS = frozenset({"path", "paths", "profile", "profiles", "outline", "outlines", "poly", "polygon"})
+#: One definition, shared (T86) -- this file kept its own eight names.
+_POLYLINE_PARAMETERS = DOMAIN_NAMES
 
 #: Annotations that spell a polyline as raw nesting -- the form that rejects a Path (PLAN T-4).
 _RAW_NESTING = re.compile(
@@ -140,6 +142,12 @@ def test_every_polyline_parameter_accepts_a_path() -> None:
             arguments = function.args
             for argument in arguments.args + arguments.kwonlyargs + arguments.posonlyargs:
                 if argument.annotation is None or argument.arg.rstrip("123") not in _POLYLINE_PARAMETERS:
+                    continue
+                # A vertex pool is not a polyline (T81): `polyhedron`'s `points` is indexed by
+                # `faces`, which carries the order. Shared with the rule that requires a polyline
+                # parameter to *be* a `Path` -- before T86 only that one knew, so widening this
+                # rule's name list surfaced the same three signatures a second time.
+                if f"{function.name}::{argument.arg}" in NOT_A_POLYLINE:
                     continue
                 annotation = ast.unparse(argument.annotation)
                 if not _RAW_NESTING.search(annotation) or re.search(r"\bPath(Like|2D|3D)?\b", annotation):

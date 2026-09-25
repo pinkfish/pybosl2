@@ -38,6 +38,8 @@ import pathlib
 
 import pytest
 
+from tests.signature_vocabulary import DOMAIN_NAMES, UNTYPED_ANNOTATIONS
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "pybosl2"
 
@@ -314,9 +316,10 @@ UNTYPED_VARARGS: dict[str, int] = {
     "miscellaneous.py": 2,
 }
 
-#: Annotations that name no type. `object` is here with `Any`: a variadic typed `object` accepts
-#: everything, which is what the rule is about, whatever the spelling.
-UNTYPED = frozenset({"Any", "object", "(none)"})
+#: One definition, shared with the rules that used to keep their own (T86). `UNTYPED` is the name
+#: this file's variadic rule already used; the domain-named rule had a second constant differing by
+#: one member, which is exactly the disagreement T85 had just finished removing.
+UNTYPED = UNTYPED_ANNOTATIONS
 
 
 def _variadics() -> tuple[dict[str, list[str]], dict[str, list[str]]]:
@@ -638,17 +641,6 @@ def test_an_anchor_parameter_is_annotated_at_all() -> None:
 #: missing: `Region(paths=)` needed a name that did not exist, and the bottlecap profile helpers
 #: turned out to return `Path2D`, not the `Turtle2D` their own annotations claimed.
 DOMAIN_TYPED_ANY: dict[str, int] = {}
-
-#: Parameter names that mean a type the project defines, so an untyped annotation on one is
-#: throwing that type away rather than describing something genuinely unconstrained.
-DOMAIN_NAMES = frozenset({"path", "paths", "region", "profile", "vnf", "point", "points"})
-
-#: What counts as untyped. `object` is here with `Any` because it is the same defect in a
-#: different spelling: it accepts everything and names nothing. The scan read `Any` alone until
-#: T85, so the measure reported **zero** while four `profile: object` parameters stood on the
-#: exported surface -- and `test_signatures.py`'s own variadic rule had counted `object` as
-#: untyped since T79, in the same file, twenty lines away.
-UNTYPED_ANNOTATIONS = frozenset({"Any", "object"})
 
 
 def _domain_typed_any() -> dict[str, list[str]]:
