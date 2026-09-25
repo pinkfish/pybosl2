@@ -152,29 +152,6 @@ class Flat(Shape, Protocol):
     # In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put
     # these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is
     # the C-21 synonym work (SPEC §12.2).
-    def xflip(self, x: float = 0.0) -> Self:
-        """Mirror this shape across the YZ plane.
-
-        Args:
-            x: The plane's X position; 0 mirrors across the origin.
-
-        Returns:
-            The mirrored shape.
-
-        """
-        ...
-
-    def yflip(self, y: float = 0.0) -> Self:
-        """Mirror this shape across the XZ plane.
-
-        Args:
-            y: The plane's Y position; 0 mirrors across the origin.
-
-        Returns:
-            The mirrored shape.
-
-        """
-        ...
 
 
 def circle(

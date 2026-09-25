@@ -1359,6 +1359,14 @@ there in the same commit as the code (§13 rule 4).
 
 **Not every overlap is a defect, and the measurement said which.** `TIERS`, `TESSELLATION` and `FACETS` all contain `fn`, `fa` and `fs` and are three different ideas — every tier, the tessellation controls alone, the facet triple — so they stay three constants. The part lists in the parts tests overlap for the same reason. What distinguishes the merged three is that they are the *same* concept under different names, which is why one of them reading zero meant nothing.
 
+**T87 found a MUST with no enforcer, and the rule had been naming its own unfixed defect the whole time.** SPEC C-22 says a member on `Flat` or `Solid` alone must be genuinely dimensional, and its statement cites three examples: `xflip`/`yflip` on `Flat` alone, `spin` on `Flat` alone, `up`/`down` on `Solid` alone. `spin` had been fixed at some point. **`xflip`/`yflip` had not** — the rule had been pointing at them, in the requirements registry, with `enforced_by = []` beside it. That is exactly the shape T71 found in D-4, and the second time this campaign has found a requirement stating a defect nobody was reading.
+
+**The asymmetry was sharper than "not implemented".** All four implementations carried `xflip_copy`, `yflip_copy` and `zflip_copy` — inherited from `Distributable`, so present in both dimensions by construction — while the plain `xflip`/`yflip` were written per-dimension and only 2-D got them. **A solid could make a mirrored copy of itself and could not simply flip.** Nothing about three dimensions forbids a mirror about the YZ plane; the two-line implementation had just never been written, and the `*_copy` forms beside it made the gap invisible to anyone reading the class for "can this mirror?".
+
+**`zflip` is absent everywhere and is not this rule's business.** `zflip_copy` exists on all four and the plain form on none, which is an inconsistency of its own and not an *asymmetry between dimensions* — recorded rather than folded into the fix, because C-22 is about the split and quietly widening a task to whatever is nearby is how a rule's scope stops meaning anything.
+
+**The allowlist asks for the dimension, not the history.** Thirty-five members stay one-sided with a reason each: `linear_extrude` is the crossing between dimensions itself, `vnf` and `export` need a mesh, the half-cuts need a third axis to cut across. The test that keeps it honest is the one asserting `xflip` is **not** in it — an allowlist entry is one edit away from excusing precisely what the rule points at, which is how the original defect would have survived a guard written less carefully.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

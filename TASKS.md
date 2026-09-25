@@ -2948,6 +2948,45 @@ every tier, the tessellation controls, the facet triple — so they stay three. 
 overlap for the same reason. What distinguished the merged three is that they are the **same**
 concept under different names, which is why one reading zero meant nothing.
 
+## T87 — The dimensional split is earned ✅
+
+**§12.2 item 52. C-22 — a MUST that carried no enforcer.**
+
+C-22 says a member on `Flat` or `Solid` alone must be genuinely dimensional, and its statement
+cites three examples of the defect:
+
+| example | state |
+|---|---|
+| `spin` on `Flat` alone | fixed at some point |
+| `xflip`/`yflip` on `Flat` alone | **still open** |
+| `up`/`down` on `Solid` alone | genuinely dimensional — recorded with the reason |
+
+The rule had been pointing at `xflip` in the requirements registry with `enforced_by = []` beside
+it. Same shape as T71's D-4, and the second time this campaign has found a requirement stating a
+defect nobody was reading.
+
+### The asymmetry was sharper than "not implemented"
+
+All four implementations carried `xflip_copy`, `yflip_copy` and `zflip_copy` — inherited from
+`Distributable`, so present in both dimensions by construction — while the plain flips were
+written per-dimension and only 2-D got them. **A solid could make a mirrored copy of itself and
+could not simply flip.** The `*_copy` forms beside it made the gap invisible to anyone reading the
+class for "can this mirror?".
+
+### `zflip` is absent everywhere and is not this rule's business
+
+`zflip_copy` exists on all four and the plain form on none — an inconsistency of its own, not an
+asymmetry *between dimensions*. Recorded rather than folded in: quietly widening a task to
+whatever is nearby is how a rule's scope stops meaning anything.
+
+### The allowlist asks for the dimension, not the history
+
+Thirty-five members stay one-sided with a reason each — `linear_extrude` is the crossing itself,
+`vnf` and `export` need a mesh, the half-cuts need a third axis. The test that keeps it honest is
+the one asserting `xflip` is **not** in it: an allowlist entry is one edit away from excusing
+exactly what the rule points at, which is how the original defect would have survived a guard
+written less carefully.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
