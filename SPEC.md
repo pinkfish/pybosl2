@@ -1351,6 +1351,14 @@ there in the same commit as the code (§13 rule 4).
 
 **D-2's eight were measured and mostly left alone.** Seven are internal — backend-protocol plumbing carrying the façade's forwarding dict, and helpers taking six positional operands. The one on the public surface is `extrude_from_to(profile, pt1, pt2)`, and three operands is what the operation *is*: extrude this profile from here to there. No default can invent a destination, and no argument group helps, because they are the operands rather than the configuration. A rule's remedy has to fit the case, and here it does not.
 
+**T86 asked whether T85's finding was a one-off and it was not.** T85 found two scans in one file disagreeing about what "untyped" means. Measuring the suite for the same shape turned up **three separate lists of "parameter names that mean a path"** — twenty names in one test module, eight in another, seven in the rule that enforces C-20. The widest knew `vertices`, `control_points` and `contour`; the narrowest knew none of them. Nothing had slipped through, by luck rather than design — and merging the three immediately surfaced `inward_probe(poly: Any)`, which the seven-name list could not see and which is a shapely `Polygon` returning a `Point`.
+
+**The fix T85 applied was itself an instance of the defect.** Widening one constant left *two* constants in that file meaning "untyped annotation", differing by one member. A shared concept checked by more than one rule belongs in one place, so the vocabulary is one module now — the names, what counts as untyped, and T81's `NOT_A_POLYLINE` exemption, which two rules needed and only one knew. Widening the second rule's name list surfaced the same three `polyhedron` signatures T81 had already adjudicated, which is what a duplicated exemption costs.
+
+**The guard is structural rather than a list.** A test module may not define a set that shadows one the shared vocabulary names: importing is the fix, and a local redefinition is exactly how sharing comes undone. That check is a scan over the suite's own module-level assignments, and it fails on a rule quietly re-introducing its own copy.
+
+**Not every overlap is a defect, and the measurement said which.** `TIERS`, `TESSELLATION` and `FACETS` all contain `fn`, `fa` and `fs` and are three different ideas — every tier, the tessellation controls alone, the facet triple — so they stay three constants. The part lists in the parts tests overlap for the same reason. What distinguishes the merged three is that they are the *same* concept under different names, which is why one of them reading zero meant nothing.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).

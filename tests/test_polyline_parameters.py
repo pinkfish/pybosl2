@@ -29,6 +29,7 @@ from pybosl2 import Path2D
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path3d import Path3D
 from pybosl2.paths import require_path, require_paths
+from tests.signature_vocabulary import DOMAIN_NAMES, NOT_A_POLYLINE
 
 # `os.PathLike` is a FILE path and unrelated to `pybosl2.paths.PathLike`; a name match sweeps it up.
 # `ArrayLike`/`NDArray` belong here because C-7a names a NumPy array explicitly: they are the same
@@ -38,30 +39,10 @@ _RAW = re.compile(
 )
 
 # Parameter names that mean an ordered set of points.
-_POINTY = frozenset(
-    {
-        "path",
-        "paths",
-        "points",
-        "pts",
-        "polygon",
-        "poly",
-        "profile",
-        "profiles",
-        "region",
-        "regions",
-        "outline",
-        "vertices",
-        "verts",
-        "curve",
-        "section",
-        "loop",
-        "loops",
-        "contour",
-        "cp",
-        "control_points",
-    }
-)
+#: One definition, shared (T86). This file's list was the fullest of the three that existed --
+#: `tests/test_signatures.py` had seven names and `tests/test_exports.py` eight -- and the merged
+#: set is their union, so this rule's coverage is unchanged and the others gained what they lacked.
+_POINTY = DOMAIN_NAMES
 
 #: Normalizers, excluded by construction rather than by debt. Each one's *job* is to accept the
 #: wide form -- they are the SDF layer's equivalent of the `Path2D(...)` constructor, and requiring
@@ -99,18 +80,6 @@ EXCLUDED = frozenset(
 #: does not reach, so requiring a `Path3D` on the SDF side alone would refuse a call that works on
 #: the other backend. The pair converts together or not at all.
 STILL_RAW: frozenset[str] = frozenset({"pybosl2/sdf/shapes3d.py::stroke_3d::path"})
-
-#: Parameters the scan reads as a polyline because of their *name*, and which are not one. The
-#: rule above is about "an ordered set of points"; these are not ordered, so wrapping them in a
-#: `Path` would be calling them something they are not. Each row says why.
-#:
-#: `polyhedron(points, faces)` is the case: `faces` holds indices into `points`, so `points` is an
-#: unordered vertex *pool* and the traversal order lives in `faces`. It was invisible here until
-#: T73 typed it -- it had been `Any`, which the scan does not read as a polyline at all -- and the
-#: documented example passes a raw list, as the OpenSCAD primitive it wraps does.
-NOT_A_POLYLINE: dict[str, str] = {
-    "pybosl2/solid.py::polyhedron::points": "a vertex pool indexed by `faces`, not a traversal",
-}
 
 
 def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
@@ -157,7 +126,10 @@ def _raw_polyline_parameters() -> set[str]:
 
 def test_no_new_parameter_takes_raw_points() -> None:
     """A new or edited signature uses a Path type (SPEC C-7a)."""
-    added = sorted(_raw_polyline_parameters() - STILL_RAW - set(NOT_A_POLYLINE))
+    # The exemption is keyed `function::parameter`, which is the form both scans can build; this
+    # one reports `module::function::parameter`, so it matches on the tail.
+    exempt = {entry for entry in _raw_polyline_parameters() if "::".join(entry.split("::")[-2:]) in NOT_A_POLYLINE}
+    added = sorted(_raw_polyline_parameters() - STILL_RAW - exempt)
     assert not added, (
         f"these public parameters mean a sequence of points but accept a bare sequence: {added}. "
         f"Type them Path2D/Path3D and call require_path() on the first line (PLAN T-4b)."
@@ -176,7 +148,8 @@ def test_the_not_a_polyline_rows_are_still_found_by_the_scan() -> None:
     It would also hide a real regression: if the parameter were retyped or renamed, the row would
     sit there excusing a name that has gone while the scan quietly stopped covering it.
     """
-    stale = sorted(set(NOT_A_POLYLINE) - _raw_polyline_parameters())
+    reported = {"::".join(entry.split("::")[-2:]) for entry in _raw_polyline_parameters()}
+    stale = sorted(set(NOT_A_POLYLINE) - reported)
     assert not stale, f"the scan no longer reports these -- remove them from NOT_A_POLYLINE: {stale}"
 
 

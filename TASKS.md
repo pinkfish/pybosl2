@@ -2911,6 +2911,43 @@ pt2)`, and three operands is what the operation **is** — extrude this profile 
 No default can invent a destination, and no argument group helps, because they are the operands
 rather than the configuration. A rule's remedy has to fit the case, and here it does not.
 
+## T86 — One concept, one definition ✅
+
+**§12.2 item 51. B2-1, C-20.**
+
+T85 found two scans in one file disagreeing about what "untyped" means. Asking whether that was a
+one-off found **three separate lists of "parameter names that mean a path"**:
+
+| where | names |
+|---|---|
+| `test_polyline_parameters.py::_POINTY` | 20 |
+| `test_exports.py::_POLYLINE_PARAMETERS` | 8 |
+| `test_signatures.py::DOMAIN_NAMES` (the C-20 rule) | **7** |
+
+The widest knew `vertices`, `control_points`, `contour`; the narrowest none of them. Nothing had
+slipped through — by luck, not design. Merging them immediately surfaced `inward_probe(poly: Any)`,
+a shapely `Polygon` returning a `Point`, which the seven-name list could not see.
+
+### T85's own fix was an instance of the defect
+
+Widening one constant left **two** constants in that file meaning "untyped annotation", differing
+by one member. The vocabulary is one module now — the names, what counts as untyped, and T81's
+`NOT_A_POLYLINE` exemption, which two rules needed and only one knew. Widening the second rule's
+name list surfaced the same three `polyhedron` signatures T81 had already adjudicated, which is
+what a duplicated exemption costs.
+
+### The guard is structural, not a list
+
+A test module may not define a set shadowing one the shared vocabulary names. Importing is the fix;
+a local redefinition is how sharing comes undone.
+
+### Not every overlap is a defect
+
+`TIERS`, `TESSELLATION` and `FACETS` all contain `fn`/`fa`/`fs` and are three different ideas —
+every tier, the tessellation controls, the facet triple — so they stay three. The parts lists
+overlap for the same reason. What distinguished the merged three is that they are the **same**
+concept under different names, which is why one reading zero meant nothing.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

@@ -108,3 +108,52 @@ def test_the_two_guards_that_were_silent_now_assert_their_rule() -> None:
     signatures = (TESTS / "test_signatures.py").read_text()
     assert "def test_no_shape_has_an_option_gap_at_all" in parity
     assert "def test_no_parameter_named_for_a_type_is_typed_any" in signatures
+
+
+# --- shared vocabulary (T86) ---------------------------------------------------------------------
+
+
+def test_no_rule_keeps_its_own_copy_of_a_shared_concept() -> None:
+    """SPEC B2-1: two rules measuring one concept must not disagree about what it is.
+
+    T85 found exactly that inside one file: the variadic rule counted `object` as untyped and the
+    domain-named rule did not, twenty lines apart, so the second reported **zero** while four
+    `profile: object` parameters stood on the exported surface. Widening one constant fixed the
+    symptom and left two constants meaning the same thing -- the same defect one step along.
+
+    Measuring the suite for it turned up more: *three* lists of "parameter names that mean a path",
+    of twenty, eight and seven names. The widest knew `vertices`, `control_points` and `contour`;
+    the narrowest, used by the C-20 rule, knew none of them. Nothing was missed by luck rather than
+    design -- merging them immediately surfaced `inward_probe(poly: Any)`, which the narrow list
+    could not see.
+
+    So the check is structural: a test module may not define a set that shadows one the shared
+    vocabulary already names. Sharing is the fix, and a local redefinition is how it comes undone.
+    """
+    import ast
+
+    from tests import signature_vocabulary
+
+    shared = {
+        name: value
+        for name, value in vars(signature_vocabulary).items()
+        if not name.startswith("_") and isinstance(value, (frozenset, set, dict))
+    }
+    assert shared, "the shared vocabulary defines nothing; this check is vacuous"
+
+    redefined = []
+    for path in sorted(TESTS.glob("test_*.py")):
+        tree = ast.parse(path.read_text())
+        for node in tree.body:
+            targets = []
+            if isinstance(node, ast.Assign):
+                targets = [t.id for t in node.targets if isinstance(t, ast.Name)]
+            elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+                targets = [node.target.id]
+            for target in targets:
+                if target.lstrip("_") in shared and not isinstance(node.value, ast.Name):
+                    redefined.append(f"{path.name}::{target}")
+    assert not redefined, (
+        "these shadow a name the shared vocabulary defines, with their own value -- import it "
+        "instead, or the two definitions drift (SPEC B2-1):\n  " + "\n  ".join(redefined)
+    )
