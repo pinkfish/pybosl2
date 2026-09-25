@@ -2987,6 +2987,44 @@ the one asserting `xflip` is **not** in it: an allowlist entry is one edit away 
 exactly what the rule points at, which is how the original defect would have survived a guard
 written less carefully.
 
+## T88 — Strokes scale together ✅
+
+**§12.2 item 53. S-25 — a MUST that carried no enforcer.**
+
+Two claims. The trimming one already had a guard under another name: T65 established that an
+arrow's tip lands on the point it was given, so that file is named in the requirement rather than
+duplicated.
+
+### The scaling clause fails at the default settings, and that is not a defect
+
+| width | overhang / (width/2), default `fn` | with `fn=64` |
+|---|---|---|
+| 2 | 0.809 | 0.999 |
+| 4 | 0.832 | 0.999 |
+| 8 | 0.971 | 0.999 |
+
+`fa`/`fs` give a larger sphere more facets, and an inscribed polyhedron approaches its ideal as
+the count rises — so a stroke twice as wide is more than twice as close to its own ideal.
+**A scaling rule measured without fixing the tessellation measures the tessellation**, which is
+B-9's distinction arriving in a rule that does not mention it.
+
+### Third time a number looked like a defect and was a facet count
+
+| task | the number | what it was |
+|---|---|---|
+| T63 | `teardrop=60` measured 61.88° | the facet straddling the clip plane |
+| T84 | five "over-long" functions | one statement, 55 physical lines |
+| T88 | the ratio drifting 0.809 → 0.971 | the adaptive facet count |
+
+Each time the fix was to say which of the two things was being measured; each time treating the
+number as the defect would have made the geometry worse.
+
+### One control is about the experiment, not the code
+
+Lowering the fixed facet count from 64 to 8 fails the tests. That is the point: the guard is only
+meaningful while the tessellation is fine enough to be out of the way, and a later editor lowering
+it for speed would be quietly re-measuring the thing the rule is not about.
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

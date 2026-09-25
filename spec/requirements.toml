@@ -1456,8 +1456,13 @@ keyword = "MUST"
 statement = '''
 Stroke width, cap geometry and joint geometry MUST scale together, and a decorative cap MUST trim the body so the finished stroke keeps the requested end position.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_strokes_scale_together.py::test_a_two_dimensional_joint_is_half_a_width_past_the_corner",
+    "tests/test_strokes_scale_together.py::test_a_three_dimensional_joint_scales_once_the_facets_are_held_still",
+    "tests/test_strokes_scale_together.py::test_a_cap_doubles_when_the_width_doubles",
+    "tests/test_stroke_caps_agree.py::test_an_arrow_marks_the_point_it_was_given",
+]
+status = "enforced"
 note = '''
 That a decorative cap trims the body so the stroke keeps its requested end position is checked by eye in the render tests; nothing asserts the end position numerically.
 '''

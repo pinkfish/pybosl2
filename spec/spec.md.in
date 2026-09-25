@@ -591,6 +591,14 @@ there in the same commit as the code (§13 rule 4).
 
 **The allowlist asks for the dimension, not the history.** Thirty-five members stay one-sided with a reason each: `linear_extrude` is the crossing between dimensions itself, `vnf` and `export` need a mesh, the half-cuts need a third axis to cut across. The test that keeps it honest is the one asserting `xflip` is **not** in it — an allowlist entry is one edit away from excusing precisely what the rule points at, which is how the original defect would have survived a guard written less carefully.
 
+**T88 enforced S-25, and the measurement it needed had a trap in it.** The rule makes two claims — that stroke width, cap geometry and joint geometry scale together, and that a decorative cap trims the body so the finished stroke keeps its requested end position. The second already had a guard under another name: T65 established that an arrow's *tip* lands on the point it was given, which is the trimming clause stated as a measurement, so that file is named in the requirement rather than duplicated.
+
+**The scaling clause fails at the default settings, and that is not a defect.** Measured on a corner, the 3-D stroke's overhang past the path runs **0.809, 0.832 and 0.971** of `width / 2` at widths 2, 4 and 8 — converging rather than scaling, which looks exactly like the rule being broken. Held at a fixed facet count it is **0.999 at every width**. The cause is `fa`/`fs` giving a larger sphere more facets: an inscribed polyhedron approaches its ideal as the count rises, so a stroke twice as wide is more than twice as close to its own ideal. **A scaling rule measured without fixing the tessellation measures the tessellation** — which is B-9's distinction, arriving in a rule that does not mention it.
+
+**This is the third time this campaign that a number looked like a defect and was a facet count.** T63 found `teardrop=60` measuring 61.88 degrees and snapped the clip to a facet boundary; T84 found five "over-long" functions that were one statement wide; here the ratio drifts across widths. Each time the fix was to say which of the two things was being measured, and each time the alternative — treating the number as the defect — would have produced a change that made the geometry worse.
+
+**One of the four controls is about the experiment rather than the code.** Lowering the fixed facet count from 64 to 8 fails the tests, which is the point: the guard is only meaningful while the tessellation is fine enough to be out of the way, and a later editor lowering it for speed would be quietly re-measuring the thing the rule is not about.
+
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).
