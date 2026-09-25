@@ -39,7 +39,16 @@ def native(name: str) -> Callable[..., Any]:
     def _call(*args: Any, **kwargs: Any) -> Any:
         fn = _cache.get(name)
         if fn is None:
-            import pythonscad  # deferred: the FFI is only needed to construct geometry
+            try:
+                import pythonscad  # deferred: the FFI is only needed to construct geometry
+            except ModuleNotFoundError as missing:
+                # The same gap the SDF handle had: a bare `No module named 'pythonscad'` from
+                # inside, naming neither pybosl2 nor what to install (SPEC E-2, E-4).
+                from pybosl2.exceptions import BackendRuntimeMissingError
+
+                raise BackendRuntimeMissingError(
+                    "pythonscad", "csg", "the PythonSCAD app, or `pip install pythonscad`"
+                ) from missing
 
             fn = _cache[name] = getattr(pythonscad, name)
         if name == "polygon":

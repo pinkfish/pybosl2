@@ -133,7 +133,7 @@ def test_the_scan_found_something() -> None:
     assert OVER_LONG, "no over-long functions found at all; the scan is broken"
 
 
-@pytest.mark.parametrize("path", sorted(set(OVER_LONG) | set(BUDGET)))
+@pytest.mark.parametrize("path", sorted(set(OVER_LONG) | set(BUDGET)) or ["(none)"])
 def test_no_file_exceeds_its_budget(path: str) -> None:
     """A file may not grow a new over-long function, and a split lowers its number."""
     functions = OVER_LONG.get(path, [])

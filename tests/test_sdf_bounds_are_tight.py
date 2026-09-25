@@ -128,7 +128,7 @@ def _worst_gap(shape: object, samples: int = 41) -> tuple[float, str]:
 LOOSE_ON_PURPOSE = {"cyl moved then spun", "sheared cyl spun"}
 
 
-@pytest.mark.parametrize("label", sorted(set(BUILDERS) - LOOSE_ON_PURPOSE))
+@pytest.mark.parametrize("label", sorted(set(BUILDERS) - LOOSE_ON_PURPOSE) or ["(none)"])
 def test_the_solid_reaches_every_face_of_the_box_it_declares(label: str) -> None:
     """Loose or tight, measured -- not read off the formula sitting next to the field.
 

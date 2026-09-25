@@ -2758,6 +2758,85 @@ exactly the annotation T79 wrote.
 The difference is whether the code path is reachable in the environment doing the testing. A skip
 marker is where that is recorded.
 
+## T82 — A missing engine says which engine ✅
+
+**§12.2 item 47. E-1, E-2, E-4, M-3. New error: `BackendRuntimeMissingError`.**
+
+Following T81's method outward — *which* operations cannot run without their engine — turned up
+five, and asking what a caller without libfive actually sees turned up better:
+
+```
+use_backend("sdf")        succeeds
+cuboid([20, 20, 20])      succeeds -> SdfSolid
+      .vnf()              ModuleNotFoundError: No module named 'libfive'
+```
+
+Four frames down, naming neither pybosl2, nor which backend, nor what to install. A caller builds
+a whole model before anything says the engine is missing. **The CSG side said the same about
+`pythonscad`.**
+
+### M-3 is why, and M-3 is right
+
+Keeping both engines out of the import path is deliberate: `import pybosl2` works with neither
+installed. But deferring an import **moves** the failure rather than removing it, and nothing was
+waiting at the other end. The rule says both halves now, and each lazy handle converts the
+`ModuleNotFoundError` into a `BackendRuntimeMissingError` naming the backend, the engine and the
+install command. One error class, two call sites.
+
+It derives from `ModuleNotFoundError` **as well as** `Bosl2Error` — the pairing `Bosl2ValueError`
+uses. `except Bosl2Error` catches it (E-1), and a caller who wrapped a render in
+`except ModuleNotFoundError` is not broken by the improvement; `error.name` is set, because that
+is the attribute such a caller reads.
+
+### Why the suite could not see it
+
+`tests/conftest.py` installs a libfive mock, so the import always succeeds here — invisible for
+the same reason T81's probe was uninformative. Observing it took removing the mock deliberately.
+
+One guard asserts M-3's *other* half in the same file: that the conversion did not drag either
+engine into the import path. Every other assertion there would pass with the import moved to
+module level, which is exactly the mistake worth guarding against.
+
+## T83 — A ratchet that reaches zero must say so ✅
+
+**§12.2 item 48. B2-1.**
+
+The ratchets parametrize over the files carrying debt — which is what makes a failure name the
+thing to fix, and what makes them stop at zero:
+
+```
+SKIPPED [1] tests/test_option_parity.py:138: got empty parameter set for (shape)
+```
+
+**Option parity has been at zero since T63; the domain-named `Any` measure since T73. Both had
+been silently skipped on every run since.** T75 fixed this exact hole in the positional-tier rule
+without recognising it as a class.
+
+The success case and the broken-scan case report identically: a scan returning `{}` because its
+walk stopped reaching the package looks the same as one with nothing left to find — and looks
+like a *skip*, in a suite that reports five and had trained everyone to expect a few.
+
+Five parametrizations had the hole; all five now carry `or ["(none)"]`, and the two at zero state
+their rule directly. A placeholder parameter proves the test ran; only the assertion says anything
+holds.
+
+### The guard was built twice, and the first version was the mistake it prevents
+
+Matching the **source** of each `parametrize` and guessing ratchet-vs-data-table — set operation?
+filter? — flagged eight ordinary data tables, then seven after tuning, then a different seven.
+That is a heuristic fitted to the cases it flags, which T74 named as how an exemption list becomes
+a dumping ground.
+
+The symptom is directly measurable: import each test module, read the `parametrize` marks, report
+any whose argument list collects nothing. No pattern, no exceptions, no tuning as the suite grows.
+
+### Its control needed the combination, for the third time
+
+Neutering the scan alone changes nothing — with no defect present, a scan that finds nothing is
+indistinguishable from one that cannot. Only *defect planted **and** scan neutered* shows which is
+load-bearing. Same as T75's geometry check and T73's dunder exclusion, and worth stating as a
+rule: **a control that plants only the guard's weakening, on clean code, measures nothing.**
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
