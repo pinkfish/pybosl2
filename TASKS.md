@@ -3008,6 +3008,85 @@ the count rises — so a stroke twice as wide is more than twice as close to its
 **A scaling rule measured without fixing the tessellation measures the tessellation**, which is
 B-9's distinction arriving in a rule that does not mention it.
 
+## T89 — Masks cut what they name ✅
+
+**§12.2 item 54. S-28 — a MUST that carried no enforcer. Two geometry defects found.**
+
+The task arrived as a coverage report naming four lines: `xflip`/`yflip` on both backends, added
+in T87 and never called. They were real, and the fix was two tests. Asking what *else* was in that
+position — declared, exported, and invoked by nothing — found **six of 87 protocol members**, one
+of which was a property-access artefact. Exercising the other five is `tests/test_untested_protocol_members.py`.
+
+### Reading `cove_edges` closely enough to call it found the defect
+
+| mask | area at r=3 | what the name promises |
+|---|---|---|
+| `roundover` | 1.99 | corner less the quarter-disc — **1.99** ✅ |
+| `cove` | 1.99 | the quarter-disc — **7.13** ❌ |
+| `groove` (w=3) | 0.06 | width × depth — **4.53** ❌ |
+
+`Mask2D.cove` swept its arc about `(radius, radius)` over 180°–270°, which is `Mask2D.roundover`'s
+arc *exactly*. The two returned the same polygon; cove's only difference was two duplicated
+vertices. So `cove_edges` rounded. A cove's arc is centred on the corner, so it bulges away and the
+mask scoops the corner out.
+
+`Mask2D.groove` traced the channel's outline — up one wall, along the floor, down the other, then
+back around an outer rectangle one `excess` bigger — which closes into a frame `excess` thick
+enclosing nothing. It cut **2.4mm³ off a 30×30×20 box where a roundover of the same size took
+396**, and the area stayed ~0.06 at every width. The channel just needed filling.
+
+### A mask's area is not a free parameter
+
+A mask is a cutter cross-section: whatever the polygon encloses is what gets removed. That makes
+every profile's area a closed form, and it is the only property that distinguishes a correct
+profile from one that builds, exports and cuts *something else*. Nothing downstream reports the
+difference, and the constructor spellings everyone tests do not go through the masks at all.
+
+### Fifth time a defect was invisible to every test that looked at one thing at a time
+
+Cove's area was **self-consistent** — it was a correct roundover. Every question a single profile
+can be asked, it answered. What located it was comparing the profiles *to each other*, so the guard
+asserts both: each area against its closed form, and no two profiles equal as polygons (compared
+with duplicates collapsed, since duplicates are how cove hid). The control planting cove's old arc
+trips both assertions; the one planting groove's outline trips the area.
+
+S-28's own clause — constructor and mask agreeing — is the third assertion, and it holds:
+`cuboid(rounding=3)` against the same cut as a mask differs by 0.20%, chamfer by 0.27%.
+
+### The one test that touched `groove` asserted its vertex count
+
+`test_mask2d_groove` checked `len(path) == 8` and passed the whole time the profile was wrong —
+eight being exactly what it takes to trace a channel's outline. A vertex count cannot tell a cutter
+from a scratch, and it is the assertion most likely to be reached for when a shape has no obvious
+scalar. It now asserts the two numbers the caller supplied: the span is the width, the floor is at
+the depth reference.
+
+### A third defect, measured and left for its own task
+
+Asking whether each profile is a *simple* polygon — shoelace area against even-odd fill, which
+agree iff the loop does not cross itself — separates five from one:
+
+| mask | shoelace | filled |
+|---|---|---|
+| roundover / cove / chamfer / groove / step | — | agree to 0.3% |
+| `tear` | 1.110 | **2.903** |
+
+`Mask2D.tear(3)` also reaches `x=5.12` and `y=-1.24` on a corner every other profile keeps inside
+`[-0.01, 3]`. The source says why: the arc sweeps 135° past 180° rather than 45°, and the tip is
+placed at `r * (1 - sqrt(2))` — negative — where the arc it should meet ends at `r * (1 - 1/sqrt(2))`.
+A cutter that crosses itself has no interior, so *what it removes* is undefined.
+
+It is **not** fixed here. The correct profile is a question about BOSL2's teardrop convention, not
+about this polygon, and guessing it is how the other two got written. It is a `strict=True` xfail
+carrying the measurement, so fixing it must delete the entry rather than quietly pass.
+
+### Two of the three failures in writing this were mine, not the code's
+
+`intersect` takes an `AttachTag`, not a solid — `&` is the boolean. And the edge treatments are
+lazy, so `chamfer_edges(...)` without `.realize()` returns a solid with the treatment merely
+attached and measures nothing. Both looked like defects for as long as it took to read the
+signature. The third was the real one.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
@@ -3015,6 +3094,7 @@ B-9's distinction arriving in a rule that does not mention it.
 | T63 | `teardrop=60` measured 61.88° | the facet straddling the clip plane |
 | T84 | five "over-long" functions | one statement, 55 physical lines |
 | T88 | the ratio drifting 0.809 → 0.971 | the adaptive facet count |
+
 
 Each time the fix was to say which of the two things was being measured; each time treating the
 number as the defect would have made the geometry worse.

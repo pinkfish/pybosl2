@@ -28,6 +28,8 @@ from __future__ import annotations
 import ast
 import pathlib
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "pybosl2"
 
@@ -126,3 +128,47 @@ def test_the_flips_are_on_shape_where_c22_says_they_belong() -> None:
     for member in ("xflip", "yflip"):
         assert member in DECLARED["Shape"], f"{member} is not on Shape (SPEC C-22)"
         assert member not in DIMENSIONAL, f"{member} is excused as dimensional; C-22 says it is not"
+
+
+# --- the members C-22 moved, exercised (T89) -----------------------------------------------------
+
+
+def test_a_solid_flips_about_the_yz_and_xz_planes() -> None:
+    """SPEC C-22: `xflip`/`yflip` moved to `Shape` in T87 -- this runs the bodies that arrived with it.
+
+    T87 declared them, implemented them on both backends, and checked them by hand at the prompt.
+    It left no test, so both implementations sat at 50% line coverage: the signature ran, the one
+    line that does the mirroring did not. A coverage report named the four lines.
+
+    Hand-checking is how the geometry was established and is not a substitute for a guard. The
+    values below are the ones that were checked -- a box centred at x=30 flips to -30, and flips
+    about its own centre when the plane is given -- so what was verified once is verified on every
+    run.
+    """
+    from pybosl2 import cuboid
+
+    solid = cuboid([20.0, 10.0, 5.0]).translate([30.0, 0.0, 0.0])
+    assert float(solid.bounds().center[0]) == pytest.approx(30.0)
+    assert float(solid.xflip().bounds().center[0]) == pytest.approx(-30.0), "mirror about x=0"
+    assert float(solid.xflip(30.0).bounds().center[0]) == pytest.approx(30.0), "about its own plane"
+
+    raised = cuboid([20.0, 10.0, 5.0]).translate([0.0, 7.0, 0.0])
+    assert float(raised.yflip().bounds().center[1]) == pytest.approx(-7.0), "mirror about y=0"
+    assert float(raised.yflip(7.0).bounds().center[1]) == pytest.approx(7.0), "about its own plane"
+
+
+def test_both_backends_flip_a_solid_the_same_way() -> None:
+    """SPEC C-22 and PAR-1: the member is on `Shape`, so both spellings must honour it alike."""
+    from pybosl2 import use_backend
+    from pybosl2.solid import cuboid
+
+    centres = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            solid = cuboid([20.0, 10.0, 5.0]).translate([30.0, 0.0, 0.0])
+            centres[backend] = (
+                float(solid.xflip().bounds().center[0]),
+                float(solid.yflip(4.0).bounds().center[1]),
+            )
+    assert centres["sdf"] == pytest.approx(centres["csg"], abs=0.05), centres
+    assert centres["csg"][0] == pytest.approx(-30.0)

@@ -58,10 +58,21 @@ def test_mask2d_step_is_square_unless_told_otherwise() -> None:
     np.testing.assert_allclose(np.asarray(mask2d_step(3.0)), np.asarray(mask2d_step(3.0, 3.0)))
 
 
-def test_mask2d_groove() -> None:
+def test_mask2d_groove_spans_its_width_and_reaches_its_depth() -> None:
+    """The channel, not its outline.
+
+    This asserted ``len(path) == 8`` and passed for as long as the profile was wrong: eight points
+    were what it took to trace the channel's *outline*, which closes into a hairline frame
+    enclosing nothing (T89). A vertex count cannot tell a cutter from a scratch, so the extent is
+    asserted instead -- the two numbers the caller actually supplied.
+    """
     path = mask2d_groove(width=5.0, depth=3.0)
     assert isinstance(path, Path2D)
-    assert len(path) == 8
+    xs = [float(x) for x, _ in path]
+    ys = [float(y) for _, y in path]
+    assert max(xs) - min(xs) == pytest.approx(5.0), "the groove spans its width"
+    assert min(ys) == pytest.approx(0.0), "its floor sits at the depth reference"
+    assert max(ys) >= 3.0, "and it reaches past its depth, to clear the mouth"
 
 
 def test_mask3d_roundover_reaches_every_corner_of_the_box() -> None:

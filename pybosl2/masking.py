@@ -689,21 +689,20 @@ class Mask2D:
         from pybosl2.path2d import Path2D
 
         steps = max(1, int(quantup(_frag_count(radius, fn, fa, fs), 4) // 4))
+        # The arc is centred on the corner, so it bulges *away* from it and the mask scoops the
+        # corner out -- which is what a cove is. Centred at `(radius, radius)` and swept 180..270,
+        # as this was until T89, it is `Mask2D.roundover`'s arc exactly: the two came out the same
+        # polygon, cove differing only by two duplicated vertices, so `cove_edges` rounded rather
+        # than coved. The areas say which is which -- a roundover takes `r^2 - pi*r^2/4` off the
+        # corner and a cove takes the quarter-disc `pi*r^2/4` itself.
         path = [
             [radius, -excess],
             [-excess, -excess],
             [-excess, radius],
-            [0.0, radius],
         ]
         for i in range(steps + 1):
-            ang = math.radians(180.0 + (90.0 * i / steps))
-            path.append(
-                [
-                    radius + radius * math.cos(ang),
-                    radius + radius * math.sin(ang),
-                ]
-            )
-        path.append([radius, 0.0])
+            ang = math.radians(90.0 - (90.0 * i / steps))
+            path.append([radius * math.cos(ang), radius * math.sin(ang)])
         return Path2D(path, closed=True)
 
     @staticmethod
@@ -855,15 +854,17 @@ class Mask2D:
 
         _ = (chamfer, round_radius, fn, fa, fs)
         half_w = width / 2.0
+        # The channel itself, filled. Until T89 this traced the channel's *outline* -- up one wall,
+        # along the floor, down the other, and back around an outer rectangle one `excess` bigger --
+        # which closes into a hairline frame of thickness `excess` enclosing almost nothing, so the
+        # cutter scratched rather than grooved: 2.4mm^3 off a 30x30x20 box where a roundover of the
+        # same size took 396. The floor sits at y=0 so that `depth` is measured from the face, and
+        # only the mouth carries the excess, because only the mouth leaves the solid.
         pts = [
-            [half_w + excess, -excess],
-            [-half_w - excess, -excess],
-            [-half_w - excess, depth + excess],
-            [-half_w, depth + excess],
             [-half_w, 0.0],
             [half_w, 0.0],
             [half_w, depth + excess],
-            [half_w + excess, depth + excess],
+            [-half_w, depth + excess],
         ]
         return Path2D(pts, closed=True)
 
