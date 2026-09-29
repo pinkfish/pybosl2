@@ -1580,10 +1580,12 @@ keyword = "MUST"
 statement = '''
 Rounding and chamfering MUST be available both as constructor parameters (`rounding=`, `chamfer=`, and their per-end variants) and as masks, and the two MUST agree geometrically.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_masks_cut_what_they_name.py",
+]
+status = "enforced"
 note = '''
-Both spellings exist and are tested separately; that they *agree geometrically* is asserted nowhere. Comparing a rounded constructor against the equivalent mask is the missing test.
+`tests/test_masks_cut_what_they_name.py` closes this two ways: `cuboid(rounding=r)` is compared against the same cut spelled as `Mask2D.roundover(r)` (and likewise for chamfer), and each profile's enclosed area is checked against its closed form, since the cross-section *is* the material removed. Writing it found two profiles that had been wrong since they were written -- `Mask2D.cove` returned `Mask2D.roundover`'s polygon, so `cove_edges` rounded rather than coved, and `Mask2D.groove` traced its channel's outline instead of the channel, cutting a hairline frame. Both were invisible because a wrong profile still builds and still cuts something.
 '''
 
 [[requirement]]
