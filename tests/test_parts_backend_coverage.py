@@ -24,14 +24,9 @@ changes for the *better*, so a part that gains an SDF form is recorded rather th
 
 from __future__ import annotations
 
-import importlib
-import inspect
-import pkgutil
-from typing import Any
-
 import pytest
+from part_fixtures import PARTS, arguments
 
-import pybosl2.parts as parts
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
 from pybosl2 import use_backend
 from pybosl2.exceptions import UnsupportedByBackendError
@@ -55,82 +50,17 @@ CSG_ONLY_PARTS = frozenset(
     }
 )
 
+
 #: Constructor arguments for parts that need more than their defaults.
-_ARGS: dict[str, tuple[Any, ...]] = {
-    "HoseSegment": (0.5,),
-    "NemaMountMask": (17,),
-    "Nut": ("M6",),
-    "RobertsonMask": (2,),
-    "Screw": ("M6", 20),
-    "ScrewHole": ("M6", 20),
-    "SparseCuboid": ([30.0, 20.0, 10.0],),
-    "ThreadedNut": (16.0, 10.0, 10.0, 1.5, "trapezoidal"),
-    "ThreadedRod": (10.0, 20.0, 1.5, "trapezoidal"),
-    "WireBundle": ([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]], 3),
-}
-_KWARGS: dict[str, dict[str, Any]] = {"RingHook": {"outer_radius": 6.0, "inner_radius": 4.0}}
-_POSITIONAL_DEFAULTS: dict[str, tuple[Any, ...]] = {"RingHook": ([20.0, 10.0, 4.0], 5.0)}
-
-
-def _distinct_parts() -> dict[str, type]:
-    """Every part class exactly once, keyed by its own name.
-
-    Deduplicated by identity: `manfrotto_rc2_plate` is a second name for `ManfrottoRC2Plate`, and
-    counting it twice is what made the spec's total 53 instead of 51.
-    """
-    seen: set[int] = set()
-    found: dict[str, type] = {}
-    for module_info in pkgutil.iter_modules(parts.__path__):
-        module = importlib.import_module(f"pybosl2.parts.{module_info.name}")
-        for name, obj in vars(module).items():
-            if not (inspect.isclass(obj) and obj.__module__ == module.__name__):
-                continue
-            if name.startswith("_") or name == "Buildable":
-                continue
-            if not isinstance(inspect.getattr_static(obj, "shape", None), property):
-                continue
-            if id(obj) in seen:
-                continue
-            seen.add(id(obj))
-            found[obj.__name__] = obj
-    return found
-
-
-def _arguments(cls: type) -> tuple[tuple[Any, ...], dict[str, Any]]:
-    name = cls.__name__
-    if name in _POSITIONAL_DEFAULTS:
-        return _POSITIONAL_DEFAULTS[name], _KWARGS.get(name, {})
-    if name in _ARGS:
-        return _ARGS[name], _KWARGS.get(name, {})
-    args: list[Any] = []
-    for param in list(inspect.signature(cls.__init__).parameters.values())[1:]:
-        if param.default is not inspect.Parameter.empty or param.kind in (
-            param.VAR_POSITIONAL,
-            param.VAR_KEYWORD,
-        ):
-            continue
-        annotation = str(param.annotation)
-        if "int" in annotation:
-            args.append(6)
-        elif any(token in annotation for token in ("Sequence", "list", "Path")):
-            args.append([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]])
-        else:
-            args.append(10.0)
-    return tuple(args), _KWARGS.get(name, {})
-
-
 def _build_on_sdf(cls: type) -> Exception | None:
     """Return the exception a part raises on the SDF backend, or None if it builds."""
-    args, kwargs = _arguments(cls)
+    args, kwargs = arguments(cls)
     try:
         with use_backend("sdf"):
             _ = cls(*args, **kwargs).shape
     except Exception as exc:
         return exc
     return None
-
-
-PARTS = _distinct_parts()
 
 
 def test_every_part_either_builds_on_sdf_or_is_listed() -> None:

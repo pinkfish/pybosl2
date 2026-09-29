@@ -963,10 +963,16 @@ keyword = "MUST"
 statement = '''
 Note the deliberate difference in what `.shape` means either side of the FFI boundary: on a part it is the finished `Solid`/`Flat`; on a backend wrapper (`CsgSolid.shape`) it is the raw native handle being wrapped. Docstrings MUST say which one they mean.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_every_part_builds.py",
+]
+status = "enforced"
 note = '''
-A docstring rule: that each `.shape` says which side of the FFI it means. Nothing reads docstrings for it.
+Enforced on the objects and on the annotations, which is where the ambiguity actually bites. `test_a_parts_shape_is_never_a_native_handle` builds all 51 parts and requires each `.shape` to be a `pybosl2` wrapper -- a part handing back the `PyOpenSCAD` its wrapper holds would *mostly work*, which is the failure mode the rule exists to prevent -- and `test_every_shape_declares_the_type_it_returns` requires a concrete return annotation, the spelling that reaches a reader at the call site and the only one `mypy` can act on.
+
+The prose clause is enforced in that second form rather than literally: **49 of the 51 `shape` docstrings name no type at all**, while all 51 annotations do, so requiring the docstrings to repeat what the signature already states would add prose without adding information. What is *not* enforced is the wrapper side's own wording -- `CsgSolid.shape` is documented as "The native handle this wraps" in `__init__`'s Args, by review.
+
+Writing this found that nothing built every part on the CSG backend at all. The laziness test only checks that nothing is built during `__init__`, and the backend-coverage test builds only on SDF, where twelve parts are listed CSG-only and refuse before their arguments are read -- so the arguments behind those refusals were unfalsifiable, and two of them were wrong.
 '''
 
 [[requirement]]
