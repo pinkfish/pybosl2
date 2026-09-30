@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import pathlib
 import re
+from enum import Enum
 
 import pytest
 from part_fixtures import PARTS, arguments
@@ -44,7 +45,6 @@ EAGER_PARTS = frozenset(
     {
         "HoseSegment",
         "ManfrottoRC2Plate",
-        "Nut",
         # Its derived length is trigonometry on module-level helpers rather than plain arithmetic
         # on the spec, so resolving it in `__init__` means duplicating that computation. Left
         # eager deliberately; converting it is a hand edit, not a mechanical one.
@@ -52,19 +52,31 @@ EAGER_PARTS = frozenset(
         "Rack2d",
         "RobertsonMask",
         "SparseCuboid",
-        "ThreadedNut",
     }
 )
 
-#: Where a part caches its built geometry. A part is eager if one of these is set straight after
-#: construction.
+#: Where a part caches its built geometry. A part is eager if one of these holds geometry straight
+#: after construction.
 _CACHES = ("_shape", "_solid", "_geometry")
+
+
+def _is_geometry(value: object) -> bool:
+    """Whether *value* is built geometry, rather than something that merely lives under the name.
+
+    Checked by what the attribute holds, not by what it is called. `_shape` is the obvious name for
+    a cache and also the obvious name for a *parameter* -- `Nut` and `ThreadedNut` both take a
+    `shape: NutShape` and store it as `self._shape` -- so a name-based test reads an enum set in
+    `__init__` as a solid built in `__init__`. Both were listed in `EAGER_PARTS` on that evidence,
+    on a list documented as only shrinking, which is where a false entry stays forever: nobody
+    removes it, because looking for the eager build finds nothing to fix.
+    """
+    return type(value).__module__.split(".")[0] == "pybosl2" and not isinstance(value, Enum)
 
 
 def _built_eagerly(cls: type) -> bool:
     args, kwargs = arguments(cls)
     part = cls(*args, **kwargs)
-    return any(getattr(part, cache, None) is not None for cache in _CACHES)
+    return any(_is_geometry(getattr(part, cache, None)) for cache in _CACHES)
 
 
 def test_no_part_becomes_eager() -> None:
@@ -101,7 +113,7 @@ def test_reading_a_derived_property_never_triggers_a_build() -> None:
                 getattr(part, prop)
             except Exception:
                 continue
-        if any(getattr(part, cache, None) is not None for cache in _CACHES):
+        if any(_is_geometry(getattr(part, cache, None)) for cache in _CACHES):
             offenders.append(name)
     assert not offenders, f"reading a derived property built geometry on: {offenders}"
 
@@ -111,10 +123,10 @@ def test_a_lazy_part_answers_its_catalogue_without_building() -> None:
     from pybosl2.parts import Screw
 
     screw = Screw("M6", length=20)
-    assert all(getattr(screw, cache, None) is None for cache in _CACHES)
+    assert not any(_is_geometry(getattr(screw, cache, None)) for cache in _CACHES)
     assert screw.pitch == pytest.approx(1.0)
     assert screw.diameter == pytest.approx(6.0)
-    assert all(getattr(screw, cache, None) is None for cache in _CACHES), (
+    assert not any(_is_geometry(getattr(screw, cache, None)) for cache in _CACHES), (
         "measuring a screw must not have built one (SPEC C-14)"
     )
     assert screw.shape is not None  # ...and asking for geometry does build it
