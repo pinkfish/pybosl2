@@ -3087,6 +3087,50 @@ lazy, so `chamfer_edges(...)` without `.realize()` returns a solid with the trea
 attached and measures nothing. Both looked like defects for as long as it took to read the
 signature. The third was the real one.
 
+## T90 — The teardrop mask leans 45 degrees ✅
+
+**§12.2 item 55. S-28. Closes the defect T89 measured and left.**
+
+T89 found `Mask2D.tear`'s polygon crossing itself and did not guess at the fix, landing it as a
+`strict=True` xfail carrying the measurement. The convention was in the repo the whole time:
+`os_teardrop` in `pybosl2/skin.py` says a teardrop "transitions from a 1/8th circle into a straight
+line at `max_angle` degrees relative to the vertical wall", and generates exactly that.
+
+| | was | is |
+|---|---|---|
+| arc sweep off the wall | 135° | **45°** |
+| tip | `r(1 − √2)` = −1.24 | `2r(1 − 1/√2)` = **+1.76** |
+| shoelace vs filled area | 1.110 vs 2.903 | **1.787 vs 1.784** |
+| bounds at r=3 | x to 5.12, y to −1.24 | **inside [−0.01, 3]** |
+| steepest lean from vertical | — | **45.00°** |
+
+The tip was the *negative* of the point the arc has to meet: `1 − √2` where `1 − 1/√2` was wanted.
+Sweeping 135° carries the arc back out around the far side of the centre, which is where x = 5.12
+came from, and the negative tip then closed the loop across itself.
+
+### T89's groove fix reached further than it looked
+
+`Mask3D.groove` extrudes `Mask2D.groove`, so the 3-D cutter was carrying the same defect:
+**0.804mm³ where it should be 80.4** — a hundredfold — for `width=4` on a 10mm cube. Measured by
+putting the old profile back rather than inferred from the call graph. Nothing in the 3-D family
+had its own defect; it inherited one, which is the case a per-class test suite is least likely to
+find, because each class looks correct against its own expectations.
+
+### The strict xfail did its job, visibly
+
+Fixing `masking.py` turned the entry into `XPASS(strict)` — a failure — so the record could not
+rot into a quiet pass. That is the whole reason to prefer a strict xfail carrying a measurement
+over a comment or a backlog row: it is the only form of "known defect" that breaks when the defect
+goes away.
+
+### The control that justifies the third assertion
+
+Three of the four assertions on `tear` fire on the original defect. The fourth is earned by a
+different control: leaving the arc correct and setting `_MAX_LEAN` to 60 gives a profile that is a
+simple polygon, sits inside its corner, and is **unprintable**. Only the overhang measurement
+catches it — T62's measurement, which was written for the constructor spelling and never reached
+the mask.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

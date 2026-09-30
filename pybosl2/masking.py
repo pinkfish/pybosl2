@@ -554,6 +554,11 @@ def face_profile(
     )
 
 
+#: Steepest lean from vertical a teardrop profile may reach, in degrees. 45 is what an FDM
+#: printer bridges without support, and is `os_teardrop`'s `max_angle` default.
+_MAX_LEAN = 45.0
+
+
 class Mask2D:
     """The 2-D cutter cross-sections (BOSL2's ``mask2d_*`` family), as factories returning a Path2D.
 
@@ -729,22 +734,29 @@ class Mask2D:
 
         _ = maxgap
         excess = 0.01
+        # An eighth-circle off the wall, then straight at `_MAX_LEAN` -- `os_teardrop` in
+        # `pybosl2.skin` states the same convention, and it is what makes the edge printable: the
+        # steepest lean from vertical anywhere on the cut is exactly `_MAX_LEAN`.
+        #
+        # Until T90 the arc swept 135 degrees past 180 rather than 45, and the tip was placed at
+        # `r * (1 - sqrt(2))` -- negative, on the far side of the corner -- where the arc it has to
+        # meet ends at `r * (1 - 1/sqrt(2))`. The loop crossed itself, so the cutter had no
+        # interior at all: it shoelaced to 1.110 against an even-odd fill of 2.903, and reached
+        # `x = 5.12`, `y = -1.24` on a corner every other profile keeps inside `[-excess, r]`.
+        lean = math.radians(_MAX_LEAN)
+        # Where the straight run, dropping at `lean` from the arc's end, meets the face y = 0.
+        tip_x = r * (1.0 - math.cos(lean)) + r * (1.0 - math.sin(lean)) * math.tan(lean)
         path = [
-            [r, -excess],
+            [tip_x, -excess],
             [-excess, -excess],
             [-excess, r],
         ]
-        steps = max(1, int(quantup(_frag_count(r, fn, fa, fs), 4) // 4))
+        # The arc spans an eighth turn, so it gets an eighth of the fragments a full circle would.
+        steps = max(1, int(quantup(_frag_count(r, fn, fa, fs), 8) // 8))
         for i in range(steps + 1):
-            ang = math.radians(180.0 + (135.0 * i / steps))
-            path.append(
-                [
-                    r + r * math.cos(ang),
-                    r + r * math.sin(ang),
-                ]
-            )
-        tip = [r * (1.0 - math.sqrt(2.0)), r * (1.0 - math.sqrt(2.0))]
-        path.append(tip)
+            ang = lean * i / steps
+            path.append([r - r * math.cos(ang), r - r * math.sin(ang)])
+        path.append([tip_x, 0.0])
         return Path2D(path, closed=True)
 
     @staticmethod
