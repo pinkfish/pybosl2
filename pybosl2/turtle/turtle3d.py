@@ -579,6 +579,31 @@ class Turtle3D(TurtleCommands):
             sz = Point.from_seq(sz)  # a plain [x, y] / [x, y, z] reads the same as a Point
         return (sz.x, sz.y, sz.z or 0.0)
 
+    @staticmethod
+    def _arc_frame(
+        v_dir: "np.ndarray[Any, Any]",
+        dir_: "np.ndarray[Any, Any]",
+        cmd_value: str,
+        index: int,
+    ) -> tuple["np.ndarray[Any, Any]", float]:
+        """Return the heading with the turn axis removed, and its length.
+
+        The projection vanishes exactly when the turtle already points along the axis it is being
+        asked to turn about, and then there is no arc to sweep. Both arc branches divided by this
+        length unguarded, so the division returned `inf` and every transform the command produced
+        came back `NaN` -- a turtle left in an unusable state, reported by nothing. `arcxrot` turns
+        about `[1, 0, 0]`, which is also the turtle's starting heading, so the *first* `arcxrot` in
+        a program hit it every time.
+        """
+        projv = v_dir - np.dot(dir_, v_dir) * dir_
+        projection = float(np.linalg.norm(projv))
+        if projection < 1e-12:
+            raise Bosl2ValueError(
+                f'"{cmd_value}" at index {index} turns about the axis the turtle already points '
+                f"along, so there is no arc to sweep"
+            )
+        return projv, projection
+
     def _command(self, cmd: TurtleCommand, index: int) -> None:
         """Execute a single :class:`TurtleCommand`, mutating ``self._state``."""
         if cmd.cmd_type == TurtleCommandType.REPEAT:
@@ -619,7 +644,8 @@ class Turtle3D(TurtleCommands):
                 [last_pre],
             )
         elif ct == TurtleCommandType.XYZMOVE:
-            assert sz is not None
+            if sz is None:
+                raise Bosl2ValueError(f'"{ct.value}" needs a size at index {index}')
             px, py, pz = self._xyz(sz)
             self._tupdate([Turtle3D._trans4([px, py, pz]) @ last_xform], [last_pre])
         elif ct in (TurtleCommandType.UNTILX, TurtleCommandType.UNTILY, TurtleCommandType.UNTILZ):
@@ -632,7 +658,8 @@ class Turtle3D(TurtleCommands):
             self._tupdate([last_xform @ Turtle3D._trans4([dist, 0, 0])], [last_pre])
         elif ct in (TurtleCommandType.JUMP, TurtleCommandType.XJUMP, TurtleCommandType.YJUMP, TurtleCommandType.ZJUMP):
             if ct == TurtleCommandType.JUMP:
-                assert sz is not None
+                if sz is None:
+                    raise Bosl2ValueError(f'"{ct.value}" needs a target point at index {index}')
                 target = np.array(self._xyz(sz), float)  # type: ignore[assignment]
             else:
                 target = np.array(lastpt, float)  # type: ignore[assignment]
@@ -664,12 +691,22 @@ class Turtle3D(TurtleCommands):
             rot = Turtle3D._turtle_rotation(ct, a)
             self._replace_transforms(self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ rot @ rot_part])
         elif ct == TurtleCommandType.ROT:
+            # A rotation matrix, not an angle. A scalar used to reach the `@` below and come back
+            # as a bare `ValueError` about operand shapes, naming neither the command nor the
+            # argument (SPEC E-1, E-4).
+            matrix = np.asarray(ang, float)
+            if matrix.shape not in {(3, 3), (4, 4)}:
+                raise Bosl2ValueError(
+                    f'"{ct.value}" needs a 3x3 or 4x4 rotation matrix as its angle at index '
+                    f"{index}, got {matrix.shape or 'a scalar'}"
+                )
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             self._replace_transforms(
-                self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ np.asarray(ang, float) @ rot_part],
+                self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ matrix @ rot_part],
             )
         elif ct == TurtleCommandType.SETDIR:
-            assert sz is not None
+            if sz is None:
+                raise Bosl2ValueError(f'"{ct.value}" needs a direction at index {index}')
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             cur = Turtle3D._apply(rot_part, [1, 0, 0])
             self._replace_transforms(
@@ -710,9 +747,9 @@ class Turtle3D(TurtleCommands):
                 TurtleCommandType.ARCYROT: np.array(BACK.vector),
                 TurtleCommandType.ARCZROT: np.array(UP.vector),
             }[ct]
-            projv = v_dir - np.dot(dir_, v_dir) * dir_
+            projv, projection = Turtle3D._arc_frame(v_dir, dir_, ct.value, index)
             center = np.sign(myangle) * radius * np.cross(dir_, projv)
-            vshift = dir_ * (np.dot(dir_, v_dir) / np.linalg.norm(projv)) * length
+            vshift = dir_ * (np.dot(dir_, v_dir) / projection) * length
             tran = [
                 Turtle3D._trans4(shift + vshift * k / steps)
                 @ Turtle3D._turtle_rotation(ct, myangle * k / steps, center)
@@ -723,14 +760,25 @@ class Turtle3D(TurtleCommands):
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
             if not isinstance(cmd.radius, (int, float)):
                 raise Bosl2ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
+            # `arctodir` wants a direction vector and `arcrot` a rotation matrix. Neither was
+            # checked: a scalar reached `rot_from_to4` as a bare `ValueError` and `rot_decode` as a
+            # bare `IndexError`, from inside helpers that name neither the command nor the
+            # argument (SPEC E-1, E-4).
+            spec = np.asarray(ang, float)
+            wanted = "a direction vector" if ct == TurtleCommandType.ARCTODIR else "a 3x3 or 4x4 rotation matrix"
+            allowed: set[tuple[int, ...]] = {(3,)} if ct == TurtleCommandType.ARCTODIR else {(3, 3), (4, 4)}
+            if spec.shape not in allowed:
+                raise Bosl2ValueError(
+                    f'"{ct.value}" needs {wanted} as its angle at index {index}, got {spec.shape or "a scalar"}'
+                )
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
-            rd = rot_decode(rot_from_to4(v_dir, ang) if ct == TurtleCommandType.ARCTODIR else np.asarray(ang, float))
+            rd = rot_decode(rot_from_to4(v_dir, spec) if ct == TurtleCommandType.ARCTODIR else spec)
             myangle, dir_ = rd[0], np.asarray(rd[1], float)
-            projv = v_dir - np.dot(dir_, v_dir) * dir_
+            projv, projection = Turtle3D._arc_frame(v_dir, dir_, ct.value, index)
             radius = step * cmd.radius
             length = 2 * math.pi * radius * myangle / 360
-            vshift = dir_ * (np.dot(dir_, v_dir) / np.linalg.norm(projv)) * length
+            vshift = dir_ * (np.dot(dir_, v_dir) / projection) * length
             steps = Turtle3D._segs(abs(radius)) if arcn == 0 else arcn
             center = radius * np.cross(dir_, projv)  # type: ignore[assignment]
             tran = [

@@ -3269,6 +3269,55 @@ when it inherits `SpurGear`'s entire catalogue, putting the gap at 13 instead of
 same shape as T92's cache-by-name and T92's read-after-build: the instrument was wrong three
 separate ways before the number was worth acting on, and each was found by disbelieving it first.
 
+## T94 — Every turtle command is honest ✅
+
+**§12.2 item 58. E-1, E-4, E-P2. Four defects in one 161-line dispatch.**
+
+Reached from the function-length ratchet rather than a requirement: `Turtle3D._command` is 161
+lines and `_compound` 160, and a dispatch chain that long has room for the cases nobody wrote a
+test for. G-8 already says why the guard has to be a matrix — *a per-case test only ever finds the
+case it was written for*. The matrix found four.
+
+| command | what came out | should be |
+|---|---|---|
+| `rot` | bare `ValueError` from a matmul | `Bosl2ValueError` naming the command |
+| `arctodir` | bare `ValueError` from `rot_from_to4` | ditto |
+| `arcrot` | bare `IndexError` from `rot_decode` | ditto |
+| `arcxrot` | **`NaN`, no exception at all** | a refusal |
+
+Three `assert sz is not None` also validated `cmd.size` — a caller's value — at an `-O`-erasable
+assert (E-4, E-P2).
+
+### `arcxrot` was broken from the default heading
+
+Both arc branches divided by `‖projv‖`, the heading with the turn axis projected out. That is zero
+exactly when the turtle already points along the axis it is turning about. **`arcxrot` turns about
+`[1, 0, 0]`, and the turtle starts pointing along `[1, 0, 0]`** — so the *first* `arcxrot` in a
+program divided by zero and wrote `NaN` into every transform it produced. No exception, no warning
+a caller would see, just an unusable turtle.
+
+This is why the matrix asserts the state is **finite** and not merely that nothing was raised. A
+command that returns normally having written `NaN` passes every test that only asks whether it
+threw. The two arc branches now share one guarded helper instead of each carrying the division.
+
+### The bare-assert guard had a scope hole, and it was one line wide
+
+`test_no_bare_assert_stands_in_for_validation` only inspected asserts touching the enclosing
+function's **parameters**. `_command`'s parameters are `cmd` and `index`; `sz = cmd.size` is a
+local. Three asserts on caller data, invisible.
+
+Widening to *all* locals would flag **46**, nearly all legitimate `is not None` narrowing after a
+computation. Widening to locals bound **straight** to a parameter or one of its attributes, with
+nothing in between, flags exactly **3** — these three. The distinction is the one the rule already
+makes: once a value has been through a computation the assert narrows a result; bound directly, it
+still screens an argument.
+
+### Controls
+
+Removing the zero-length guard fails `ARCXROT` and the named NaN test; removing `rot`'s shape check
+fails `ROT`; restoring one `assert sz is not None` is caught by the widened scan, which named the
+file, the line and the variable.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
