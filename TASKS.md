@@ -3186,6 +3186,47 @@ Restoring the `"trapezoidal"` string fails four tests; making one part `return s
 instead of `self._solid` fails three, including the native-handle assertion on the part that did
 not otherwise break.
 
+## T92 — A cache is a cache because of what it holds ✅
+
+**§12.2 item 1. C-14 / O-2. Two entries on a shrink-only list were never defects.**
+
+`EAGER_PARTS` lists the parts that build geometry in `__init__`, and the figure it produces is
+quoted in SPEC §12.2. It said 8. Six is right.
+
+| `_shape` after `__init__` | parts | eager? |
+|---|---|---|
+| `CsgSolid` / `Path2D` in a cache | HoseSegment, ManfrottoRC2Plate, PhillipsMask, RobertsonMask, SparseCuboid, Rack2d | yes |
+| `NutShape` — **an enum** | `Nut`, `ThreadedNut` | **no** |
+
+The detector was `getattr(part, cache) is not None` over the names `_shape`, `_solid`,
+`_geometry`. But `_shape` is equally the obvious name for a *parameter*: `Nut` and `ThreadedNut`
+both take `shape: NutShape` and store it as `self._shape`. An enum assigned in `__init__` read as
+a solid built in `__init__`.
+
+### A false entry on a shrink-only list stays forever
+
+The list is documented as only shrinking, and that is what makes this worse than a wrong number.
+Anyone who set out to convert `Nut` to laziness would find it already lazy, find nothing to fix,
+and leave the entry alone — there is no step in the process at which a false positive comes off.
+The two other places that asked the same question (`test_reading_a_derived_property_never_triggers_a_build`
+and the `Screw` example) carried the same raw check, so the mistake was three-for-three.
+
+The fix is to ask what the attribute *holds*: geometry is a `pybosl2` object that is not an `Enum`.
+
+### The same artefact had already corrupted the next measurement
+
+Measuring S-46 — how many parts answer a dimension without building — first gave **15 parts and 27
+properties**. With the corrected detector it is **13 and 16**, and all 16 sit on the six genuinely
+eager parts, where a set cache is expected rather than a finding. The first run also attributed
+every property read *after* the first build to the build, because the cache stays set; re-reading
+with a fresh instance per property was the other half. Two instrument errors in one probe, both
+found by disbelieving a number before using it.
+
+### Controls
+
+Making a part build in `__init__` for real is caught (the count goes 6 → 7). Restoring the
+name-based detector brings back exactly `Nut` and `ThreadedNut` and the count goes back to 8.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
