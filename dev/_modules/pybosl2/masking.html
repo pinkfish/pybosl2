@@ -2723,6 +2723,11 @@
 
 
 
+<span class="c1">#: Steepest lean from vertical a teardrop profile may reach, in degrees. 45 is what an FDM</span>
+<span class="c1">#: printer bridges without support, and is `os_teardrop`'s `max_angle` default.</span>
+<span class="n">_MAX_LEAN</span> <span class="o">=</span> <span class="mf">45.0</span>
+
+
 <div class="viewcode-block" id="Mask2D">
 <a class="viewcode-back" href="../../foundational/masking.html#pybosl2.masking.Mask2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Mask2D</span><span class="p">:</span>
@@ -2911,22 +2916,29 @@
 
         <span class="n">_</span> <span class="o">=</span> <span class="n">maxgap</span>
         <span class="n">excess</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="c1"># An eighth-circle off the wall, then straight at `_MAX_LEAN` -- `os_teardrop` in</span>
+        <span class="c1"># `pybosl2.skin` states the same convention, and it is what makes the edge printable: the</span>
+        <span class="c1"># steepest lean from vertical anywhere on the cut is exactly `_MAX_LEAN`.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Until T90 the arc swept 135 degrees past 180 rather than 45, and the tip was placed at</span>
+        <span class="c1"># `r * (1 - sqrt(2))` -- negative, on the far side of the corner -- where the arc it has to</span>
+        <span class="c1"># meet ends at `r * (1 - 1/sqrt(2))`. The loop crossed itself, so the cutter had no</span>
+        <span class="c1"># interior at all: it shoelaced to 1.110 against an even-odd fill of 2.903, and reached</span>
+        <span class="c1"># `x = 5.12`, `y = -1.24` on a corner every other profile keeps inside `[-excess, r]`.</span>
+        <span class="n">lean</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">_MAX_LEAN</span><span class="p">)</span>
+        <span class="c1"># Where the straight run, dropping at `lean` from the arc's end, meets the face y = 0.</span>
+        <span class="n">tip_x</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lean</span><span class="p">))</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lean</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">lean</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">tip_x</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span>
         <span class="p">]</span>
-        <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="c1"># The arc spans an eighth turn, so it gets an eighth of the fragments a full circle would.</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">135.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                    <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)),</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))]</span>
-        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">ang</span> <span class="o">=</span> <span class="n">lean</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">r</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span> <span class="n">r</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">)])</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">tip_x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
