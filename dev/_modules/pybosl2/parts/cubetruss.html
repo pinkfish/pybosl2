@@ -2567,6 +2567,11 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Resolved here rather than in `_build` so a caller can read them off the part</span>
+        <span class="c1"># without building it (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span> <span class="o">=</span> <span class="n">extents</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
@@ -2579,8 +2584,8 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
-        <span class="n">sz</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
-        <span class="n">st</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extents</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
             <span class="n">ex</span><span class="p">,</span> <span class="n">ey</span><span class="p">,</span> <span class="n">ez</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">extents</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2622,6 +2627,21 @@
             <span class="p">)</span>
             <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">base</span> <span class="o">-</span> <span class="n">holes</span> <span class="o">-</span> <span class="n">ytun</span><span class="p">)</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">mx</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
         <span class="k">return</span> <span class="n">_union</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Cube size in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""How many cells the support spans."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
@@ -2783,6 +2803,12 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Resolved here rather than in `_build` so a caller can read them off the part</span>
+        <span class="c1"># without building it (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span> <span class="o">=</span> <span class="n">extents</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
@@ -2797,9 +2823,9 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
-        <span class="n">sz</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
-        <span class="n">st</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
-        <span class="n">ct</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
         <span class="n">cliplen</span> <span class="o">=</span> <span class="n">st</span> <span class="o">*</span> <span class="mf">2.6</span>
         <span class="n">clipheight</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sz</span> <span class="o">+</span> <span class="n">st</span><span class="p">,</span> <span class="n">sz</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span> <span class="o">*</span> <span class="mf">2.6</span><span class="p">)</span>
         <span class="n">clipsize</span> <span class="o">=</span> <span class="mf">0.5</span>
@@ -2852,6 +2878,26 @@
             <span class="n">clipheight</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">pair</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Cube size in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clipthick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clip thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""How many cells the clip spans."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
@@ -2917,6 +2963,12 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Resolved here rather than in `_build` so a caller can read them off the part</span>
+        <span class="c1"># without building it (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w</span> <span class="o">=</span> <span class="n">w</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
@@ -2931,9 +2983,9 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
-        <span class="n">sz</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
-        <span class="n">st</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
-        <span class="n">ct</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
         <span class="n">clipsize</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">wall_h</span> <span class="o">=</span> <span class="n">st</span> <span class="o">+</span> <span class="n">ct</span> <span class="o">*</span> <span class="mf">1.5</span>
         <span class="n">cyld</span> <span class="o">=</span> <span class="p">(</span><span class="n">sz</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="mi">8</span><span class="p">))</span>
@@ -3008,6 +3060,26 @@
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Cube size in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clipthick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clip thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""How many cells wide the foot is."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the foot geometry."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3071,6 +3143,12 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Resolved here rather than in `_build` so a caller can read them off the part</span>
+        <span class="c1"># without building it (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dual</span> <span class="o">=</span> <span class="n">dual</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
@@ -3085,9 +3163,9 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
-        <span class="n">sz</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
-        <span class="n">st</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
-        <span class="n">ct</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
         <span class="n">clipsize</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">nd</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">dual</span> <span class="k">else</span> <span class="mi">1</span>
         <span class="n">s_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">nd</span> <span class="o">*</span> <span class="n">st</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span> <span class="o">+</span> <span class="n">slop</span><span class="p">,</span> <span class="n">st</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sz</span> <span class="o">/</span> <span class="mf">3.5</span><span class="p">]</span>
@@ -3117,6 +3195,26 @@
             <span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">((</span><span class="n">st</span> <span class="o">+</span> <span class="n">slop</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">body</span> <span class="o">|</span> <span class="n">clips</span><span class="p">)</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Cube size in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clipthick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clip thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dual</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the clip grips from both sides."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dual</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
@@ -3185,6 +3283,13 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Resolved here rather than in `_build` so a caller can read them off the part</span>
+        <span class="c1"># without building it (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vert</span> <span class="o">=</span> <span class="n">vert</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
@@ -3200,9 +3305,9 @@
             <span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
-        <span class="n">sz</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
-        <span class="n">st</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
-        <span class="n">ct</span> <span class="o">=</span> <span class="n">CUBETRUSS_CLIP_THICKNESS</span> <span class="k">if</span> <span class="n">clipthick</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clipthick</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
         <span class="n">clipsize</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">span</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span> <span class="o">-</span> <span class="n">st</span><span class="p">)</span> <span class="o">+</span> <span class="n">st</span>
         <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Solid"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cuboid</span><span class="p">([</span><span class="n">span</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">ct</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">ct</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
@@ -3252,6 +3357,31 @@
         <span class="c1"># above the plate, so bounds() is several times taller in Z.</span>
         <span class="n">s_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">span</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span> <span class="o">-</span> <span class="n">st</span><span class="p">)</span> <span class="o">+</span> <span class="n">st</span><span class="p">,</span> <span class="n">st</span> <span class="o">+</span> <span class="n">ct</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s_arr</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Cube size in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clipthick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clip thickness in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clipthick</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""How many cells wide the joiner is."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vert</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the joiner stands vertically."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vert</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
