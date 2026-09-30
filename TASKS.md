@@ -3318,6 +3318,44 @@ Removing the zero-length guard fails `ARCXROT` and the named NaN test; removing 
 fails `ROT`; restoring one `assert sz is not None` is caught by the widened scan, which named the
 file, the line and the variable.
 
+## T95 — The matrix had the hole it was written to close ✅
+
+**§12.2 item 59. E-1, E-4. Corrects T94.**
+
+T94 built a matrix over every `TurtleCommandType`, on both turtles, and found four defects. It
+built each command with `is_compound` left at its default `False`. So all 40 cases went down
+`_command`, and **`_compound` — the other 160-line branch — was never entered.**
+
+It carried the same two defects, selected by the *other* axis:
+
+| compound `rotation_type` | what came out |
+|---|---|
+| `ROT` | bare `IndexError` from `rot_decode` |
+| `TODIR` | bare `ValueError` from `rot_from_to4` |
+
+On all nine arc commands: **18 combinations**, none of them reachable by enumerating command types.
+
+### A matrix over one axis of a two-axis dispatch is a per-case test wearing a loop
+
+That is the same criticism T94 made of the code it was fixing. The dispatch takes `cmd_type` *and*
+`rotation_type`; enumerating one of them is not a matrix, it just looks like one from the test
+report — 80 cases passing, an entire branch untouched. Both axes are enumerated now, 880 cases.
+
+### The four sites are now one validator
+
+`rot` and `arcrot` want a rotation matrix; `arctodir` and a compound `todir` want a direction
+vector. Four call sites had the same missing check — two in each dispatch — and T94 fixed two of
+them with two copies of the same code, which is how the other two stayed invisible. One
+`_rotation_spec` serves all four.
+
+### A parametrization that reaches nothing is the failure mode, so it is asserted
+
+`test_the_compound_branch_is_actually_being_entered` spies on `_compound` and requires a compound
+command to arrive there. Without it, a change to what `is_compound` means would route all 880 cases
+back down `_command` and the whole compound half would go quietly vacuous — which is precisely what
+had already happened once, silently, for the run this task exists to correct. The control confirms
+it: disabling the compound branch fails that test and nothing else.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

@@ -25,6 +25,14 @@ wrote. `Turtle3D._command` had four.
 
 The last is why the matrix checks finiteness as well as the exception type. A command that returns
 normally having written `NaN` into the state passes every test that only asks whether it raised.
+
+**And the first version of this matrix had the same shape of hole it was written to close.** Every
+command was built with `is_compound` left at its default `False`, so all 40 went down `_command` and
+`_compound` -- the *other* 160-line branch -- was never entered. It carried the same two defects,
+selected by `rotation_type` rather than `cmd_type`: `ROT` reached `rot_decode` unvalidated for a
+bare `IndexError` and `TODIR` reached `rot_from_to4` for a bare `ValueError`, on all nine arc
+commands, 18 combinations. A matrix over one axis of a two-axis dispatch is a per-case test wearing
+a loop. Both axes are enumerated here now, and the four call sites share one validator.
 """
 
 from __future__ import annotations
@@ -42,6 +50,10 @@ from pybosl2.turtle.commands import TurtleCommand, TurtleCommandType
 PROBE = {"size": 10.0, "angle": 30.0, "radius": 8.0, "steps": 8}
 
 TURTLES = (Turtle2D, Turtle3D)
+
+#: The second axis of the dispatch. A compound command carries its rotation here rather than in
+#: `cmd_type`, so enumerating command types alone never reaches `_compound` at all.
+ROTATIONS = list(TurtleCommand.RotationType)
 
 
 def _state_is_finite(state: object) -> bool:
@@ -93,3 +105,56 @@ def test_the_same_arc_builds_once_the_turtle_faces_elsewhere() -> None:
     spans = points.max(axis=0) - points.min(axis=0)
     # A quarter turn of radius 10 about X: nothing in X, ten each way in Y and Z.
     assert [float(v) for v in spans] == pytest.approx([0.0, 10.0, 10.0], abs=0.01)
+
+
+@pytest.mark.parametrize("rotation", ROTATIONS, ids=lambda r: r.name or "NONE")
+@pytest.mark.parametrize("command", list(TurtleCommandType), ids=lambda c: c.name)
+@pytest.mark.parametrize("turtle", TURTLES, ids=lambda t: t.__name__)
+def test_a_compound_command_builds_or_refuses_as_a_library_error(
+    turtle: type, command: TurtleCommandType, rotation: TurtleCommand.RotationType
+) -> None:
+    """SPEC E-1, E-4: the same rule down the branch a command-type-only matrix cannot reach."""
+    instance = turtle()
+    cmd = TurtleCommand(cmd_type=command, is_compound=True, rotation_type=rotation, **PROBE)
+    try:
+        instance._command(cmd, 0)
+    except Bosl2Error:
+        return
+    except Exception as exc:
+        pytest.fail(
+            f"{turtle.__name__} raised a bare {type(exc).__name__} for compound {command.name} "
+            f"with rotation {rotation.name}: {exc}. A refusal must be a Bosl2Error naming the "
+            f"command and the index (SPEC E-1, E-4)"
+        )
+    assert _state_is_finite(instance._state), (
+        f"{turtle.__name__}.{command.name}/{rotation.name} returned normally but left NaN in the turtle's state"
+    )
+
+
+def test_the_compound_branch_is_actually_being_entered() -> None:
+    """The hole this closes was a matrix that never reached the code it was aimed at.
+
+    So it is asserted directly: a compound command must take the `_compound` path. Without this, a
+    change to `is_compound`'s meaning would send every case above back down `_command` and the
+    whole compound parametrization would go quietly vacuous.
+    """
+    seen: list[str] = []
+    turtle = Turtle3D()
+    original = Turtle3D._compound
+
+    def spy(self: Turtle3D, cmd: TurtleCommand, index: int) -> object:
+        seen.append(cmd.cmd_type.name)
+        return original(self, cmd, index)
+
+    Turtle3D._compound = spy  # type: ignore[assignment,method-assign]
+    try:
+        arc = TurtleCommand(
+            cmd_type=TurtleCommandType.ARCLEFT,
+            is_compound=True,
+            rotation_type=TurtleCommand.RotationType.LEFT,
+            **PROBE,
+        )
+        turtle._command(arc, 0)
+    finally:
+        Turtle3D._compound = original  # type: ignore[method-assign]
+    assert seen == ["ARCLEFT"], "a compound command did not reach `_compound`"

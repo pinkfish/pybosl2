@@ -389,6 +389,32 @@ class Turtle3D(TurtleCommands):
 
     # -- compound command ----------------------------------------------------
 
+    @staticmethod
+    def _rotation_spec(
+        angle: object,
+        wants_vector: bool,
+        cmd_value: str,
+        index: int,
+    ) -> "np.ndarray[Any, Any]":
+        """Return *angle* as the array a rotation command needs, or refuse naming the command.
+
+        `rot` and `arcrot` take a rotation **matrix**; `arctodir` and a compound `todir` take a
+        **direction vector**. Neither was checked in either dispatch, so a scalar went through to
+        `rot_decode` and came back as a bare `IndexError` from indexing a 0-d array, or through to
+        `rot_from_to4` as a bare `ValueError` about operand shapes -- from inside a helper that
+        names neither the command nor the argument (SPEC E-1, E-4). Four call sites shared the gap:
+        two in `_command` and two in `_compound`, the latter reached only with `is_compound=True`,
+        which is why T94's first command matrix walked straight past them.
+        """
+        spec = np.asarray(angle, float)
+        allowed: set[tuple[int, ...]] = {(3,)} if wants_vector else {(3, 3), (4, 4)}
+        if spec.shape not in allowed:
+            wanted = "a direction vector" if wants_vector else "a 3x3 or 4x4 rotation matrix"
+            raise Bosl2ValueError(
+                f'"{cmd_value}" needs {wanted} as its angle at index {index}, got {spec.shape or "a scalar"}'
+            )
+        return spec
+
     def _compound(self, cmd: TurtleCommand, index: int) -> tuple[list[np.ndarray], list[np.ndarray]]:
         """Execute a compound turtle step using :class:`TurtleCommand` fields directly.
 
@@ -467,10 +493,11 @@ class Turtle3D(TurtleCommands):
         absangle, absaxis = None, np.zeros(3)
         if is_arc:
             if rtype == TurtleCommand.RotationType.ROT:
-                rd = rot_decode(np.asarray(cmd.angle, float))
+                rd = rot_decode(Turtle3D._rotation_spec(cmd.angle, False, cmd.cmd_type.value, index))
                 absangle, absaxis = rd[0], np.asarray(rd[1], float)
             elif rtype == TurtleCommand.RotationType.TODIR:
-                rd = rot_decode(rot_from_to4(v, cmd.angle))
+                todir = Turtle3D._rotation_spec(cmd.angle, True, cmd.cmd_type.value, index)
+                rd = rot_decode(rot_from_to4(v, todir))
                 absangle, absaxis = rd[0], np.asarray(rd[1], float)
             elif rtype == TurtleCommand.RotationType.XROT:
                 absangle, absaxis = angle_val, np.asarray(RIGHT.vector, float)
@@ -691,15 +718,7 @@ class Turtle3D(TurtleCommands):
             rot = Turtle3D._turtle_rotation(ct, a)
             self._replace_transforms(self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ rot @ rot_part])
         elif ct == TurtleCommandType.ROT:
-            # A rotation matrix, not an angle. A scalar used to reach the `@` below and come back
-            # as a bare `ValueError` about operand shapes, naming neither the command nor the
-            # argument (SPEC E-1, E-4).
-            matrix = np.asarray(ang, float)
-            if matrix.shape not in {(3, 3), (4, 4)}:
-                raise Bosl2ValueError(
-                    f'"{ct.value}" needs a 3x3 or 4x4 rotation matrix as its angle at index '
-                    f"{index}, got {matrix.shape or 'a scalar'}"
-                )
+            matrix = Turtle3D._rotation_spec(ang, False, ct.value, index)
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             self._replace_transforms(
                 self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ matrix @ rot_part],
@@ -760,17 +779,7 @@ class Turtle3D(TurtleCommands):
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
             if not isinstance(cmd.radius, (int, float)):
                 raise Bosl2ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
-            # `arctodir` wants a direction vector and `arcrot` a rotation matrix. Neither was
-            # checked: a scalar reached `rot_from_to4` as a bare `ValueError` and `rot_decode` as a
-            # bare `IndexError`, from inside helpers that name neither the command nor the
-            # argument (SPEC E-1, E-4).
-            spec = np.asarray(ang, float)
-            wanted = "a direction vector" if ct == TurtleCommandType.ARCTODIR else "a 3x3 or 4x4 rotation matrix"
-            allowed: set[tuple[int, ...]] = {(3,)} if ct == TurtleCommandType.ARCTODIR else {(3, 3), (4, 4)}
-            if spec.shape not in allowed:
-                raise Bosl2ValueError(
-                    f'"{ct.value}" needs {wanted} as its angle at index {index}, got {spec.shape or "a scalar"}'
-                )
+            spec = Turtle3D._rotation_spec(ang, ct == TurtleCommandType.ARCTODIR, ct.value, index)
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             rd = rot_decode(rot_from_to4(v_dir, spec) if ct == TurtleCommandType.ARCTODIR else spec)
