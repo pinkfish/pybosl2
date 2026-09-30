@@ -405,6 +405,11 @@ class TrussSupport(Buildable):
             fs,
         )
         self._solid: "Solid | None" = None
+        # Resolved here rather than in `_build` so a caller can read them off the part
+        # without building it (SPEC S-46, C-14).
+        self._size: float = CUBETRUSS_SIZE if size is None else size
+        self._strut: float = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        self._extents = extents
 
     def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
@@ -417,8 +422,8 @@ class TrussSupport(Buildable):
             fs,
         ) = self._args
 
-        sz = CUBETRUSS_SIZE if size is None else size
-        st = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        sz = self._size
+        st = self._strut
         if isinstance(extents, (int, float)):
             ex, ey, ez = 1, 1, int(extents)
         else:
@@ -460,6 +465,21 @@ class TrussSupport(Buildable):
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
         return _union(pieces).with_nominal_size([w, length, height])
+
+    @property
+    def size(self) -> float:
+        """Cube size in mm."""
+        return self._size
+
+    @property
+    def strut(self) -> float:
+        """Strut thickness in mm."""
+        return self._strut
+
+    @property
+    def extents(self) -> int | Sequence[int]:
+        """How many cells the support spans."""
+        return self._extents
 
     @property
     def shape(self) -> "Solid":
@@ -615,6 +635,12 @@ class TrussClip(Buildable):
             fs,
         )
         self._solid: "Solid | None" = None
+        # Resolved here rather than in `_build` so a caller can read them off the part
+        # without building it (SPEC S-46, C-14).
+        self._size: float = CUBETRUSS_SIZE if size is None else size
+        self._strut: float = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        self._clipthick: float = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        self._extents = extents
 
     def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
@@ -629,9 +655,9 @@ class TrussClip(Buildable):
             fs,
         ) = self._args
 
-        sz = CUBETRUSS_SIZE if size is None else size
-        st = CUBETRUSS_STRUT_SIZE if strut is None else strut
-        ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        sz = self._size
+        st = self._strut
+        ct = self._clipthick
         cliplen = st * 2.6
         clipheight = min(sz + st, sz / 3 + 2 * st * 2.6)
         clipsize = 0.5
@@ -684,6 +710,26 @@ class TrussClip(Buildable):
             clipheight - 2 * st,
         ]
         return pair.with_nominal_size(s_arr)
+
+    @property
+    def size(self) -> float:
+        """Cube size in mm."""
+        return self._size
+
+    @property
+    def strut(self) -> float:
+        """Strut thickness in mm."""
+        return self._strut
+
+    @property
+    def clipthick(self) -> float:
+        """Clip thickness in mm."""
+        return self._clipthick
+
+    @property
+    def extents(self) -> int:
+        """How many cells the clip spans."""
+        return self._extents
 
     @property
     def shape(self) -> "Solid":
@@ -746,6 +792,12 @@ class TrussFoot(Buildable):
             fs,
         )
         self._solid: "Solid | None" = None
+        # Resolved here rather than in `_build` so a caller can read them off the part
+        # without building it (SPEC S-46, C-14).
+        self._size: float = CUBETRUSS_SIZE if size is None else size
+        self._strut: float = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        self._clipthick: float = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        self._w = w
 
     def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
@@ -760,9 +812,9 @@ class TrussFoot(Buildable):
             fs,
         ) = self._args
 
-        sz = CUBETRUSS_SIZE if size is None else size
-        st = CUBETRUSS_STRUT_SIZE if strut is None else strut
-        ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        sz = self._size
+        st = self._strut
+        ct = self._clipthick
         clipsize = 0.5
         wall_h = st + ct * 1.5
         cyld = (sz - 2 * st) / math.cos(math.radians(180 / 8))
@@ -837,6 +889,26 @@ class TrussFoot(Buildable):
         return result.with_nominal_size(s_arr)
 
     @property
+    def size(self) -> float:
+        """Cube size in mm."""
+        return self._size
+
+    @property
+    def strut(self) -> float:
+        """Strut thickness in mm."""
+        return self._strut
+
+    @property
+    def clipthick(self) -> float:
+        """Clip thickness in mm."""
+        return self._clipthick
+
+    @property
+    def w(self) -> int:
+        """How many cells wide the foot is."""
+        return self._w
+
+    @property
     def shape(self) -> "Solid":
         """Return the foot geometry."""
         if self._solid is None:
@@ -897,6 +969,12 @@ class TrussUClip(Buildable):
             fs,
         )
         self._solid: "Solid | None" = None
+        # Resolved here rather than in `_build` so a caller can read them off the part
+        # without building it (SPEC S-46, C-14).
+        self._size: float = CUBETRUSS_SIZE if size is None else size
+        self._strut: float = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        self._clipthick: float = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        self._dual = dual
 
     def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
@@ -911,9 +989,9 @@ class TrussUClip(Buildable):
             fs,
         ) = self._args
 
-        sz = CUBETRUSS_SIZE if size is None else size
-        st = CUBETRUSS_STRUT_SIZE if strut is None else strut
-        ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        sz = self._size
+        st = self._strut
+        ct = self._clipthick
         clipsize = 0.5
         nd = 2 if dual else 1
         s_arr = [nd * st + 2 * ct + slop, st + 2 * ct, sz / 3.5]
@@ -943,6 +1021,26 @@ class TrussUClip(Buildable):
             ]
         ).back((st + slop) / 2)
         return (body | clips).with_nominal_size(s_arr)
+
+    @property
+    def size(self) -> float:
+        """Cube size in mm."""
+        return self._size
+
+    @property
+    def strut(self) -> float:
+        """Strut thickness in mm."""
+        return self._strut
+
+    @property
+    def clipthick(self) -> float:
+        """Clip thickness in mm."""
+        return self._clipthick
+
+    @property
+    def dual(self) -> bool:
+        """Whether the clip grips from both sides."""
+        return self._dual
 
     @property
     def shape(self) -> "Solid":
@@ -1008,6 +1106,13 @@ class TrussJoiner(Buildable):
             fs,
         )
         self._solid: "Solid | None" = None
+        # Resolved here rather than in `_build` so a caller can read them off the part
+        # without building it (SPEC S-46, C-14).
+        self._size: float = CUBETRUSS_SIZE if size is None else size
+        self._strut: float = CUBETRUSS_STRUT_SIZE if strut is None else strut
+        self._clipthick: float = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        self._w = w
+        self._vert = vert
 
     def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
@@ -1023,9 +1128,9 @@ class TrussJoiner(Buildable):
             fs,
         ) = self._args
 
-        sz = CUBETRUSS_SIZE if size is None else size
-        st = CUBETRUSS_STRUT_SIZE if strut is None else strut
-        ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
+        sz = self._size
+        st = self._strut
+        ct = self._clipthick
         clipsize = 0.5
         span = w * (sz - st) + st
         parts: list["Solid"] = [cuboid([span + 2 * ct, sz, ct], fn=fn, fa=fa, fs=fs).up(ct / 2)]
@@ -1075,6 +1180,31 @@ class TrussJoiner(Buildable):
         # above the plate, so bounds() is several times taller in Z.
         s_arr = [span + 2 * ct, 2 * (sz - st) + st, st + ct]
         return result.with_nominal_size(s_arr)
+
+    @property
+    def size(self) -> float:
+        """Cube size in mm."""
+        return self._size
+
+    @property
+    def strut(self) -> float:
+        """Strut thickness in mm."""
+        return self._strut
+
+    @property
+    def clipthick(self) -> float:
+        """Clip thickness in mm."""
+        return self._clipthick
+
+    @property
+    def w(self) -> int:
+        """How many cells wide the joiner is."""
+        return self._w
+
+    @property
+    def vert(self) -> bool:
+        """Whether the joiner stands vertically."""
+        return self._vert
 
     @property
     def shape(self) -> "Solid":

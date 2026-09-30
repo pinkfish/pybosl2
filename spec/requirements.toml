@@ -1918,10 +1918,16 @@ keyword = "MUST"
 statement = '''
 Parts MUST expose their catalogue as data (spec objects and tables), so a caller can query dimensions — and the docs can tabulate them — without building geometry.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_parts_expose_their_catalogue.py",
+]
+status = "enforced"
 note = '''
-The spec objects and tables exist and the parts tests read dimensions off them, but nothing requires a *new* part to expose its catalogue as data.
+Seven parts exposed no public property at all when this was measured -- five cubetruss parts, `Worm` and `Rack2d` -- with their arguments in an opaque `self._args` tuple under a comment reading "The spec above is all a caller needs to *measure* this part", true of the parts it was copied from and false where it had landed. They now resolve their dimensions in `__init__`, where it costs nothing, and expose them.
+
+Enforced in two clauses, because S-46 and C-14 own half each: every part exposes at least one queryable dimension, and a part answers its *whole* catalogue without building unless it is on C-14's `EAGER_PARTS` ratchet. A third test pins the two together -- the parts answering only after a build must be exactly `EAGER_PARTS` -- so a part cannot sit in the gap by losing its laziness, nor leave the ratchet overstating the gap, which is the defect T92 found in that list.
+
+The first draft of the second clause asked whether *any* property could be read without building, and the control that plants a build inside one property passed it: a part with four dimensions still had three clean ones.
 '''
 
 [[requirement]]

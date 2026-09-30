@@ -3227,6 +3227,48 @@ found by disbelieving a number before using it.
 Making a part build in `__init__` for real is caught (the count goes 6 → 7). Restoring the
 name-based detector brings back exactly `Nut` and `ThreadedNut` and the count goes back to 8.
 
+## T93 — A part answers without building ✅
+
+**§12.2 item 57. S-46 — a MUST that carried no enforcer.**
+
+The spec objects existed and the parts tests read dimensions off them, so the rule looked kept.
+Nothing required a *new* part to do it, and **seven had no public property at all**: five cubetruss
+parts, `Worm` and `Rack2d`. Their arguments went into an opaque `self._args` tuple, under this
+comment:
+
+> The spec above is all a caller needs to *measure* this part; the geometry below is deferred to
+> `shape` (SPEC C-14, PLAN O-2).
+
+True of the parts it was copied from. False where it had landed — there was no spec above, only a
+tuple. They now resolve their dimensions in `__init__`, which costs nothing, and `_build` uses what
+`__init__` already worked out rather than recomputing it.
+
+### Two clauses, because S-46 and C-14 own half each
+
+| clause | owner | applies to |
+|---|---|---|
+| exposes at least one queryable dimension | S-46 | all 51 |
+| answers its **whole** catalogue without building | S-46 | the 45 not on `EAGER_PARTS` |
+| the two sets agree exactly | both | the seam |
+
+The third is the one that matters: without it a part could lose its laziness and stay green by
+being eager, or gain laziness and leave the ratchet overstating the gap — which is exactly what
+T92 found sitting in `EAGER_PARTS` for two entries.
+
+### "At least one" survived the defect it was meant to catch
+
+The second clause first asked whether *any* property could be read without building. The control —
+plant a build inside one property of a part that has four — **passed**. Three clean dimensions were
+enough to satisfy it. Requiring every property is what makes the control fail, and it holds today
+with no exceptions.
+
+### A third scope hole in a scan, in three tasks
+
+`vars(cls)` sees only a class's own properties. It counted `HerringboneGear` as exposing nothing
+when it inherits `SpurGear`'s entire catalogue, putting the gap at 13 instead of 12. That is the
+same shape as T92's cache-by-name and T92's read-after-build: the instrument was wrong three
+separate ways before the number was worth acting on, and each was found by disbelieving it first.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

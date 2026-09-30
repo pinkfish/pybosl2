@@ -1609,6 +1609,26 @@ class Rack2d:
         path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
         self._shape: Path2D = Path2D(path, closed=True)
         self._nominal = [teeth * center, 2 * abs(a - height)]
+        # The catalogue, as data. `Rack2d` builds its path in `__init__` (it is on C-14's
+        # eager list), but that is no reason for its dimensions to be unreadable (SPEC S-46).
+        self._teeth: int = teeth
+        self._height: float = height
+        self._pressure_angle: float = pressure_angle
+
+    @property
+    def teeth(self) -> int:
+        """Number of teeth on the rack."""
+        return self._teeth
+
+    @property
+    def height(self) -> float:
+        """Total height of the rack bar in mm."""
+        return self._height
+
+    @property
+    def pressure_angle(self) -> float:
+        """Pressure angle in degrees."""
+        return self._pressure_angle
 
     @property
     def shape(self) -> Path2D:
@@ -2006,6 +2026,12 @@ class Worm(Buildable):
             pitch,
             diam_pitch,
         )
+        # Kept as named attributes as well as in `_args`, so a caller can read the worm's
+        # dimensions off it without building one (SPEC S-46, C-14).
+        self._diameter: float = diameter
+        self._length: float = length
+        self._starts: int = starts
+        self._left_handed: bool = left_handed
         self._solid: "Solid | None" = None
 
     def _build(self) -> "Solid":
@@ -2051,6 +2077,26 @@ class Worm(Buildable):
         # Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so
         # bounds() reports a wider solid -- mating parts line up on the pitch cylinder.
         return vnf.polyhedron().with_nominal_size([diameter, diameter, length])
+
+    @property
+    def diameter(self) -> float:
+        """Worm outside diameter in mm."""
+        return self._diameter
+
+    @property
+    def length(self) -> float:
+        """Worm length in mm."""
+        return self._length
+
+    @property
+    def starts(self) -> int:
+        """Number of thread starts."""
+        return self._starts
+
+    @property
+    def left_handed(self) -> bool:
+        """Whether the thread is left-handed."""
+        return self._left_handed
 
     @property
     # Not "2-D geometry" -- that reason was copy-pasted from BevelGear. A worm is a swept helical
