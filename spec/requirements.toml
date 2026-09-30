@@ -2883,6 +2883,7 @@ All library errors derive from one base error type — and that MUST be true of 
 '''
 enforced_by = [
     "tests/test_error_contract.py::test_the_package_raises_no_bare_value_error",
+    "tests/turtle/test_every_command_is_honest.py",
 ]
 candidates = [
     "tests/test_error_contract.py::test_a_validation_error_is_catchable_as_the_library_family",
@@ -2890,6 +2891,9 @@ candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
 status = "enforced"
+note = '''
+Two guards, because one cannot see the other's cases. `test_the_package_raises_no_bare_value_error` is a static scan for `raise ValueError` in the package, and a bare `ValueError` that arrives *from* a dependency is invisible to it: `Turtle3D`'s `rot` passed an unvalidated angle to a matrix multiply and `arcrot` passed one to `rot_decode`, so numpy and a helper raised `ValueError` and `IndexError` from inside a 161-line dispatch, naming neither the command nor the argument. `tests/turtle/test_every_command_is_honest.py` runs every command type through both turtles and requires a `Bosl2Error` or a clean build -- and checks the state is finite afterwards, because `arcxrot` divided by zero and returned `NaN` without raising at all.
+'''
 
 [[requirement]]
 id = "SPEC-E-2"

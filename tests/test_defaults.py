@@ -471,6 +471,26 @@ def test_no_bare_assert_stands_in_for_validation() -> None:
             names = {a.arg for a in args.args + args.kwonlyargs + args.posonlyargs} - {"self", "cls"}
             if not names:
                 continue
+            # A local bound straight to a parameter, or to one of its attributes, is still the
+            # caller's value -- `sz = cmd.size` in `Turtle3D._command` is the case that got past
+            # this, three times, under `assert sz is not None`. Only direct bindings count: once a
+            # value has been through a computation the assert is narrowing a result, not screening
+            # an argument, and widening to every local flags 46 legitimate `is not None` narrowings.
+            names |= {
+                target.targets[0].id
+                for target in ast.walk(node)
+                if isinstance(target, ast.Assign)
+                and len(target.targets) == 1
+                and isinstance(target.targets[0], ast.Name)
+                and (
+                    (isinstance(target.value, ast.Name) and target.value.id in names)
+                    or (
+                        isinstance(target.value, ast.Attribute)
+                        and isinstance(target.value.value, ast.Name)
+                        and target.value.value.id in names
+                    )
+                )
+            }
             said = _raise_messages(node)
             for sub in ast.walk(node):
                 if not isinstance(sub, ast.Assert) or sub.msg is not None:
