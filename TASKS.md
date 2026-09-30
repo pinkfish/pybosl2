@@ -3131,6 +3131,61 @@ simple polygon, sits inside its corner, and is **unprintable**. Only the overhan
 catches it — T62's measurement, which was written for the constructor spelling and never reached
 the mask.
 
+## T91 — Every part builds ✅
+
+**§12.2 item 56. C-14a — a MUST that carried no enforcer.**
+
+C-14a is written as a docstring rule: `.shape` means the finished `Solid`/`Flat` on a part and the
+**raw native handle** on a backend wrapper, and docstrings must say which. Asserting it on the
+objects costs nothing on top of building them, and building them was the part nobody was doing.
+
+### Nothing built every part on the backend that works
+
+| test | what it does with a part | what it would notice |
+|---|---|---|
+| `test_parts_are_lazy` | constructs it | that it built something too early |
+| `test_parts_backend_coverage` | builds it **on SDF** | that it fails where it should refuse |
+| — | builds it on CSG | *nothing did this* |
+
+Twelve parts are listed CSG-only, so on SDF they refuse — and **a refusal that arrives first makes
+every argument behind it unfalsifiable**. Both modules passed `"trapezoidal"` as `ThreadedRod`'s
+*profile*, which is a list of `[x, y]` points in pitch units. `__init__` accepted it, because
+iterating a string yields characters and `[list(row) for row in profile]` turns it into
+`[['t'], ['r'], …]`; `shape` then raised a raw `ValueError` from a different method than the one
+called wrongly. Neither module was ever in a position to see it.
+
+`test_threading.py` builds the same parts correctly with a real profile, so the parts were never
+broken — the *fixtures* were, in the one place nothing could check them.
+
+### The two copies were the mechanism
+
+Both modules carried their own discovery walk and their own argument table, identical in effect.
+The wrong profile was in both. They now share `tests/part_fixtures.py`, which is also what the new
+test needs — a third copy was the alternative.
+
+### What C-14a is enforced as, and what it is not
+
+The prose clause is enforced as an **annotation** requirement rather than literally: 49 of the 51
+`shape` docstrings name no type at all, while all 51 annotations do, so requiring the docstrings to
+repeat the signature would add prose without adding information. The object-level invariant — a
+part's `.shape` is never a `PyOpenSCAD` — is the one with teeth, because a part handing back its
+wrapper's handle would *mostly work*. The wrapper side's own wording stays a review obligation, and
+the note in the registry says so rather than claiming the whole rule.
+
+### The repo's own meta-guard caught this task's first draft
+
+`test_every_part_builds_on_the_csg_backend` opened as `assert built is not None`, and
+`tests/test_assertion_quality.py::test_no_test_asserts_only_that_a_result_exists` failed it by
+name. It was right: a part that builds an *empty* solid returns something. It now asserts the
+extent, and all 51 are positive on all three axes. A guard written to stop this being written was
+the thing that stopped it.
+
+### Controls
+
+Restoring the `"trapezoidal"` string fails four tests; making one part `return self._solid.shape`
+instead of `self._solid` fails three, including the native-handle assertion on the part that did
+not otherwise break.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

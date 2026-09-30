@@ -25,16 +25,11 @@ So: a real conformance gap, a modest performance one. This file measures both an
 
 from __future__ import annotations
 
-import importlib
-import inspect
 import pathlib
-import pkgutil
 import re
-from typing import Any
 
 import pytest
-
-import pybosl2.parts as parts
+from part_fixtures import PARTS, arguments
 
 #: Parts that still build their geometry in ``__init__``. **This list only shrinks** -- a part
 #: moved onto the lazy pattern comes off it, and a new part must not be added (PLAN O-2).
@@ -61,68 +56,15 @@ EAGER_PARTS = frozenset(
     }
 )
 
-_ARGS: dict[str, tuple[Any, ...]] = {
-    "HoseSegment": (0.5,),
-    "NemaMountMask": (17,),
-    "Nut": ("M6",),
-    "RobertsonMask": (2,),
-    "Screw": ("M6", 20),
-    "ScrewHole": ("M6", 20),
-    "SparseCuboid": ([30.0, 20.0, 10.0],),
-    "ThreadedNut": (16.0, 10.0, 10.0, 1.5, "trapezoidal"),
-    "ThreadedRod": (10.0, 20.0, 1.5, "trapezoidal"),
-    "WireBundle": ([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]], 3),
-    "RingHook": ([20.0, 10.0, 4.0], 5.0),
-}
-_KWARGS: dict[str, dict[str, Any]] = {"RingHook": {"outer_radius": 6.0, "inner_radius": 4.0}}
-
 #: Where a part caches its built geometry. A part is eager if one of these is set straight after
 #: construction.
 _CACHES = ("_shape", "_solid", "_geometry")
 
 
-def _parts() -> dict[str, type]:
-    seen: set[int] = set()
-    found: dict[str, type] = {}
-    for module_info in pkgutil.iter_modules(parts.__path__):
-        module = importlib.import_module(f"pybosl2.parts.{module_info.name}")
-        for name, obj in vars(module).items():
-            if not (inspect.isclass(obj) and obj.__module__ == module.__name__):
-                continue
-            if name.startswith("_") or name == "Buildable" or id(obj) in seen:
-                continue
-            if not isinstance(inspect.getattr_static(obj, "shape", None), property):
-                continue
-            seen.add(id(obj))
-            found[obj.__name__] = obj
-    return found
-
-
-def _arguments(cls: type) -> tuple[tuple[Any, ...], dict[str, Any]]:
-    name = cls.__name__
-    if name in _ARGS:
-        return _ARGS[name], _KWARGS.get(name, {})
-    args: list[Any] = []
-    for param in list(inspect.signature(cls.__init__).parameters.values())[1:]:
-        if param.default is not inspect.Parameter.empty or param.kind in (param.VAR_POSITIONAL, param.VAR_KEYWORD):
-            continue
-        annotation = str(param.annotation)
-        if "int" in annotation:
-            args.append(6)
-        elif any(token in annotation for token in ("Sequence", "list", "Path")):
-            args.append([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]])
-        else:
-            args.append(10.0)
-    return tuple(args), _KWARGS.get(name, {})
-
-
 def _built_eagerly(cls: type) -> bool:
-    args, kwargs = _arguments(cls)
+    args, kwargs = arguments(cls)
     part = cls(*args, **kwargs)
     return any(getattr(part, cache, None) is not None for cache in _CACHES)
-
-
-PARTS = _parts()
 
 
 def test_no_part_becomes_eager() -> None:
@@ -152,7 +94,7 @@ def test_reading_a_derived_property_never_triggers_a_build() -> None:
     for name, cls in sorted(PARTS.items()):
         if name in EAGER_PARTS:
             continue  # already built; there is nothing left to trigger
-        args, kwargs = _arguments(cls)
+        args, kwargs = arguments(cls)
         part = cls(*args, **kwargs)
         for prop in [n for n, v in vars(cls).items() if isinstance(v, property) and n != "shape"]:
             try:
