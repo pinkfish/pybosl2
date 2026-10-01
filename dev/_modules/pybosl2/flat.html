@@ -2336,7 +2336,7 @@
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">points</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">corner</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">placement</span><span class="p">:</span> <span class="n">Placement</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2353,7 +2353,7 @@
 <span class="sd">        radius: Radius of the circle.</span>
 <span class="sd">        diameter: Diameter of the circle.</span>
 <span class="sd">        points: Three 2-D points the circle should pass through.</span>
-<span class="sd">        corner: Three 2-D points defining a path the circle should be tangent to.</span>
+<span class="sd">        corner: A :class:`~pybosl2.path2d.Path2D` of three points; the circle is tangent to both legs.</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
 <span class="sd">        placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets</span>

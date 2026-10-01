@@ -5532,7 +5532,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">points</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">corner</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5553,10 +5553,10 @@
 <span class="sd">    * ``arc(radius=, angle=, [start=], [center=])`` -- radius about *center*, sweeping *angle* degrees from</span>
 <span class="sd">      *start* (or ``angle=[start, end]`` for an explicit range).</span>
 <span class="sd">    * ``arc(width=, thickness=)`` -- a circular segment starting and ending on the X axis.</span>
-<span class="sd">    * ``arc(center=, points=[P0, P1])`` -- around *center* from ``P0`` toward the direction of ``P1``; the</span>
+<span class="sd">    * ``arc(center=, points=Path2D([P0, P1]))`` -- around *center* from ``P0`` toward the direction of ``P1``; the</span>
 <span class="sd">      short way by default, or the long/``clockwise``/``counterclockwise`` way.</span>
-<span class="sd">    * ``arc(points=[P0, P1, P2])`` -- through three points, from ``P0`` via ``P1`` to ``P2``.</span>
-<span class="sd">    * ``arc(corner=[P0, P1, P2], radius=)`` -- the fillet arc of radius tangent to both legs of the</span>
+<span class="sd">    * ``arc(points=Path2D([P0, P1, P2]))`` -- through three points, from ``P0`` via ``P1`` to ``P2``.</span>
+<span class="sd">    * ``arc(corner=Path2D([P0, P1, P2]), radius=)`` -- the fillet arc of radius tangent to both legs of the</span>
 <span class="sd">      corner ``P0-P1-P2``.</span>
 
 <span class="sd">    Set ``wedge=True`` to prepend the centre point, giving a closed pie/sector path. When *count* is</span>
@@ -5569,7 +5569,7 @@
 <span class="sd">        angle:      degrees to sweep from *start*, or ``[start, end]``</span>
 <span class="sd">        center:     centre point (default ``[0, 0]``)</span>
 <span class="sd">        points:     two points (with *center*) or three points the arc passes through</span>
-<span class="sd">        corner:     three points; the arc is the radius fillet tangent to both legs</span>
+<span class="sd">        corner:     a :class:`Path2D` of three points; the arc is the radius fillet tangent to both legs</span>
 <span class="sd">        width:      chord width for the width/thickness form</span>
 <span class="sd">        thickness:  height of the circular segment for the width/thickness form</span>
 <span class="sd">        start:      starting angle in degrees (default 0)</span>
@@ -5613,6 +5613,7 @@
 
     <span class="c1"># -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------</span>
     <span class="k">if</span> <span class="n">corner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">corner</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">require_path</span><span class="p">(</span><span class="n">corner</span><span class="p">,</span> <span class="s2">"corner"</span><span class="p">,</span> <span class="s2">"arc"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">corner</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"corner= needs exactly 3 points"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_collinear</span><span class="p">(</span>
@@ -5629,7 +5630,7 @@
         <span class="n">v2</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
         <span class="n">half</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">d_tan</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">half</span><span class="p">)</span>
-        <span class="n">cp2</span> <span class="o">=</span> <span class="n">_circle_from_corner</span><span class="p">(</span><span class="n">corner</span><span class="p">,</span> <span class="n">rad</span><span class="p">)</span>
+        <span class="n">cp2</span> <span class="o">=</span> <span class="n">_circle_from_corner</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">to_list</span><span class="p">,</span> <span class="n">rad</span><span class="p">)</span>
         <span class="n">tp1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">d_tan</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">d_tan</span><span class="p">]</span>
         <span class="n">tp2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">d_tan</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">d_tan</span><span class="p">]</span>
         <span class="n">forward</span> <span class="o">=</span> <span class="p">(</span>
