@@ -59,7 +59,7 @@ def test_arc_two_point_short_and_long() -> None:
 
 
 def test_arc_corner_is_tangent_fillet() -> None:
-    c = arc(corner=[[0, 10], [0, 0], [10, 0]], radius=3)
+    c = arc(corner=Path2D([[0, 10], [0, 0], [10, 0]]), radius=3)
     assert isinstance(c, Path2D)
     # tangent points sit 3 up the y-leg and 3 along the x-leg
     np.testing.assert_allclose(

@@ -30,10 +30,25 @@ UNTYPED_ANNOTATIONS = frozenset({"Any", "object", "(none)"})
 #: `tests/test_polyline_parameters.py` twenty and `tests/test_exports.py` eight; measured at the
 #: time of merging, the wider names caught nothing the narrow list missed, so this is not a
 #: backlog -- it is the same list stopping being three lists that drift.
+#:
+#: A name-based vocabulary has one failure mode, and `corner` was sitting in it (T96). `arc()`,
+#: `flat.circle()` and `shapes2d.circle()` each took `corner` as three points under
+#: `Sequence[Sequence[float]]` -- raw points in a public signature, which C-7a forbids -- and both
+#: the ratchet and the guard are keyed on this set, so neither could see a name that is not in it.
+#: `arc`'s own docstring documented `points=[P0, P1]` as a raw list too, a call `require_path`
+#: refuses, because nothing executes prose.
+#:
+#: The limit is real and worth stating rather than papering over: the same name does not always mean
+#: a polyline. `path_text(top=)` is an up *vector* while `rounded_prism(top=)` is a *profile*, and
+#: `_trunc_cube(corner=)` is a single point. So names only ever get added here after reading each
+#: use, never by pattern -- and a parameter whose name is unavoidably ambiguous needs its annotation
+#: read, which is what `tests/test_polyline_parameters.py::test_a_path_annotation_is_backed_by_a_guard`
+#: does from the other direction.
 DOMAIN_NAMES = frozenset(
     {
         "contour",
         "control_points",
+        "corner",
         "cp",
         "curve",
         "loop",

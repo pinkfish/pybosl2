@@ -3163,7 +3163,7 @@ def arc(
     *,
     center: Sequence[float] | None = None,
     points: "Path2D | None" = None,
-    corner: Sequence[Sequence[float]] | None = None,
+    corner: "Path2D | None" = None,
     width: float | None = None,
     thickness: float | None = None,
     start: float | None = None,
@@ -3184,10 +3184,10 @@ def arc(
     * ``arc(radius=, angle=, [start=], [center=])`` -- radius about *center*, sweeping *angle* degrees from
       *start* (or ``angle=[start, end]`` for an explicit range).
     * ``arc(width=, thickness=)`` -- a circular segment starting and ending on the X axis.
-    * ``arc(center=, points=[P0, P1])`` -- around *center* from ``P0`` toward the direction of ``P1``; the
+    * ``arc(center=, points=Path2D([P0, P1]))`` -- around *center* from ``P0`` toward the direction of ``P1``; the
       short way by default, or the long/``clockwise``/``counterclockwise`` way.
-    * ``arc(points=[P0, P1, P2])`` -- through three points, from ``P0`` via ``P1`` to ``P2``.
-    * ``arc(corner=[P0, P1, P2], radius=)`` -- the fillet arc of radius tangent to both legs of the
+    * ``arc(points=Path2D([P0, P1, P2]))`` -- through three points, from ``P0`` via ``P1`` to ``P2``.
+    * ``arc(corner=Path2D([P0, P1, P2]), radius=)`` -- the fillet arc of radius tangent to both legs of the
       corner ``P0-P1-P2``.
 
     Set ``wedge=True`` to prepend the centre point, giving a closed pie/sector path. When *count* is
@@ -3200,7 +3200,7 @@ def arc(
         angle:      degrees to sweep from *start*, or ``[start, end]``
         center:     centre point (default ``[0, 0]``)
         points:     two points (with *center*) or three points the arc passes through
-        corner:     three points; the arc is the radius fillet tangent to both legs
+        corner:     a :class:`Path2D` of three points; the arc is the radius fillet tangent to both legs
         width:      chord width for the width/thickness form
         thickness:  height of the circular segment for the width/thickness form
         start:      starting angle in degrees (default 0)
@@ -3244,6 +3244,7 @@ def arc(
 
     # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
     if corner is not None:
+        corner = cast("Path2D", require_path(corner, "corner", "arc", Path2D))
         if not (len(corner) == 3):
             raise Bosl2ValueError("corner= needs exactly 3 points")
         if is_collinear(
@@ -3260,7 +3261,7 @@ def arc(
         v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
         half = math.acos(max(-1.0, min(1.0, v1[0] * v2[0] + v1[1] * v2[1]))) / 2
         d_tan = rad / math.tan(half)
-        cp2 = _circle_from_corner(corner, rad)
+        cp2 = _circle_from_corner(corner.to_list, rad)
         tp1 = [float(p1[0]) + v1[0] * d_tan, float(p1[1]) + v1[1] * d_tan]
         tp2 = [float(p1[0]) + v2[0] * d_tan, float(p1[1]) + v2[1] * d_tan]
         forward = (

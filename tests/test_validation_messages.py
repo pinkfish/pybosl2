@@ -185,9 +185,9 @@ def test_extrusion_and_text_rejections(call: Callable[[], object], expected: str
 
 ARC_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: s2.arc(width=10, thickness=3, radius=5), "conflicting arc"),
-    (lambda: s2.arc(corner=[[0, 0], [10, 0]], radius=5), "exactly 3 points"),
-    (lambda: s2.arc(corner=[[0, 0], [10, 0], [10, 10]]), "needs radius="),
-    (lambda: s2.arc(corner=[[0, 0], [10, 0], [10, 10]], radius=0), "needs radius="),
+    (lambda: s2.arc(corner=Path2D([[0, 0], [10, 0]]), radius=5), "exactly 3 points"),
+    (lambda: s2.arc(corner=Path2D([[0, 0], [10, 0], [10, 10]])), "needs radius="),
+    (lambda: s2.arc(corner=Path2D([[0, 0], [10, 0], [10, 10]]), radius=0), "needs radius="),
     # 3-D points are now refused by `Path2D` itself rather than by `arc()`: typing the parameter
     # moved the dimension check to construction, which is the one place that can make it once
     # (SPEC C-7a). The message names the type, not the caller's function.
@@ -497,7 +497,7 @@ SHAPE_INPUT_CASES: list[tuple[Callable[[], object], str]] = [
         ),
         "Repeated point in path",
     ),
-    (lambda: s2.arc(corner=[[0.0, 0.0], [5.0, 0.0], [10.0, 0.0]], radius=2), "Collinear corner"),
+    (lambda: s2.arc(corner=Path2D([[0.0, 0.0], [5.0, 0.0], [10.0, 0.0]]), radius=2), "Collinear corner"),
     # a cylindrical heightfield has to fit around its own circumference
     (lambda: surfaces.cylindrical_heightfield(_unit_height, length=20, radius=0.5), "needs a radius of at least"),
 ]

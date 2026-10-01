@@ -3356,6 +3356,55 @@ back down `_command` and the whole compound half would go quietly vacuous — wh
 had already happened once, silently, for the run this task exists to correct. The control confirms
 it: disabling the compound branch fails that test and nothing else.
 
+## T96 — The pointy vocabulary missed `corner` ✅
+
+**§12.2 item 60. C-7a, T-4b.**
+
+Reached from the length ratchet again: `path2d.arc` is 154 lines with 18 parameters and five
+documented calling conventions. Probing each convention against what it promises geometrically
+found the conventions sound — and the plumbing around them not.
+
+| | |
+|---|---|
+| `arc(corner=)` | three points typed `Sequence[Sequence[float]]` — raw points in a public signature, which C-7a forbids |
+| `arc(points=[P0, P1])` in the docstring | a call `require_path` **refuses** |
+
+Same for `flat.circle(corner=)` and `shapes2d.circle(corner=)`. All three now take a `Path2D` and
+call `require_path` on it; `flat.circle` is recorded as guarded by delegation, as its `points`
+already was.
+
+### Why two enforced guards both missed it
+
+C-7a and T-4b are enforced by `tests/test_polyline_parameters.py`, and **both are keyed on
+`DOMAIN_NAMES`** — the shared vocabulary of parameter names that mean an ordered set of points.
+`corner` was not in it. A name-based scan cannot report a name it does not know, and nothing
+executes docstring prose, so the wrong example sat beside the unguarded parameter undisturbed.
+
+### The limit is real, so it is written down rather than papered over
+
+The obvious fix — add every name with the raw-points *shape* — is wrong. Eighty-nine public
+parameters match that shape and most are not polylines at all: `bbox` is a min/max pair, `faces`
+are index lists, `matrix`/`transforms` are matrices, `data`/`field` are height grids. Worse, the
+same name differs by site: **`path_text(top=)` is an up vector while `rounded_prism(top=)` is a
+profile**, and `_trunc_cube(corner=)` is a single point. So names are added only after reading each
+use, never by pattern, and the vocabulary now says so.
+
+Left unconverted, deliberately and named: `rounded_prism(top=)`, `path_join(other_paths=)` and
+`trim_ends(body=)` are genuinely pointy and genuinely out of scope for a task about `corner`.
+
+### A measurement error I made and caught
+
+`endpoint=False` looked like a silently ignored parameter — 17 points either way. It is not: it
+asks `arc_points` for `count + 1` and drops the last, so the *count* is unchanged and the
+*spacing* is not. The last point lands at 84.71° instead of 90°. I had compared lengths, which is
+not what the parameter promises. Checked before changing anything.
+
+### Controls
+
+Reverting `corner` to a raw annotation is caught by name. Removing `corner` from the vocabulary is
+caught too — by the stale-delegation check, since the row recording `flat.circle::corner` then
+refers to a parameter the scan no longer reports. The vocabulary cannot shrink in silence.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
