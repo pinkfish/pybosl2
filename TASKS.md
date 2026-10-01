@@ -3405,6 +3405,52 @@ Reverting `corner` to a raw annotation is caught by name. Removing `corner` from
 caught too — by the stale-delegation check, since the row recording `flat.circle::corner` then
 refers to a parameter the scan no longer reports. The vocabulary cannot shrink in silence.
 
+## T97 — Two styles, one test ✅
+
+**§12.2 item 61. G-8. A test gap, not a code defect — and the code is correct.**
+
+`VNF.vertex_array` picks a per-cell triangulation from a ten-member enum, and every member had its
+own test. Each asserts the same six facts — vertex count, face count, validity, z-bounds, volume.
+On the 3×3 warped grid they share, **those six are identical for `MIN_EDGE` and `MIN_AREA`**.
+
+Making `MIN_AREA` compute `MIN_EDGE`'s criterion leaves the whole suite green: **75 passed.**
+
+### The code is right; I measured before concluding otherwise
+
+* All ten styles produce distinct triangulations — verified on a six-surface panel.
+* `MIN_AREA` never triangulates to more area than `MIN_EDGE` — 600 random grids, no violation.
+
+So this adds no fix. It adds the assertion that was missing, and says so.
+
+### Why the shared fixture could never separate them
+
+Over a **height field on a regular x/y lattice** — which the 3×3 warped grid is, and which
+`heightfield` builds — the shortest diagonal is always also the least-area diagonal. `MIN_EDGE` and
+`MIN_AREA` are genuinely the same function there. They part company only on a general quad grid,
+the kind a sweep or a skin produces:
+
+| cell corners | grids tried | separated |
+|---|---|---|
+| height field, 3×3 | 400 random | **0** |
+| height field, 4×4 | 600 random | 1 (same total area) |
+| free in all three axes | 8000 random | **934, `MIN_AREA` better every time** |
+
+A fixture cannot distinguish two criteria that coincide on every input it can express. One
+separating cell is kept as a constant, so the test is deterministic and says what it is for.
+
+### A panel of one surface would have been worse than none
+
+On a symmetric saddle, `DEFAULT`/`CONVEX`, `ALT`/`CONCAVE` **and** `MIN_EDGE`/`MIN_AREA` all
+coincide — three false positives from one fixture. That is a property of the saddle, not the
+styles, and it is why the guard requires each pair to be separated by *some* surface in a panel
+chosen for curvature sign and symmetry rather than asserting on a single grid.
+
+### Controls
+
+Aliasing `MIN_AREA` to `MIN_EDGE`: the old tests pass, the new guard fails on exactly the pair and
+the area assertion. Aliasing `CONCAVE` to `CONVEX`: caught by the pair that names them. The first
+control is the whole argument for the task.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
