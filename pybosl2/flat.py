@@ -159,7 +159,7 @@ def circle(
     diameter: float | None = None,
     *,
     points: "Path2D | None" = None,
-    corner: Sequence[Sequence[float]] | None = None,
+    corner: "Path2D | None" = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     placement: Placement | None = None,
@@ -176,7 +176,7 @@ def circle(
         radius: Radius of the circle.
         diameter: Diameter of the circle.
         points: Three 2-D points the circle should pass through.
-        corner: Three 2-D points defining a path the circle should be tangent to.
+        corner: A :class:`~pybosl2.path2d.Path2D` of three points; the circle is tangent to both legs.
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
         placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets

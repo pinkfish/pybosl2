@@ -52,7 +52,7 @@ CONSTRUCTORS = {
     "rect_rounded_perim": lambda: s2.rect([20, 10], rounding=2, atype="perim"),
     "circle": lambda: s2.circle(radius=5),
     "circle_points": lambda: s2.circle(points=Path2D([[0, 0], [10, 0], [5, 8]])),
-    "circle_corner": lambda: s2.circle(corner=[[0, 10], [0, 0], [10, 0]], radius=3),
+    "circle_corner": lambda: s2.circle(corner=Path2D([[0, 10], [0, 0], [10, 0]]), radius=3),
     "ellipse": lambda: s2.ellipse(radius=[10, 4]),
     "regular_ngon": lambda: s2.regular_ngon(sides=7, radius=10),
     "regular_ngon_chamfered": lambda: s2.regular_ngon(sides=6, radius=15, chamfer=2),

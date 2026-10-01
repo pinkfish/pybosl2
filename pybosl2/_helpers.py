@@ -1127,11 +1127,12 @@ def teardrop_stations(
 # `circle_from_3pts`, which are the same kind of thing and were already here.
 
 
-def circle_from_corner(corner: Sequence[Sequence[float]], radius: float) -> list[float]:
+def circle_from_corner(corner: "PathLike", radius: float) -> list[float]:
     """Return the centre of a circle of *radius* tangent to both arms of a corner.
 
     Args:
-        corner: Three points -- the arms meet at the middle one.
+        corner: Three points -- the arms meet at the middle one. Typed `PathLike` because this is an
+            L0 arithmetic helper and its callers have already run `require_path` (SPEC C-7c).
         radius: The circle's radius.
 
     Returns:

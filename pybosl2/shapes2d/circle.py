@@ -87,7 +87,7 @@ def circle(
     radius: float | None = None,
     diameter: float | None = None,
     points: "Path2D | None" = None,
-    corner: Sequence[Sequence[float]] | None = None,
+    corner: "Path2D | None" = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
@@ -105,7 +105,7 @@ def circle(
         radius:   radius of the circle
         diameter: diameter of the circle
         points:   three 2-D points the circle should pass through
-        corner:   three 2-D points defining a path the circle should be tangent to
+        corner:   a :class:`Path2D` of three points; the circle is tangent to both of its legs
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn: arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back
@@ -127,8 +127,9 @@ def circle(
         center, rad = _circle_from_3pts(points)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     if corner is not None:
+        corner = cast("Path2D", require_path(corner, "corner", "circle", Path2D))
         rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
-        center = _circle_from_corner(corner, rad)
+        center = _circle_from_corner(corner.to_list, rad)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     shape = _ocircle(r=rad, fn=fn, fa=fa, fs=fs)

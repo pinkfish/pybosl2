@@ -464,6 +464,7 @@ def test_path_copies_reads_closed_off_the_path_instead_of_guessing() -> None:
 GUARDED_BY_DELEGATION = {
     "pybosl2/beziers.py::create_bezier::path": "calls Bezier.from_path(), which guards",
     "pybosl2/flat.py::circle::points": "calls shapes2d.circle(), which guards",
+    "pybosl2/flat.py::circle::corner": "calls shapes2d.circle(), which guards",
     "pybosl2/distributors.py::path_copies::path": "the method form calls the module function, which guards",
     "pybosl2/shapes2d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
     "pybosl2/shapes3d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
