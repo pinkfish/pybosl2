@@ -3505,6 +3505,43 @@ Un-catching the enum's `ValueError` fails the family test. Restoring the vague w
 Dropping a pattern from the enum docstring fails the agreement test, and so does adding a tiling
 one to it — both directions.
 
+## T99 — The budget's justification, checked ✅
+
+**§12.2 item 63. PAR-1, E-1. Budget 20 → 19.**
+
+`DIFFERENCE_BUDGET = 20` records shared parameters whose annotations differ between the backends,
+tolerated on one stated ground:
+
+> all of them a `| None` the façade normalises before either backend sees it
+
+That is a claim about behaviour, sitting in a comment, read by nothing. **Nineteen of the twenty
+held. `heightfield.size` did not.** Its CSG spelling defaulted to `(100, 100)` rather than `None`,
+so the `None` its SDF twin accepts reached a subscript as
+`TypeError: 'NoneType' object is not subscriptable`. The budget had been recording a *behavioural*
+difference as a spelling one.
+
+### I read the table backwards first
+
+The rows are `(name, parameter, sdf, csg)`. I printed them labelled `csg, sdf` and spent three
+probes concluding the dangerous direction was the common one, then testing the *wide* side of each
+difference for a `None` it obviously accepts. Both conclusions were artefacts of the mislabelling.
+Driving the probe from the table rather than from a hand-written list is what fixed it.
+
+### The 247-parameter form was measured and not built
+
+Checking every shared parameter where *either* side allows `None` — 247 of them — finds three raw
+errors, and all three are the fixture's fault: `rect_tube.size1/2` get a three-element `size`, and
+`heightfield.data` is a declared difference and required besides. A sweep that needs a per-shape
+fixture to avoid false positives is not a sweep. The guard stays scoped to the rows the budget
+actually tolerates, which is what its justification is about.
+
+### The first control planted half the defect, so it measured nothing
+
+Removing the normalisation while leaving the widened annotation makes the row *leave* the
+difference list — so the guard, which checks only rows that still differ, had nothing to check and
+passed. The defect is the pair: a narrow annotation **and** no normalisation. **T83's rule, met
+again from a new direction** — a control has to reproduce the defect, not one of its halves.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

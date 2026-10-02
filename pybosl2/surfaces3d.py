@@ -331,7 +331,7 @@ def interior_fillet(
 @backend_only("csg")
 def heightfield(
     data: "Callable[[float, float], float | None] | Sequence[Sequence[float]]",
-    size: Sequence[float] = (100, 100),
+    size: Sequence[float] | None = None,
     bottom: float = -20,
     maxz: float = 99,
     xrange: Sequence[float] = (-1, 0.04, 1),
@@ -359,6 +359,12 @@ def heightfield(
         orient:    direction to rotate the top towards (default UP)
 
     """
+    # `None` means the default, as it does on the SDF spelling. This read `(100, 100)` as the
+    # default, so `size=None` -- which the other backend accepts, and which the parity budget
+    # recorded as a mere nullability difference -- reached the subscript below as a raw
+    # `TypeError: 'NoneType' object is not subscriptable` (SPEC PAR-1, E-1).
+    if size is None:
+        size = (100, 100)
     _ = convexity
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     style_key = style if style in ("alt", "quincunx") else "default"
