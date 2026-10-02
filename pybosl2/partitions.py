@@ -119,6 +119,21 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 # ---------------------------------------------------------------------------
 
 
+#: Cut profiles that exist only as `partition_path` *sections*, with no tiling form -- so they are
+#: not usable as `cutpath=` on a mask, and refuse there. Four of `PartitionCutType`'s twelve.
+#:
+#: Named here rather than left implicit because `PartitionCutType` is one enum serving two
+#: vocabularies, which is what let its docstring promise all twelve to `partition_mask`.
+SECTION_ONLY_CUT_TYPES = frozenset(
+    {
+        PartitionCutType.SQUARE,
+        PartitionCutType.TRIANGLE,
+        PartitionCutType.HALFSINE,
+        PartitionCutType.SEMICIRCLE,
+    }
+)
+
+
 def _partition_subpath(
     cptype: PartitionCutType,
     fn: int | None = None,
@@ -212,8 +227,17 @@ def _partition_subpath(
                 )
             )
         )
+    # A `Bosl2ValueError` and not a `Bosl2NotImplementedError`, deliberately: these four are
+    # *section* forms, used by `partition_path`'s letter descriptors, and a section has no tiling
+    # form to repeat along a cut. That is a category difference, not unfinished work, so framing it
+    # as a gap would promise a feature that is not coming. The message has to say which, though --
+    # it read "unsupported cut type ... use a PartitionCutType member or its name" at a caller who
+    # had passed exactly that (SPEC E-2).
     raise Bosl2ValueError(
-        f"partition_path(): unsupported cut type {cptype!r}; use a PartitionCutType member or its name."
+        f"partition(): {cptype.value!r} is a section profile, not a tiling one, so it cannot be "
+        f"repeated along a cut. Tiling patterns: "
+        f"{', '.join(sorted(m.value for m in PartitionCutType if m not in SECTION_ONLY_CUT_TYPES))}. "
+        f"Use {cptype.value!r} in a partition_path() descriptor, or pass an explicit Path2D."
     )
 
 
@@ -233,7 +257,18 @@ def _partition_cutpath(
     cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
     sub: list[list[float]] | Path2D
     if isinstance(cutpath, str):
-        sub = _partition_subpath(PartitionCutType(cutpath), fn, fa, fs)
+        # `PartitionCutType(cutpath)` raises a bare `ValueError` for a name it does not know, so a
+        # misspelt cut pattern came out of the enum rather than the library and `except Bosl2Error`
+        # missed it (SPEC E-1). The message now also names what is available (SPEC E-2).
+        try:
+            kind = PartitionCutType(cutpath)
+        except ValueError:
+            raise Bosl2ValueError(
+                f"partition(): {cutpath!r} is not a cut pattern. "
+                f"Use one of {', '.join(sorted(m.value for m in PartitionCutType))}, "
+                f"or pass an explicit Path2D."
+            ) from None
+        sub = _partition_subpath(kind, fn, fa, fs)
     else:
         sub = [list(p) for p in cutpath]
     reps_raw = 1 + math.floor((length - cs[0]) / (cs[0] + gap))

@@ -17,6 +17,7 @@ import pytest
 
 from pybosl2.constants import UP
 from pybosl2.enums import PartitionCutType
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.partitions import (
     Partitionable,
     _partition_cutpath,
@@ -410,9 +411,20 @@ def test_mask_subpaths_keep_bosl2_amplitudes(cut: PartitionCutType) -> None:
     ids=lambda c: c.value,
 )
 def test_section_only_cut_types_are_refused_as_mask_subpaths(cut: PartitionCutType) -> None:
-    """These exist as partition_path sections but have no tiling form; say so rather than guess."""
-    with pytest.raises(ValueError, match="unsupported cut type"):
+    """These exist as partition_path sections but have no tiling form; say so rather than guess.
+
+    Matched on meaning rather than wording. This pinned the substring "unsupported cut type", which
+    T98 replaced with a message naming the profile, calling it a section rather than unsupported,
+    and listing the eight that do tile -- a strictly better refusal that the literal match read as
+    a different reason. The same correction T62 made for the backend refusals.
+    """
+    # `match=` on the profile's own name: specific enough for PT011, and it is the one word the
+    # message must carry whatever else it says.
+    with pytest.raises(Bosl2ValueError, match=cut.value) as caught:
         _partition_subpath(cut)
+    message = str(caught.value)
+    assert cut.value in message, "the refusal names the profile that was asked for"
+    assert "section" in message, "and says that is what it is, rather than that it is unsupported"
 
 
 def test_cutpath_row_spans_the_requested_length() -> None:
