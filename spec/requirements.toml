@@ -2643,6 +2643,7 @@ enforced_by = [
     "tests/test_isovalue_ranges.py::test_a_band_of_a_distance_field_is_a_shell_of_the_right_volume",
     "tests/test_isovalue_ranges.py::test_every_vertex_of_the_shell_is_on_one_of_the_two_spheres",
     "tests/test_isovalue_ranges.py::test_a_range_open_at_the_bottom_is_the_region_below_the_threshold",
+    "tests/test_vnf_styles_are_distinct.py",
 ]
 status = "enforced"
 
