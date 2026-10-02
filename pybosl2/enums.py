@@ -84,7 +84,12 @@ class SkinMethod(StrEnum):
 
 
 class PartitionCutType(StrEnum):
-    """Cut profile style for :func:`partition` and :func:`partition_mask`."""
+    """Cut profile style for :func:`partition` and :func:`partition_mask`.
+
+    One enum, two vocabularies. ``square``, ``triangle``, ``halfsine`` and ``semicircle`` are
+    *section* profiles, used in a :func:`partition_path` descriptor; they have no tiling form, so
+    they cannot be repeated along a cut and refuse as ``cutpath=``. The other eight tile.
+    """
 
     FLAT = "flat"
     SAWTOOTH = "sawtooth"

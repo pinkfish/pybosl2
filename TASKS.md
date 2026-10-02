@@ -3451,6 +3451,60 @@ Aliasing `MIN_AREA` to `MIN_EDGE`: the old tests pass, the new guard fails on ex
 the area assertion. Aliasing `CONCAVE` to `CONVEX`: caught by the pair that names them. The first
 control is the whole argument for the task.
 
+## T98 — One enum, two vocabularies ✅
+
+**§12.2 item 62. E-1, E-2, G-8.**
+
+Asked the enum-matrix question of **every** behaviour-selecting enum rather than one more by hand.
+Thirty-three enums; four with a public dispatch site and few enough members to probe exhaustively.
+Three came back clean — `SweepMethod` (3 distinct volumes), `RoundingMethod`, `MinkowskiJoin` — and
+`PartitionCutType` did not.
+
+### What was wrong
+
+A misspelt pattern escaped the library's error family. `PartitionCutType(cutpath)` raises a **bare
+`ValueError`**, so `cutpath="jigwas"` came out of the enum rather than from `pybosl2`, and
+`except Bosl2Error` missed it (E-1). It now refuses as a `Bosl2ValueError` that names the eight
+tiling patterns (E-2).
+
+And the enum's docstring read *"Cut profile style for `partition` and `partition_mask`"* while four
+of its twelve members cannot be used with `partition_mask` at all. **One enum serving two
+vocabularies**, saying so nowhere.
+
+### I got the second half wrong first, and a test told me
+
+Four members — `square`, `triangle`, `halfsine`, `semicircle` — refuse as mask cutpaths. I read that
+as G-8's case (an advertised member nobody built) and changed the refusal to
+`Bosl2NotImplementedError`. That broke `test_section_only_cut_types_are_refused_as_mask_subpaths`,
+whose docstring says: *"These exist as partition_path sections but have no tiling form; say so
+rather than guess."*
+
+**A category difference is not unfinished work.** Framing it as a gap promises a feature that is not
+coming. The decision had already been made deliberately and the test was holding it; breaking the
+test is what showed me. Reverted — it stays a `Bosl2ValueError`. What was genuinely wrong was the
+*message*: "unsupported cut type … use a PartitionCutType member or its name", read by a caller who
+had passed exactly that.
+
+That existing test pinned the literal substring `unsupported cut type`, so a strictly better
+message read as a different reason — **the same weakness T62 corrected for the backend refusals**.
+It matches on meaning now.
+
+### Two of my probes were wrong before either finding was real
+
+| probe | what it reported | why |
+|---|---|---|
+| `(vertex count, volume)` | `comb` == `finger` | a symmetric cut removes the same volume at any flank angle — 2° vs 20° — exactly T97's trap |
+| `partition_mask(l=…)` | **every** pair collapsed | wrong keyword, so all twelve raised identically |
+
+A probe where everything fails the same way reports perfect agreement. Compared on vertex
+positions, `comb` and `finger` differ.
+
+### Controls
+
+Un-catching the enum's `ValueError` fails the family test. Restoring the vague wording fails eight.
+Dropping a pattern from the enum docstring fails the agreement test, and so does adding a tiling
+one to it — both directions.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
