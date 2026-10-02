@@ -2270,6 +2270,21 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
+<span class="c1">#: Cut profiles that exist only as `partition_path` *sections*, with no tiling form -- so they are</span>
+<span class="c1">#: not usable as `cutpath=` on a mask, and refuse there. Four of `PartitionCutType`'s twelve.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Named here rather than left implicit because `PartitionCutType` is one enum serving two</span>
+<span class="c1">#: vocabularies, which is what let its docstring promise all twelve to `partition_mask`.</span>
+<span class="n">SECTION_ONLY_CUT_TYPES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">SQUARE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">TRIANGLE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">HALFSINE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">SEMICIRCLE</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_partition_subpath</span><span class="p">(</span>
     <span class="n">cptype</span><span class="p">:</span> <span class="n">PartitionCutType</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2363,8 +2378,17 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
+    <span class="c1"># A `Bosl2ValueError` and not a `Bosl2NotImplementedError`, deliberately: these four are</span>
+    <span class="c1"># *section* forms, used by `partition_path`'s letter descriptors, and a section has no tiling</span>
+    <span class="c1"># form to repeat along a cut. That is a category difference, not unfinished work, so framing it</span>
+    <span class="c1"># as a gap would promise a feature that is not coming. The message has to say which, though --</span>
+    <span class="c1"># it read "unsupported cut type ... use a PartitionCutType member or its name" at a caller who</span>
+    <span class="c1"># had passed exactly that (SPEC E-2).</span>
     <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"partition_path(): unsupported cut type </span><span class="si">{</span><span class="n">cptype</span><span class="si">!r}</span><span class="s2">; use a PartitionCutType member or its name."</span>
+        <span class="sa">f</span><span class="s2">"partition(): </span><span class="si">{</span><span class="n">cptype</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is a section profile, not a tiling one, so it cannot be "</span>
+        <span class="sa">f</span><span class="s2">"repeated along a cut. Tiling patterns: "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">PartitionCutType</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">SECTION_ONLY_CUT_TYPES</span><span class="p">))</span><span class="si">}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"Use </span><span class="si">{</span><span class="n">cptype</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> in a partition_path() descriptor, or pass an explicit Path2D."</span>
     <span class="p">)</span>
 
 
@@ -2384,7 +2408,18 @@
     <span class="n">cs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator, list-item]</span>
     <span class="n">sub</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutpath</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">sub</span> <span class="o">=</span> <span class="n">_partition_subpath</span><span class="p">(</span><span class="n">PartitionCutType</span><span class="p">(</span><span class="n">cutpath</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="c1"># `PartitionCutType(cutpath)` raises a bare `ValueError` for a name it does not know, so a</span>
+        <span class="c1"># misspelt cut pattern came out of the enum rather than the library and `except Bosl2Error`</span>
+        <span class="c1"># missed it (SPEC E-1). The message now also names what is available (SPEC E-2).</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="n">PartitionCutType</span><span class="p">(</span><span class="n">cutpath</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"partition(): </span><span class="si">{</span><span class="n">cutpath</span><span class="si">!r}</span><span class="s2"> is not a cut pattern. "</span>
+                <span class="sa">f</span><span class="s2">"Use one of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">PartitionCutType</span><span class="p">))</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"or pass an explicit Path2D."</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">_partition_subpath</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cutpath</span><span class="p">]</span>
     <span class="n">reps_raw</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">length</span> <span class="o">-</span> <span class="n">cs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">cs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gap</span><span class="p">))</span>
