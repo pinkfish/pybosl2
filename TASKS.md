@@ -3542,6 +3542,59 @@ difference list — so the guard, which checks only rows that still differ, had 
 passed. The defect is the pair: a narrow annotation **and** no normalisation. **T83's rule, met
 again from a new direction** — a control has to reproduce the defect, not one of its halves.
 
+## T100 — The SDF backend has a sweep, and it is not the façade's ✅
+
+**§12.2 item 2. PAR-1. Coverage unchanged at 40 of 51. No fix — a reason corrected.**
+
+`WireBundle`'s refusal read:
+
+> sweeps each wire along the route with `path_sweep()`, and a swept tube that follows bends is a
+> non-convex mesh with no distance-field form
+
+The first clause is true of the CSG implementation. The second looked false: **the SDF backend has
+its own `path_sweep`, it builds a round profile along a bent route as a field, and the backend
+registry already exposes it under that name.** Nothing asks — `Path3D.path_sweep` meshes and calls
+`polyhedron()` whatever backend is active. That is the shape of T41's finding, where `texture=` was
+declared impossible by three records that had read the CSG signature rather than the CSG code.
+
+### It is not that finding, and I had to build the fix to find out
+
+I routed the façade to the native sweep and `WireBundle` built on both backends with agreeing
+extents. Then I offset the profile from its origin — which is exactly what hex-packing the wires
+does — and the two sweeps are not the same function:
+
+| route, offset | façade (mesh) centre | `sdf.path_sweep` centre |
+|---|---|---|
+| straight, 0 | `[10, 0, 0]` | `[10, 0, 0]` |
+| straight, 3 | `[10, 0, **+3**]` | `[10, **−3**, 0]` |
+| bent, 0 | `[10.32, 9.68, 0]` | `[14.6, 5.4, 0]` |
+
+On a straight route the façade sends the profile's y to world **z** and the native sweep to world
+**−y**. On a bent route they do not agree about where the solid *is*. **The sizes match in every
+row**, so the agreeing-extents check I had been pleased with would have passed all of it.
+
+So the delegation is reverted. Dispatching would have built every wire in the wrong plane on one
+backend, silently — the thing `polyhedron()`'s own refusal promises not to do.
+
+### What landed is the corrected reason, and the measurement
+
+The gap stands, but its stated reason was wrong: not that a swept tube has no distance-field form —
+it plainly has one — but that **the backend's own sweep does not build the same solid.** Closing it
+means reconciling two sweeps, not routing to one. The refusal now says that.
+
+A `strict=True` xfail carries the numbers, with a second test pinning *which* disagreement is
+present so a move to some third convention cannot pass as progress. Not fixed here because this
+environment cannot check a fix: libfive is stubbed, an SDF solid meshes to nothing, and only its
+analytic box can be read — a matching box is not evidence of a matching field. Guessing a frame
+convention is how T89's two mask profiles came to be wrong.
+
+### The instrument that nearly let it through
+
+My first check was `bounds().size`, on both backends, and it agreed to 1.5mm. The centres differ by
+3mm on the same call. **Fourth time this session a size-or-volume signature hid a shape
+difference** — T97's `MIN_EDGE`/`MIN_AREA`, T98's `comb`/`finger`, T99's inverted columns, and
+this. Extent is the measurement that survives being wrong.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
