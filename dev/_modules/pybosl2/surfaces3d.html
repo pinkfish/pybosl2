@@ -2487,7 +2487,7 @@
 <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">heightfield</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="s2">"Callable[[float, float], float | None] | Sequence[Sequence[float]]"</span><span class="p">,</span>
-    <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">bottom</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span>
     <span class="n">maxz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">99</span><span class="p">,</span>
     <span class="n">xrange</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -2515,6 +2515,12 @@
 <span class="sd">        orient:    direction to rotate the top towards (default UP)</span>
 
 <span class="sd">    """</span>
+    <span class="c1"># `None` means the default, as it does on the SDF spelling. This read `(100, 100)` as the</span>
+    <span class="c1"># default, so `size=None` -- which the other backend accepts, and which the parity budget</span>
+    <span class="c1"># recorded as a mere nullability difference -- reached the subscript below as a raw</span>
+    <span class="c1"># `TypeError: 'NoneType' object is not subscriptable` (SPEC PAR-1, E-1).</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
     <span class="n">sz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">size</span>
     <span class="n">style_key</span> <span class="o">=</span> <span class="n">style</span> <span class="k">if</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"alt"</span><span class="p">,</span> <span class="s2">"quincunx"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"default"</span>

@@ -2367,8 +2367,10 @@
 
     <span class="nd">@property</span>
     <span class="nd">@csg_part</span><span class="p">(</span>
-        <span class="s2">"sweeps each wire along the route with path_sweep(), and a swept tube that follows bends "</span>
-        <span class="s2">"is a non-convex mesh with no distance-field form"</span>
+        <span class="s2">"sweeps each wire with path_sweep(), which meshes and then needs a non-convex polyhedron. "</span>
+        <span class="s2">"The SDF backend has a path_sweep of its own that does build this shape as a field, but it "</span>
+        <span class="s2">"is not the same sweep -- it puts the profile in a different plane (T100), so dispatching "</span>
+        <span class="s2">"to it would silently build the bundle wrong"</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the wire bundle geometry."""</span>
