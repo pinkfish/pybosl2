@@ -752,7 +752,15 @@ class Bezier:
             tang: list[np.ndarray] = []
             for seg in range(nsegs):
                 ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
-                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
+                samples = ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
+                # Consecutive segments share a junction, and `path_curve` emits that point once.
+                # This kept both copies of its tangent, so the list ran one long and every tangent
+                # after the first junction was paired with the wrong path point: at the junction a
+                # frame built from `tangent[i]` sat 15.2 degrees off the path's local direction
+                # where `tangent[i + 1]` sat 1.25 off (T101). Surplus at the end of a list indexed
+                # `[i % npts]` is read by nothing, which is why a quiet misalignment was the only
+                # symptom.
+                tang.extend(samples[1:] if seg else samples)
         else:
             path = self.curve(splinesteps, endpoint)
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
@@ -838,7 +846,11 @@ class Bezier:
             tang: list[Any] = []
             for seg in range(nsegs):
                 ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
-                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
+                samples = ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
+                # The same junction duplicate `sweep` had; see the note there. Two copies of the
+                # loop, one defect, and fixing the first is what made the second visible -- the
+                # count check in `_path_sweep` still reported a mismatch (T101).
+                tang.extend(samples[1:] if seg else samples)
         else:
             path = self.curve(splinesteps, endpoint)
             tang = list(self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))

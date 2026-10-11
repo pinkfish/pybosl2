@@ -620,6 +620,14 @@ def _sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
+#: Squared-length floor below which a reflection vector counts as vanishing. Squared, because
+#: it is compared against `v @ v` rather than `norm(v)`.
+_EPS_SQ = 1e-18
+
+#: Floor below which two consecutive path points count as the same point.
+_EPS_LEN = 1e-9
+
+
 def _path_sweep(
     shape: "PathLike",
     path: Sequence[Sequence[float]] | Path2D | Path3D,
@@ -649,9 +657,32 @@ def _path_sweep(
     npts = len(patharr)
     if not (npts >= 2):
         raise Bosl2ValueError("path must have at least 2 points.")
+    # A repeated point has no direction, so the frame walk below divides by its squared length and
+    # every transform downstream comes back `NaN` -- and the sweep *returns*, so a caller got a
+    # solid whose bounds were `[nan, nan, nan]` with no exception and no warning (T101). Refused
+    # rather than deduplicated silently, because dropping a point renumbers the path and the
+    # per-point lists (`tangent=`, a per-point `scale=` or `normal=`) are matched against it: a
+    # silent dedup turns a correct call into a length mismatch, or applies the wrong value at every
+    # point after the duplicate.
+    steps = np.linalg.norm(np.diff(patharr, axis=0), axis=1)
+    repeated = np.flatnonzero(steps <= _EPS_LEN)
+    if repeated.size:
+        at = int(repeated[0])
+        raise Bosl2ValueError(
+            f"path_sweep(): the path repeats a point at index {at} ({patharr[at].tolist()}), which "
+            f"has no direction to sweep along. Call .deduplicate() on the path first."
+        )
 
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
+        # One per path point. Unchecked, a short list reached `tangents[i % npts]` as a raw
+        # `IndexError` naming an axis rather than the parameter, and an empty one did the same at
+        # index 0 (SPEC E-1, E-4). `% npts` makes the index legal, so the error surfaces inside
+        # numpy rather than at the call that was wrong.
+        if len(tangents) != npts:
+            raise Bosl2ValueError(
+                f"path_sweep(): tangent= needs one tangent per path point, {npts} here, got {len(tangents)}."
+            )
     else:
         tangents = np.asarray(Path3D(patharr).tangents(closed=closed, uniform=uniform), dtype=float)
 
@@ -714,7 +745,13 @@ def _path_sweep(
                 refl_t = tangents[i % npts] - 2 * (v1 @ tangents[i % npts]) / c1 * v1
                 v2 = tangents[(i + 1) % npts] - refl_t
                 c2 = float(v2 @ v2)
-                radius = refl_r - (2 / c2) * (v2 @ refl_r) * v2
+                # `v2` vanishes exactly when the reflected tangent already *is* the next tangent,
+                # so the second reflection of the double-reflection frame is the identity and the
+                # radius carries straight over. Unguarded this divided by zero, which is how
+                # `tangent=` with a uniform list of directions -- the obvious thing to pass, and
+                # what a 2-D tangent becomes once padded -- came back as a bare `ZeroDivisionError`
+                # from inside the frame walk (T101).
+                radius = refl_r if c2 <= _EPS_SQ else refl_r - (2 / c2) * (v2 @ refl_r) * v2
                 cur = frame_map(y=radius, z=tangents[(i + 1) % npts])
         if closed:
             reference = rotations[0]

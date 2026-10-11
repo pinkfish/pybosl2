@@ -3595,6 +3595,97 @@ My first check was `bounds().size`, on both backends, and it agreed to 1.5mm. Th
 difference** — T97's `MIN_EDGE`/`MIN_AREA`, T98's `comb`/`finger`, T99's inverted columns, and
 this. Extent is the measurement that survives being wrong.
 
+## T101 — A sweep never returns NaN ✅
+
+**§12.2 item 64. E-1, E-2, E-4. Closes the two gaps T100 named, and a third behind them.**
+
+T100 measured two `path_sweep(tangent=)` defects and left them recorded. Fixing them found a worse
+one.
+
+| input | before |
+|---|---|
+| `tangent=` shorter than the path | raw `IndexError` naming a numpy axis |
+| `tangent=` uniform, right length | raw `ZeroDivisionError` |
+| a path with a **repeated point** | **built a solid with `[nan, nan, nan]` bounds** |
+
+The first two are rude. The third is silent — the sweep **returned**, so nothing raised and nothing
+warned, and the caller held a solid that measures as nothing. **T94's `arcxrot` in a different
+file**, which is why the guard asserts finiteness as well as asking what was raised: a test that
+only checks for an exception passes every row above.
+
+### Each cause is arithmetic on a vector with no length
+
+* `% npts` makes a short `tangent=` index *legal*, so the failure surfaced inside numpy rather than
+  at the call that was wrong.
+* `v2 @ v2` is zero exactly when the reflected tangent already **is** the next tangent, so the
+  second reflection of the double-reflection frame is the identity. A degenerate case of the
+  algorithm, not a bad input — and uniform tangents are the obvious thing to pass. A 2-D tangent
+  becomes one once padded to three components.
+* `v1 @ v1` is zero when two path points coincide. That one propagates `NaN` rather than raising,
+  because numpy divides a float array by zero instead of refusing.
+
+### Refused, not deduplicated — and the difference matters
+
+`Path3D.deduplicate()` exists and the refusal names it. Dropping the point silently would have been
+easier and wrong: it **renumbers the path**, and `tangent=` and the per-point forms of `scale=` and
+`normal=` are matched against that numbering. A silent dedup turns a correct call into a length
+mismatch, or applies the wrong value at every point after the duplicate. The guard checks the named
+fix reproduces the *hand-written clean path's* answer, not merely that it builds.
+
+### My first control proved less than it looked
+
+Removing the repeated-point guard failed only the test that names the refusal. The general
+assertion — *no sweep returns NaN* — stayed green, because its route list held a near-coincident
+pair (1e-7 apart) and no exact duplicate. **The general form is the one that would have caught this
+class before anyone knew to look for it**, so it has to contain the case. Added; the control now
+fails both.
+
+### The length check then found a real geometry defect
+
+Requiring one tangent per path point broke `test_stl_render.py::test_sweep`. The route had **no**
+duplicates — `Bezier.sweep` was passing **n+1** tangents.
+
+It builds the list segment by segment, and consecutive segments share a junction that `path_curve`
+emits **once**. Both copies of the junction tangent were kept, so the list ran one long and
+**every tangent after the first junction was paired with the wrong path point.** At the junction a
+frame built from `tangent[i]` sat 15.2° off the path's local direction where `tangent[i+1]` sat
+1.25° off.
+
+Surplus at the end of a list indexed `[i % npts]` is read by nothing, so a quiet misalignment was
+the only symptom — and the one test that renders this exact call asserts `ntris > 0` and
+`volume > 0`, both of which a misaligned sweep satisfies perfectly.
+
+### Two copies of the loop, and fixing one revealed the other
+
+`sweep` and `sweep_transforms` carry the same five lines. I fixed `sweep`, and the count check
+still reported a mismatch — which is how the second was found. A duplicated loop is a duplicated
+defect, the same shape as T100's four rotation-validation sites.
+
+### Asserted by refinement, not by tolerance
+
+A correctly paired tangent list is wrong only by discretisation, so its error **halves** as the
+step count doubles: **3.65° → 1.81° → 0.90°**. A list shifted by one point stays wrong by about the
+turn between neighbouring points however fine the sampling. That distinction is the assertion —
+a fixed tolerance would pass either at a coarse enough setting.
+
+### Three instrument errors before any of this was measured
+
+* The obvious bezier path is **not C1-continuous** at its junction, so the curve's own tangent
+  legitimately differs from the local chord by half the corner angle. Measuring it put the "error"
+  at 48° both before and after the fix. The guard uses a path built to be smooth there.
+* A probe script run as `python3 /abs/path/measure.py` has **its own directory** on `sys.path[0]`,
+  not the working tree — so `import pybosl2` loaded the **installed** copy and reported the same
+  numbers with the fix present and absent. **T68's stale-install trap**, in a new disguise.
+* Reconstructing the tangent list by hand to measure "before" gave 9.70° against 6.25°, because my
+  reconstruction hardcoded `endpoint`. The number worth quoting is the one taken from the call
+  itself.
+
+### Measured and left
+
+An exact reversal (`out and straight back`) refuses with `Cannot normalize a zero vector` — in the
+`Bosl2Error` family, so the contract holds, but the message names neither `path_sweep` nor the path.
+Recorded here rather than chased.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
