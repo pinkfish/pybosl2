@@ -211,8 +211,10 @@ class WireBundle(Buildable):
 
     @property
     @csg_part(
-        "sweeps each wire along the route with path_sweep(), and a swept tube that follows bends "
-        "is a non-convex mesh with no distance-field form"
+        "sweeps each wire with path_sweep(), which meshes and then needs a non-convex polyhedron. "
+        "The SDF backend has a path_sweep of its own that does build this shape as a field, but it "
+        "is not the same sweep -- it puts the profile in a different plane (T100), so dispatching "
+        "to it would silently build the bundle wrong"
     )
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""

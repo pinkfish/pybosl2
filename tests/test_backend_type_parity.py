@@ -111,7 +111,28 @@ DECLARED_DIFFERENCES: dict[str, str] = {
 
 #: Shared parameters whose annotations still differ, all of them a `| None` the façade normalises
 #: before either backend sees it. Measured, not chosen, and it only shrinks.
-DIFFERENCE_BUDGET = 20
+#:
+#: That second clause was the justification for tolerating every row, and nothing read it back.
+#: Checked now by `test_the_facade_absorbs_every_nullability_difference` below: **19 of the 20 held;
+#: `heightfield.size` did not.** Its CSG spelling defaulted to `(100, 100)` rather than `None`, so
+#: `size=None` -- which the SDF spelling accepts, and which this budget recorded as a nullability
+#: difference and nothing more -- reached a subscript as a raw `TypeError` (T99), which is why
+#: this reads 19 and not 20. A tolerated
+#: difference is only tolerable while the reason given for tolerating it is true.
+DIFFERENCE_BUDGET = 19
+
+#: Enough of a shape to build one, by parameter name. A difference can only be checked by making
+#: the call, and the call needs its required arguments.
+_BUILDABLE: dict[str, object] = {
+    "height": 10.0,
+    "radius": 4.0,
+    "size": [10.0, 10.0, 10.0],
+    "size1": [10.0, 10.0],
+    "size2": [6.0, 6.0],
+    "num_sides": 6,
+    "sides": 6,
+    "data": [[0.0, 1.0], [1.0, 2.0]],
+}
 
 
 def _shared_signatures() -> list[tuple[str, str, str, str]]:
@@ -212,3 +233,48 @@ def test_every_declared_difference_is_still_real() -> None:
     differing = {parameter for _, parameter, _, _ in SHARED}
     stale = sorted(set(DECLARED_DIFFERENCES) - differing)
     assert not stale, f"{stale} no longer differ -- take them out of DECLARED_DIFFERENCES"
+
+
+def test_the_facade_absorbs_every_nullability_difference() -> None:
+    """The budget's own justification, checked rather than asserted in a comment (SPEC PAR-1).
+
+    Every row above is tolerated on one ground: the difference is a `| None` that the façade
+    normalises before either backend sees it, so no caller going through the sanctioned door
+    (SPEC A-10, S-46a) can tell the two spellings apart. That is a claim about behaviour, and a
+    claim about behaviour in a comment is a description of an intention -- the same thing T64 found
+    `TASKS.md` doing while going stale for seven tasks.
+
+    Nineteen of twenty held when this was written. `heightfield.size` did not: its CSG spelling
+    defaulted to `(100, 100)` rather than `None`, so the `None` the SDF spelling accepts arrived at
+    a subscript as a raw `TypeError`. The budget had been recording a behavioural difference as a
+    spelling one.
+    """
+    import inspect
+
+    import pybosl2
+    from pybosl2 import use_backend
+    from pybosl2.exceptions import Bosl2Error
+
+    unabsorbed: dict[str, str] = {}
+    for name, parameter, _sdf, _csg in sorted(SHARED):
+        if parameter in DECLARED_DIFFERENCES:
+            continue
+        constructor = getattr(pybosl2, name, None)
+        if constructor is None:  # pragma: no cover - every row is on the façade today
+            unabsorbed[f"{name}.{parameter}"] = "not exported by pybosl2"
+            continue
+        signature = inspect.signature(constructor).parameters
+        arguments = {n: v for n, v in _BUILDABLE.items() if n in signature and n != parameter}
+        arguments[parameter] = None
+        for backend in ("csg", "sdf"):
+            try:
+                with use_backend(backend):
+                    constructor(**arguments)
+            except Bosl2Error:
+                pass  # a stated refusal is an answer; a raw error is not
+            except Exception as exc:
+                unabsorbed[f"{name}.{parameter}"] = f"{backend}: {type(exc).__name__}: {exc}"[:110]
+    assert not unabsorbed, (
+        "these differences are recorded as nullability the façade normalises, but passing None "
+        f"through the façade does not survive it: {unabsorbed}"
+    )
