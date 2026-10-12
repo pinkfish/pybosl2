@@ -3849,6 +3849,49 @@ exist; an existence check for a requirement about behaviour.
 cannot tell a working cap from a coincidence. Pinning `max_angle` at 45 — dropping the argument —
 passes the 45 case and fails 20, 30 and 60.
 
+## T105 — The eight enums the sweep dismissed ✅
+
+**§12.2 item 67. G-8. A dead branch, two undocumented synonyms, one gap recorded.**
+
+T98's sweep reported **ten** enums as having no public dispatch site, looking for each in a
+signature. T98 investigated one (`PartitionCutType`, reached as a `str`) and T104 another
+(`OSType`, reached inside a descriptor). **Eight were left dismissed by a probe now known to
+under-report.** Asking the question of those eight:
+
+| enum | result |
+|---|---|
+| `PlatonicSolid` | 5 members, all distinct ✅ |
+| `ScrewHeadType` | **`SOCKET == SOCKET_RIBBED`, `PAN == ROUND`** |
+| `ScrewDriveType` | **`NONE == SLOT`** |
+| `SparseAxis`, `HoseType` | my fixture errors, not findings |
+
+### `SLOT` cut nothing, and its builder was unreachable
+
+`_build_drive_recess` has a `SLOT` branch — carrying a `width = size if size else ...` fallback —
+and nothing could reach it. Every head branch in `_resolve_head` resolves `drive_size`/`drive_depth`
+**only for `HEX`**, so a slot arrived with both `None`, hit the `not size or not depth` early
+return, and produced **no recess at all**. A slotted screw was identical to an undriven one.
+
+The fallback inside the dead branch is the tell: it guards against a missing size that the early
+return had already made impossible. Resolved once after the head dispatch, so it works for all
+eight heads — proportional to the shank, because a slot is; the hex sizes come from the socket and
+button tables and a slot's do not.
+
+### Two synonyms, deliberate and unsaid
+
+`SOCKET_RIBBED` builds as `SOCKET` (the ribbing is a knurl no table describes) and `ROUND` builds
+as `PAN`. The dispatch groups them with `head in (...)`, so this is intended — but nothing said so,
+which is exactly what G-8 required for `CapType.SPHERE`. Documented on the enum now, and asserted,
+so the claim and the code cannot drift apart.
+
+### One gap measured and deliberately not closed
+
+`drive=HEX` is silently ignored on `HEX`, `PAN`, `ROUND` and `FLAT` heads. On a hex head that is
+**correct** — the drive is a wrench on the head. On the other three it is a gap, and whether a
+countersunk head should carry a hex socket is a question about **screw standards**, not about
+dispatch. Listed with its reason in `HEX_DRIVE_NOT_CUT`, which only shrinks, rather than guessed at.
+Closing a gap by inventing a dimension is how T89's mask profiles came to be wrong.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

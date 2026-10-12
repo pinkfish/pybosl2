@@ -20,7 +20,15 @@ from pybosl2.enums import Gender as Gender
 
 
 class ScrewHeadType(StrEnum):
-    """Screw-head style for :func:`screw` and :func:`screw_hole`."""
+    """Screw-head style for :func:`screw` and :func:`screw_hole`.
+
+    Two pairs build the **same** solid, deliberately, and say so here because nothing else did
+    (T105). ``SOCKET_RIBBED`` is modelled as ``SOCKET``: the ribbing is a knurl on the cylinder
+    that no dimension in the tables describes. ``ROUND`` is modelled as ``PAN``, both as the domed
+    head the pan table gives. Asking for either of the two unmodelled spellings is not an error --
+    the head it stands in for is the right shape to a tenth of a millimetre -- but it is not a
+    distinct solid, and a caller comparing two screws should not expect one.
+    """
 
     NONE = "none"
     HEX = "hex"
@@ -33,7 +41,14 @@ class ScrewHeadType(StrEnum):
 
 
 class ScrewDriveType(StrEnum):
-    """Screw-drive recess type for :func:`screw`."""
+    """Screw-drive recess type for :func:`screw`.
+
+    ``HEX`` is cut only where a head's table carries hex-socket dimensions: on ``NONE``,
+    ``SOCKET``, ``SOCKET_RIBBED`` and ``BUTTON`` heads. On ``HEX`` heads that is right -- the drive
+    is a wrench on the head, not a recess -- and on ``PAN``, ``ROUND`` and ``FLAT`` it is a gap,
+    measured and listed in `tests/test_screw_drives_are_cut.py` rather than guessed at, since which
+    standards pair a countersunk head with a hex socket is a question about screws (T105).
+    """
 
     NONE = "none"
     HEX = "hex"
