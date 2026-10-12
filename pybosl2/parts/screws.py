@@ -455,6 +455,18 @@ def _resolve_head(head: ScrewHeadType, drive: ScrewDriveType, d: float) -> dict[
         dims["head_height"] = (spec_f.actual_d - d) / 2
     else:
         raise Bosl2ValueError(f'Unknown head type "{head}"')
+    if drive == ScrewDriveType.SLOT and dims["drive_size"] is None:
+        # Every branch above resolves drive dimensions only for `HEX`, so a slot arrived at
+        # `_build_drive_recess` with `drive_size` and `drive_depth` still None, hit its
+        # `not size or not depth` early return, and produced **no recess at all** -- a slotted
+        # screw identical to an undriven one, which is the G-8 case of an accepted enum member
+        # falling through. Its builder was there the whole time and unreachable, fallback included
+        # (T105).
+        #
+        # Proportional to the shank rather than tabulated per head, because a slot is: the hex
+        # sizes come from the socket and button tables, a slot's do not. The depth matches what
+        # every hex branch uses.
+        dims["drive_size"], dims["drive_depth"] = max(0.6, d / 6), d / 2
     return dims
 
 

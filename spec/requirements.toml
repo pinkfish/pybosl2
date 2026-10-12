@@ -1385,6 +1385,7 @@ Offset-sweep end treatments are objects (`os_circle`, `os_smooth`, `os_teardrop`
 enforced_by = [
     "tests/test_exports.py",
     "tests/test_offset_sweep_profiles.py",
+    "tests/test_screw_drives_are_cut.py",
 ]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
