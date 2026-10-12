@@ -3595,6 +3595,160 @@ My first check was `bounds().size`, on both backends, and it agreed to 1.5mm. Th
 difference** — T97's `MIN_EDGE`/`MIN_AREA`, T98's `comb`/`finger`, T99's inverted columns, and
 this. Extent is the measurement that survives being wrong.
 
+## T101 — A sweep never returns NaN ✅
+
+**§12.2 item 64. E-1, E-2, E-4. Closes the two gaps T100 named, and a third behind them.**
+
+T100 measured two `path_sweep(tangent=)` defects and left them recorded. Fixing them found a worse
+one.
+
+| input | before |
+|---|---|
+| `tangent=` shorter than the path | raw `IndexError` naming a numpy axis |
+| `tangent=` uniform, right length | raw `ZeroDivisionError` |
+| a path with a **repeated point** | **built a solid with `[nan, nan, nan]` bounds** |
+
+The first two are rude. The third is silent — the sweep **returned**, so nothing raised and nothing
+warned, and the caller held a solid that measures as nothing. **T94's `arcxrot` in a different
+file**, which is why the guard asserts finiteness as well as asking what was raised: a test that
+only checks for an exception passes every row above.
+
+### Each cause is arithmetic on a vector with no length
+
+* `% npts` makes a short `tangent=` index *legal*, so the failure surfaced inside numpy rather than
+  at the call that was wrong.
+* `v2 @ v2` is zero exactly when the reflected tangent already **is** the next tangent, so the
+  second reflection of the double-reflection frame is the identity. A degenerate case of the
+  algorithm, not a bad input — and uniform tangents are the obvious thing to pass. A 2-D tangent
+  becomes one once padded to three components.
+* `v1 @ v1` is zero when two path points coincide. That one propagates `NaN` rather than raising,
+  because numpy divides a float array by zero instead of refusing.
+
+### Refused, not deduplicated — and the difference matters
+
+`Path3D.deduplicate()` exists and the refusal names it. Dropping the point silently would have been
+easier and wrong: it **renumbers the path**, and `tangent=` and the per-point forms of `scale=` and
+`normal=` are matched against that numbering. A silent dedup turns a correct call into a length
+mismatch, or applies the wrong value at every point after the duplicate. The guard checks the named
+fix reproduces the *hand-written clean path's* answer, not merely that it builds.
+
+### My first control proved less than it looked
+
+Removing the repeated-point guard failed only the test that names the refusal. The general
+assertion — *no sweep returns NaN* — stayed green, because its route list held a near-coincident
+pair (1e-7 apart) and no exact duplicate. **The general form is the one that would have caught this
+class before anyone knew to look for it**, so it has to contain the case. Added; the control now
+fails both.
+
+### The length check then found a real geometry defect
+
+Requiring one tangent per path point broke `test_stl_render.py::test_sweep`. The route had **no**
+duplicates — `Bezier.sweep` was passing **n+1** tangents.
+
+It builds the list segment by segment, and consecutive segments share a junction that `path_curve`
+emits **once**. Both copies of the junction tangent were kept, so the list ran one long and
+**every tangent after the first junction was paired with the wrong path point.** At the junction a
+frame built from `tangent[i]` sat 15.2° off the path's local direction where `tangent[i+1]` sat
+1.25° off.
+
+Surplus at the end of a list indexed `[i % npts]` is read by nothing, so a quiet misalignment was
+the only symptom — and the one test that renders this exact call asserts `ntris > 0` and
+`volume > 0`, both of which a misaligned sweep satisfies perfectly.
+
+### Two copies of the loop, and fixing one revealed the other
+
+`sweep` and `sweep_transforms` carry the same five lines. I fixed `sweep`, and the count check
+still reported a mismatch — which is how the second was found. A duplicated loop is a duplicated
+defect, the same shape as T100's four rotation-validation sites.
+
+### Asserted by refinement, not by tolerance
+
+A correctly paired tangent list is wrong only by discretisation, so its error **halves** as the
+step count doubles: **3.65° → 1.81° → 0.90°**. A list shifted by one point stays wrong by about the
+turn between neighbouring points however fine the sampling. That distinction is the assertion —
+a fixed tolerance would pass either at a coarse enough setting.
+
+### Three instrument errors before any of this was measured
+
+* The obvious bezier path is **not C1-continuous** at its junction, so the curve's own tangent
+  legitimately differs from the local chord by half the corner angle. Measuring it put the "error"
+  at 48° both before and after the fix. The guard uses a path built to be smooth there.
+* A probe script run as `python3 /abs/path/measure.py` has **its own directory** on `sys.path[0]`,
+  not the working tree — so `import pybosl2` loaded the **installed** copy and reported the same
+  numbers with the fix present and absent. **T68's stale-install trap**, in a new disguise.
+* Reconstructing the tangent list by hand to measure "before" gave 9.70° against 6.25°, because my
+  reconstruction hardcoded `endpoint`. The number worth quoting is the one taken from the call
+  itself.
+
+### Measured and left
+
+An exact reversal (`out and straight back`) refuses with `Cannot normalize a zero vector` — in the
+`Bosl2Error` family, so the contract holds, but the message names neither `path_sweep` nor the path.
+Recorded here rather than chased.
+
+## T102 — The facet arithmetic lives in one place ✅
+
+**§12.2 item 65. R-P3 — a requirement that named its own failure mode and carried no enforcer.**
+
+T100 and T101 each found a duplicated block carrying a duplicated defect, so I asked it of the
+whole package: 31 function pairs share >80% of their body. Most are legitimately parallel — the
+boolean operators, the set operations. One pair had **different names**: `Path2D._offset_segs` and
+`sdf.paths._frag_count`, near-identical bodies. That is three implementations of OpenSCAD's
+`$fn`/`$fa`/`$fs` rule, counting `_helpers.frag_count`.
+
+### The copies had drifted in the one way that matters
+
+`frag_count` fills in the ambient `use_defaults(...)` values before OpenSCAD's own `$fa=12/$fs=2`.
+The copies went straight to the fallbacks.
+
+| | |
+|---|---|
+| `offset(radius=5)` under `use_defaults(fn=64)` | **20 points** |
+| `offset(radius=5, fn=64)`, no ambient block | **68 points** |
+
+The same 64; one of them honoured. R-P3 names this exactly: *"new leaf constructors SHOULD route
+through those rather than re-implementing the `$fa`/`$fs` arithmetic."*
+
+### Enforced two ways
+
+| check | catches |
+|---|---|
+| the arithmetic appears in exactly one function | a new copy, cheaply and exactly — R-P3's own wording |
+| the resolvers agree under an ambient block | a fourth copy that happens to delegate right, and the behaviour the rule is *for* |
+
+### The sweeping version was measured and rejected
+
+Asking all **52** public callables that take `fn=` whether their vertex count responds to
+`use_defaults(fn=8)` against `fn=64`: **43 unbuildable** from generic arguments, and **5 false
+positives** — `cube`, `cuboid`, `prismoid`, `rect_tube`, `regular_prism` are flat-faced, so `fn`
+legitimately changes nothing. Given a `rounding=`, every one responds (cuboid: 48 → 2176 vertices).
+A sweep needing a per-shape fixture to avoid false positives is not a sweep — **T99's verdict on its
+own 247-parameter form, reached again.**
+
+### G-5 removed a second copy once already
+
+R-P3's note already said, before this task: *"Resolving once at the point of use is a structural
+habit; **nothing counts the resolution sites**. G-5 removed the second implementation of the rule
+itself."*
+
+So a copy was found and deleted once, the note recorded that nothing was counting, and **two more
+grew back.** Deleting a duplicate does not stop duplication; counting does. That sentence was the
+task sitting in its own note, unread, exactly as S-28's note had been naming its missing test in
+T89.
+
+### The repo caught me citing the wrong layer
+
+Every citation I wrote said **SPEC R-P3**. It is `PLAN-R-P3` — a mechanics-layer rule, not a
+contract one — and `test_every_qualified_citation_resolves` named all six sites. Two layers, two
+prefixes, and a plausible-looking citation that resolves to nothing; the only reason it is not now
+sitting in the source is that something reads citations back.
+
+### `fa` cannot be used to test this
+
+At radius 5 the `fs` term dominates every plausible `fa`, so `use_defaults(fa=3)` reports 16 whether
+the block is read or not. The parametrisation uses `fn` and `fs` and says why — a case that cannot
+distinguish pass from fail is worse than no case, because it looks like coverage.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

@@ -4214,12 +4214,15 @@ keyword = "SHOULD"
 statement = '''
 Resolve them exactly once, at the point of use, through `pybosl2.defaults.resolve_facets()` / `resolve_res()`, which fill in the ambient block values (`use_defaults(fn=64)`). The central resolvers are `_helpers.frag_count()`, `shapes3d/base._ocylinder`/`_osphere`, `shapes2d/circle.circle`, and each backend's `construct()`; new leaf constructors SHOULD route through those rather than re-implementing the `$fa`/`$fs` arithmetic.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_facets_resolve_once.py",
+]
+status = "enforced"
 note = '''
-Resolving once at the point of use is a structural habit; nothing counts the resolution sites. G-5 removed the second implementation of the rule itself.
-'''
+This note used to end "nothing counts the resolution sites", and record that G-5 had removed the second implementation of the rule itself. Two more grew back, which is the argument for counting them rather than removing them one at a time. The rule named its own failure mode and nothing read it: **three** implementations of the arithmetic existed. `frag_count` fills in the ambient `use_defaults(...)` values before falling back to OpenSCAD's `$fa=12`/`$fs=2`; `Path2D._offset_segs` and `pybosl2.sdf.paths._frag_count` went straight to the fallbacks, so a block-scoped default was silently ignored on those paths -- `offset(radius=5)` returned a 20-point outline under `use_defaults(fn=64)` and a 68-point one when the same 64 was passed explicitly (T102).
 
+Enforced two ways, because each sees what the other cannot: the arithmetic must appear in exactly one function, which is the form this requirement states; and the resolvers must agree under an ambient block, which is the behaviour it is for and survives a fourth copy that happens to delegate correctly. The sweeping form -- asking all 52 public callables taking `fn=` whether their vertex count responds to the ambient value -- was measured and rejected: 43 are unbuildable from generic arguments and five are flat-faced shapes where `fn` legitimately changes nothing until a `rounding=` gives them a curve.
+'''
 [[requirement]]
 id = "PLAN-R-P4"
 aliases = ["R-P4"]
