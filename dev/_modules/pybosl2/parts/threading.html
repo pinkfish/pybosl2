@@ -2519,7 +2519,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_left_handed</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form"</span><span class="p">)</span>
+    <span class="nd">@csg_part</span><span class="p">(</span>
+        <span class="s2">"builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "</span>
+        <span class="s2">"does have a distance-field form -- ThreadHelix, in this file, routes through "</span>
+        <span class="s2">"spiral_sweep and builds on both backends -- so what is in the way is this part's "</span>
+        <span class="s2">"route, not the shape (T103). Converting it is a geometry change, not a dispatch one."</span>
+    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build and return the threaded rod geometry (cached)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2641,7 +2646,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_left_handed</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form"</span><span class="p">)</span>
+    <span class="nd">@csg_part</span><span class="p">(</span>
+        <span class="s2">"builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "</span>
+        <span class="s2">"does have a distance-field form -- ThreadHelix, in this file, routes through "</span>
+        <span class="s2">"spiral_sweep and builds on both backends -- so what is in the way is this part's "</span>
+        <span class="s2">"route, not the shape (T103). Converting it is a geometry change, not a dispatch one."</span>
+    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build and return the nut geometry (cached)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
