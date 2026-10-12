@@ -366,7 +366,12 @@ class ThreadedRod(Buildable):
         return self._left_handed
 
     @property
-    @csg_part("builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form")
+    @csg_part(
+        "builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "
+        "does have a distance-field form -- ThreadHelix, in this file, routes through "
+        "spiral_sweep and builds on both backends -- so what is in the way is this part's "
+        "route, not the shape (T103). Converting it is a geometry change, not a dispatch one."
+    )
     def shape(self) -> "Solid":
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
@@ -485,7 +490,12 @@ class ThreadedNut(Buildable):
         return self._left_handed
 
     @property
-    @csg_part("builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form")
+    @csg_part(
+        "builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "
+        "does have a distance-field form -- ThreadHelix, in this file, routes through "
+        "spiral_sweep and builds on both backends -- so what is in the way is this part's "
+        "route, not the shape (T103). Converting it is a geometry change, not a dispatch one."
+    )
     def shape(self) -> "Solid":
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:

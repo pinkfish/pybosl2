@@ -3749,6 +3749,58 @@ At radius 5 the `fs` term dominates every plausible `fa`, so `use_defaults(fa=3)
 the block is read or not. The parametrisation uses `fn` and `fs` and says why — a case that cannot
 distinguish pass from fail is worse than no case, because it looks like coverage.
 
+## T103 — Eleven refusals, two different claims ✅
+
+**§12.2 item 2. PAR-1, B-5. No coverage change — a reason corrected and a category split.**
+
+T100 flagged this and warned against assuming: the other ten CSG-only parts were not re-examined,
+and *"that is a claim about their reasons, which is exactly the kind this task just falsified."*
+
+All eleven cited the same mechanism — built as a VNF, and a non-convex mesh has no distance-field
+form. Asking T100's question of each: **does the SDF backend have a primitive that builds this
+shape, which nothing is asking?**
+
+### The witness was in the same file
+
+`spiral_sweep` exists on both backends. `ThreadHelix` routes a helical thread through it:
+
+| | csg | sdf |
+|---|---|---|
+| `ThreadHelix` | builds, 10×10×10 | **builds, 10×10×10** |
+| `ThreadedRod` | builds | refuses: *"a non-convex mesh has no distance-field form"* |
+
+A helical thread demonstrably **has** a distance-field form. `ThreadedRod`, `ThreadedNut`, `Nut`
+and `Screw` build a hand-rolled VNF grid instead — a fact about the part, not about the shape.
+
+### The guard was right to object, and its own docstring said why
+
+Correcting the four reasons broke `test_each_refusal_names_non_convexity`, because §12.2 accepted
+non-convexity as the *only* reason. Its docstring already warned that a different reason *"would be
+a gap that **could** be closed, hiding inside one that cannot"* — which is precisely what these
+were. **The right alarm, the wrong conclusion.** So the two claims are now separate lists:
+
+* **six shape gaps** — unclosable, B-5;
+* **five route gaps** — closable, `ROUTE_ONLY_PARTS`, with `WireBundle` joining the four by T100's
+  measurement.
+
+And `test_a_route_gap_is_one_the_backend_could_build` asserts the witness, so the distinction is
+measured rather than declared. Without it the split is two lists and a comment — the arrangement
+that let the false reason stand.
+
+### Not attempted, and why
+
+Replacing a precise thread grid with a sweep is a geometry change, and libfive is stubbed here: an
+SDF solid meshes to nothing and `inside()` returns `False` everywhere, so only the analytic box can
+be read. The two `spiral_sweep` implementations agree on size *and* centre with an asymmetric
+profile — better evidence than `path_sweep` gave — but **a box is still a size signature**, and that
+has hidden a shape difference four times this session. Named, not guessed.
+
+### Three other duplicate pairs checked and clean
+
+`round_edges`/`cove_edges` (volumes 7577 vs 6617 — cove removes more, as T89's fix requires),
+`xcyl`/`ycyl`/`zcyl` (each aligned to its own axis), `_m_xrot`/`_m_zrot` (each rotating about its
+own). The duplication audit found one real defect, T102's, and three negative results.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
