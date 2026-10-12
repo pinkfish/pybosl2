@@ -3686,6 +3686,69 @@ An exact reversal (`out and straight back`) refuses with `Cannot normalize a zer
 `Bosl2Error` family, so the contract holds, but the message names neither `path_sweep` nor the path.
 Recorded here rather than chased.
 
+## T102 — The facet arithmetic lives in one place ✅
+
+**§12.2 item 65. R-P3 — a requirement that named its own failure mode and carried no enforcer.**
+
+T100 and T101 each found a duplicated block carrying a duplicated defect, so I asked it of the
+whole package: 31 function pairs share >80% of their body. Most are legitimately parallel — the
+boolean operators, the set operations. One pair had **different names**: `Path2D._offset_segs` and
+`sdf.paths._frag_count`, near-identical bodies. That is three implementations of OpenSCAD's
+`$fn`/`$fa`/`$fs` rule, counting `_helpers.frag_count`.
+
+### The copies had drifted in the one way that matters
+
+`frag_count` fills in the ambient `use_defaults(...)` values before OpenSCAD's own `$fa=12/$fs=2`.
+The copies went straight to the fallbacks.
+
+| | |
+|---|---|
+| `offset(radius=5)` under `use_defaults(fn=64)` | **20 points** |
+| `offset(radius=5, fn=64)`, no ambient block | **68 points** |
+
+The same 64; one of them honoured. R-P3 names this exactly: *"new leaf constructors SHOULD route
+through those rather than re-implementing the `$fa`/`$fs` arithmetic."*
+
+### Enforced two ways
+
+| check | catches |
+|---|---|
+| the arithmetic appears in exactly one function | a new copy, cheaply and exactly — R-P3's own wording |
+| the resolvers agree under an ambient block | a fourth copy that happens to delegate right, and the behaviour the rule is *for* |
+
+### The sweeping version was measured and rejected
+
+Asking all **52** public callables that take `fn=` whether their vertex count responds to
+`use_defaults(fn=8)` against `fn=64`: **43 unbuildable** from generic arguments, and **5 false
+positives** — `cube`, `cuboid`, `prismoid`, `rect_tube`, `regular_prism` are flat-faced, so `fn`
+legitimately changes nothing. Given a `rounding=`, every one responds (cuboid: 48 → 2176 vertices).
+A sweep needing a per-shape fixture to avoid false positives is not a sweep — **T99's verdict on its
+own 247-parameter form, reached again.**
+
+### G-5 removed a second copy once already
+
+R-P3's note already said, before this task: *"Resolving once at the point of use is a structural
+habit; **nothing counts the resolution sites**. G-5 removed the second implementation of the rule
+itself."*
+
+So a copy was found and deleted once, the note recorded that nothing was counting, and **two more
+grew back.** Deleting a duplicate does not stop duplication; counting does. That sentence was the
+task sitting in its own note, unread, exactly as S-28's note had been naming its missing test in
+T89.
+
+### The repo caught me citing the wrong layer
+
+Every citation I wrote said **SPEC R-P3**. It is `PLAN-R-P3` — a mechanics-layer rule, not a
+contract one — and `test_every_qualified_citation_resolves` named all six sites. Two layers, two
+prefixes, and a plausible-looking citation that resolves to nothing; the only reason it is not now
+sitting in the source is that something reads citations back.
+
+### `fa` cannot be used to test this
+
+At radius 5 the `fs` term dominates every plausible `fa`, so `use_defaults(fa=3)` reports 16 whether
+the block is read or not. The parametrisation uses `fn` and `fs` and says why — a case that cannot
+distinguish pass from fail is worse than no case, because it looks like coverage.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

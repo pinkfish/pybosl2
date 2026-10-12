@@ -2895,11 +2895,15 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fs: Minimum size for circle fragments.
 
         """
-        if fn is not None and fn >= 3:
-            return int(math.floor(fn))
-        fa = fa if fa else 12.0
-        fs = fs if fs else 2.0
-        return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
+        # Delegated rather than re-derived. This was a third copy of the `$fn`/`$fa`/`$fs`
+        # arithmetic, and the copies had drifted in the one way that matters: `frag_count` fills in
+        # the ambient `use_defaults(...)` block values first and these did not, so
+        # `offset(radius=5)` returned a 20-point outline under `use_defaults(fn=64)` and a 68-point
+        # one when the same 64 was passed explicitly. PLAN R-P3 asks for exactly this: resolve once,
+        # at the point of use, through the central resolver (T102).
+        from pybosl2._helpers import frag_count
+
+        return frag_count(radius, fn, fa, fs)
 
     @staticmethod
     def _cut_to_seg_u_form(pathcut: list[CutPoint], path: Sequence[Any], closed: bool) -> list[Any]:

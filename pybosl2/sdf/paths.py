@@ -1009,12 +1009,15 @@ def path_normals(path: "Path2D", closed: bool = False) -> NDArray[np.float64]:
 
 
 def _frag_count(r: float, fn: float | None = None, fa: float | None = None, fs: float | None = None) -> int:
-    """Return the number of segments approximating a circle of radius `r` (OpenSCAD's $fn/$fa/$fs rules)."""
-    if fn is not None and fn >= 3:
-        return int(math.floor(fn))
-    fa = fa if fa else 12.0
-    fs = fs if fs else 2.0
-    return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(r)) / fs))))
+    """Return the number of segments approximating a circle of radius `r` (OpenSCAD's $fn/$fa/$fs rules).
+
+    Delegates to the central resolver. This re-derived the arithmetic and so skipped the ambient
+    `use_defaults(...)` block values, which PLAN R-P3 exists to prevent -- the same drift as
+    `Path2D._offset_segs`, in a second copy (T102).
+    """
+    from pybosl2._helpers import frag_count
+
+    return frag_count(r, None if fn is None else int(fn), fa, fs)
 
 
 def _circlecorner(
