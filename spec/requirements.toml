@@ -1368,11 +1368,17 @@ Sweeps take their cross-section orientation method, sampling type, and skin vert
 '''
 enforced_by = [
     "tests/test_exports.py",
+    "tests/test_skin_methods_are_live.py",
 ]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
 status = "enforced"
+note = '''
+`tests/test_exports.py` checks the three enums exist and are exported, which is what "as enums, never as strings" says about a *signature*. **Two of the three were inert** (T106). `if method[i - 1] == SkinMethod.DIRECT:` indexed the scalar parameter rather than the per-profile list built two lines earlier -- `SkinMethod` is a `StrEnum`, so `SkinMethod.DIRECT[0]` is `'d'`, the comparison was always false, the `DIRECT` branch was dead and every skin reindexed. And `sampling` was normalised to `SamplingType.LENGTH` and never read, though `subdivide_path` has carried the same distinction under the same two names all along. All four combinations built one solid; they build four now.
+
+The fixture is the other half. Two regular polygons are uniformly spaced by arc length *and* by segment and are already optimally aligned, so `LENGTH`/`SEGMENT` coincide and reindexing is the identity -- and `refine` defaults to 1.0, which makes the resample target equal the existing point count, so no points are added and **no sampling method can matter whatever profiles are passed**. Three reasons a plausible test proves nothing.
+'''
 
 [[requirement]]
 id = "SPEC-S-21"

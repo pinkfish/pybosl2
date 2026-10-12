@@ -3892,6 +3892,52 @@ countersunk head should carry a hex socket is a question about **screw standards
 dispatch. Listed with its reason in `HEX_DRIVE_NOT_CUT`, which only shrinks, rather than guessed at.
 Closing a gap by inventing a dimension is how T89's mask profiles came to be wrong.
 
+## T106 — Two enums that changed nothing ✅
+
+**§12.2 item 68. S-20, G-8. A scalar indexed as a list, and an argument never read.**
+
+T104 generalised to a question: which requirements are *behavioural claims* enforced only by an
+*existence* check? Twenty-four, most legitimately so — A-7 "a name in `__all__` must resolve" **is**
+an existence rule. S-20 is not:
+
+> Sweeps take their cross-section orientation method, sampling type, and skin vertex-matching
+> method as enums (`SweepMethod`, `SamplingType`, `SkinMethod`), never as strings.
+
+True of the signatures, and that was the whole of its enforcement. **Two of the three enums were
+inert.**
+
+| | |
+|---|---|
+| `if method[i - 1] == SkinMethod.DIRECT:` | indexes the **scalar**. `SkinMethod` is a `StrEnum`, so `SkinMethod.DIRECT[0]` is `'d'` — always false, the `DIRECT` branch dead, **every skin reindexed** |
+| `sampling` | normalised to `LENGTH` on one line, never read again |
+
+`method_list` was built two lines above the dispatch *for exactly this* and used only in the
+validation loop. `subdivide_path` has carried the LENGTH/SEGMENT distinction under the same two
+names the whole time.
+
+All four method×sampling combinations built one solid. They build four now, and the controls
+separate the causes exactly: the index typo makes `DIRECT` and `REINDEX` agree to the last digit,
+dropping the sampling argument makes `LENGTH` and `SEGMENT` agree.
+
+### The fixture is most of why it survived — three ways
+
+My first two attempts proved nothing, for three separate reasons:
+
+1. **Regular polygons** inscribed in circles are uniformly spaced by arc length *and* by segment,
+   so `LENGTH` and `SEGMENT` coincide.
+2. They are already optimally aligned, so **reindexing is the identity**.
+3. `refine` defaults to **1.0**, making the resample target equal the point count the profile
+   already has — so no points are added and **no sampling method can matter, whatever profiles are
+   passed.**
+
+The third is the dangerous one: it disables the parameter for every fixture, not just a badly
+chosen one. The guard asserts `REFINE > 1.0` in its own right.
+
+### The default path's geometry changed and nothing noticed
+
+`DIRECT` is the default, and it stopped reindexing. **124 existing skin and VNF tests still pass.**
+That is not reassurance — it is the measurement of the gap.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
