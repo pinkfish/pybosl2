@@ -5258,11 +5258,15 @@
 <span class="sd">            fs: Minimum size for circle fragments.</span>
 
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fn</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
-        <span class="n">fa</span> <span class="o">=</span> <span class="n">fa</span> <span class="k">if</span> <span class="n">fa</span> <span class="k">else</span> <span class="mf">12.0</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">fs</span> <span class="k">if</span> <span class="n">fs</span> <span class="k">else</span> <span class="mf">2.0</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">fa</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">radius</span><span class="p">))</span> <span class="o">/</span> <span class="n">fs</span><span class="p">))))</span>
+        <span class="c1"># Delegated rather than re-derived. This was a third copy of the `$fn`/`$fa`/`$fs`</span>
+        <span class="c1"># arithmetic, and the copies had drifted in the one way that matters: `frag_count` fills in</span>
+        <span class="c1"># the ambient `use_defaults(...)` block values first and these did not, so</span>
+        <span class="c1"># `offset(radius=5)` returned a 20-point outline under `use_defaults(fn=64)` and a 68-point</span>
+        <span class="c1"># one when the same 64 was passed explicitly. PLAN R-P3 asks for exactly this: resolve once,</span>
+        <span class="c1"># at the point of use, through the central resolver (T102).</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span>
+
+        <span class="k">return</span> <span class="n">frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_cut_to_seg_u_form</span><span class="p">(</span><span class="n">pathcut</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>

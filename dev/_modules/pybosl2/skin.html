@@ -2804,6 +2804,14 @@
     <span class="k">return</span> <span class="n">vnf</span> <span class="k">if</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">vnf</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
 
+<span class="c1">#: Squared-length floor below which a reflection vector counts as vanishing. Squared, because</span>
+<span class="c1">#: it is compared against `v @ v` rather than `norm(v)`.</span>
+<span class="n">_EPS_SQ</span> <span class="o">=</span> <span class="mf">1e-18</span>
+
+<span class="c1">#: Floor below which two consecutive path points count as the same point.</span>
+<span class="n">_EPS_LEN</span> <span class="o">=</span> <span class="mf">1e-9</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_sweep</span><span class="p">(</span>
     <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="n">Path3D</span><span class="p">,</span>
@@ -2833,9 +2841,32 @@
     <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">npts</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path must have at least 2 points."</span><span class="p">)</span>
+    <span class="c1"># A repeated point has no direction, so the frame walk below divides by its squared length and</span>
+    <span class="c1"># every transform downstream comes back `NaN` -- and the sweep *returns*, so a caller got a</span>
+    <span class="c1"># solid whose bounds were `[nan, nan, nan]` with no exception and no warning (T101). Refused</span>
+    <span class="c1"># rather than deduplicated silently, because dropping a point renumbers the path and the</span>
+    <span class="c1"># per-point lists (`tangent=`, a per-point `scale=` or `normal=`) are matched against it: a</span>
+    <span class="c1"># silent dedup turns a correct call into a length mismatch, or applies the wrong value at every</span>
+    <span class="c1"># point after the duplicate.</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">patharr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">repeated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">steps</span> <span class="o">&lt;=</span> <span class="n">_EPS_LEN</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">repeated</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">at</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">repeated</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"path_sweep(): the path repeats a point at index </span><span class="si">{</span><span class="n">at</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">patharr</span><span class="p">[</span><span class="n">at</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">), which "</span>
+            <span class="sa">f</span><span class="s2">"has no direction to sweep along. Call .deduplicate() on the path first."</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">tangent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_u</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">path3d</span><span class="p">(</span><span class="n">tangent</span><span class="p">)])</span>
+        <span class="c1"># One per path point. Unchecked, a short list reached `tangents[i % npts]` as a raw</span>
+        <span class="c1"># `IndexError` naming an axis rather than the parameter, and an empty one did the same at</span>
+        <span class="c1"># index 0 (SPEC E-1, E-4). `% npts` makes the index legal, so the error surfaces inside</span>
+        <span class="c1"># numpy rather than at the call that was wrong.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tangents</span><span class="p">)</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"path_sweep(): tangent= needs one tangent per path point, </span><span class="si">{</span><span class="n">npts</span><span class="si">}</span><span class="s2"> here, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tangents</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span><span class="o">.</span><span class="n">tangents</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
@@ -2898,7 +2929,13 @@
                 <span class="n">refl_t</span> <span class="o">=</span> <span class="n">tangents</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">v1</span> <span class="o">@</span> <span class="n">tangents</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span> <span class="o">/</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">v1</span>
                 <span class="n">v2</span> <span class="o">=</span> <span class="n">tangents</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span> <span class="o">-</span> <span class="n">refl_t</span>
                 <span class="n">c2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">v2</span><span class="p">)</span>
-                <span class="n">radius</span> <span class="o">=</span> <span class="n">refl_r</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">refl_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span>
+                <span class="c1"># `v2` vanishes exactly when the reflected tangent already *is* the next tangent,</span>
+                <span class="c1"># so the second reflection of the double-reflection frame is the identity and the</span>
+                <span class="c1"># radius carries straight over. Unguarded this divided by zero, which is how</span>
+                <span class="c1"># `tangent=` with a uniform list of directions -- the obvious thing to pass, and</span>
+                <span class="c1"># what a 2-D tangent becomes once padded -- came back as a bare `ZeroDivisionError`</span>
+                <span class="c1"># from inside the frame walk (T101).</span>
+                <span class="n">radius</span> <span class="o">=</span> <span class="n">refl_r</span> <span class="k">if</span> <span class="n">c2</span> <span class="o">&lt;=</span> <span class="n">_EPS_SQ</span> <span class="k">else</span> <span class="n">refl_r</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">refl_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span>
                 <span class="n">cur</span> <span class="o">=</span> <span class="n">frame_map</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">tangents</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
             <span class="n">reference</span> <span class="o">=</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
