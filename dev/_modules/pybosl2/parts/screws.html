@@ -2615,6 +2615,18 @@
         <span class="n">dims</span><span class="p">[</span><span class="s2">"head_height"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown head type "</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drive</span> <span class="o">==</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">SLOT</span> <span class="ow">and</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_size"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Every branch above resolves drive dimensions only for `HEX`, so a slot arrived at</span>
+        <span class="c1"># `_build_drive_recess` with `drive_size` and `drive_depth` still None, hit its</span>
+        <span class="c1"># `not size or not depth` early return, and produced **no recess at all** -- a slotted</span>
+        <span class="c1"># screw identical to an undriven one, which is the G-8 case of an accepted enum member</span>
+        <span class="c1"># falling through. Its builder was there the whole time and unreachable, fallback included</span>
+        <span class="c1"># (T105).</span>
+        <span class="c1">#</span>
+        <span class="c1"># Proportional to the shank rather than tabulated per head, because a slot is: the hex</span>
+        <span class="c1"># sizes come from the socket and button tables, a slot's do not. The depth matches what</span>
+        <span class="c1"># every hex branch uses.</span>
+        <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_size"</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="s2">"drive_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">6</span><span class="p">),</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="n">dims</span>
 
 
