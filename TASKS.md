@@ -3801,6 +3801,54 @@ has hidden a shape difference four times this session. Named, not guessed.
 `xcyl`/`ycyl`/`zcyl` (each aligned to its own axis), `_m_xrot`/`_m_zrot` (each rotating about its
 own). The duplication audit found one real defect, T102's, and three negative results.
 
+## T104 — The enum sweep had skipped one ✅
+
+**§12.2 item 66. S-21, G-8.**
+
+T98 swept every behaviour-selecting enum for members sharing behaviour, and reported `OSType` as
+having **no public dispatch site**. It looked for the enum in a *signature*; `OSType` reaches
+`offset_sweep` inside an `OSProfile` descriptor, built by the six `os_*` factories. **A scope hole
+in my own sweep**, found by asking its question of the one enum it had skipped.
+
+### What it was hiding
+
+Making `os_teardrop` compute `os_circle`'s arc leaves the whole suite green: **481 passed**,
+identical volume. Every existing assertion is either about the descriptor's fields
+(`d["type"] == "circle"`, `d["r"] == 3.0`) or that the swept volume shrank — and both survive one
+treatment becoming another.
+
+Disabling the branch outright **is** caught: it falls through to no treatment, the volume stops
+shrinking, and `test_offset_sweep_teardrop` fails. Becoming a *different* treatment is the case
+nothing covered — T97's `MIN_EDGE`/`MIN_AREA` exactly.
+
+### Why this one matters more than a tessellation choice
+
+`os_teardrop` exists because an FDM printer cannot bridge past a given lean. Measured on the
+underside:
+
+| treatment | steepest lean from vertical |
+|---|---|
+| `os_circle` | **87.20°** — unprintable |
+| `os_teardrop` | **45.01°** — capped at `max_angle` |
+| `os_chamfer` | 45.00° |
+
+A teardrop quietly turned into a circle leaves an 87° underside where 45 was asked for: a part that
+does not print, reported by nothing. T62's inverted `effective_clip` and T90's `Mask2D.tear`, a
+third time.
+
+### Measuring the wrong end proved nothing
+
+My first probe read the *top* treatment and put teardrop and chamfer at an identical **86.19°** —
+because a top treatment leans the same way whatever it is, and the flat cap dominates. The angle is
+about the underside. **S-21's only enforcer was `test_exports.py`**, which checks the six objects
+exist; an existence check for a requirement about behaviour.
+
+### The parametrisation is earned by a control
+
+45 is both `os_teardrop`'s default *and* `os_chamfer`'s natural bevel, so a single reading at 45
+cannot tell a working cap from a coincidence. Pinning `max_angle` at 45 — dropping the argument —
+passes the 45 case and fails 20, 30 and 60.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

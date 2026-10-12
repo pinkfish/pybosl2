@@ -1384,11 +1384,17 @@ Offset-sweep end treatments are objects (`os_circle`, `os_smooth`, `os_teardrop`
 '''
 enforced_by = [
     "tests/test_exports.py",
+    "tests/test_offset_sweep_profiles.py",
 ]
 candidates = [
     "tests/test_exports.py::test_the_named_families_are_exported_whole",
 ]
 status = "enforced"
+note = '''
+`tests/test_exports.py` checks the six treatments exist and are exported. Nothing checked that they *differ*: making `os_teardrop` compute `os_circle`'s arc left the whole suite green -- 481 passed, identical volume -- because every assertion on them was either about the descriptor's fields (`d["type"] == "circle"`) or that the swept volume shrank, and both survive one treatment becoming another. Disabling a branch outright *was* caught, since it falls through to no treatment and the volume stops shrinking; silently becoming a different treatment was not (T104).
+
+That matters most for `os_teardrop`, whose whole purpose is that an FDM printer cannot bridge past a given lean: a teardrop quietly turned into a circle leaves an **87 degree** underside where 45 was asked for. Measured on the *bottom* treatment, because that is the end the angle is about -- read off the top, a teardrop and a chamfer both measure 86.19 degrees and the comparison proves nothing.
+'''
 
 [[requirement]]
 id = "SPEC-S-22"
@@ -2644,6 +2650,7 @@ enforced_by = [
     "tests/test_isovalue_ranges.py::test_every_vertex_of_the_shell_is_on_one_of_the_two_spheres",
     "tests/test_isovalue_ranges.py::test_a_range_open_at_the_bottom_is_the_region_below_the_threshold",
     "tests/test_vnf_styles_are_distinct.py",
+    "tests/test_offset_sweep_profiles.py",
 ]
 status = "enforced"
 
