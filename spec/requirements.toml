@@ -965,6 +965,7 @@ Note the deliberate difference in what `.shape` means either side of the FFI bou
 '''
 enforced_by = [
     "tests/test_every_part_builds.py",
+    "tests/test_constructors_wrap_once.py",
 ]
 status = "enforced"
 note = '''

@@ -1074,7 +1074,14 @@ def ruler(
                     .translate([x0, y0, 0])
                     .color(colors[(idx + 1) % 2], alpha=alpha)
                 )
-                pieces.append(piece)
+                # `.shape` because `pieces` holds native handles: the ticks come from `_ocube` and
+                # this one comes back from the façade's `linear_extrude` as a `CsgSolid`. Appended
+                # as the wrapper, the list alternated native and wrapped, and `base | p` fell
+                # through to pythonscad's own operator with an argument it does not understand --
+                # so **every** `labels=True` call raised a bare
+                # `TypeError: invalid argument left to operator` (T107). Unwrapping at the FFI
+                # boundary inside a native builder is what C-14a says a wrapper's `.shape` is for.
+                pieces.append(piece.shape)
 
     base = pieces[0]
     for p in pieces[1:]:
@@ -1082,8 +1089,9 @@ def ruler(
     shape = base.translate([-length_v / 2, -width_v / 2, 0])
 
     offset = _anchor_offset_box3([length_v, width_v, thickness], anchor)
-    return Bosl2Solid(
-        _finish3(shape, offset, spin, orient),
-        size=[length_v, width_v, thickness],
-        anchor=anchor,
-    )
+    # `_finish3` already returns a `Bosl2Solid`; every other caller in this file returns it
+    # directly. Wrapping it again made `ruler(...).shape` a `CsgSolid` rather than the native
+    # handle C-14a says it is, so `.vnf()` reached `.mesh` on a wrapper and the ruler could not be
+    # meshed or exported at all. `mypy --strict` cannot see it: `PyOpenSCAD` is an untyped
+    # third-party class, so the constructor's parameter accepts anything (T107).
+    return _finish3(shape, offset, spin, orient, size=[length_v, width_v, thickness], anchor=anchor)

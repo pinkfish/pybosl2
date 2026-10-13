@@ -3938,6 +3938,57 @@ chosen one. The guard asserts `REFINE > 1.0` in its own right.
 `DIRECT` is the default, and it stopped reindexing. **124 existing skin and VNF tests still pass.**
 That is not reassurance — it is the measurement of the gap.
 
+## T107 — Wrapped twice, and a crash at every size ✅
+
+**§12.2 item 69. C-14a, E-1. Three defects in one function family.**
+
+Two sweeps first, both **negative**, reported as such: T106's "scalar normalised then indexed
+un-normalised" has no remaining instances (the one hit was `scale[0]` inside an `isinstance` guard,
+with `scale_list` matched by name coincidence), and string operations on enum-typed parameters found
+four sites, all correct — `modes[axis]` indexes a `Sequence[EdgeMode]`, and `_ptn_sect`'s annotation
+explicitly includes `str`.
+
+Then `ruler`, from the length ratchet.
+
+### `labels=True` crashed at every size
+
+`TypeError: invalid argument left to operator`, unconditionally. `ruler` is a **native** builder —
+`pieces` is declared `list[PyOpenSCAD]` and the ticks come from `_ocube` — but the label pieces come
+back from the façade's `linear_extrude` as `CsgSolid` wrappers and were appended as such. The list
+alternated native and wrapped, so `base | p` fell through to pythonscad's own operator with an
+argument it does not understand.
+
+Text was never the problem. It builds, bounds and extrudes; all **110** label strings were created
+successfully before the union failed. Four wrong hypotheses died first — colour, `convexity`,
+`valign="baseline"`, and piece count — each eliminated by measurement before the real cause showed
+up in a trace of the frame's locals.
+
+### `ruler` was wrapped twice, so it could not be meshed
+
+`return Bosl2Solid(_finish3(...))` — and `_finish3` is declared `-> Bosl2Solid` and already wraps.
+So `ruler(...).shape` was a `CsgSolid`, `.vnf()` reached `.mesh` on a wrapper, and the ruler could
+not be meshed or exported **at all**. Every other `_finish3` caller in the file returns it directly.
+
+`partition_cut_mask` did the same — and there the extra wrap was **how the function satisfied its
+own `-> Bosl2Solid` annotation**, so removing it surfaced a genuine typing question that the
+`@backend_only("csg")` decorator answers.
+
+### Why `mypy --strict` cannot see it
+
+`PyOpenSCAD` is an untyped third-party class, so the wrapper's `shape` parameter accepts anything.
+A wrapper passed where a native handle belongs type-checks cleanly. T71/T72's false-`Any` class,
+arriving through a dependency rather than our own annotation.
+
+### T91 stopped one layer short
+
+T91 enforced C-14a on all 51 **parts**. `ruler` is a top-level constructor, so it was outside that
+guard — and it broke the invariant from the other side: not a native handle escaping as `.shape`,
+but a wrapper sitting where the handle should be. Same requirement, opposite direction, and the
+guard only looked one way.
+
+The labels are now measurable: 200.00 mm³ plain against **200.81** labelled. A bounds comparison
+cannot see them — they sit inside the envelope — which is why the assertion is on volume.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
