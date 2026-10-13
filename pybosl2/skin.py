@@ -894,10 +894,23 @@ def _skin(
     from pybosl2.path3d import Path3D
 
     maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
-    resampled = [Path3D(profiles[i]).subdivide_path(points=int(maxlen), closed=True) for i in range(sides)]
+    # `sampling` was normalised above and then never read, so `SamplingType` changed nothing at all:
+    # LENGTH spaces the new points by arc length and SEGMENT spreads them evenly per segment, and
+    # `subdivide_path` has carried that distinction the whole time under the same two names (T106).
+    from pybosl2.paths import SubdivideMethod
+
+    subdivide = SubdivideMethod(sampling.value)
+    resampled = [
+        Path3D(profiles[i]).subdivide_path(points=int(maxlen), closed=True, method=subdivide) for i in range(sides)
+    ]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
-        if method[i - 1] == SkinMethod.DIRECT:
+        # `method_list`, not `method`. `SkinMethod` is a `StrEnum`, so `method[i - 1]` indexed the
+        # *string*: `SkinMethod.DIRECT[0]` is `'d'`, which never equals `SkinMethod.DIRECT`, so this
+        # comparison was always false and **every** skin reindexed -- the DIRECT branch was dead and
+        # the two methods built the same solid. `method_list` exists for this and was used only in
+        # the validation loop above (T106).
+        if method_list[i - 1] == SkinMethod.DIRECT:
             fixedprof.append(resampled[i])
         else:
             fixedprof.append(Path3D(_reindex_polygon(fixedprof[i - 1], resampled[i])))
