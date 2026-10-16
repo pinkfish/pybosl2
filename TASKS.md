@@ -3979,6 +3979,20 @@ own `-> Bosl2Solid` annotation**, so removing it surfaced a genuine typing quest
 A wrapper passed where a native handle belongs type-checks cleanly. T71/T72's false-`Any` class,
 arriving through a dependency rather than our own annotation.
 
+### The static form reaches everything the runtime one cannot
+
+T107's runtime sweep inspects only what it can build, and **83 of the top-level callables cannot be
+built from generic arguments**. `ruler` was missed twice over — unbuildable *and* not exported at
+the top level. So the same invariant is also checked by reading the source: no wrapper constructor
+may be handed a value that already returns a wrapper.
+
+It finds **zero** remaining instances, and replanting both T107 defects it names them by file and
+line. Four legitimate cases are exempt with the fact that justifies each: `self.shape.<extrude>` is
+the *native* handle's own method (C-14a), and `_opolygon` is `native("polygon")` — verified by
+building all three `Mask3D` cutters and both `shapes2d` extrudes, which come back with a
+`PyOpenSCAD` inside and mesh. A second test fails if an exemption stops matching anything, since an
+exemption that matches nothing silently stops exempting.
+
 ### T91 stopped one layer short
 
 T91 enforced C-14a on all 51 **parts**. `ruler` is a top-level constructor, so it was outside that

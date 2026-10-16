@@ -150,3 +150,93 @@ def test_a_labelled_ruler_builds_and_adds_material() -> None:
 def test_a_labelled_ruler_builds_at_every_size(length: float, depth: int) -> None:
     """It failed at every size, so more than one is checked -- the defect was unconditional."""
     assert float(ruler(length=length, depth=depth, labels=True).vnf().volume()) > 0.0
+
+
+#: Calls that return a **native handle** despite looking like wrapper-returning ones, so wrapping
+#: their result is correct rather than a double wrap. Each is a fact about the callee:
+#:
+#: * `self.shape.<extrude>` -- `shape` on a wrapper *is* the native handle (C-14a), so its own
+#:   `linear_extrude`/`rotate_extrude` is pythonscad's, returning a handle.
+#: * `_opolygon(...)` is `native("polygon")`, so the same applies to anything chained onto it.
+#:
+#: Verified by building: all three `Mask3D` cutters and both `shapes2d` extrudes come back with a
+#: `PyOpenSCAD` inside and mesh.
+NATIVE_DESPITE_THE_NAME = ("self.shape.", "_opolygon(")
+
+#: Names whose result is a wrapper, so handing one to a wrapper constructor wraps twice. Not
+#: exhaustive by construction -- it is the set that has been checked -- but it holds the two
+#: spellings that were actually wrong: `_finish3`, and `linear_extrude` on a façade result.
+WRAPPER_RETURNING = (
+    "_finish2",
+    "_finish3",
+    "linear_extrude",
+    "offset_sweep",
+    "path_sweep",
+    "polyhedron",
+    "realize",
+    "rotate_extrude",
+    "skin",
+    "spiral_sweep",
+    "sweep",
+    "to_csg",
+)
+
+WRAPPER_CONSTRUCTORS = ("Bosl2Flat", "Bosl2Solid", "CsgShape2D", "CsgSolid", "SdfSolid")
+
+
+def test_no_constructor_wraps_a_value_that_is_already_wrapped() -> None:
+    """The static form of the check above, which needs no fixture and so reaches everything.
+
+    The runtime sweep can only inspect what it can build, and 83 of the top-level callables cannot
+    be built from generic arguments -- `ruler` was missed twice over, being unbuildable *and* not
+    exported at the top level. This reads the source instead, so neither matters. It catches both
+    defects T107 fixed, by file and line: `Bosl2Solid(_finish3(...))` in `ruler`, where `_finish3`
+    is declared `-> Bosl2Solid`, and `Bosl2Solid(ribbon.linear_extrude(...))` in
+    `partition_cut_mask`.
+    """
+    import ast
+    import pathlib
+
+    package = pathlib.Path(__file__).resolve().parent.parent / "pybosl2"
+    offenders: list[str] = []
+    for path in sorted(package.rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id in WRAPPER_CONSTRUCTORS
+                and node.args
+            ):
+                continue
+            argument = node.args[0]
+            if not isinstance(argument, ast.Call):
+                continue
+            called = argument.func
+            name = called.attr if isinstance(called, ast.Attribute) else getattr(called, "id", "")
+            if name not in WRAPPER_RETURNING:
+                continue
+            source = ast.unparse(argument)
+            if any(exempt in source for exempt in NATIVE_DESPITE_THE_NAME):
+                continue
+            offenders.append(f"{path.relative_to(package)}:{node.lineno}: {node.func.id}({name}(...)) -- {source[:58]}")
+    assert not offenders, (
+        "these wrap a value that is already a wrapper, so `.shape` is a wrapper rather than the "
+        "native handle C-14a requires and the result cannot be meshed:\n  " + "\n  ".join(offenders)
+    )
+
+
+def test_the_static_scan_still_recognises_the_exempt_spellings() -> None:
+    """An exemption that stops matching anything silently stops exempting.
+
+    If `self.shape.linear_extrude` were renamed, the exemption would go stale and the scan would
+    report two false positives; this fails first, naming which spelling vanished.
+    """
+    import pathlib
+
+    package = pathlib.Path(__file__).resolve().parent.parent / "pybosl2"
+    text = "\n".join(p.read_text() for p in package.rglob("*.py"))
+    for exempt in NATIVE_DESPITE_THE_NAME:
+        assert exempt in text, (
+            f"{exempt!r} is listed as native-despite-the-name but appears nowhere in the package, "
+            f"so it exempts nothing and the list overstates what has been checked"
+        )
