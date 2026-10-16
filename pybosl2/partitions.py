@@ -28,7 +28,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from typing import Self
@@ -739,12 +739,15 @@ def partition_cut_mask(
             mask.show()
 
     """
-    from pybosl2.shapes3d import Bosl2Solid
-
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ribbon = path.stroke(width=max(0.1, slop * 2))
-    return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
+    # `linear_extrude` already returns a `Solid`, and under `@backend_only("csg")` that Solid is a
+    # `Bosl2Solid`. Wrapping it again made `partition_cut_mask(...).shape` a `CsgSolid` rather than
+    # the native handle C-14a says it is, which left the mask unmeshable -- and the extra wrap was
+    # how the function satisfied its own `-> Bosl2Solid` annotation, so removing it needs the cast
+    # the decorator already justifies (T107).
+    return cast("Bosl2Solid", ribbon.linear_extrude(height=height, center=True))
 
 
 # ---------------------------------------------------------------------------
