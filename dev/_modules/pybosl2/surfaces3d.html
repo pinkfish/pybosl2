@@ -3248,7 +3248,14 @@
                     <span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
                     <span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">colors</span><span class="p">[(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+                <span class="c1"># `.shape` because `pieces` holds native handles: the ticks come from `_ocube` and</span>
+                <span class="c1"># this one comes back from the façade's `linear_extrude` as a `CsgSolid`. Appended</span>
+                <span class="c1"># as the wrapper, the list alternated native and wrapped, and `base | p` fell</span>
+                <span class="c1"># through to pythonscad's own operator with an argument it does not understand --</span>
+                <span class="c1"># so **every** `labels=True` call raised a bare</span>
+                <span class="c1"># `TypeError: invalid argument left to operator` (T107). Unwrapping at the FFI</span>
+                <span class="c1"># boundary inside a native builder is what C-14a says a wrapper's `.shape` is for.</span>
+                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
     <span class="n">base</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -3256,11 +3263,12 @@
     <span class="n">shape</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="n">length_v</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">width_v</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_box3</span><span class="p">([</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span> <span class="n">anchor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
-        <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">),</span>
-        <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span>
-        <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="c1"># `_finish3` already returns a `Bosl2Solid`; every other caller in this file returns it</span>
+    <span class="c1"># directly. Wrapping it again made `ruler(...).shape` a `CsgSolid` rather than the native</span>
+    <span class="c1"># handle C-14a says it is, so `.vnf()` reached `.mesh` on a wrapper and the ruler could not be</span>
+    <span class="c1"># meshed or exported at all. `mypy --strict` cannot see it: `PyOpenSCAD` is an untyped</span>
+    <span class="c1"># third-party class, so the constructor's parameter accepts anything (T107).</span>
+    <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span></div>
 
 </code></pre></div>
 

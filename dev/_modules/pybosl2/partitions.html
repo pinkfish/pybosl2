@@ -2179,7 +2179,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
@@ -2898,12 +2898,15 @@
 <span class="sd">            mask.show()</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
-
     <span class="n">cs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">ribbon</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">slop</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+    <span class="c1"># `linear_extrude` already returns a `Solid`, and under `@backend_only("csg")` that Solid is a</span>
+    <span class="c1"># `Bosl2Solid`. Wrapping it again made `partition_cut_mask(...).shape` a `CsgSolid` rather than</span>
+    <span class="c1"># the native handle C-14a says it is, which left the mask unmeshable -- and the extra wrap was</span>
+    <span class="c1"># how the function satisfied its own `-&gt; Bosl2Solid` annotation, so removing it needs the cast</span>
+    <span class="c1"># the decorator already justifies (T107).</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Bosl2Solid"</span><span class="p">,</span> <span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
 
 
 
