@@ -4053,6 +4053,56 @@ rounding not happening — it is an artefact of a *square*, whose corners sit at
 of y. And the first asymmetry reading compared one-sided volumes without mirroring, which cannot
 distinguish a scale difference from a swap. Both replaced before anything was concluded.
 
+## T109 — A halfspace that never closed ✅
+
+**§12.2 item 71. S-2b, G-8. Three chained defects, each masking the next.**
+
+`VNF.halfspace` documents `closed=True` as "triangulate and close the cut face", and it is the
+default. **It closed nothing.**
+
+| # | defect |
+|---|---|
+| 1 | `cut_edges.append((fv, fv + 1))` fired at *both* intersection sites, so each clipped face emitted two edges — the second joining its own vertex to the **next** face's, and on the last face to an index past the end. A cube gave the open chain `(4,5), (5,6), …, (11,12)` where the rim is four edges. |
+| 2 | Fixed, the edges were right and still **disjoint**: `(4,5), (6,7), (8,9), (10,11)` — four segments sharing no endpoint, because each face made its *own* intersection points. A cut point lies on one original edge shared by two faces, so it must be one vertex. |
+| 3 | With the rim closing, the cap was wound the same way for both halves, so `keep=False`'s faced inwards. |
+
+Each masked the next: fixing any one alone changed nothing measurable.
+
+### Why nobody noticed
+
+`volume()` sums signed tetrahedra from the origin, and **an open face lying in a plane through the
+origin contributes nothing.** So a cut through the centre gave the right answer from a non-manifold
+mesh — and every existing test cut through the origin. Off-centre, a 20-cube cut at z=5 measured
+2666.67 instead of 2000, and a cut at the top face measured **1333.33 where it must be 0**.
+
+Now exact at every offset, and `keep + drop == whole` on all twelve shape×plane combinations
+including a non-axis-aligned plane.
+
+### I guessed twice and stopped guessing
+
+Exit→entry and entry→exit for the rim direction: 17 failures and 11. Both wrong, because each
+interacts with the cap winding. So I removed both guesses — pair the cut points without caring
+about direction, and set the cap's facing from the **plane normal**, which is a computation. Then I
+had the normal inverted too (`+n` where the kept half's boundary faces `−n`), and the arithmetic
+named it: the error was exactly `2 × area × d / 3`, which is what one flipped face costs in a
+divergence volume.
+
+### A function I wrote and then deleted
+
+I added an undirected rim chainer, because the directed one provably fails on
+`(4,5), (6,7), (7,4), (6,5)`. With the vertex sharing in place that input no longer arises, and the
+negative control could not make the directed version fail. **Code I cannot make a control fail
+against does not stay.** Reverted; the note in the source says why it is not there.
+
+### One case named and left
+
+A 24-facet cylinder cut by `[1, 1, 1, 2]` still leaves 12 open edges — and the rim is clean (21
+segments, every vertex degree 2, one loop). The cause is elsewhere: clipped *side faces* are
+fan-triangulated with an `area > _EPS` filter that discards near-degenerate slivers, and a diagonal
+cut across a faceted wall makes them. Dropping a sliver leaves a crack. A tolerance chosen by hand
+is how T89's masks went wrong, so it is a `strict=True` xfail. Its volume and partition still
+measure correctly, **which is what makes such cracks easy to miss.**
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
