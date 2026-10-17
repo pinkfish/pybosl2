@@ -4003,6 +4003,56 @@ guard only looked one way.
 The labels are now measurable: 200.00 mm³ plain against **200.81** labelled. A bounds comparison
 cannot see them — they sit inside the envelope — which is why the assertion is on volume.
 
+## T108 — A joint that adds material ✅
+
+**§12.2 item 70. S-2b. Two anomalies measured, neither guessed at.**
+
+`rounded_prism` is the largest function in the package at 204 lines. Probing each option found all
+three joints live and both BOSL2 aliases working (`joint_bot`, `k_sides`) — and two numbers that
+cannot be right.
+
+### A bigger joint adds material
+
+Equal top and bottom joints on a 20×20 square prism, 20 high:
+
+| joint | 0.01 | 3 | 6 | 7 | 9 |
+|---|---|---|---|---|---|
+| volume | 7984 | 4615 | **3740** | 3818 | 4234 |
+
+It bottoms out at 6 and climbs. **A rounding cannot add material**, so past some size the surfaces
+are self-intersecting — BOSL2 validates that the joints fit rather than building it. The limit is
+not derivable from outside: 7 and 9 both fit inside the height *and* the half-width, so inventing a
+threshold would be guessing.
+
+### The two ends do not round alike
+
+| | material removed |
+|---|---|
+| `joint_top=2` only | **138 mm³** |
+| `joint_bottom=2` only | **2720 mm³** |
+
+Twenty times as much, and mirrored in z the point sets do not match. The docstrings say "Joint
+distance at the top" and "at the bottom" — nothing documents a difference.
+
+### Why neither is fixed
+
+With the joints **equal** the solid *is* properly z-mirror symmetric, which is asserted and passes.
+So the code mirrors correctly under simultaneous mirroring and the two parameters nonetheless differ
+in scale — a narrower fault than "top and bottom are swapped", and deciding which of the two is
+correct is a question about BOSL2's `rounded_prism` semantics. **That is the guess T89's mask
+profiles and T100's reverted sweep were both made of.** Six `strict=True` xfails carry the numbers,
+so a fix cannot land quietly and a partial one cannot pass.
+
+What is asserted positively and holds: every joint and alias is live, the solid is symmetric when
+the joints match, and within 1–6 the rounding is monotone and shrinking.
+
+### Two instruments discarded on the way
+
+A "max x at each z" silhouette read 10.0 at both ends of a top-rounded prism, which looked like the
+rounding not happening — it is an artefact of a *square*, whose corners sit at x=10 across a range
+of y. And the first asymmetry reading compared one-sided volumes without mirroring, which cannot
+distinguish a scale difference from a swap. Both replaced before anything was concluded.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
