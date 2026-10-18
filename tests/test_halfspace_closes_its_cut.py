@@ -84,7 +84,27 @@ def _open_edges(mesh: VNF) -> int:
 #: on it from every edge that meets there, so each of those edges makes its own copy and the faces
 #: either side refer to different points with the same position.
 #:
-#: Two fixes were tried and **neither is kept**. Sharing one vertex for the on-plane corner took the
+#: **Correction to T110's account**: it said such a vertex is "excluded from the kept set (its
+#: distance is 0, not > 0)". The masks are `dists >= -_EPS` and `dists <= _EPS` -- *closed*
+#: halfspaces -- so the vertex is included on **both** sides. The duplication is therefore not about
+#: which half it belongs to: the cut lands on a vertex that is already kept and already has an index
+#: through `vertex_map`, and a fresh vertex is appended at the same position anyway.
+#:
+#: Four fixes have been tried and **none is kept**, each measured on the twelve shape-and-plane
+#: combinations:
+#:
+#: 1. a shared fresh vertex for the on-plane corner: keep side 12 unpaired edges -> **25**, and the
+#:    partition stopped balancing;
+#: 2. deduplicating the clipped polygon's repeated corners: drop side 12 -> 8, but nothing could make
+#:    its absence fail, because the `area > _EPS` filter discards the degenerate triangles anyway;
+#: 3. reusing `vertex_map`'s index when the cut lands on a kept vertex -- which *is* the derivation
+#:    the closed masks imply: drop side **8 -> 0**, keep side 12 -> **19**, partition broken;
+#: 4. (3) together with (2), on the theory that the reuse puts the index into `clipped` twice:
+#:    unchanged at 19, so that theory is wrong too.
+#:
+#: The pattern across all four is that fixing one side disturbs the other, and no account of why has
+#: survived a measurement yet. Further attempts should start by explaining the **19**, which is the
+#: number no hypothesis has predicted. Sharing one vertex for the on-plane corner took the
 #: keep side from 12 unpaired edges to 25 and stopped the partition balancing, because the shared
 #: point then disagrees with the drop side, which excludes that vertex too: reconciling the two needs
 #: a decision about which half an exactly-on-plane vertex belongs to, and that is a convention rather
