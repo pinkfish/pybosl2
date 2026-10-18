@@ -4146,6 +4146,46 @@ so not thin, degenerate → duplicate points in the clipped polygon → **duplic
 different indices for the same position**, which is where the on-plane vertex came in. Each step
 was a measurement, and only the last one explains the number.
 
+## T111 — Four attempts, none kept ✅
+
+**§12.2 item 71 (continues T109, T110). S-2b. A correction and four dead ends recorded.**
+
+### T110's account was wrong on a fact
+
+It said an on-plane vertex is "excluded from the kept set (its distance is 0, not > 0)". The masks
+are `dists >= -_EPS` and `dists <= _EPS` — **closed** halfspaces. The vertex is included on *both*
+sides. So the duplication was never about which half it belongs to: **the cut lands on a vertex that
+is already kept and already has an index**, and a fresh one is appended at the same position anyway.
+
+That correction looked like it would settle it. It did not.
+
+### Four attempts, each measured on all twelve combinations
+
+| attempt | result |
+|---|---|
+| a shared fresh vertex for the on-plane corner (T110) | keep 12 → **25** unpaired, partition broken |
+| deduplicate the clipped polygon (T110) | drop 12 → 8, but **no control could make its absence fail** |
+| reuse `vertex_map`'s index when the cut lands on a kept vertex | drop **8 → 0**, keep 12 → **19**, partition broken |
+| the two together | unchanged at 19 — so that theory is wrong too |
+
+The third is the derivation the closed masks actually imply, and it still fails. Every attempt that
+fixes one side disturbs the other.
+
+### Why this stopped here
+
+Four hypotheses, four measurements, two regressions. By the fourth I was pattern-matching rather
+than deriving — **the failure mode this campaign has spent twenty tasks documenting** — so the tree
+is back at T110's committed state and the attempts are written into the xfail note.
+
+The note now ends by naming the open question: *explain the 19.* No hypothesis has predicted that
+number, and one that does will probably also say which fix is right. That is a better handoff than
+a fifth guess.
+
+### What this round produced
+
+A factual correction to the record, and four dead ends someone would otherwise re-walk. The xfail
+and its measurements are unchanged; nothing in `pybosl2/` moved.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
