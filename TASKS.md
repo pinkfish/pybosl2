@@ -4186,6 +4186,57 @@ a fifth guess.
 A factual correction to the record, and four dead ends someone would otherwise re-walk. The xfail
 and its measurements are unchanged; nothing in `pybosl2/` moved.
 
+## T112 — The undercut threshold is derived ✅
+
+**§12.2 item 72. S-2b. No defect — a sophisticated correct behaviour, pinned.**
+
+`_gear_tooth_profile` is 117 lines and the last big unexamined function. Probing it found the
+geometry **right**, and right in a way worth recording.
+
+An involute gear undercuts below a certain tooth count, and the remedy is to shift the profile
+outward. The threshold is not a constant — it is `2 / sin²(pressure_angle)`:
+
+| pressure angle | `2/sin²α` | first unshifted tooth count |
+|---|---|---|
+| 14.5° | 31.9 | **32** |
+| 20° | 17.1 | **18** |
+| 25° | 11.2 | **12** |
+
+And one level deeper, a helical gear undercuts by its *virtual* pressure angle
+`atan(tan α / cos β)`:
+
+| helix | virtual α | limit | measured |
+|---|---|---|---|
+| 0° | 20.00° | 17.1 | **18** |
+| 20° | 21.17° | 15.3 | **16** |
+| 40° | 25.41° | 10.9 | **11** |
+
+Exact in all six cases. The outer-to-pitch ratio departs from the unshifted `1 + 2/teeth` by 0.1125
+at 8 teeth, 0.0080 at 16, 0.0007 at 17, and **exactly zero from 18 up**.
+
+### What was missing
+
+`test_low_tooth_gear_has_undercut_shift` asserted `auto_profile_shift(8) > 0.4` — one tooth count,
+a loose bound, the default pressure angle. It would also pass with the threshold **hardcoded at
+17**, with **every** gear shifted, or with the helical correction dropped. All three now fail:
+4, 5 and 2 assertions respectively.
+
+The assertions are on the *relationship*, not the numbers, so they survive a change of facet count
+or addendum convention.
+
+### A measurement deliberately not taken
+
+The helical property is asserted on `auto_profile_shift` rather than on built geometry, because a
+helix also twists the solid — an outer-diameter reading would measure two things at once. That is
+T97's single-fixture mistake and T108's silhouette mistake, avoided by not making it.
+
+### The session's score on this instrument
+
+"Does every option change the output" has now been run on eleven functions. It found defects in
+seven and nothing in four — `cylindrical_heightfield`, `heightfield`, the `os_*` treatments'
+distinctness, and here. **A negative result from a sharp instrument is worth reporting**, and two
+of the four turned into guards for behaviour that was correct and unprotected.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
