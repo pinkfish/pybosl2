@@ -4103,6 +4103,49 @@ cut across a faceted wall makes them. Dropping a sliver leaves a crack. A tolera
 is how T89's masks went wrong, so it is a `strict=True` xfail. Its volume and partition still
 measure correctly, **which is what makes such cracks easy to miss.**
 
+## T110 — The on-plane vertex ✅
+
+**§12.2 item 71 (continues T109). S-2b. A diagnosis, and two fixes withdrawn.**
+
+T109 left one case xfailed and attributed it to the fan triangulation discarding slivers. That was
+close and not right. **The cause is a mesh vertex lying exactly on the cut plane.**
+
+A 24-facet cylinder cut by `[1, 1, 1, 2]` has a rim vertex at `(-8, 0, 10)`, and
+`-8 + 0 + 10 = 2` satisfies the plane *exactly*. Such a vertex is excluded from the kept set — its
+distance is `0`, not `> 0` — while the cut simultaneously lands on it from every edge that meets
+there. Each of those edges makes its own copy, so the faces either side refer to **different
+indices for the same position**, and 12 edges go unpaired. The measurement that found it: vertices
+12 and 31 both at `(-8, 0, 10)`.
+
+### Both fixes withdrawn, for different reasons
+
+| attempt | result |
+|---|---|
+| share one vertex for the on-plane corner | keep side **12 → 25** unpaired, and the partition stopped balancing |
+| deduplicate the clipped polygon's repeated corners | drop side 12 → 8, **but no control could make its absence fail** |
+
+The first is worse because the shared point then disagrees with the drop side, which excludes that
+vertex too. Reconciling them needs a decision about **which half an exactly-on-plane vertex belongs
+to** — a convention, not a derivation.
+
+The second genuinely helped and still went: the `area > _EPS` filter discards the degenerate
+triangles before they reach the face list either way, so its absence is unobservable through the
+public API. **T109 deleted its own undirected rim chainer on exactly that rule**, and the rule does
+not bend because this time the code was mine and the improvement was real.
+
+### What landed
+
+Seven lines of comment in `vnf.py` and a rewritten note on the xfail. The diagnosis is the product:
+T109 knew *which* case failed, T110 knows *why*, and the next person does not have to rediscover
+that the rim is clean and the cap is correct.
+
+### Three dropped-triangle hypotheses, in order
+
+Thin slivers from a faceted wall (T109's guess) → **all 7 dropped triangles had a repeated vertex**,
+so not thin, degenerate → duplicate points in the clipped polygon → **duplicate points with
+different indices for the same position**, which is where the on-plane vertex came in. Each step
+was a measurement, and only the last one explains the number.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
