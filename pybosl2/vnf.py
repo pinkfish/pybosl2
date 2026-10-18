@@ -922,6 +922,7 @@ class VNF:
         new_verts: list[list[float]] = [list(verts_in[i]) for i in inside_indices]
         new_faces: list[list[int]] = []
         cut_edges: list[tuple[int, int]] = []
+        cut_cache: dict[tuple[int, int], int] = {}
 
         for face in self.faces:
             face_inside: list[bool] = [inside_mask[i] for i in face]
@@ -931,9 +932,46 @@ class VNF:
             if all_in:
                 new_faces.append([vertex_map[i] for i in face])
             elif not none_in:
-                fv = len(new_verts)
                 clipped: list[int] = []
+                # The intersection vertices this one face contributes. The cut edge belongs to the
+                # face that produced both of its ends: appending `(fv, fv + 1)` at each of the two
+                # sites below emitted *two* edges per face, the second joining this face's second
+                # vertex to the **next** face's first -- and, on the last face, to an index one past
+                # the end. A cube clipped by a plane yielded the open chain
+                # `(4,5), (5,6), (6,7), ..., (11,12)` instead of the four edges `(4,5), (6,7),
+                # (8,9), (10,11)`, so `_assemble_edge_paths` found no closed loop, returned nothing,
+                # and the cut face was never capped. That made `closed=True` inert, left every
+                # clipped VNF a non-manifold open mesh, and made `volume()` wrong for any plane not
+                # through the origin -- correct at `d = 0` only because an open face lying in a plane
+                # through the origin contributes nothing to the divergence sum (T109).
+                # Where this face leaves the kept region and where it comes back. The rim edge
+                # runs exit -> entry, which is the direction the clipped polygon's own winding
+                # traverses the cut, so every face contributes a consistently oriented edge.
+                # `_assemble_edge_paths` chains *directed* edges head to tail, so an inconsistent
+                # direction breaks it: pairing the two cut points in encounter order gave
+                # `(4,5), (6,7), (7,4), (6,5)` for an x-cut of a cube -- a closed loop, but with
+                # `(6,7)` and `(6,5)` both leaving vertex 6, so the chain died and the cap was
+                # dropped. A z-cut happened to come out consistent, which is why the defect looked
+                # like a curvature or an axis problem (T109).
+                face_exits: list[int] = []
+                face_entries: list[int] = []
                 nv = len(face)
+
+                # Each cut point lies on one original edge, and that edge is shared by exactly two
+                # faces -- so the point must be *one* vertex with one index, or the cut rim comes
+                # out as disjoint segments that no loop assembly can chain. Clipping each face
+                # independently gave `(4,5), (6,7), (8,9), (10,11)` for a cube: four edges, eight
+                # endpoints, no two shared, where the rim is a square with four corners.
+                def _cut_vertex(j0: int, j1: int) -> int:
+                    key = (j0, j1) if j0 < j1 else (j1, j0)
+                    cached = cut_cache.get(key)
+                    if cached is not None:
+                        return cached
+                    where = _plane_edge_t(self.vertices[key[0]], self.vertices[key[1]], a, b, c, d)
+                    new_verts.append(_interpolate(self.vertices[key[0]], self.vertices[key[1]], where))
+                    cut_cache[key] = len(new_verts) - 1
+                    return cut_cache[key]
+
                 for idx in range(nv):
                     i0 = face[idx]
                     i1 = face[(idx + 1) % nv]
@@ -947,20 +985,24 @@ class VNF:
                     elif v0_in and not v1_in:
                         if not clipped or clipped[-1] != vertex_map[i0]:
                             clipped.append(vertex_map[i0])
-                        t = _plane_edge_t(self.vertices[i0], self.vertices[i1], a, b, c, d)
-                        pt = _interpolate(self.vertices[i0], self.vertices[i1], t)
-                        new_verts.append(pt)
-                        clipped.append(fv)
-                        cut_edges.append((fv, fv + 1))
-                        fv += 1
+                        cut = _cut_vertex(i0, i1)
+                        clipped.append(cut)
+                        face_exits.append(cut)
                     elif not v0_in and v1_in:
-                        t = _plane_edge_t(self.vertices[i0], self.vertices[i1], a, b, c, d)
-                        pt = _interpolate(self.vertices[i0], self.vertices[i1], t)
-                        new_verts.append(pt)
-                        clipped.append(fv)
-                        cut_edges.append((fv, fv + 1))
-                        fv += 1
+                        cut = _cut_vertex(i0, i1)
+                        clipped.append(cut)
+                        face_entries.append(cut)
                         clipped.append(vertex_map[i1])
+
+                # A planar face leaves and re-enters the same number of times, and the pair is
+                # recorded in encounter order. `_assemble_edge_paths` chains *directed* edges, and
+                # this order satisfies it once the cut vertices are shared between faces -- an
+                # undirected chainer was written first and then removed, because with the sharing
+                # in place no reachable input needed it and a negative control could not make the
+                # directed one fail. The cap's facing is set from the plane normal below rather
+                # than inherited from any of this.
+                for leave, come_back in zip(face_exits, face_entries, strict=False):
+                    cut_edges.append((leave, come_back))
 
                 if len(clipped) >= 3:
                     # fan-triangulate the clipped polygon
@@ -971,15 +1013,30 @@ class VNF:
                             new_faces.append(tri)
 
         if closed and cut_edges:
-            edge_list = list(cut_edges)
-            paths: list[list[int]] = _assemble_edge_paths(edge_list)
-            for path in paths:
-                if len(path) >= 3:
-                    pbase = path[0]
-                    for k in range(1, len(path) - 1):
-                        tri = [pbase, path[k], path[k + 1]]
-                        if _triangle_area(new_verts[tri[0]], new_verts[tri[1]], new_verts[tri[2]]) > _EPS:
-                            new_faces.append(tri)
+            # The cap must face out of whichever half was kept, which is `+n` for `keep=True` and
+            # `-n` for `keep=False`. Computed from the plane rather than inherited from a face
+            # winding: a single fixed winding gave the `keep=False` cap an inward normal, and the
+            # dropped half of a 20-cube cut at z=4 then measured 4533.33 against the correct 5600 --
+            # short by exactly twice the cap's own `area * z / 3`, which is what one flipped face
+            # costs in a divergence-theorem volume.
+            # Keeping `n . x > d` leaves the half *above* the plane, so the solid's boundary
+            # there faces **down** the normal: `-n` for `keep=True` and `+n` for `keep=False`.
+            # Inverted, every cap contributed with the wrong sign and the kept slab came out
+            # `400*(10-d) + 2*(400*d/3)` -- correct only at `d = 0`, where the cap's own
+            # contribution is zero and the error vanishes with it.
+            outward = -n if keep else n
+            for path in _assemble_edge_paths(cut_edges):
+                if len(path) < 3:
+                    continue
+                pbase = path[0]
+                for k in range(1, len(path) - 1):
+                    tri = [pbase, path[k], path[k + 1]]
+                    p0, p1, p2 = (np.asarray(new_verts[i], dtype=float) for i in tri)
+                    if float(np.linalg.norm(np.cross(p1 - p0, p2 - p0))) / 2.0 <= _EPS:
+                        continue
+                    if float(np.cross(p1 - p0, p2 - p0) @ outward) < 0.0:
+                        tri = [tri[0], tri[2], tri[1]]
+                    new_faces.append(tri)
 
         return VNF(new_verts, new_faces)
 
