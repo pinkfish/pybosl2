@@ -968,6 +968,13 @@ class VNF:
                     if cached is not None:
                         return cached
                     where = _plane_edge_t(self.vertices[key[0]], self.vertices[key[1]], a, b, c, d)
+                    # A mesh vertex lying *on* the plane is the one case this keying cannot
+                    # reconcile: it is excluded from the kept set (its distance is 0, not > 0) yet
+                    # the cut lands on it from every edge that meets there, so those edges each make
+                    # their own copy. Sharing one vertex for them was tried and is worse -- 12
+                    # unpaired edges became 25 and the partition stopped balancing -- because the
+                    # shared point then disagrees with the drop side, which excludes it too. Left as
+                    # the recorded gap it is (T110).
                     new_verts.append(_interpolate(self.vertices[key[0]], self.vertices[key[1]], where))
                     cut_cache[key] = len(new_verts) - 1
                     return cut_cache[key]

@@ -77,17 +77,26 @@ def _open_edges(mesh: VNF) -> int:
     return sum(1 for n in counts.values() if n != 2)
 
 
-#: One combination still leaves the result open, and the cause is **not** the rim or the cap.
-#: Clipping a 24-facet cylinder with `[1, 1, 1, 2]` builds a clean rim -- 21 segments, every vertex
-#: of degree 2, one loop -- and still leaves 12 edges unshared, because the *clipped side faces* are
-#: fan-triangulated with a `area > _EPS` filter that discards near-degenerate slivers, and a
-#: diagonal cut across a faceted wall produces them. Dropping a sliver leaves a crack.
+#: One combination still leaves the result open, and T110 narrowed the cause to one sentence: a mesh
+#: vertex lying **exactly on the plane**. A 24-facet cylinder cut by `[1, 1, 1, 2]` has a rim vertex
+#: at `(-8, 0, 10)`, and `-8 + 0 + 10 = 2` satisfies the plane exactly. Such a vertex is excluded
+#: from the kept set -- its distance is 0, not greater than 0 -- while the cut simultaneously lands
+#: on it from every edge that meets there, so each of those edges makes its own copy and the faces
+#: either side refer to different points with the same position.
 #:
-#: That is a triangulation-robustness question rather than the three defects this file is about, and
-#: a tolerance plucked out of the air is how T89's mask profiles went wrong. `strict=True`, so
-#: fixing it cannot pass quietly. The volume and partition assertions below hold for this case
-#: regardless, which is why they are not xfailed with it: the cracks are small enough not to move
-#: the divergence sum measurably, which is exactly what makes them easy to miss.
+#: Two fixes were tried and **neither is kept**. Sharing one vertex for the on-plane corner took the
+#: keep side from 12 unpaired edges to 25 and stopped the partition balancing, because the shared
+#: point then disagrees with the drop side, which excludes that vertex too: reconciling the two needs
+#: a decision about which half an exactly-on-plane vertex belongs to, and that is a convention rather
+#: than a derivation. Deduplicating the clipped polygon's repeated corners did help the drop side,
+#: 12 unpaired edges to 8 -- but no negative control could make its absence fail, because the
+#: `area > _EPS` filter discards the degenerate triangles before they reach the face list either way.
+#: Code that no control can break does not stay, which is the rule T109 applied to its own
+#: undirected rim chainer.
+#:
+#: `strict=True`, so a fix cannot pass quietly. The volume and partition assertions hold for this
+#: case regardless, which is why they are not xfailed with it -- the cracks do not move the
+#: divergence sum measurably, and that is exactly what makes them easy to miss.
 STILL_OPEN = {("cylinder", "not axis aligned")}
 
 
