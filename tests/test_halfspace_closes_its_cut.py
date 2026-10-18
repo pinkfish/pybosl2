@@ -104,7 +104,19 @@ def _open_edges(mesh: VNF) -> int:
 #:
 #: The pattern across all four is that fixing one side disturbs the other, and no account of why has
 #: survived a measurement yet. Further attempts should start by explaining the **19**, which is the
-#: number no hypothesis has predicted. Sharing one vertex for the on-plane corner took the
+#: number no hypothesis has predicted.
+#:
+#: One attempt at that explanation is also recorded, because it looked conclusive and was not.
+#: Classifying the 19 edges' endpoints by their distance to the plane reported all 38 as *on-plane*,
+#: which suggested the rim was losing the segments that coincide with existing mesh edges. Recording
+#: those as rim segments changed nothing. The classification was the flaw: an interpolated cut point
+#: lies on the plane **by construction**, so "on-plane" did not separate original vertices from cut
+#: points and the measurement could not support the conclusion drawn from it. A fifth fix went in on
+#: that reasoning and came straight back out.
+#:
+#: So the open question is sharper than before: of the 19 unpaired edges, how many join two *original*
+#: mesh vertices, how many join two cut points, and how many are mixed? That distinction is what the
+#: earlier measurement failed to make. Sharing one vertex for the on-plane corner took the
 #: keep side from 12 unpaired edges to 25 and stopped the partition balancing, because the shared
 #: point then disagrees with the drop side, which excludes that vertex too: reconciling the two needs
 #: a decision about which half an exactly-on-plane vertex belongs to, and that is a convention rather
