@@ -86,10 +86,19 @@ def test_vertex_array_default_counts() -> None:
 
 
 def test_vertex_array_quad_style() -> None:
+    """One quad per cell, wound the way the triangle styles wind the same cell.
+
+    This asserted `[0, 3, 4, 1]`, which is the cell walked `i1, i2, i3, i4` -- the **opposite** way
+    from `default`, whose `[i1, i3, i2]` and `[i1, i4, i3]` traverse it `i1, i4, i3, i2`. So a QUAD
+    mesh was inside out relative to all nine other styles, and this assertion was pinning that: a
+    capped 8-gon prism measured -339.41 against an exact 1018.23 (T113). The expected value is
+    `[0, 1, 4, 3]` now, and `tests/test_vnf_styles_are_distinct.py` holds the property that makes it
+    the right one -- every style describes the same surface, so they all measure the same volume.
+    """
     v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.QUAD)
     assert len(v.faces) == 4
     assert all(len(f) == 4 for f in v.faces)
-    assert v.faces[0] == [0, 3, 4, 1]
+    assert v.faces[0] == [0, 1, 4, 3]
     assert len(v.vertices) == 9
     b = v.bounds()
     assert b.min_z == 0.0

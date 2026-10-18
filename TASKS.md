@@ -4237,6 +4237,51 @@ seven and nothing in four — `cylindrical_heightfield`, `heightfield`, the `os_
 distinctness, and here. **A negative result from a sharp instrument is worth reporting**, and two
 of the four turned into guards for behaviour that was correct and unprotected.
 
+## T113 — Every quad wound inside out ✅
+
+**§12.2 item 73. S-2b, G-8. Corrects T97, which measured the right thing and missed this.**
+
+Probing `_offset_sweep`'s remaining options — 194 lines, the second-largest function — found
+`style=QUAD` giving volume **2519** where the other nine styles all give **7852.6104**.
+
+A style chooses how to split a surface. It cannot change what the surface encloses.
+
+### Isolated, then explained by arithmetic
+
+`VNF.vertex_array(caps=BUTT, style=QUAD)` on an 8-gon prism: **−339.41** against an exact
+**1018.2338**. Negative — the whole solid inside out. And `volume()` is fine on quads: a cube as six
+quads measures exactly 8.0, same as twelve triangles.
+
+| | |
+|---|---|
+| `QUAD` emits | `[i1, i2, i3, i4]` |
+| the triangle styles walk the same cell | `[i1, i3, i2]` + `[i1, i4, i3]` = **i1 → i4 → i3 → i2** |
+
+The reverse. So every quad was wound against every other style. In `offset_sweep` the caps are
+wound for the triangle convention, so they then disagreed with the walls — and the cap at z=20
+contributes `400 × 20 / 3 = 2666`, a swing of 5333 when reversed: **7852 − 5333 = 2519**, the
+observed figure exactly.
+
+The fix is `[i1, i4, i3, i2]`, read off the triangles rather than guessed.
+
+### T97 compared face sets, and a reversed winding leaves those alone
+
+T97 asserted all ten styles produce *distinct triangulations* and that `MIN_AREA` beats `MIN_EDGE`
+on area. Both still hold. Neither can see a winding flip, because the face **set** differs from the
+others either way.
+
+Worse, `test_vertex_array_quad_style` asserted `v.faces[0] == [0, 3, 4, 1]` — **pinning the
+defect**. A test can hold a bug in place as firmly as it holds a contract, and the only way to tell
+is to ask what property the number expresses.
+
+So the new assertion is on the closed form: every style must measure the prism's exact volume. That
+says *which* style is wrong, not merely that two disagree.
+
+### Where this came from
+
+`offset_sweep`'s `style=` option. T104 probed its `OSType` treatments and stopped there; the other
+options went unexamined for nine tasks. **The same function, a different parameter.**
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |

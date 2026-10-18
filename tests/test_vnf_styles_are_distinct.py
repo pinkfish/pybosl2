@@ -34,6 +34,7 @@ than of the styles.
 from __future__ import annotations
 
 import itertools
+import math
 
 import numpy as np
 import pytest
@@ -135,4 +136,51 @@ def test_min_area_beats_min_edge_where_the_criteria_actually_disagree() -> None:
         f"on the cell the two criteria are known to disagree on, MIN_AREA gives {by_area:.6f} and "
         f"MIN_EDGE {by_edge:.6f}. If these are now equal the two styles have become one function, "
         f"and every assertion that distinguishes them above is measuring the panel, not the code"
+    )
+
+
+#: A capped prism, built from two rings. Closed, so its volume is exact and computable: an `n`-gon
+#: of radius `r` has area `n * r^2 * sin(2pi/n) / 2`.
+PRISM_SIDES, PRISM_RADIUS, PRISM_HEIGHT = 8, 6.0, 10.0
+
+
+def _capped_prism(style: VNFStyle) -> VNF:
+    from pybosl2.caps import CapType
+    from pybosl2.path3d import Path3D
+
+    rings = [
+        Path3D(
+            [
+                [
+                    PRISM_RADIUS * math.cos(2 * math.pi * k / PRISM_SIDES),
+                    PRISM_RADIUS * math.sin(2 * math.pi * k / PRISM_SIDES),
+                    z,
+                ]
+                for k in range(PRISM_SIDES)
+            ]
+        )
+        for z in (0.0, PRISM_HEIGHT)
+    ]
+    return VNF.vertex_array(rings, col_wrap=True, caps=CapType.BUTT, style=style)
+
+
+@pytest.mark.parametrize("style", sorted(VNFStyle, key=lambda s: s.name), ids=lambda s: s.name)
+def test_every_style_measures_the_same_solid(style: VNFStyle) -> None:
+    """A style chooses how to split a surface, so it cannot change what the surface encloses.
+
+    The distinctness tests above compare *face sets*, which a reversed winding leaves untouched:
+    `QUAD` emitted its cell as `i1, i2, i3, i4` where the triangle styles walk it `i1, i4, i3, i2`,
+    so every quad was wound inside out. The face set differs from the others either way, so those
+    tests passed and this one did not exist -- a capped 8-gon prism measured **-339.41** against an
+    exact 1018.23, and `offset_sweep` gave 2519 against 7852 because its caps, wound for the
+    triangle convention, then disagreed with the walls (T113).
+
+    Asserted against the closed form rather than against another style, so it says which one is
+    wrong rather than only that two disagree.
+    """
+    exact = 0.5 * PRISM_SIDES * PRISM_RADIUS**2 * math.sin(2 * math.pi / PRISM_SIDES) * PRISM_HEIGHT
+    measured = float(_capped_prism(style).volume())
+    assert measured == pytest.approx(exact, rel=1e-6), (
+        f"style {style.name} measures {measured:.4f} where the prism encloses {exact:.4f}. A "
+        f"negative or diminished volume means the faces are wound against the others"
     )

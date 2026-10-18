@@ -1326,7 +1326,13 @@ class VNF:
         """
         p1, p2, p3, p4 = parr[i1], parr[i2], parr[i3], parr[i4]
         if style == VNFStyle.QUAD:
-            return np.stack([np.stack([i1, i2, i3, i4], axis=1)], axis=1)
+            # `i1, i4, i3, i2`, which is the way the triangle styles walk the same cell: `default`
+            # emits `[i1, i3, i2]` and `[i1, i4, i3]`, so its rim is i1 -> i4 -> i3 -> i2. Emitting
+            # `i1, i2, i3, i4` wound every quad the other way, so a `QUAD` mesh came out inside out
+            # relative to all nine other styles -- a capped 8-gon prism measured **-339.41** where
+            # the exact volume is 1018.23, and `offset_sweep` gave 2519 against 7852 because the
+            # caps, wound for the triangle convention, then disagreed with the walls (T113).
+            return np.stack([np.stack([i1, i4, i3, i2], axis=1)], axis=1)
         if style == VNFStyle.QUINCUNX:
             i5 = pcnt + cell_r * colcnt + cell_c
             return np.stack(
