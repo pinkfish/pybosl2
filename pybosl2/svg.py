@@ -21,6 +21,8 @@ import pathlib
 import re
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.exceptions import Bosl2ValueError
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
@@ -39,6 +41,23 @@ DEFAULT_FA: float | None = None
 #: get ``max(3, ceil(segment_length / fs))`` points, which keeps short curves light and
 #: long curves smooth.
 DEFAULT_FS: float = 2.0
+
+
+#: How a stroked path may be treated. `"polygon"` buffers the stroke into a filled shape;
+#: `"ignore"` drops shapes that have a stroke and no fill.
+_STROKE_MODES = ("polygon", "ignore")
+
+
+def _check_strokes(strokes: str) -> None:
+    """Refuse an unrecognised `strokes` mode, naming the ones that exist.
+
+    `strokes` was compared only against `"polygon"`, with every other value falling through to the
+    "ignore" branch -- so a typo silently dropped geometry rather than refusing. An SVG holding one
+    filled shape and one stroked path returned two regions for `"polygon"` and one for `"polygn"`,
+    with nothing said (T115).
+    """
+    if strokes not in _STROKE_MODES:
+        raise Bosl2ValueError(f"strokes must be one of {', '.join(repr(m) for m in _STROKE_MODES)}, got {strokes!r}.")
 
 
 def _curve_point_count(segment: object, fn: int | None, fs: float) -> int:
@@ -198,6 +217,7 @@ def region_from_svg(
             os.unlink(tmp.name)
 
     """
+    _check_strokes(strokes)
     from shapely.ops import unary_union as _shapely_unary_union
 
     from pybosl2.color import Color
@@ -505,6 +525,7 @@ def svg_element_groups(
         ImportError: If ``svgelements`` is not installed.
 
     """
+    _check_strokes(strokes)
     try:
         from svgelements import SVG, Close, Line, Move, Shape
         from svgelements import Path as _SVGPath
@@ -599,6 +620,7 @@ def svg_rings_with_colors(
         clip_to_viewbox: Drop anything outside the document's viewBox.
 
     """
+    _check_strokes(strokes)
     paths: list[Path2D] = []
     colors: list[str | None] = []
     for element_color, rings in svg_element_groups(
@@ -768,6 +790,7 @@ def regions_from_svg(
             os.unlink(tmp.name)
 
     """
+    _check_strokes(strokes)
     from pybosl2.regions import Region
 
     # Split the COMPOSITED drawing, rather than resolving each colour on its own. Pooling a

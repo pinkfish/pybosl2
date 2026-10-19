@@ -49,9 +49,10 @@ from enum import Enum
 
 import numpy as np
 
+from pybosl2.enums import VNFStyle
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import EPSILON, lerpn
-from pybosl2.vnf import VNF, VnfStyle
+from pybosl2.vnf import VNF
 
 # ── type aliases ─────────────────────────────────────────────────────────
 
@@ -1157,7 +1158,7 @@ class NurbsPatch:
         self,
         *,
         splinesteps: tuple[int, int] = (16, 16),
-        style: VnfStyle = VnfStyle.DEFAULT,
+        style: VNFStyle = VNFStyle.DEFAULT,
         reverse: bool = False,
         caps: "CapsSpec | None" = None,
     ) -> VNF:

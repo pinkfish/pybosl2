@@ -4320,6 +4320,53 @@ they must agree. `None` defaults are P-3's business, and flagging them would hav
 enum, which is C-21's "one concept, one name". And five `strokes='polygon'` parameters accept any
 string, with anything but `"polygon"` silently meaning `"ignore"`. Both real, neither this task.
 
+## T115 — The two things T114 named ✅
+
+**§12.2 item 75. E-4, C-21, B2-2.**
+
+T114 measured both and left them. Leaving them indefinitely would have been the thing this campaign
+keeps catching in other people's notes.
+
+### A typo that silently dropped geometry
+
+`strokes` was compared only against `"polygon"`; every other value fell through to the `"ignore"`
+branch. So a misspelling did not fail — it changed the answer:
+
+| `strokes=` | regions returned |
+|---|---|
+| `"polygon"` | **2** |
+| `"ignore"` | 1 |
+| `"polygn"` | **1**, silently |
+
+Five public entries took it and none validated. All four reachable ones refuse by name now,
+including `Region.from_svg`, which forwards. It stays a `str` rather than becoming an enum: the
+public signatures are the compatibility surface, and widening them is an API change, not a fix.
+
+### One concept with two names, and a union of a type with itself
+
+`vnf.py` aliased `VnfStyle = VNFStyle`, exported **only the alias** in its `__all__`, and annotated
+one parameter `VNFStyle | VnfStyle`. That union reads as "either spelling" and means nothing — it is
+only writable by someone who believed the two were different types, which is the evidence that this
+was drift rather than a second vocabulary.
+
+Twelve module-level class aliases exist and most are deliberate — `Bosl2Solid = CsgSolid`,
+`Vector = Point`, `manfrotto_rc2_plate = ManfrottoRC2Plate`. Those pair a *different vocabulary*
+with a class. This one differed only in the capitalisation of an acronym.
+
+### mypy found the better half of it
+
+Removing the alias made `nurbs.py`'s `from pybosl2.vnf import VNFStyle` fail: **`vnf.py` had never
+exported the canonical spelling**, only the drifted one. So the import was reaching a name the
+module did not advertise, and `nurbs.py` was the only module not taking `VNFStyle` from
+`pybosl2.enums`, where the other five get it. Fixed by importing from the real home rather than by
+adding a re-export.
+
+### One assertion earns its place by a different route
+
+`test_the_two_modes_give_different_answers` exists because the refusals above could otherwise be
+satisfied by a guard on a parameter that changes nothing — **the case T106 found twice**. It pins
+that `"polygon"` and `"ignore"` genuinely differ, so the validation is guarding something.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
