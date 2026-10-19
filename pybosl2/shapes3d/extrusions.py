@@ -200,7 +200,7 @@ def text3d(
     valign: str | None = None,
     spacing: float = 1.0,
     direction: str = "ltr",
-    language: str = "em",
+    language: str = "en",
     script: str = "latin",
     *,
     anchor: "Anchor | Sequence[float]" = (-1, 0, -1),

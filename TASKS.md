@@ -4282,6 +4282,44 @@ says *which* style is wrong, not merely that two disagree.
 `offset_sweep`'s `style=` option. T104 probed its `OSType` treatments and stopped there; the other
 options went unexamined for nine tasks. **The same function, a different parameter.**
 
+## T114 — A default that contradicts its own docstring ✅
+
+**§12.2 item 74. B2-1, DOC-2.**
+
+Following T113's "same function, different parameter" into the `style=` family found no second
+QUAD-class defect — **nothing defaults to QUAD**, so that blast radius was limited to explicit
+callers. But the sweep of `style` defaults turned up a `style='fg'` string and a `VnfStyle` spelled
+unlike `VNFStyle`, and following the string led here.
+
+`text3d` declared `language: str = "em"`. Its docstring says `(default "en")`, and both 2-D
+spellings — `shapes2d.ops.text` and `flat.text` — use `"en"`. A one-character slip.
+
+**Harmless today**, which is what let it sit: the geometry is byte-identical, because the text engine
+ignores a language code it does not know. If the engine ever honours the field, 3-D text would shape
+differently from 2-D for no documented reason, and the docstring would still say `"en"`.
+
+### The scan took three attempts to be worth trusting
+
+| attempt | flagged | why it was wrong |
+|---|---|---|
+| `default` matched loosely | **739 / 979** | it read the "s" out of *"use_defaults"* |
+| the explicit `(default X)` form | **188 / 439** | almost all the **correct** pattern: signature `None`, docstring saying what `None` resolves to — "`height=None` (default 1)" — which is exactly what P-3 asks for |
+| literal default vs literal claim | **3 / 249** | two are prose: `cube(chamfer=0)` documented "(default none)", and 0 *is* no chamfer |
+
+One real defect out of 979 candidate readings. **The first two instruments would each have supported a confident wrong conclusion** — 739 "defects" or 188 — and the only thing separating them from the third is asking what the number means before acting on it.
+
+### What the guard enforces, and what it leaves alone
+
+Narrow on purpose: where a signature commits to a **literal** and the docstring names a **literal**,
+they must agree. `None` defaults are P-3's business, and flagging them would have made this test a
+188-entry allowlist instead of a rule.
+
+### Left for later, measured
+
+`VnfStyle = VNFStyle` is an alias at `vnf.py:718`, used by `nurbs.py` alone — two spellings of one
+enum, which is C-21's "one concept, one name". And five `strokes='polygon'` parameters accept any
+string, with anything but `"polygon"` silently meaning `"ignore"`. Both real, neither this task.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
