@@ -715,9 +715,6 @@ def _fan_triangles(faces: Sequence[Sequence[int]]) -> NDArray[np.intp]:
     return np.asarray(tris, dtype=np.intp) if tris else np.empty((0, 3), dtype=np.intp)
 
 
-VnfStyle = VNFStyle
-
-
 class VNF:
     """A VNF surface: ``vertices`` (3-D points) plus ``faces`` (index polygons into vertices).
 
@@ -1173,7 +1170,7 @@ class VNF:
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
-        style: VNFStyle | VnfStyle = VNFStyle.DEFAULT,
+        style: VNFStyle = VNFStyle.DEFAULT,
     ) -> "VNF":
         """Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).
 
@@ -1835,6 +1832,5 @@ class VNF:
 
 __all__ = [
     "VNF",
-    "VnfStyle",
     "contour",
 ]
