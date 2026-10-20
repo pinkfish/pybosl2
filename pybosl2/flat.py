@@ -202,7 +202,14 @@ def circle(
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import circle2d
 
-        return cast("Flat", circle2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10))
+        return cast(
+            "Flat",
+            _placed_2d(
+                circle2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10),
+                spin,
+                anchor,
+            ),
+        )
 
     from pybosl2.shapes2d.circle import circle as csg_circle
 
@@ -279,7 +286,10 @@ def square(
             resolved_anchor = resolve_anchor(cast("Any", anchor)).vector_2d.tolist()
         except Exception:
             resolved_anchor = list(anchor)
-        return cast("Flat", square2d(size=size, anchor=resolved_anchor, res=_resolve_res(res) or 10))
+        return cast(
+            "Flat",
+            _placed_2d(square2d(size=size, anchor=resolved_anchor, res=_resolve_res(res) or 10), spin),
+        )
 
     from pybosl2.shapes2d.square import square as csg_square
 
@@ -297,6 +307,38 @@ def square(
             fs=fs,
         ),
     )
+
+
+def _placed_2d(shape: Any, spin: float | None, anchor: "Anchor | Sequence[float] | None" = None) -> Any:
+    """Apply the façade's *anchor* and *spin* to a freshly built SDF 2-D shape.
+
+    The 2-D field primitives take no `spin` at all, and only `rect2d` and `square2d` take an
+    `anchor` -- `trapezoid2d` used to declare one whose body was `_ = anchor`, and it is gone. So
+    the façade places the shape itself, with the `reanchor`/`rotate` pair the field shape already
+    offers (SPEC C-10). Anchor first, then spin:
+    that is the order the CSG backend uses, and a 20x10 rect at ``anchor=LEFT, spin=30`` lands on
+    a different box the other way round.
+
+    Args:
+        shape: the freshly built SDF 2-D shape.
+        spin: rotation about the origin in degrees, applied after the anchor. `square` declares
+            this `float | None`, where the others default it to 0; both mean "do not turn".
+        anchor: the anchor to bring to the origin, or None when the primitive already did it.
+
+    Returns:
+        The placed shape.
+
+    """
+    if anchor is not None:
+        try:
+            vector = resolve_anchor(cast("Any", anchor)).vector_2d.tolist()
+        except Exception:
+            vector = list(cast("Sequence[float]", anchor))
+        if any(vector):
+            shape = shape.reanchor(vector)
+    if spin:
+        shape = shape.rotate(spin)
+    return shape
 
 
 def rect(
@@ -356,12 +398,15 @@ def rect(
             resolved_anchor = list(anchor)
         return cast(
             "Flat",
-            rect2d(
-                size=size,
-                rounding=rounding,
-                chamfer=chamfer,
-                anchor=resolved_anchor,
-                res=_resolve_res(res) or 10,
+            _placed_2d(
+                rect2d(
+                    size=size,
+                    rounding=rounding,
+                    chamfer=chamfer,
+                    anchor=resolved_anchor,
+                    res=_resolve_res(res) or 10,
+                ),
+                spin,
             ),
         )
 
@@ -422,7 +467,10 @@ def polygon(
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import polygon2d
 
-        return cast("Flat", polygon2d(paths=points, res=_resolve_res(res) or 10))
+        return cast(
+            "Flat",
+            _placed_2d(polygon2d(paths=points, res=_resolve_res(res) or 10), spin, anchor),
+        )
 
     from pybosl2.shapes2d.square import polygon as csg_polygon
 
@@ -563,7 +611,14 @@ def ellipse(
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import ellipse2d
 
-        return cast("Flat", ellipse2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10))
+        return cast(
+            "Flat",
+            _placed_2d(
+                ellipse2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10),
+                spin,
+                anchor,
+            ),
+        )
 
     from pybosl2.shapes2d import ellipse as csg_ellipse
 
@@ -619,13 +674,19 @@ def star(
 
         return cast(
             "Flat",
-            star2d(
-                num_sides=tips,
-                radius=radius,
-                inner_radius=inner_radius,
-                diameter=diameter,
-                inner_diameter=inner_diameter,
-                res=_resolve_res(res) or 10,
+            _placed_2d(
+                star2d(
+                    num_sides=tips,
+                    radius=radius,
+                    inner_radius=inner_radius,
+                    diameter=diameter,
+                    inner_diameter=inner_diameter,
+                    step=step,
+                    realign=realign,
+                    res=_resolve_res(res) or 10,
+                ),
+                spin,
+                anchor,
             ),
         )
 
@@ -647,6 +708,79 @@ def star(
     )
 
 
+def _regular_ngon_sdf(
+    *,
+    sides: int,
+    radius: float | None,
+    diameter: float | None,
+    outer_radius: float | None,
+    outer_diameter: float | None,
+    inner_radius: float | None,
+    inner_diameter: float | None,
+    side: float | None,
+    rounding: float,
+    realign: bool,
+    anchor: Anchor | Sequence[float],
+    spin: float,
+    res: int | None,
+) -> Flat:
+    """Build `regular_ngon` on the SDF backend.
+
+    Split out so `regular_ngon` stays inside the S-2 line budget once the apothem and side-length
+    options are forwarded; the two branches had grown to 53 code lines between them.
+
+    Args:
+        sides: number of sides.
+        radius: circumradius, to the corners.
+        diameter: circumdiameter.
+        outer_radius: a spelling of *radius*.
+        outer_diameter: a spelling of *diameter*.
+        inner_radius: the apothem, to the face centres.
+        inner_diameter: twice the apothem.
+        side: the edge length.
+        rounding: corner rounding, which this backend refuses.
+        realign: turn the polygon half a step.
+        anchor: the anchor to bring to the origin.
+        spin: rotation about the origin, after the anchor.
+        res: sampling resolution.
+
+    Returns:
+        The 2-D field shape.
+
+    Raises:
+        UnsupportedByBackendError: if *rounding* is asked for, which an SDF ngon has no form for.
+
+    """
+    if rounding:
+        raise UnsupportedByBackendError(
+            "regular_ngon(rounding=)",
+            "sdf",
+            hint="the sdf ngon has no corner rounding; build it on the csg backend, or round "
+            "the field with .round() afterwards.",
+        )
+    from pybosl2.sdf.shapes2d import regular_ngon2d
+
+    return cast(
+        "Flat",
+        _placed_2d(
+            regular_ngon2d(
+                num_sides=sides,
+                radius=radius,
+                diameter=diameter,
+                outer_radius=outer_radius,
+                outer_diameter=outer_diameter,
+                inner_radius=inner_radius,
+                inner_diameter=inner_diameter,
+                side=side,
+                realign=realign,
+                res=_resolve_res(res) or 10,
+            ),
+            spin,
+            anchor,
+        ),
+    )
+
+
 def regular_ngon(
     sides: int = 6,
     radius: float | None = None,
@@ -654,6 +788,9 @@ def regular_ngon(
     diameter: float | None = None,
     outer_radius: float | None = None,
     outer_diameter: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
+    side: float | None = None,
     rounding: float = 0,
     realign: bool = False,
     anchor: Anchor | Sequence[float] = CENTER,
@@ -672,6 +809,11 @@ def regular_ngon(
         diameter: Diameter to a vertex, instead of *radius*.
         outer_radius: Radius of the circumscribed circle.
         outer_diameter: Diameter of the circumscribed circle.
+        inner_radius: Radius of the inscribed circle -- the apothem, to the face centres rather
+            than the corners. A hexagon is the one polygon where this and *side* coincide with
+            *radius*, so neither is a spelling of it.
+        inner_diameter: Diameter of the inscribed circle.
+        side: Length of each side.
         rounding: Corner rounding radius (CSG backend only).
         realign: Rotate by half a side (CSG backend only).
         anchor: Anchor point.
@@ -702,25 +844,20 @@ def regular_ngon(
     """
     anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="regular_ngon")
     if current_backend() == "sdf":
-        if rounding:
-            raise UnsupportedByBackendError(
-                "regular_ngon(rounding=)",
-                "sdf",
-                hint="the sdf ngon has no corner rounding; build it on the csg backend, or round "
-                "the field with .round() afterwards.",
-            )
-        from pybosl2.sdf.shapes2d import regular_ngon2d
-
-        return cast(
-            "Flat",
-            regular_ngon2d(
-                num_sides=sides,
-                radius=radius,
-                diameter=diameter,
-                outer_radius=outer_radius,
-                outer_diameter=outer_diameter,
-                res=_resolve_res(res) or 10,
-            ),
+        return _regular_ngon_sdf(
+            sides=sides,
+            radius=radius,
+            diameter=diameter,
+            outer_radius=outer_radius,
+            outer_diameter=outer_diameter,
+            inner_radius=inner_radius,
+            inner_diameter=inner_diameter,
+            side=side,
+            rounding=rounding,
+            realign=realign,
+            anchor=anchor,
+            spin=spin,
+            res=res,
         )
 
     from pybosl2.shapes2d import regular_ngon as csg_ngon
@@ -733,6 +870,9 @@ def regular_ngon(
             diameter=diameter,
             outer_radius=outer_radius,
             outer_diameter=outer_diameter,
+            inner_radius=inner_radius,
+            inner_diameter=inner_diameter,
+            side=side,
             rounding=rounding,
             realign=realign,
             anchor=anchor,
@@ -791,8 +931,12 @@ def trapezoid(
 
         return cast(
             "Flat",
-            trapezoid2d(
-                height=height, width1=width1, width2=width2, angle=angle, shift=shift, res=_resolve_res(res) or 10
+            _placed_2d(
+                trapezoid2d(
+                    height=height, width1=width1, width2=width2, angle=angle, shift=shift, res=_resolve_res(res) or 10
+                ),
+                spin,
+                anchor,
             ),
         )
 
