@@ -4367,6 +4367,47 @@ adding a re-export.
 satisfied by a guard on a parameter that changes nothing — **the case T106 found twice**. It pins
 that `"polygon"` and `"ignore"` genuinely differ, so the validation is guarding something.
 
+## T116 — The scan that missed its own sibling ✅
+
+**§12.2 item 76. E-4, C-21.**
+
+T115 fixed `strokes` and T114's scan had not found it, because that scan required a **`raise`
+mentioning the parameter** — and a silent fall-through has none. Re-running without that condition:
+27 options compared against exactly one literal.
+
+Twenty-five are `is None` "derive the default" checks, which is P-3's own pattern. One was my own
+helper. **One was new**: `rect(atype="box")`, compared only against `"perim"`.
+
+| `atype=` | centre y of a rounded 20×10 rect anchored LEFT |
+|---|---|
+| `"box"` | 0.0 |
+| `"perim"` | 2.0 |
+| `"prim"` | **0.0, silently** |
+
+### Its vocabulary is not the one the package already validates
+
+There is an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against
+it and raises for anything else. Routing `rect` through it would have looked like the obvious fix
+and would have **rejected `"perim"`**: BOSL2 gives `rect()` a box/perimeter choice and the round
+shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, faithfully
+ported.
+
+So `rect` validates against its own pair. `NemaMountMask(atype=)` already did the same thing, and is
+tested — the precedent was there.
+
+### What the sweep's shape says
+
+T114 asked "which options accept only their default" and required a raise. T115's defect had no
+raise. T116 asked "which options are compared against exactly one literal" and found it. **Same
+question, one condition less, and the condition was the thing hiding the answer** — which is the
+fourth time this session a scan's own filter was the defect.
+
+### Measured and left
+
+`flat.rect` — the sanctioned façade — does not take `atype` at all, while `shapes2d.square.rect`
+does. So the option is unreachable through the door the spec tells callers to use. Adding it is an
+API change rather than a fix, and it is recorded here rather than done.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
