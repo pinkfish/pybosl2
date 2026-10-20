@@ -4175,7 +4175,7 @@ Pass <code class="docutils literal notranslate"><span class="pre">None</span></c
 </dd>
 <dt id="pybosl2.vnf.VNF.vertex_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p>Flip face winding.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a> | <a class="reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle (Python attribute) — alias of VNFStyle">VnfStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
+<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
 </dd>
 </dl>
 </dd>
@@ -4426,12 +4426,6 @@ best-align with the previous).</p>
 
 </dd></dl>
 
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VnfStyle</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle" title="Link to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNFStyle</span></code></a></p>
-</dd></dl>
-
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.contour">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">contour</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.f" title="pybosl2.vnf.contour.f (Python parameter) — A 2-D numpy array or a callable (N,2)→(N,) or (x,y)→float."><span class="n"><span class="pre">f</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.isovalue" title="pybosl2.vnf.contour.isovalue (Python parameter) — Scalar threshold."><span class="n"><span class="pre">isovalue</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.bounding_box" title="pybosl2.vnf.contour.bounding_box (Python parameter) — A Bounds2D."><span class="n"><span class="pre">bounding_box</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.pixel_size" title="pybosl2.vnf.contour.pixel_size (Python parameter) — Isotropic pixel size."><span class="n"><span class="pre">pixel_size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.pixel_count" title="pybosl2.vnf.contour.pixel_count (Python parameter) — Approximate total pixel count (ignored if pixel_size given)."><span class="n"><span class="pre">pixel_count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.closed" title="pybosl2.vnf.contour.closed (Python parameter) — If True, return only closed contour loops."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.exact_bounds" title="pybosl2.vnf.contour.exact_bounds (Python parameter) — If True, use bounding_box exactly."><span class="n"><span class="pre">exact_bounds</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.contour" title="Link to this definition">¶</a></dt>
@@ -4564,7 +4558,7 @@ paths, each being a list of <code class="docutils literal notranslate"><span cla
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   

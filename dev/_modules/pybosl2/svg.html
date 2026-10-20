@@ -2172,6 +2172,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 
@@ -2190,6 +2192,23 @@
 <span class="c1">#: get ``max(3, ceil(segment_length / fs))`` points, which keeps short curves light and</span>
 <span class="c1">#: long curves smooth.</span>
 <span class="n">DEFAULT_FS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
+
+
+<span class="c1">#: How a stroked path may be treated. `"polygon"` buffers the stroke into a filled shape;</span>
+<span class="c1">#: `"ignore"` drops shapes that have a stroke and no fill.</span>
+<span class="n">_STROKE_MODES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"polygon"</span><span class="p">,</span> <span class="s2">"ignore"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_strokes</span><span class="p">(</span><span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse an unrecognised `strokes` mode, naming the ones that exist.</span>
+
+<span class="sd">    `strokes` was compared only against `"polygon"`, with every other value falling through to the</span>
+<span class="sd">    "ignore" branch -- so a typo silently dropped geometry rather than refusing. An SVG holding one</span>
+<span class="sd">    filled shape and one stroked path returned two regions for `"polygon"` and one for `"polygn"`,</span>
+<span class="sd">    with nothing said (T115).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">strokes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_STROKE_MODES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"strokes must be one of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_STROKE_MODES</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">strokes</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_curve_point_count</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2354,6 +2373,7 @@
 <span class="sd">            os.unlink(tmp.name)</span>
 
 <span class="sd">    """</span>
+    <span class="n">_check_strokes</span><span class="p">(</span><span class="n">strokes</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_shapely_unary_union</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
@@ -2664,6 +2684,7 @@
 <span class="sd">        ImportError: If ``svgelements`` is not installed.</span>
 
 <span class="sd">    """</span>
+    <span class="n">_check_strokes</span><span class="p">(</span><span class="n">strokes</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVG</span><span class="p">,</span> <span class="n">Close</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Move</span><span class="p">,</span> <span class="n">Shape</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_SVGPath</span>
@@ -2761,6 +2782,7 @@
 <span class="sd">        clip_to_viewbox: Drop anything outside the document's viewBox.</span>
 
 <span class="sd">    """</span>
+    <span class="n">_check_strokes</span><span class="p">(</span><span class="n">strokes</span><span class="p">)</span>
     <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">element_color</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">svg_element_groups</span><span class="p">(</span>
@@ -2933,6 +2955,7 @@
 <span class="sd">            os.unlink(tmp.name)</span>
 
 <span class="sd">    """</span>
+    <span class="n">_check_strokes</span><span class="p">(</span><span class="n">strokes</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
     <span class="c1"># Split the COMPOSITED drawing, rather than resolving each colour on its own. Pooling a</span>
@@ -3021,7 +3044,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
