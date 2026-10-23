@@ -4367,6 +4367,47 @@ adding a re-export.
 satisfied by a guard on a parameter that changes nothing — **the case T106 found twice**. It pins
 that `"polygon"` and `"ignore"` genuinely differ, so the validation is guarding something.
 
+## T116 — The scan that missed its own sibling ✅
+
+**§12.2 item 76. E-4, C-21.**
+
+T115 fixed `strokes` and T114's scan had not found it, because that scan required a **`raise`
+mentioning the parameter** — and a silent fall-through has none. Re-running without that condition:
+27 options compared against exactly one literal.
+
+Twenty-five are `is None` "derive the default" checks, which is P-3's own pattern. One was my own
+helper. **One was new**: `rect(atype="box")`, compared only against `"perim"`.
+
+| `atype=` | centre y of a rounded 20×10 rect anchored LEFT |
+|---|---|
+| `"box"` | 0.0 |
+| `"perim"` | 2.0 |
+| `"prim"` | **0.0, silently** |
+
+### Its vocabulary is not the one the package already validates
+
+There is an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against
+it and raises for anything else. Routing `rect` through it would have looked like the obvious fix
+and would have **rejected `"perim"`**: BOSL2 gives `rect()` a box/perimeter choice and the round
+shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, faithfully
+ported.
+
+So `rect` validates against its own pair. `NemaMountMask(atype=)` already did the same thing, and is
+tested — the precedent was there.
+
+### What the sweep's shape says
+
+T114 asked "which options accept only their default" and required a raise. T115's defect had no
+raise. T116 asked "which options are compared against exactly one literal" and found it. **Same
+question, one condition less, and the condition was the thing hiding the answer** — which is the
+fourth time this session a scan's own filter was the defect.
+
+### Measured and left
+
+`flat.rect` — the sanctioned façade — does not take `atype` at all, while `shapes2d.square.rect`
+does. So the option is unreachable through the door the spec tells callers to use. Adding it is an
+API change rather than a fix, and it is recorded here rather than done.
+
 ### Third time a number looked like a defect and was a facet count
 
 | task | the number | what it was |
@@ -4384,6 +4425,97 @@ number as the defect would have made the geometry worse.
 Lowering the fixed facet count from 64 to 8 fails the tests. That is the point: the guard is only
 meaningful while the tessellation is fine enough to be out of the way, and a later editor lowering
 it for speed would be quietly re-measuring the thing the rule is not about.
+
+## T117 — The guard that only asked once ✅
+
+**§12.2 item 77. B-9, G-1, B-7, PAR-4.**
+
+T116 found a defect by removing one clause from a scan. T117 asked the same question of a function
+with **two branches**.
+
+SPEC B-9 is enforced: `test_the_facade_forwards_what_it_declares` fails when a façade accepts a
+parameter and forwards it nowhere. Every `flat` 2-D shape passed it. But each dispatches to one of
+two primitives, and "forwards it nowhere" is satisfied by one branch:
+
+| on the SDF backend | before | after |
+|---|---|---|
+| `anchor` takes effect | `rect` and `square` | all eight |
+| `spin` takes effect | nothing | all eight |
+| `realign` reaches the primitive | — | `regular_ngon`, `star` |
+| `step` reaches the primitive | — | `star` |
+| `inner_radius` / `inner_diameter` / `side` | not accepted at all | `regular_ngon`, both backends |
+
+Eight of the nine two-branch façade shapes; `text` refuses on the SDF backend outright, which is
+the honest answer and not a dropped option.
+
+`anchor` and `spin` are the two parameters callers reach for most, and **every one of the eight
+discarded at least one of them** without a word. `trapezoid2d` had an `anchor` parameter of its own whose entire
+implementation was `_ = anchor`; the other `_ = ` markers in `sdf/` each carry a reason ("a preview
+hint for the CSG renderer", "the field is continuous, so there are no slices to choose") and this
+one carried none, so the parameter is gone rather than exempted.
+
+### The fixture I wrote by hand missed two of the eight
+
+The scan listed nine two-branch façades. The fixture was written out from the six I had been
+measuring, and `circle` and `square` were not among them — `circle` discarded both `anchor` and
+`spin` on the SDF backend, `square` discarded `spin`, in the same file as the six being fixed and
+in the same way. **The scan had already named them.** The fixture is derived from the scan now, and
+`text` — the ninth — is excluded with a reason: it refuses on the SDF backend outright, which is
+the honest answer rather than a dropped option.
+
+### Splitting the function narrowed my own scan, twice
+
+`regular_ngon`'s body reached 53 code lines once the three size options were forwarded, over S-2's
+limit of 50, on a file whose budget is 0. Extracting the SDF branch into `_regular_ngon_sdf` fixed
+the budget and **put the primitive call one frame beyond the scan's reach**: the control that drops
+`realign` went from failing two tests to failing one. Teaching the scan to follow module-private
+helpers was not enough either, because the branch now forwards `realign=realign` *to the helper*,
+so the keyword was present whether or not the helper passed it on. The scan asks which keywords
+reach **the primitive call** — found by resolving the imported binding and matching the callee —
+rather than which appear anywhere in the branch. Both controls fail two tests again.
+
+A guard that quietly narrows when the code around it is tidied is worth more attention than one
+that breaks, because nothing announces it. This one narrowed under a refactor I did myself, in the
+same commit, to satisfy a different rule.
+
+### Two of the first eleven fixtures could not have failed
+
+Six controls were run against the first version of the guard and **five failed it**. The sixth —
+swapping the helper's anchor and spin — passed with 44 tests green. The order test used `rect`, and
+`rect2d` takes its own `anchor`, so the façade hands the helper no anchor for a rect and reversing
+the helper cannot move a rect's box. It pins `trapezoid` against both spellings of the order now,
+and asserts the two spellings differ before trusting the comparison.
+
+The second: a **hexagon** is the one polygon where `side` and `inner_radius` both equal `radius`.
+Measured at n=6, all three read 5.0 and all three would have been filed as aliases of each other —
+which is how `star`'s `outer_radius`/`outer_diameter` *were* correctly filed, since those really are
+spellings of `radius`. At n=5 they read 4.253, 6.180 and 5.000. **The fixture that flatters the
+code is the one a symmetric shape hands you.**
+
+### What the fix is not
+
+`PyShape2D.reanchor` claimed to do "the same arithmetic the CSG 2-D shape does". It does not: it
+reads the bounding box, and CSG anchors to the geometry. They agree for a rect or an ellipse and
+diverge wherever an outline misses a corner of its box — a pentagon of radius 5 at `anchor=LEFT`
+differs by exactly 2.939 in y, the y of the vertex CSG chooses over the box edge midpoint
+`reanchor` uses. The docstring is corrected, and `ANCHOR_AGREEMENT` records per shape how far the
+backends agree (both axes / the named axis / neither) as a table that may improve and never
+regress. A companion test asserts the **centred** shapes are byte-identical across backends, so the
+table cannot quietly start recording a shape mismatch as an anchor gap.
+
+So this closes the silent-discard defect and leaves a measured parity gap in its place, which is
+the honest trade: anchoring to the box beats discarding the anchor, and the residual is now a number
+instead of a surprise.
+
+### Plan rules
+
+* `tests/test_the_flat_facade_places_what_it_accepts.py` asks the per-branch question of every
+  two-branch façade in `flat.py` **and** `solid.py`, with a floor of 9 on how many it examined —
+  without that floor a broken branch split would make the scan examine nothing and pass.
+* Shape fixtures must be asymmetric under a 30° turn and under their own size options. A circle or
+  a hexagon hides the defect behind its symmetry.
+* The anchor table only improves. An entry moved the wrong way is a regression, not a re-measurement.
+
 
 ## Keeping this file honest
 

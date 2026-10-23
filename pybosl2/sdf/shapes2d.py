@@ -223,8 +223,12 @@ class SdfShape2D(Colorable, Distributable):
     ) -> list[float]:
         """Return the 2-D point for the given anchor.
 
-        The same arithmetic the CSG 2-D shape does, on the same anchor vocabulary (SPEC C-10) --
-        it only ever needed a bounding box, and an SDF shape carries an exact one.
+        The same anchor *vocabulary* the CSG 2-D shape uses (SPEC C-10), read off the bounding box,
+        which an SDF shape carries exactly. Not the same arithmetic: for a shape whose outline does
+        not touch every corner of its box, the CSG backend anchors to the geometry and this anchors
+        to the box. A pentagon of radius 5 at ``anchor=LEFT`` is the smallest example -- CSG brings
+        the vertex at (-4.045, -2.939) to the origin, this brings the box's left-edge midpoint
+        (-4.045, 0), and the two differ by 2.939 in y. They agree exactly for a rect or an ellipse.
 
         Args:
             anchor: an :class:`~pybosl2._edges_lang.Anchor` or a 2-vector.
@@ -1512,7 +1516,6 @@ def trapezoid2d(
     width2: float | None = None,
     angle: float | None = None,
     shift: float = 0,
-    anchor: "Anchor | Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
     """Return a trapezoid with parallel front and back sides, as a signed-distance field.
@@ -1523,13 +1526,11 @@ def trapezoid2d(
         width2:   X-axis width of the back end
         angle:  if given in place of height/width1/width2, the missing value is derived
         shift: X-axis shift of the back (default 0)
-        anchor: anchor point (default CENTER)
         res: meshing resolution (default 10). Omitted, the ambient ``use_defaults(res=...)`` value applies.
 
     """
     import math as _m
 
-    _ = anchor
     defined = sum(x is not None for x in (height, width1, width2, angle))
     if defined != 3:
         raise Bosl2ValueError(

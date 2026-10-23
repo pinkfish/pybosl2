@@ -607,6 +607,54 @@ there in the same commit as the code (§13 rule 4).
 
 **A third profile is wrong and is deliberately not fixed here.** Asking whether each polygon is *simple* — shoelace area against even-odd fill, which agree iff the loop does not cross itself — separates five from one: `Mask2D.tear(3)` shoelaces to 1.110 against a filled area of 2.903, and reaches `x=5.12`, `y=-1.24` on a corner the others keep inside `[-0.01, 3]`. A cutter that crosses itself has no interior, so what it removes is undefined. The source says where it comes from — the arc sweeps 135 degrees past 180 rather than 45, and the tip sits at `r(1 - sqrt 2)`, negative, where the arc it should meet ends at `r(1 - 1/sqrt 2)` — but the correct profile is a question about BOSL2's teardrop convention rather than about this polygon, and guessing is how the other two came to be written. It is recorded as a `strict=True` expected failure carrying the measurement, so fixing it must delete the entry rather than quietly pass.
 
+**T116 re-ran T114's scan with one condition removed and found the sibling it had missed.** T114 asked which options accept only their default and required a `raise` naming the parameter; a silent fall-through has none, which is why T115's `strokes` defect had to be found another way. Asking instead which options are compared against exactly one literal gives 27, of which 25 are `is None` "derive the default" checks — P-3's own pattern — and one is new: `rect(atype="box")` is compared only against `"perim"`, so a rounded 20x10 rect anchored LEFT centres at y=0 under `"box"`, y=2 under `"perim"`, and **y=0 in silence under `"prim"`**. **The scan's own filter was the thing hiding the answer**, which is the fourth time in this campaign that a guard's condition was the defect.
+
+**The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
+
+**T117 asked T116's question of a two-branch function and the answer was `anchor`.** SPEC B-9 is
+already enforced — `test_the_facade_forwards_what_it_declares` fails if a façade accepts a parameter
+and passes it on nowhere. Every `flat` 2-D shape passed. But each of them dispatches to one of two
+primitives, and that guard asks whether a parameter is forwarded *anywhere*: forwarding it on the
+CSG branch alone is enough. Asking per branch instead, **`anchor` reached only `rect2d` and `spin`
+reached neither**, so on the SDF backend four of six shapes accepted a placement request and
+discarded it and all six discarded the spin — on the two parameters callers reach for most, and
+`trapezoid2d` carried an `anchor` of its own whose body was `_ = anchor`. The same split hid five
+live primitive options: `realign` on both `regular_ngon2d` and `star2d`, `step` on `star2d`, and
+`inner_radius`/`inner_diameter`/`side` on `regular_ngon2d` — the last three being the apothem and
+the edge length, measurements of a polygon that are *not* spellings of its radius, and unreachable
+through the door B-7 tells callers to use. **A scan is only as narrow as its narrowest clause**, and
+this is the fifth time in this campaign that the clause was the defect.
+
+**The fixture was written by hand from the shapes being measured and missed two the scan had named.**
+`circle` discarded both `anchor` and `spin` on the SDF backend and `square` discarded `spin` — same
+file, same defect, not in the fixture. It is derived from the scan now. And **the split that kept
+`regular_ngon` inside S-2's line limit narrowed the scan twice**: extracting the SDF branch put the
+primitive call one frame away, and following module-private helpers was still not enough, because
+the branch forwards `realign=realign` *to the helper* and the keyword was then present whether or
+not the helper passed it on. The scan asks which keywords reach the primitive call, resolved from
+the imported binding. A guard that narrows quietly under a tidy-up is worse than one that breaks,
+and this one narrowed under a refactor made in the same commit to satisfy a different rule.
+
+**Two fixtures in the first version of the guard could not have failed.** The order test compared
+`rect(anchor=LEFT, spin=30)` across the backends — but `rect2d` takes its own `anchor`, so the
+façade hands the placement helper no anchor for a rect, and a control that swapped the helper's two
+operations passed with 44 tests green. It pins `trapezoid` against both spellings of the order now.
+And a hexagon would have called `side` and `inner_radius` aliases of `radius`: **n=6 is the one
+polygon where all three coincide**, measured at 5.0 either way, so the fixture is a pentagon, where
+they read 4.253, 6.180 and 5.0.
+
+**The fix is an improvement and not parity, and the docstring that claimed otherwise is corrected.**
+`PyShape2D.reanchor` said it did "the same arithmetic the CSG 2-D shape does"; it reads the bounding
+box, while CSG anchors to the geometry. The two coincide for a rect or an ellipse and part company
+wherever an outline misses a corner of its box: a pentagon of radius 5 at `anchor=LEFT` has CSG
+bring the vertex at (-4.045, -2.939) to the origin and `reanchor` bring the box's left-edge midpoint
+(-4.045, 0), differing by exactly 2.939 in y. So honouring the anchor on the box beats discarding
+it, and `ANCHOR_AGREEMENT` in the new guard records per shape how far the two backends actually
+agree — both axes for `rect` and `ellipse`, the named axis only for `regular_ngon`, `star` and
+`trapezoid`, neither for `polygon` — as a table whose entries may improve and never regress, held
+honest by a companion test asserting the *centred* shapes are identical, without which the table
+could be recording a shape mismatch and calling it an anchor gap.
+
 **T115 took the two things T114 had measured and left.** `strokes` was compared only against `"polygon"` and every other value fell through to the `"ignore"` branch, so a typo did not fail but changed the answer: an SVG holding one stroked path returns two regions for `"polygon"`, one for `"ignore"`, and **one for `"polygn"`**, dropping the stroke in silence. Five public entries took the parameter and none validated it; all four reachable ones refuse by name now, including `Region.from_svg`, which forwards. It stays a `str` rather than becoming the enum B2-2 would prefer, because the public signatures are the compatibility surface and widening them is an API change rather than a fix.
 
 **And `vnf.py` held one concept under two names, with a union of a type against itself as the evidence.** It aliased `VnfStyle = VNFStyle`, exported only the alias in its `__all__`, and annotated one parameter `VNFStyle | VnfStyle` — a union only writable by someone who believed the two were different types, which is what distinguishes this from the dozen deliberate aliases elsewhere (`Bosl2Solid = CsgSolid`, `Vector = Point`) that pair a genuinely different vocabulary with a class. **`mypy` then found the better half**: removing the alias broke `nurbs.py`'s import, because `vnf.py` had never exported the canonical spelling at all — only the drifted one — so that import was reaching a name the module did not advertise, and `nurbs.py` was the one module not taking `VNFStyle` from `pybosl2.enums` like the other five. Fixed by importing from the real home rather than by adding a re-export.

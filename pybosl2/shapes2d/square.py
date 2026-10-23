@@ -140,6 +140,12 @@ def square(
     return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
 
 
+#: `rect`'s anchor-type vocabulary. Deliberately not `AnchorType`, whose members are "hull",
+#: "box" and "intersect": BOSL2 gives `rect()` a box/perimeter choice and the round shapes a
+#: hull/intersect one, under the same parameter name.
+_RECT_ANCHOR_TYPES = ("box", "perim")
+
+
 @backend_only("csg", neutral="pybosl2.flat.rect")
 def rect(
     size: float | Sequence[float] = 1,
@@ -179,6 +185,16 @@ def rect(
     complex_shape = (rounding != 0 if isinstance(rounding, (int, float)) else any(rounding)) or (
         chamfer != 0 if isinstance(chamfer, (int, float)) else any(chamfer)
     )
+    # `rect`'s anchor vocabulary is BOSL2's "box" / "perim", which is *not* `AnchorType`'s
+    # "hull" / "box" / "intersect" -- the same parameter name carries two vocabularies, one per
+    # shape family, faithfully to BOSL2. So it cannot route through `norm_atype`, and it was
+    # validated by nothing: anything other than "perim" fell through to the box branch, so `"prim"`
+    # silently anchored to the bounding box. The two differ -- a rounded 20x10 rect anchored LEFT
+    # centres at y=0 under "box" and y=2 under "perim" (T116).
+    if atype not in _RECT_ANCHOR_TYPES:
+        raise Bosl2ValueError(
+            f"rect(): atype must be one of {', '.join(repr(a) for a in _RECT_ANCHOR_TYPES)}, got {atype!r}."
+        )
     if complex_shape and atype == "perim":
         offset = _anchor_offset_hull(path, anchor)
         return _finish(shape, offset, spin, size=sz, anchor=anchor)

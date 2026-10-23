@@ -17,6 +17,17 @@ B2-2 says enums replace magic strings, and this would be better as one. It stays
 because the public signatures are the compatibility surface and widening them to an enum is an API
 change rather than a fix; what the fix owes is that an unrecognised value refuses by name.
 
+`rect(atype=)` had the same shape and T115's scan missed it, because that scan required a
+`raise` mentioning the parameter and this one has none -- `atype` was compared against `"perim"`
+and nothing else, so every other value fell to the box branch. A rounded 20x10 rect anchored LEFT
+centres at y=0 under `"box"` and y=2 under `"perim"`, and `"prim"` gave y=0 in silence (T116).
+
+Its vocabulary is **not** `AnchorType`'s. `AnchorType` is `hull`/`box`/`intersect` and there is a
+`norm_atype` that validates against it -- but BOSL2 gives `rect()` a box/perimeter choice and the
+round shapes a hull/intersect one, under the same parameter name. Routing `rect` through
+`norm_atype` would therefore reject `"perim"`, which is why it validates against its own pair. One
+parameter name, two vocabularies, faithfully.
+
 Also in this file: the one `VnfStyle` the package had left. `vnf.py` aliased `VnfStyle = VNFStyle`,
 exported **only the alias** in its `__all__`, and annotated one parameter `VNFStyle | VnfStyle` -- a
 union of a type with itself, which reads as "either spelling" and means nothing. C-21 asks for one
@@ -114,4 +125,39 @@ def test_the_vnf_style_enum_has_one_spelling() -> None:
     assert not hasattr(vnf_module, "VnfStyle"), (
         "pybosl2.vnf has a `VnfStyle` again. The canonical spelling is `VNFStyle`, from "
         "`pybosl2.enums`, which is where every module imports it"
+    )
+
+
+#: `rect`'s own vocabulary -- see the module docstring on why it is not `AnchorType`'s.
+RECT_ATYPES = ("box", "perim")
+
+
+@pytest.mark.parametrize("mode", ["prim", "permi", "hull", "intersect", "nonsense", ""])
+def test_an_unknown_rect_anchor_type_refuses(mode: str) -> None:
+    """SPEC E-4: everything but `"perim"` fell to the box branch, so a typo changed the anchor.
+
+    `"hull"` and `"intersect"` are in the list on purpose: they are `AnchorType`'s members, valid
+    for the round shapes and meaningless here, and the kind of thing a caller moving between the
+    two families would try.
+    """
+    from pybosl2.shapes2d.square import rect
+
+    with pytest.raises(Bosl2ValueError, match="atype"):
+        rect(size=[20.0, 10.0], rounding=3.0, atype=mode)
+
+
+@pytest.mark.parametrize("mode", RECT_ATYPES)
+def test_both_rect_anchor_types_are_accepted_and_differ(mode: str) -> None:
+    """And they must do different things, or validating them guards nothing (T106's lesson)."""
+    from pybosl2 import LEFT, use_defaults
+    from pybosl2.shapes2d.square import rect
+
+    with use_defaults(fn=32):
+        centres = {
+            at: float(rect(size=[20.0, 10.0], rounding=3.0, atype=at, anchor=LEFT).bounds().center[1])
+            for at in RECT_ATYPES
+        }
+    assert mode in centres
+    assert centres["box"] != centres["perim"], (
+        f"the two anchor types place a rounded rect identically ({centres}), so validating them guards nothing"
     )
