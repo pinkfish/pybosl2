@@ -2294,6 +2294,12 @@
 
 
 
+<span class="c1">#: `rect`'s anchor-type vocabulary. Deliberately not `AnchorType`, whose members are "hull",</span>
+<span class="c1">#: "box" and "intersect": BOSL2 gives `rect()` a box/perimeter choice and the round shapes a</span>
+<span class="c1">#: hull/intersect one, under the same parameter name.</span>
+<span class="n">_RECT_ANCHOR_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"box"</span><span class="p">,</span> <span class="s2">"perim"</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="rect">
 <a class="viewcode-back" href="../../../foundational/shapes2d/square.html#pybosl2.shapes2d.square.rect">[docs]</a>
 <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.flat.rect"</span><span class="p">)</span>
@@ -2335,6 +2341,16 @@
     <span class="n">complex_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">rounding</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="nb">any</span><span class="p">(</span><span class="n">rounding</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span>
         <span class="n">chamfer</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chamfer</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="nb">any</span><span class="p">(</span><span class="n">chamfer</span><span class="p">)</span>
     <span class="p">)</span>
+    <span class="c1"># `rect`'s anchor vocabulary is BOSL2's "box" / "perim", which is *not* `AnchorType`'s</span>
+    <span class="c1"># "hull" / "box" / "intersect" -- the same parameter name carries two vocabularies, one per</span>
+    <span class="c1"># shape family, faithfully to BOSL2. So it cannot route through `norm_atype`, and it was</span>
+    <span class="c1"># validated by nothing: anything other than "perim" fell through to the box branch, so `"prim"`</span>
+    <span class="c1"># silently anchored to the bounding box. The two differ -- a rounded 20x10 rect anchored LEFT</span>
+    <span class="c1"># centres at y=0 under "box" and y=2 under "perim" (T116).</span>
+    <span class="k">if</span> <span class="n">atype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_RECT_ANCHOR_TYPES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"rect(): atype must be one of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_RECT_ANCHOR_TYPES</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">atype</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">complex_shape</span> <span class="ow">and</span> <span class="n">atype</span> <span class="o">==</span> <span class="s2">"perim"</span><span class="p">:</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span>
