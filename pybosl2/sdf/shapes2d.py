@@ -56,6 +56,42 @@ from pybosl2.sdf.shapes3d import PyShape
 # ---------------------------------------------------------------------------
 
 
+#: A 2-D shape's rotational symmetry: the point it turns about without its bounding box changing,
+#: and the smallest turn that leaves it identical -- ``0`` for a shape with no smallest one, which
+#: is to say a circle. It exists for the reason the 3-D `Symmetry` does (SPEC S-2b, PAR-5): a bound
+#: is a *claim*, and the one `rotate` computes is the axis-aligned box of the rotated **corner
+#: box**. That is exact at multiples of 90 degrees and for a rectangle at any angle, and wrong by
+#: 2.07 for a circle of radius 5 turned 45 degrees, which cannot have moved at all.
+#:
+#: A 2-D rotation is always about the origin, so unlike the 3-D record this needs no direction --
+#: only whether the symmetry point *is* the origin, and whether the angle is a whole number of
+#: steps. `translate` carries the point along; everything else drops it, because a shape that has
+#: been cut, unioned or scaled is no longer the shape whose symmetry was recorded.
+Symmetry2D = tuple[tuple[float, float], float]
+
+
+def _turns_onto_itself(symmetry: "Symmetry2D | None", turn: float) -> bool:
+    """Report whether this rotation leaves the shape, and so its bounding box, exactly as it is.
+
+    Args:
+        symmetry: the shape's recorded symmetry, or None.
+        turn: the rotation in degrees, about the origin.
+
+    Returns:
+        True if the box may be kept unchanged.
+
+    """
+    if symmetry is None:
+        return False
+    (px, py), step = symmetry
+    if abs(px) > 1e-9 or abs(py) > 1e-9:
+        return False  # a shape turned about a point that is not its own centre does move
+    if step <= 0:
+        return True  # circular: any angle will do
+    multiple = turn / step
+    return abs(multiple - round(multiple)) < 1e-9
+
+
 class SdfShape2D(Colorable, Distributable):
     """A lazy 2-D shape: a symbolic signed-distance function of (x, y) plus bounds -- the flat.
 
@@ -88,6 +124,8 @@ class SdfShape2D(Colorable, Distributable):
         self._modifier: str | None = None
         #: The nominal anchor box (SPEC S-2a), if one was attached.
         self._size: list[float] | None = None
+        #: The rotational symmetry, when the constructor knows one. See `Symmetry2D`.
+        self._symmetry: "Symmetry2D | None" = None
 
     @property
     def size(self) -> "list[float] | None":
@@ -412,11 +450,15 @@ class SdfShape2D(Colorable, Distributable):
         tx, ty = float(v[0]), float(v[1])
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x - tx, y - ty)  # noqa: E731
-        return self._wrap(
+        out = self._wrap(
             new_fn,
             [self.mn[0] + tx, self.mn[1] + ty],
             [self.mx[0] + tx, self.mx[1] + ty],
         )
+        if self._symmetry is not None:
+            (px, py), step = self._symmetry
+            out._symmetry = ((px + tx, py + ty), step)
+        return out
 
     def rotate(self, a: float | Sequence[float]) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native.
@@ -442,6 +484,10 @@ class SdfShape2D(Colorable, Distributable):
         c, s = math.cos(angle), math.sin(angle)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(c * x + s * y, -s * x + c * y)  # noqa: E731
+        if _turns_onto_itself(self._symmetry, turn):
+            out = self._wrap(new_fn, self.mn, self.mx)
+            out._symmetry = self._symmetry
+            return out
         corners = [
             [self.mn[0], self.mn[1]],
             [self.mx[0], self.mn[1]],
@@ -1044,7 +1090,9 @@ def circle2d(radius: float | None = None, diameter: float | None = None, res: in
         res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
-    return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
+    out = PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
+    out._symmetry = ((0.0, 0.0), 0.0)
+    return out
 
 
 def rect2d(  # type: ignore[no-untyped-def]
@@ -1088,6 +1136,7 @@ def rect2d(  # type: ignore[no-untyped-def]
         return _rect2d(x, y, hx, hy, amount, mode)
 
     shape = PyShape2D(sdf_fn, [-hx, -hy], [hx, hy], res)
+    shape._symmetry = ((0.0, 0.0), 90.0 if abs(hx - hy) < 1e-12 else 180.0)
     ax, ay = (list(anchor) + [0, 0])[:2]
     if ax or ay:
         shape = shape.translate([-ax * hx, -ay * hy])
@@ -1389,7 +1438,9 @@ def ellipse2d(
     def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         return _lv_hypot(x / max(rx, 1e-9), y / max(ry, 1e-9)) - 1.0
 
-    return PyShape2D(sdf_fn, [-rx, -ry], [rx, ry], res)
+    out = PyShape2D(sdf_fn, [-rx, -ry], [rx, ry], res)
+    out._symmetry = ((0.0, 0.0), 0.0 if abs(rx - ry) < 1e-12 else 180.0)
+    return out
 
 
 def regular_ngon2d(
@@ -1454,7 +1505,9 @@ def regular_ngon2d(
             for p in pts
         ]
 
-    return polygon2d(Path2D(pts), res=res)
+    out = polygon2d(Path2D(pts), res=res)
+    out._symmetry = ((0.0, 0.0), 360.0 / num_sides)
+    return out
 
 
 def star2d(
@@ -1507,7 +1560,9 @@ def star2d(
             for p in pts
         ]
 
-    return polygon2d(Path2D(pts), res=res)
+    out = polygon2d(Path2D(pts), res=res)
+    out._symmetry = ((0.0, 0.0), 360.0 / num_sides)
+    return out
 
 
 def trapezoid2d(

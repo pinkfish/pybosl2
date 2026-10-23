@@ -360,19 +360,14 @@ def test_no_parameter_is_forwarded_on_only_one_branch() -> None:
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="SPEC §12.2 item 21, in 2-D: PyShape2D.rotate rebuilds the box from the rotated corners "
-    "of the old box, so a shape a rotation cannot move still reports a wider one. Fixed for the "
-    "3-D solids by recording the line each may be turned about; the 2-D shape has no such record. "
-    "Remove this xfail when it gains one.",
-)
-def test_a_turned_circle_reports_a_box_it_cannot_fill() -> None:
+def test_a_turned_circle_keeps_the_box_it_cannot_change() -> None:
     """A circle has no orientation, so spinning it must not change its bounds.
 
-    Reachable through `flat.circle(spin=)` only because the spin is now honoured at all; calling
-    `PyShape2D.rotate` directly has always done this. The figure is the same 37% item 21 measured
-    on a sphere, which is the same arithmetic one dimension up.
+    Landed here as a strict xfail: `PyShape2D.rotate` rebuilt the box from the rotated corners of
+    the old box, so a circle of radius 5 turned 30 degrees reported 37% wider -- item 21's
+    arithmetic one dimension down, reachable through `flat.circle(spin=)` only because T117 made
+    the spin take effect at all. T118 gave the 2-D shape the symmetry record the 3-D solids have,
+    and the xfail turned into this.
     """
     with use_backend("sdf"):
         still = _box(flat.circle(radius=5))
