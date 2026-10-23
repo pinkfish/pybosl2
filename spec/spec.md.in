@@ -611,6 +611,31 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T118 closed T117's xfail and found that the 2-D half of the bounds question had never been asked.**
+`tests/test_sdf_bounds_are_tight.py` asks of every 3-D solid whether it reaches its declared box and
+whether any of it escapes; **the string "2d" does not appear in it**. So item 21's defect — `rotate`
+rebuilding the box from the rotated corners of the old box — was fixed for the solids by T49 and
+left standing in 2-D, where a circle of radius 5 turned 45 degrees claimed 2.07 of margin it cannot
+occupy, a regular hexagon turned 60 degrees onto itself claimed 2.17, and a five-pointed star at 72
+degrees claimed 3.45. All three are now 0.00, by the 2-D form of T49's record: the point a shape
+turns about and the smallest turn that leaves it identical, consulted by `rotate` when the angle is
+a whole number of steps, carried by `translate` and dropped by everything else.
+
+**The instrument that said +100% was measuring my own fixture.** Comparing the box's width and
+length before and after a turn reported a 20x10 rect spun 90 degrees as twice too wide; it is exact,
+and the ratio was comparing a shape's y-extent against the same shape's x-extent. Measuring the
+distance from the field to each face says what is true — the rotated corner box is exact at
+multiples of 90 degrees for everything and exact for a rectangle at any angle, which is why this
+survived — and a guard built on the ratio would have "fixed" rectangles and never found the circle.
+
+**Five of six controls failed the guard; the sixth recorded an n-gon's step as `180/n`.** Half the
+true step leaves every genuine step a whole multiple, so every "turned onto itself" assertion still
+held while a pentagon turned 36 degrees kept a box losing 0.955 off its left side — a step that is
+too small fails in the direction that clips. The suite asks the half-step question now. That is the
+second time the escape half of this question needed adding after the fact: item 21 records two of
+four controls passing for want of it in 3-D, and here it was present from the start and still had a
+fixture gap, written for the shapes being fixed rather than for the ways the record can go wrong.
+
 **T117 asked T116's question of a two-branch function and the answer was `anchor`.** SPEC B-9 is
 already enforced — `test_the_facade_forwards_what_it_declares` fails if a façade accepts a parameter
 and passes it on nowhere. Every `flat` 2-D shape passed. But each of them dispatches to one of two

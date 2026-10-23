@@ -18,7 +18,12 @@ found by accident while doing something else:
 
 Every one is the same shape of mistake: **the box is written by hand beside the field rather than
 measured from it**, so it is only as good as whoever last read the formula next to it. Chasing them
-one at a time found five; this asks the question directly, of everything.
+one at a time found five; this asks the question directly, of every 3-D solid.
+
+Of *every 3-D solid* -- which is narrower than it reads, and the gap went unnoticed until T118.
+The 2-D shapes are asked the same two questions by `test_sdf_bounds_are_tight_2d.py`, and when that
+file was finally written the answer was already wrong: `SdfShape2D.rotate` still had the rotated
+corner box this file's own summary records being fixed in 3-D by T49.
 
 Two questions, and the second is the one that matters more:
 

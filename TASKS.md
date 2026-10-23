@@ -4517,6 +4517,69 @@ instead of a surprise.
 * The anchor table only improves. An entry moved the wrong way is a regression, not a re-measurement.
 
 
+## T118 — The half of the question nobody asked ✅
+
+**§12.2 item 21 (in 2-D), item 78. S-2b, PAR-5.**
+
+T117 left a strict xfail: a circle of radius 5 spun 30 degrees reported a box 37% too wide. That
+is §12.2 item 21's defect — `rotate` rebuilding the box from the rotated corners of the old box —
+which T49 fixed for the 3-D solids and nobody had fixed for the 2-D shape.
+
+The reason nobody had is the finding. `tests/test_sdf_bounds_are_tight.py` asks of every 3-D solid
+whether it reaches the box it declares and whether any of it escapes. **The string "2d" does not
+appear in it.** The whole 2-D half of the question had never been asked, and the answer was already
+wrong — not in one place but in every rotation of every shape that does not fill its own box:
+
+| turned | claimed margin it never occupies |
+|---|---|
+| circle r=5 at 45° | 2.07 |
+| regular hexagon at 60° — onto itself, vertex for vertex | 2.17 |
+| 5-point star at 72° | 3.45 |
+| regular pentagon at 72° | 1.73 |
+
+All now 0.00. The fix is the 2-D form of T49's: each constructor records the point it turns about
+and the smallest turn that leaves it identical, and `rotate` keeps the box when the angle is a whole
+number of steps. A 2-D rotation is always about the origin, so the record needs no direction —
+`circle2d` and an equal-radius `ellipse2d` record `0`, having no smallest step; `regular_ngon2d` and
+`star2d` record `360/n`; `rect2d` records 180, or 90 when it is square. `translate` carries the
+point; everything else drops it.
+
+### The width ratio was the wrong instrument and said +100%
+
+The first measurement compared the width and length of the box before and after a turn, and
+reported a 20x10 rect spun 90° as **+100% too wide**. It is exact. The ratio was comparing the
+y-extent of a shape to the y-extent of the same shape rotated a quarter turn, which swaps the axes —
+the number was arithmetic about my own fixture, not about the box.
+
+Measuring the distance from the field to each face of its own box instead says what is true: the
+rotated corner box is **exact at multiples of 90° for everything, and exact for a rectangle at any
+angle**, which is why this survived so long. It is only wrong where an outline misses the corners of
+its box. A guard built on the ratio would have "fixed" rectangles and never found the circle.
+
+### The control that got away
+
+Six controls; five failed the guard. The sixth recorded an n-gon's step as `180/n` instead of
+`360/n` — **half** the true step — and passed. Every genuine step is still a whole multiple of half
+a step, so every "turned onto itself" assertion held, while a pentagon turned 36° kept a box that
+loses 0.955 off its left side. A step that is too small fails in the direction that **clips**.
+
+So the suite asks the half-step question too. That is twice now that the escape half of this
+question needed adding after the fact: item 21 records that two of four controls passed for want of
+it in 3-D, and here it was present from the start and still had a fixture gap, because I had written
+the escape cases for the shapes I was fixing rather than for the ways the record can be wrong.
+
+### Plan rules
+
+* The reach half and the escape half, over every case including the deliberately loose ones — a
+  conservative box must still be conservative in the *safe* direction.
+* `CONSERVATIVE` carries a figure per entry and only shrinks, and a separate test fails when an
+  entry has quietly become tight, so a stale licence gets noticed rather than kept.
+* Symmetry assertions check one step *and* two: keeping the box for the first and recomputing it
+  for the second would pass a single-step test.
+* Fixtures must include a shape whose symmetry is genuinely absent (a cut circle) and one whose
+  centre is not the origin (a moved circle), because both are ways the record turns unsafe.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes
