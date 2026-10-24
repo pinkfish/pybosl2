@@ -611,6 +611,33 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T119 measured the sentence that had deferred four pieces of work, and two of its three clauses
+were false.** The sentence — *libfive is stubbed, so an SDF solid meshes to nothing and `inside()`
+returns `False` everywhere, so only the analytic box can be read* — appears in four places and was
+the stated reason for not validating a geometry change each time. An SDF solid does mesh to nothing.
+But `inside()` reads the field and answers correctly: a sphere of radius 7 says `True` at
+(3.9, 3.9, 3.9), `False` at (4.1, 4.1, 4.1) and `False` at the box corner (7, 7, 7), which box logic
+cannot do. And the field evaluates to **exact** signed distances. So cross-backend geometry was
+measurable the whole time, on a campaign whose own notes record a bounding box hiding a shape
+difference four times — and a box was all these comparisons were using.
+
+**The comparison is one-sided, which is what makes it exact.** A CSG mesh inscribes a curved
+surface, so a vertex inside the field is faceting — a rounded cylinder reads 0.2087 in at the
+default and 0.0990, 0.0255, 0.0064, 0.0016 as `fn` doubles from 16, four times smaller per doubling.
+A vertex *outside* cannot be faceting, and across all 23 solids both backends build that figure is
+exactly 0.000000, so the assertion needs no tolerance. This closes the gap between the two existing
+parity guards: one asks whether both backends accept the same options, the other whether a solid
+fills its box, and neither asked whether the same call builds the same shape.
+
+**It sharpened T100's sweep xfails the moment it existed.** They compared box centres, because the
+docstring said that was all that could be read. On the field, the straight route differs by *exactly*
+a −90 degree turn about X — 0.0000 at all 48 of the façade's vertices, turning T100's inferred frame
+hypothesis into a measurement — while the bent route is **not a rigid motion at all**: no turn about
+X matches, and the worst departure is +0.3162 behind the route's start, an end-cap difference. So
+reconciling the frame fixes the straight case and leaves the bend, which is a smaller and more
+useful claim than "the two sweeps are different functions". A new test pins each half so the xfail
+cannot be closed by rotating the native sweep and leaving the bend wrong.
+
 **T118 closed T117's xfail and found that the 2-D half of the bounds question had never been asked.**
 `tests/test_sdf_bounds_are_tight.py` asks of every 3-D solid whether it reaches its declared box and
 whether any of it escapes; **the string "2d" does not appear in it**. So item 21's defect — `rotate`
