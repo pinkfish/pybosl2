@@ -3583,10 +3583,14 @@ it plainly has one — but that **the backend's own sweep does not build the sam
 means reconciling two sweeps, not routing to one. The refusal now says that.
 
 A `strict=True` xfail carries the numbers, with a second test pinning *which* disagreement is
-present so a move to some third convention cannot pass as progress. Not fixed here because this
-environment cannot check a fix: libfive is stubbed, an SDF solid meshes to nothing, and only its
-analytic box can be read — a matching box is not evidence of a matching field. Guessing a frame
-convention is how T89's two mask profiles came to be wrong.
+present so a move to some third convention cannot pass as progress. Not fixed here because
+guessing a frame convention is how T89's two mask profiles came to be wrong.
+
+**The other reason given — "only its analytic box can be read" — was false, and T119 replaced the
+comparison.** A matching box is indeed not evidence of a matching field, but the field evaluates to
+exact signed distances, so the two solids can be compared at the CSG mesh's own vertices. Asked that
+way: the straight route differs by *exactly* a −90° turn about X (0.0000 at all 48 vertices), and the
+bent route is not a rigid motion at all, the worst departure being +0.3162 behind the route's start.
 
 ### The instrument that nearly let it through
 
@@ -3789,11 +3793,16 @@ that let the false reason stand.
 
 ### Not attempted, and why
 
-Replacing a precise thread grid with a sweep is a geometry change, and libfive is stubbed here: an
-SDF solid meshes to nothing and `inside()` returns `False` everywhere, so only the analytic box can
-be read. The two `spiral_sweep` implementations agree on size *and* centre with an asymmetric
-profile — better evidence than `path_sweep` gave — but **a box is still a size signature**, and that
-has hidden a shape difference four times this session. Named, not guessed.
+Replacing a precise thread grid with a sweep is a geometry change, and libfive is stubbed here, so
+an SDF solid meshes to nothing. The two `spiral_sweep` implementations agree on size *and* centre
+with an asymmetric profile — better evidence than `path_sweep` gave — but **a box is still a size
+signature**, and that has hidden a shape difference four times this session. Named, not guessed.
+
+**Two of the three reasons given here were wrong, which T119 measured.** `inside()` does not return
+`False` everywhere — it reads the field and answers correctly — and the analytic box is not all that
+can be read, because the field evaluates to exact signed distances. Only the meshing clause holds.
+`tests/field_probe.py` now compares a CSG mesh against an SDF field at the mesh's vertices, which is
+the comparison a thread grid needs, so what remains is the geometry work itself.
 
 ### Three other duplicate pairs checked and clean
 
@@ -4578,6 +4587,70 @@ the escape cases for the shapes I was fixing rather than for the ways the record
   for the second would pass a single-step test.
 * Fixtures must include a shape whose symmetry is genuinely absent (a cut circle) and one whose
   centre is not the origin (a moved circle), because both are ways the record turns unsafe.
+
+
+## T119 — The sentence that deferred four pieces of work ✅
+
+**§12.2 item 79. PAR-1, B2-1.**
+
+T118 needed to sample a 2-D field and found it evaluates to exact signed distances. That raised a
+question about a sentence this campaign has repeated in four places, and used each time as a reason
+to stop:
+
+> libfive is stubbed, so an SDF solid meshes to nothing and `inside()` returns `False` everywhere,
+> so only the analytic box can be read.
+
+It has three clauses. **One is true.**
+
+| clause | measured |
+|---|---|
+| an SDF solid meshes to nothing | **true** — 0 vertices |
+| `inside()` returns `False` everywhere | **false** — a sphere of radius 7 says `True` at (3.9, 3.9, 3.9), `False` at (4.1, 4.1, 4.1) and `False` at the box corner (7, 7, 7); a drilled cube says `False` down the hole and `True` 2.1 off-axis |
+| only the analytic box can be read | **false** — `_sdf_fn(lv.x(), lv.y(), lv.z())` is a symbolic tree and calling it returns the exact distance |
+
+So the instrument the deferrals said did not exist: a CSG solid exposes `.vnf().vertices`, an SDF
+solid exposes an exactly-evaluable field, and the two can be compared where both are defined — at
+the mesh's own vertices. `tests/field_probe.py`.
+
+### The comparison is one-sided, and that is what makes it exact
+
+A tessellation of a curved surface **inscribes** it, so a vertex *inside* the field is faceting. A
+rounded cylinder reads 0.2087 in at the default and then 0.0990, 0.0255, 0.0064, 0.0016 as `fn`
+doubles from 16 — four times smaller per doubling, the quadratic convergence of an inscribed
+polygon. A vertex *outside* the field cannot be faceting.
+
+Across all 23 solids both backends build, the furthest-outside figure is exactly **0.000000**. So
+the assertion needs no tolerance at all, and `test_the_backends_build_the_same_solid.py` asks the
+question that sat between the two existing parity guards: `test_option_parity.py` asks whether both
+backends *accept* the same options and `test_sdf_bounds_are_tight.py` asks whether a solid fills its
+box; neither asked whether the same call builds the same shape. It does — now measured rather than
+assumed, on a campaign whose own notes record a box hiding a shape difference four times.
+
+### What it immediately sharpened
+
+T100's two sweep xfails compared **box centres**, and its docstring said why that was all it could
+do. On the field:
+
+* the **straight** route differs by *exactly* a −90° turn about X — rotating the native sweep puts
+  its field at **0.0000** on all 48 of the façade's vertices. T100's frame hypothesis, inferred from
+  two centres, is now a measurement.
+* the **bent** route is **not a rigid motion**. No turn about X matches (0° leaves 22 of 72 vertices
+  outside and 22 inside, ±90° reach 19.17, 180° reaches 13.92), and the worst departure is
+  **+0.3162 at [−0.316, −0.949, 0]** — behind the route's start, so an end-cap difference.
+
+That is a smaller and more useful claim than "the two sweeps are different functions": reconciling
+the frame fixes the straight route and leaves the bend. A new test pins each half, so the xfail
+cannot be closed by rotating the native sweep and leaving the bend silently wrong.
+
+### Plan rules
+
+* Compare on the field, not the box. The box is a size signature and this campaign has four
+  recorded cases of one hiding a shape difference.
+* Assert only the outward direction. Inward is faceting; a test that treats it as a defect fails on
+  the facet count, which has fooled this campaign three times.
+* Keep the two controls that make the rest non-vacuous: the field must read −7, 0 and +1 at three
+  known points on a sphere, and each shape must yield a real vertex list. A stubbed probe returning
+  zeros, or an empty vertex list, otherwise passes everything.
 
 
 ## Keeping this file honest

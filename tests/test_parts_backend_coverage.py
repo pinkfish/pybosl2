@@ -42,8 +42,12 @@ from pybosl2.exceptions import UnsupportedByBackendError
 #: These four build their thread as a hand-rolled VNF grid. `ThreadHelix`, in the same module,
 #: routes a helical thread through `spiral_sweep` and **builds on both backends** -- so "a
 #: helical thread has no distance-field form" is false, and was the stated reason for all four
-#: (T103). Closing them is a geometry change: replacing a precise thread grid with a sweep,
-#: which cannot be validated where libfive is stubbed and an SDF solid meshes to nothing.
+#: (T103). Closing them is a geometry change: replacing a precise thread grid with a sweep. That
+#: was recorded as unvalidatable here because libfive is stubbed and an SDF solid meshes to nothing
+#: -- true of meshing, and false of the field, which evaluates to exact signed distances (T119).
+#: `tests/field_probe.py` compares a CSG mesh against an SDF field at the mesh's own vertices, and
+#: a hand-rolled thread grid is exactly the VNF-built shape that comparison suits. So the obstacle
+#: is the geometry work, not the absence of an instrument.
 #: `WireBundle` belongs here too, by T100's measurement: the SDF backend builds a swept tube
 #: along a bent route as a field, so the shape has a distance-field form. Its sweep is a
 #: *different function* from the façade's -- the profile lands in another plane -- so closing

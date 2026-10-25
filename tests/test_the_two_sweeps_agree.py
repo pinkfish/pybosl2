@@ -40,10 +40,30 @@ tube has no distance-field form -- it plainly has one -- but that the backend's 
 build the same solid the façade's does. Closing it means reconciling two sweeps, not routing to one.
 
 Recorded as a `strict=True` xfail carrying the numbers, the instrument T89 used for the teardrop
-mask and T90 then had to delete to go green. It is not fixed here because this environment cannot
-check a fix: libfive is stubbed, so an SDF solid meshes to nothing and only its analytic box can be
-read, and a matching box is not evidence of a matching field. Guessing a frame convention is how
-T89's two mask profiles came to be wrong in the first place.
+mask and T90 then had to delete to go green.
+
+**The reason given for not fixing it here was itself wrong, and T119 measured that too.** It read:
+*this environment cannot check a fix: libfive is stubbed, so an SDF solid meshes to nothing and only
+its analytic box can be read, and a matching box is not evidence of a matching field.* The last
+clause is exactly right, and it is why the comparison below used to be a comparison of box centres.
+The middle clause is false. An SDF solid does mesh to nothing, but its field evaluates to exact
+signed distances and `inside()` answers correctly, so the two solids can be compared where both are
+defined -- at the CSG mesh's own vertices. See `tests/field_probe.py`.
+
+Asked that way the disagreement is sharper than a box centre could show:
+
+* on the **straight** route it is *exactly* a -90 degree turn about X. Rotating the native sweep by
+  -90 puts the field at **0.0000** at all 48 of the façade's vertices. T100's frame hypothesis was
+  right, and is now measured rather than inferred from two centres.
+* on the **bent** route it is not a rigid motion at all. No turn about X matches: 0 degrees leaves
+  22 of 72 vertices outside the field and 22 inside, -90 and +90 both reach 19.17, and 180 reaches
+  13.92. The largest departure is **+0.3162 at [-0.316, -0.949, 0.0]**, which is behind the route's
+  start -- an end-cap difference, not a displacement.
+
+So reconciling the frame fixes the straight case and leaves the bend, which is a smaller claim than
+"the two sweeps are different functions" and a more useful one. It is still not fixed here, for the
+one reason that survives: guessing a frame convention is how T89's two mask profiles came to be
+wrong in the first place, and the bend needs more than a frame.
 """
 
 from __future__ import annotations
@@ -56,6 +76,7 @@ import pybosl2.sdf.shapes3d as sdf_shapes
 from pybosl2 import use_backend
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
+from tests.field_probe import worst_escape
 
 STRAIGHT = Path3D([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0]], closed=False)
 BENT = Path3D([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], closed=False)
@@ -94,11 +115,19 @@ def _native_centre(route: Path3D, offset: float) -> list[float]:
 )
 @pytest.mark.parametrize("route", [STRAIGHT, BENT], ids=["straight", "bent"])
 def test_the_backends_two_sweeps_build_the_same_solid(route: Path3D) -> None:
-    """SPEC PAR-1: the backend's own sweep must agree with the one the façade builds."""
-    facade, native = _facade_centre(route, OFFSET), _native_centre(route, OFFSET)
-    assert native == pytest.approx(facade, abs=0.05), (
-        f"the façade sweeps to {facade} and the backend's own sweep to {native}; the gap in "
-        f"`WireBundle` cannot be closed by dispatching to it until these agree"
+    """SPEC PAR-1: the backend's own sweep must agree with the one the façade builds.
+
+    On the field, at the façade mesh's own vertices -- not on the box centres this used to compare.
+    A vertex outside the native field cannot be faceting, which inscribes; see `field_probe`.
+    """
+    outside, inside, where = worst_escape(
+        lambda: route.path_sweep(_circle(OFFSET)),
+        lambda: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=route),
+    )
+    assert outside <= 1e-6, (
+        f"the façade's sweep has a vertex at {where} lying {outside:.4f} outside the native "
+        f"sweep's field (furthest inside {inside:.4f}); the gap in `WireBundle` cannot be closed "
+        f"by dispatching to it until these build the same solid"
     )
 
 
@@ -114,6 +143,43 @@ def test_the_disagreement_is_still_the_one_measured() -> None:
     assert _native_centre(STRAIGHT, OFFSET) == pytest.approx([10.0, -OFFSET, 0.0], abs=0.05), (
         f"the native sweep no longer centres at y=-{OFFSET}. If it now matches the façade, delete "
         f"this test and the xfail above; if it has moved elsewhere, it is still not reconciled"
+    )
+
+
+def test_the_straight_route_differs_by_exactly_one_turn_about_x() -> None:
+    """The frame hypothesis, measured on the field rather than inferred from two box centres.
+
+    This is the half of the disagreement that *is* a rigid motion, and pinning it means a later
+    change to the native sweep's frame cannot land halfway without being noticed.
+    """
+    outside, inside, where = worst_escape(
+        lambda: STRAIGHT.path_sweep(_circle(OFFSET)),
+        lambda: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=STRAIGHT).rotate(-90, [1, 0, 0]),
+    )
+    assert max(outside, abs(inside)) <= 1e-6, (
+        f"turning the native sweep -90 degrees about X used to put its field at 0.0000 on every "
+        f"vertex of the façade's straight sweep; now the worst is {outside:.4f} outside and "
+        f"{inside:.4f} inside, at {where}. The straight-route frame difference has moved."
+    )
+
+
+def test_the_bent_route_is_not_a_turn_about_x_at_all() -> None:
+    """The other half, which no rotation fixes -- so the fix is not just a frame.
+
+    Without this the xfail above could be "closed" by rotating the native sweep, which would make
+    the straight route agree and leave the bend silently wrong.
+    """
+    best = min(
+        worst_escape(
+            lambda: BENT.path_sweep(_circle(OFFSET)),
+            lambda angle=angle: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=BENT).rotate(angle, [1, 0, 0]),
+        )[0]
+        for angle in (0, -90, 90, 180)
+    )
+    assert best > 1.0, (
+        f"some turn about X now brings the bent route within {best:.4f} of agreement. If one of "
+        f"them matches, the bend was a frame difference after all and this test and the xfail "
+        f"above should go."
     )
 
 

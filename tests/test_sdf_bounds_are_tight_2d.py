@@ -144,8 +144,9 @@ def test_the_field_can_actually_be_sampled() -> None:
     """Every assertion below reads zero if the field evaluates to nothing, so prove it does not.
 
     libfive is stubbed in this suite and an SDF solid meshes to nothing, which is why so much of
-    the campaign can only read analytic boxes. A 2-D field is a different matter: it is a symbolic
-    tree and evaluating it gives exact signed distances, which is what makes this file possible.
+    the campaign believed it could only read analytic boxes. The field is a different matter: it is
+    a symbolic tree and evaluating it gives exact signed distances, which is what makes this file
+    possible -- and, as T119 then measured, was never limited to two dimensions.
     """
     tree = _tree(sdf2.circle2d(radius=5, res=10))
     inside = float(tree(0.0, 0.0, 0.0))  # type: ignore[operator]
