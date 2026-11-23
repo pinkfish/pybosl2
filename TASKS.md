@@ -4717,6 +4717,112 @@ by `test_the_comparison_is_sensitive_to_half_a_turn`.
 * Rod lengths must mix turn parities. Two fixtures at 12 turns is what hid the phase error.
 
 
+## T121 — Building is not the same as having a field ✅
+
+**§12.2 item 81. PAR-1, S-46a, S-2b.**
+
+T119 made cross-backend geometry measurable and T120 used it on one deferred comparison. T121
+pointed it at the parts, which had never been compared across backends on anything but a box — and
+the first thing it found was not a disagreement but three parts whose SDF field **cannot be
+evaluated at all**.
+
+`test_parts_backend_coverage` measures "40 of the 51 parts build on either backend" by asking
+whether `.shape` raises. It never evaluates the field that comes back, and nothing else did either,
+for the reason T119 retired: an SDF solid meshes to nothing here, so the field looked unreadable.
+So three parts passed backend coverage with a field that raises the moment anything looks at it.
+`.shape` returned an `SdfSolid`, `bounds()` answered, and a user with libfive would have met an
+exception on render.
+
+| part | on evaluating its field |
+|---|---|
+| `Rack` | *polygon has no non-degenerate edges* |
+| `RingGear` | *polygon decomposition recursed implausibly deep* |
+| `TorxMask` | *polygon decomposition recursed implausibly deep* |
+
+### Two defects, and the second was not the first
+
+**`_convex_hull_indices` was a convexity filter, not a hull.** It walked the boundary dropping every
+vertex whose turn was not strictly left, repeatedly. That is not a convex hull: dropping a vertex
+can leave a neighbour that *was* convex looking concave, and a single pass can over-prune. On one of
+`TorxMask`'s pockets eight points collapsed to **two** — four of them share a y and went as
+collinear, and the cascade took the rest. A two-vertex "hull" has one stretch of boundary between
+its two vertices, so the pocket extracted was the whole chain again, and the recursion stood still
+on identical points until the depth guard fired. Replaced with Andrew's monotone chain, whose hull
+of three or more non-collinear points always has three or more vertices — which is what makes every
+pocket a strict sub-chain and the recursion finite.
+
+That fixed `RingGear` and `TorxMask`. **`Rack` then failed differently, and its recursion was
+correct**: 84 points → 78 → 74 → 70, peeling one tooth per level, needing about 21 levels against a
+flat limit of 16. The limit was not a backstop against pathology, which is what its message claimed
+— *is the outline self-intersecting?* — it was the defect. The allowance now comes from the
+outline's own vertex count, because that is what bounds it once every pocket is a strict sub-chain.
+
+All three now evaluate **and** match their CSG mesh exactly (0.0000).
+
+### Two clauses I added that no control could fail
+
+Alongside the fixes I added a no-progress guard (`len(chain) >= n`) and a coincident-points guard.
+Controls for both **passed**, so by the rule that took out T109's rim chainer and T110's dedup,
+both are gone. With a real hull neither case can arise, and defensive code for an impossible case is
+indistinguishable from code that is never right.
+
+I also briefly concluded one of them *was* load-bearing, on the strength of a two-minute timeout.
+That was the compound shell command I had chained, not a hang: the scan runs in **2.7 seconds** with
+37 of 37 fields evaluating. A timeout is evidence about the harness before it is evidence about the
+code.
+
+### Every timing I took was wrong, by up to 20x
+
+Sizing the sample needed a cost measurement, and four runs in a row came back 94s, 305s, 267s and
+95s. The ordering made no sense — adding a cap appeared to make the file three times *slower* — and
+the inconsistency was the signal, because a full suite was running in another process during most of
+them. Measured on an idle machine the file is **13s with the cap and 75s without**, so the cap earns
+its place by 5.8x and the figures I had been reasoning from were noise.
+
+A wall-clock number taken against a busy machine is not a measurement. Three of them in a row
+looked consistent enough to act on, and I had already written a justification citing per-part
+seconds that were pure contention.
+
+### An existing guard caught the message change
+
+`test_sdf_path_helper_rejections` pins the depth guard's refusal text, and the full suite failed on
+it: the old message said only *recursed implausibly deep -- is the outline self-intersecting?* and
+the new one names the depth reached, the outline it was reached on, and what that size allows. The
+pin is updated rather than loosened, because the wording is the point -- the old text blamed the
+outline for a limit that a rack's 84 points legitimately exceeded.
+
+### Six parts whose backends build different geometry
+
+Recorded in `DISAGREE`, with figures that may only fall:
+
+| part | furthest a CSG vertex sits outside the SDF field |
+|---|---|
+| `ThreadHelix` | 2.50 |
+| `RobertsonMask` | 2.01 |
+| `KnuckleHinge` | 0.19 |
+| `KnuckleHingePair` | 0.13 |
+| `RingHook` | 0.12 |
+| `SnapSocket` | 0.05 |
+
+Faceting can only inscribe, so every one of these is a real difference rather than tessellation.
+`ThreadHelix` is the instructive one and the one to look at next: all six of its departing vertices
+sit on the **Z axis**, where its field reads +2.5 of empty space, and 34 of its 68 mesh vertices are
+on that axis with every one referenced by a face. Each of the six needs its own investigation, so
+they are named here rather than chased in this task.
+
+### Plan rules
+
+* Evaluate the field, do not merely build it. Backend coverage asks whether `.shape` raises; that
+  is a weaker question than it reads as, and three parts lived in the gap.
+* The sample is sized by measurement: full for a mesh up to `FULL_SAMPLE`, strided above it. Every
+  part expensive enough to be strided agrees exactly, and all six watched disagreements have 4 to 22
+  departing vertices out of 27 to 242 — under the threshold, so nothing being watched is strided.
+  A part that starts disagreeing *and* has thousands of vertices is the known blind spot, and the
+  fix then is to raise the cap for that part rather than widen it everywhere.
+* `DISAGREE` entries carry a figure and shrink only, and a companion test fails when an entry has
+  quietly reached zero, so a stale licence is noticed rather than kept.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

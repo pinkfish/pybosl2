@@ -1387,6 +1387,46 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T121 pointed T119's instrument at the parts and found three whose field cannot be evaluated at
+all.** `test_parts_backend_coverage` measures "40 of the 51 parts build on either backend" by asking
+whether `.shape` raises; it never evaluates the field that comes back, and nothing else did either,
+for the reason T119 retired. So `Rack`, `RingGear` and `TorxMask` passed backend coverage while
+their fields raised the moment anything looked at them — `.shape` returned an `SdfSolid`, `bounds()`
+answered, and a user with libfive would have met an exception on render. **Building is a weaker claim
+than having a field, and three parts lived in the gap.**
+
+Two defects in `pybosl2/sdf/paths.py`, and the second was not the first. `_convex_hull_indices` was
+a convexity filter rather than a hull — a pass dropping every vertex whose turn was not strictly
+left, which over-prunes because removing a vertex can leave a formerly-convex neighbour looking
+concave. On one of `TorxMask`'s pockets eight points collapsed to **two**, so the pocket extracted
+was the whole chain and the recursion stood still until the depth guard fired; it is Andrew's
+monotone chain now, whose hull always has three or more vertices and so makes every pocket a strict
+sub-chain. That fixed two of the three. `Rack`'s recursion was **correct** and merely deeper than a
+flat 16 allowed — 84 points peel one tooth per level and need about 21 — so the guard was the defect
+rather than the backstop its message claimed, and the allowance now comes from the outline's own
+vertex count. All three evaluate and match their CSG mesh exactly.
+
+**Two clauses added beside those fixes were dead and are gone.** A no-progress guard and a
+coincident-points guard both survived their controls, so the rule that removed T109's rim chainer
+applies: with a real hull neither case can arise. One of them was briefly called load-bearing on the
+strength of a two-minute timeout that turned out to be a chained shell command rather than a hang —
+the scan runs in 2.7 seconds with 37 of 37 fields evaluating.
+
+**Sizing the guard's sample needed a cost measurement, and every timing taken was wrong by up to
+20x.** Four runs returned 94s, 305s, 267s and 95s, with a cap appearing to make the file three times
+slower; a full suite was running in another process during most of them. On an idle machine it is
+**13s with the cap and 75s without**, so the cap earns its place by 5.8x — but a justification
+citing per-part seconds had already been written from the contended numbers. A wall-clock figure
+measured against a busy machine is not a measurement, and three inconsistent ones in a row still
+looked solid enough to act on.
+
+**Six parts build measurably different geometry on the two backends**, recorded with figures that
+only fall: `ThreadHelix` 2.50, `RobertsonMask` 2.01, `KnuckleHinge` 0.19, `KnuckleHingePair` 0.13,
+`RingHook` 0.12, `SnapSocket` 0.05. Faceting can only inscribe, so each is real rather than
+tessellation. `ThreadHelix` is where to look next: all six of its departing vertices sit on the Z
+axis where its field reads +2.5 of empty space, and 34 of its 68 mesh vertices are on that axis,
+every one referenced by a face.
+
 **T120 used T119's instrument on the comparison that had been deferred for want of it, and the
 deferral's own caveat turned out to be the right one.** The four thread parts' route gap was left
 open with the note that the two `spiral_sweep` implementations "agree on size *and* centre with an
