@@ -12,6 +12,12 @@ on:
 permissions:
   contents: read
 
+# Without this, a second push while the first is still running costs a full duplicate of this
+# workflow -- only tests.yml was cancelling superseded runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docs-check:
     runs-on: ubuntu-latest
@@ -22,6 +28,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: |

@@ -25,4 +25,8 @@ pytest-of-*/
 
 # Coverage stuff
 .coverage
+# pytest-cov under `-n auto` writes one data file per xdist worker and combines them at the
+# end; an interrupted run leaves them behind, and `.coverage` alone does not match them.
+.coverage.*
+coverage.xml
 wiki/
