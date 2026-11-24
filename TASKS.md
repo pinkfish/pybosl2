@@ -69,6 +69,8 @@ spec renumbers as items close, and all but S-46a have.
 | 12 | PAR-4 / PAR-5 / S-34 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | M |
 | 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
 | 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
+| — | Q-3 / E-4 | [T125](#t125--upgrade-the-pinned-tools-and-refuse-the-solid-that-cannot-be-used) ✅ | S |
+| — | PAR-1 / PAR-5 | [T126](#t126--the-cone-that-was-two-stepped-cylinders) ✅ | M |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -5198,6 +5200,150 @@ typing-extensions` and **not** the wheel, so `mypy --strict pybosl2 tests` passe
 native symbol an `Any`. That is why CI's own mypy job was green while the parity test reported 29
 errors from the same commit. Whatever version the bound ends at, the job that type-checks should
 install what the gate is about.
+
+
+## T125 — Upgrade the pinned tools, and refuse the solid that cannot be used ✅
+
+**Requirement:** SPEC Q-3 (one declared version of each gate's tool), E-4 (bad input raises,
+naming the fix).
+
+The other half of [T123](#t123--the-three-tools-nobody-pinned). T123 pinned three unpinned tools
+*at the versions already installed*; this took them forward instead — ruff 0.16.0 → 0.17.6, pytest
+9.1.1 → 9.2.0, mypy 2.3.0 → 2.4.1, with the pins moved to the current releases in
+`.pre-commit-config.yaml` (including `mirrors-mypy` v1.19.0 → v2.4.1, a full major behind),
+`ci.yml` and `format.yml`.
+
+**A fourth place installs ruff, and it was the one red on `main`.** `docs/Makefile`'s `tidy` target
+runs `ruff check --fix . && ruff format .` after Sphinx, so the docs build is a lint gate — and its
+ruff came from the `docs` extra's `>=0.4`, not from any workflow. `make html` failed on
+`docs/_rstgen.py`, a file the docs build only reformats. So `tests/test_ci_gates.py` reads
+`pyproject.toml` as well as the workflows: a scan of the workflows alone would never have looked
+there, which is the point.
+
+**`dashed_stroke` returned a solid that cannot be used.** `Bosl2Solid(None)` is not an empty solid
+— `bounds()` raises, `vnf()` raises `AttributeError: 'NoneType' object has no attribute 'mesh'`,
+and `|` raises a raw `TypeError` naming `NoneType`. Three violations of the error contract from one
+return value, and `dashpat=[0, 0]` reached it. There is no usable empty solid to hand back (the
+native `union([])` wraps to the same object), so a pattern with no length is refused where it is
+given, with the message pinned.
+
+Two details recorded rather than smoothed over. The second `Bosl2Solid(None)` site is unreachable —
+a zero-length path, a pattern longer than the path, an all-off pattern and a `mindash` above every
+dash each still produce a tube — so it is a refusal under `# pragma: no cover` carrying that list.
+And the 2-D spelling answers the same input with an empty `Region`, which *is* usable, so the two
+dimensions now differ deliberately and `Path3D.dashed_stroke`'s `Raises:` says so, rather than the
+2-D side being changed to match.
+
+Found by type-checking against pythonscad 1.2.0's stubs, which type `PyOpenSCAD` and so reject
+`None` at that call. The remaining 11 errors in 4 files were closed by
+[T124](#t124--reconcile-the-pythonscad-120-stubs).
+
+
+## T126 — The cone that was two stepped cylinders ✅
+
+**Requirement:** SPEC PAR-1 (the two backends build the same solid), PAR-5 (an identical call
+places and shapes a solid identically on either backend).
+
+T121 recorded six parts whose CSG mesh departed from their SDF field. T122 fixed one, showed four
+to be facet artifacts of a boolean's re-triangulation, and left the sixth with its measurement:
+`RobertsonMask`, 2.008mm, 22 of its 27 vertices outside the field, **unmoved at any resolution**.
+That figure was the symptom of a defect in `cyl`.
+
+### What was wrong
+
+`RobertsonMask` cuts a square recess with `prismoid([m_bot, m_bot], [m_top, m_top]) & cyl(diameter1=0, diameter2=...)`.
+Probed piece by piece, the prismoid agreed exactly, the cone agreed exactly *at its mesh vertices*,
+and the intersection was 2.009 out — which is the radial distance of the prismoid's corner at that
+height, the giveaway that the cone's field was reading as though it had no radius there.
+
+`_cyl_edge_sdf` composes `max(wall, rim)`, where `rim` is the better of two per-end candidates and
+each candidate is a corner in the `(radial - r_ref, |axial| - hb)` frame. `r_ref` is **that end's
+own radius, read as a vertical half-width**. For `radius1 == radius2` that vertical line is the
+wall itself, so the term was redundant and right, and that is the whole reason this survived:
+
+| | `radial - r_ref` is | effect |
+|---|---|---|
+| a plain cylinder | the wall | correct, and redundant with `wall` |
+| a taper | a vertical line through one rim | clamps that half to that rim's radius |
+
+So a frustum was a pair of stepped cylinders: the bottom half cut to `radius1`, the top half to
+`radius2`, each intersected with the wall. The half that ends at the **wider** rim is unharmed,
+because there the clamp is looser than the wall. Measured on an 8-to-2 cone, `height=20`: the field
+reads **+1.96 at a point 0.44 inside the solid**, and every probe below the mid-plane is wrong. With
+`diameter1=0` the bottom half collapses onto the axis, which is the cone `RobertsonMask` cuts with.
+
+### Why four guards could not see it
+
+A cone's defect lives in the **interior of its wall**, and all four instruments looked only at ends:
+
+| guard | what it samples | why that is all corners |
+|---|---|---|
+| `bounds()` on both backends | two analytic triples | a box cannot see inside itself, and both agree |
+| `test_every_part_field_evaluates` | the CSG mesh's vertices | a cone's mesh is its apex and two end rings |
+| `test_sdf_rim.py::_worst_on_profile` | the profile's vertices, plus midpoints of its **axis-aligned** segments | a cone's wall is the one straight segment that is *not* axis-aligned, so its midpoint was skipped |
+| the recorded 2.008 itself | one number | it was filed as a known difference, not chased |
+
+Every profile vertex those tests do sample is a point where `radial - r_ref == 0`, which reads zero
+whether the term means anything or not. `_worst_on_profile`'s midpoint rule is the sharpest of
+these and the closest to catching it: the rule admits a straight segment's midpoint and excludes a
+curved one's, because a chord of an arc sits inside the true curve and that is faceting rather than
+a defect — but it tests *axis-alignment* as a proxy for straightness, and a slanted wall is
+straight.
+
+### The fix
+
+Measure the body from the wall line; leave each rim's treatment in the nominal frame BOSL2 states
+it in. The two are different frames and conflating them is what went wrong in both directions:
+
+* **The body** is `max(wall, end)`, the exact frustum — `_cylinder_sdf`, the path `shift=` takes,
+  had this right all along.
+* **A chamfer's cut plane** runs between `(r_ref - dx, hb)` and `(r_ref, hb - dy)` on the profile,
+  both stated against the end radius, so the plane keeps `radial - r_ref`. (Measuring the plane
+  from the wall instead moves the cut: it was the first thing tried, and it broke all five of
+  T42's treated-taper cases.)
+* **A rounding's fillet** is centred at `(r_ref - a, ±(hb - a))` — confirmed against `cyl_profile`,
+  which puts an 8-to-4 cone's 2mm fillet centre at exactly `(6, -8)`, **1.94029 from the wall
+  rather than 2**. So BOSL2's arc is tangent to the end face and merely *meets* the wall; it is not
+  a tangent fillet, and the nominal frame is the right one. What that frame cannot carry is how far
+  the solid reaches between the rims, so the rounded rectangle is unioned with the body stopping
+  `a` short of the end face, and the final `max(wall, rim)` keeps the result inside the wall.
+
+Because `radius1 == radius2` makes the wall distance reduce to `radial - radius1` exactly, **every
+untapered cylinder evaluates identically** — which is most of what the suite builds. The chamfer
+branch is the same expression term for term; the rounding branch gains a union term that cannot
+change a value, because `{radial <= R} & {|axial| <= hb - a}` is a *subset* of the rounded
+rectangle and for nested regions the larger one's distance is never the greater.
+
+### The test
+
+`tests/test_sdf_rim.py::test_the_solid_fills_the_profile_csg_revolves` asks the complementary
+question to every existing probe: not "is each mesh vertex in the field?" but "is each point of the
+solid in the field?". It sweeps the interior of the polygon CSG revolves, over twelve shapes —
+plain, widening, narrowing, to a point, from a point, a shallow 8-to-8.5 taper, and the chamfered,
+rounded and single-ended rims — plus all five cylinder spellings.
+
+It is one-sided for the mirror image of the reason the vertex probe is. CSG revolves that polygon
+*exactly*, so in the `(r, z)` half-plane the polygon is not an approximation of the solid — it is
+the solid, up to the chord sagitta, and a rounding's chords are **inscribed** in its arc and can
+only make the polygon smaller than the ideal shape. A point strictly inside the polygon is therefore
+inside the ideal shape, and `field > 0` is the whole assertion, with no tolerance. The sagitta is
+*measured*, not chosen: the same profile is rebuilt at `fn=512` and the two are compared by Hausdorff
+distance, which is 0 for anything without an arc.
+
+Two details the first version got wrong, both worth keeping: a 24×24 grid over round dimensions puts
+sample points **exactly on** the slanted wall, where the field is correctly zero and shapely's
+`contains` is happy to call them interior — hence `INTERIOR_FLOOR`. And a case asking for
+`chamfer1` with `rounding2` is refused by the library, as BOSL2 refuses it, so that is not a shape
+to test.
+
+### Left open, with its measurement
+
+`ARC_CLIPPED` in the same file: `max(wall, rim)` applies the wall as an *infinite* half-plane, while
+BOSL2's profile stops the wall at the fillet's tangent point. On a cone that widens away from a
+rounded end, the wall line falls inside the near-vertical arc and shaves it. 8-to-12 with a 2mm
+rounding reads 0.000000; **8-to-20 with 3mm reads 0.51 and 4-to-20 reads 0.88**. The figures are
+identical to six decimals before and after this task's fix, so it is a separate defect, and the fix
+is for the rim candidate to own its own axial band rather than for the wall to be clipped globally.
 
 
 ## Keeping this file honest

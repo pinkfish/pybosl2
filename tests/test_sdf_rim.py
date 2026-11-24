@@ -26,6 +26,8 @@ from __future__ import annotations
 import math
 
 import pytest
+from shapely.geometry import Point as ShapelyPoint
+from shapely.geometry import Polygon
 
 import pybosl2.sdf.shapes3d as sdf
 from pybosl2.sdf._libfive import lv
@@ -145,6 +147,205 @@ def test_a_treated_rim_moves_the_wall_of_a_cone(radius2: float, rim: dict[str, o
     """
     worst = _worst_on_profile(sdf.cyl, 2, radius2=radius2, **rim)
     assert worst == pytest.approx(0.0, abs=1e-9), f"taper to {radius2}: worst |field| is {worst}"
+
+
+#: Points per axis in the ``(r, z)`` half-plane sweep below, and the angles each is tried at.
+#: 24x24 over the profile's own bounding box, which is 200-400 points inside a typical profile --
+#: enough that a missing half, a missing quadrant or a missing slice cannot slip between them.
+PROFILE_GRID = 24
+PROFILE_ANGLES = (0.0, 2.0)
+
+#: How much further inside the profile than its own discretisation a sample point has to be
+#: before its field value means anything. A point that lands exactly *on* the slanted wall reads
+#: zero, correctly, and shapely's `contains` is happy to call it interior -- with a grid this
+#: round that happens, so "strictly inside" has to mean strictly.
+INTERIOR_FLOOR = 1e-6
+
+
+def _profile_discretisation(radius1: float, radius2: float, height: float, rim: dict[str, object]) -> float:
+    """Return how far the profile CSG revolves can sit from the ideal one it approximates.
+
+    Measured, not chosen: the same profile is built again at `fn=512` and the two are compared.
+    A plain or chamfered profile is already exact and this is 0; a rounding's arc is a polyline
+    and this is its chord sagitta.
+    """
+    fine = dict(rim)
+    fine.setdefault("fn", 512)
+    coarse = Polygon(cyl_profile(radius1, radius2, height, **rim))  # type: ignore[arg-type]
+    exact = Polygon(cyl_profile(radius1, radius2, height, **fine))  # type: ignore[arg-type]
+    return float(coarse.exterior.hausdorff_distance(exact.exterior))
+
+
+def _worst_inside_profile(
+    builder,
+    axis: int,
+    *,
+    height: float = 20.0,
+    radius1: float = 8.0,
+    radius2: float = 8.0,
+    **rim: object,
+) -> tuple[float, int]:
+    """Return the largest field value at a point the CSG profile puts *inside* the solid, and how many.
+
+    The mirror of `_worst_on_profile`, and it is one-sided for the mirror-image reason. CSG
+    revolves this polygon exactly, so the polygon is not an approximation of the solid in this
+    plane -- it *is* it, up to the chord sagitta `_profile_discretisation` measures. A rounding's
+    chords are inscribed in its arc, so they can only make the polygon smaller than the ideal
+    shape; a point strictly inside the polygon is therefore inside the ideal shape too, and a
+    field that reads it positive is missing material. No tolerance is needed for that direction,
+    and `field > 0` is the whole assertion.
+    """
+    profile = cyl_profile(radius1, radius2, height, **rim)  # type: ignore[arg-type]
+    polygon = Polygon(profile)
+    margin = _profile_discretisation(radius1, radius2, height, rim)
+    shape = builder(height=height, radius1=radius1, radius2=radius2, anchor=[0, 0, 0], **rim)
+    tree = shape._sdf_fn(lv.x(), lv.y(), lv.z())
+
+    r_lo, z_lo, r_hi, z_hi = polygon.bounds
+    worst, sampled = -math.inf, 0
+    for i in range(PROFILE_GRID):
+        r = r_lo + (r_hi - r_lo) * (i + 0.5) / PROFILE_GRID
+        for j in range(PROFILE_GRID):
+            z = z_lo + (z_hi - z_lo) * (j + 0.5) / PROFILE_GRID
+            point = ShapelyPoint(r, z)
+            if not polygon.contains(point) or polygon.exterior.distance(point) <= margin + INTERIOR_FLOOR:
+                continue
+            for angle in PROFILE_ANGLES:
+                world = TO_WORLD[axis](r * math.cos(angle), r * math.sin(angle), z)
+                worst = max(worst, float(tree(*world)))
+                sampled += 1
+    return worst, sampled
+
+
+@pytest.mark.parametrize(
+    ("label", "shape"),
+    [
+        ("a plain cylinder -- the case that always worked", {}),
+        ("a cone widening upward", {"radius2": 12.0}),
+        ("a cone narrowing upward", {"radius2": 4.0}),
+        ("a cone to a point", {"radius2": 0.0}),
+        ("a cone from a point", {"radius1": 0.0, "radius2": 8.0}),
+        ("a shallow taper", {"radius2": 8.5}),
+        ("a tapered rim, chamfered", {"radius2": 4.0, "chamfer1": 2, "chamfer2": 2}),
+        ("a tapered rim, rounded", {"radius2": 4.0, "rounding1": 2, "rounding2": 2}),
+        ("a widening cone, chamfered", {"radius2": 12.0, "chamfer1": 2, "chamfer2": 2}),
+        ("a widening cone, rounded", {"radius2": 12.0, "rounding1": 2, "rounding2": 2}),
+        ("a rim treated at one end only", {"radius2": 4.0, "rounding1": 2}),
+    ],
+)
+def test_the_solid_fills_the_profile_csg_revolves(label: str, shape: dict[str, float]) -> None:
+    """A tapered cylinder lost the half that ends at its narrower rim, and had from the start.
+
+    `_cyl_edge_sdf` builds each rim as a corner in the ``(radial - r_ref, |axial| - hb)`` frame --
+    the end's own radius read as a vertical half-width -- and intersects the two with the wall.
+    On an untapered cylinder that vertical line **is** the wall, so the rim term was redundant and
+    correct. On a taper it is not: the bottom half was cut to `radius1` and the top half to
+    `radius2`, so a cone was a pair of stepped cylinders with its narrow half's flare missing.
+    An 8-to-2 cone read **+1.96** at a point 0.44 inside it, and `cyl(diameter1=0)` -- a plain
+    cone, which is what `RobertsonMask` cuts with -- had its entire lower half collapsed onto the
+    axis. The fix measures the corner from the wall line instead, which for `radius1 == radius2`
+    reduces to `radial - radius1` exactly, every untapered cylinder evaluates identically -- the
+    rounding branch gains a term, but `{radial <= R} & {|axial| <= hb - a}` is a *subset* of the
+    rounded rectangle, so the larger region's distance is never the greater and the `min` always
+    takes the rectangle.
+
+    **Why four earlier guards missed it, all four for the same reason:** a cone's defect lives in
+    the *interior* of its wall, and every one of them only ever looked at the ends.
+
+    * `_worst_on_profile` above samples the profile's **vertices**, plus the midpoints of its
+      *axis-aligned* segments. A cone's wall is the one straight segment that is not axis-aligned,
+      so its midpoint was skipped -- the rule was written to keep arc chords out, and a slanted
+      wall is not an arc. Every vertex it did sample is a point where `radial - r_ref == 0`, which
+      reads zero whether the term means anything or not.
+    * `bounds()` is analytic on both backends and agrees.
+    * `tests/test_every_part_field_evaluates.py` probes the **CSG mesh's vertices** against the
+      field. A cone's mesh vertices are its apex and its two end rings -- the same corners again.
+    * That file's one remaining recorded disagreement, `RobertsonMask` at 2.008, *was* this bug
+      seen through a boolean: intersecting the collapsed cone with a prismoid left 22 of the 27
+      vertices outside the field. It was recorded as a known difference rather than chased.
+
+    So this test asks the complementary question -- not "is every mesh vertex in the field?" but
+    "is every point of the solid in the field?" -- and a missing interior is exactly what the
+    one-sided vertex probes cannot express (SPEC PAR-1, PAR-5).
+
+    **Its sensitivity is bounded by the grid, and one case here is below it.** Reverting the fix
+    fails every case above but two: the plain cylinder, which is the control, and the shallow
+    8-to-8.5 taper, whose missing sliver is 0.25mm against a 0.354mm grid step. A sweep cannot see
+    a defect thinner than its own spacing, so the shallow taper is pinned by
+    `test_the_wall_of_a_cone_is_where_both_backends_put_it` below, which samples *on* the wall and
+    is sharp at any taper. It is kept here as well because the ratio is what makes it readable.
+    """
+    worst, sampled = _worst_inside_profile(sdf.cyl, 2, **shape)
+    assert sampled >= 100, f"{label}: only {sampled} interior points -- this measures nothing"
+    assert worst < 0.0, f"{label}: a point inside the profile reads {worst:+.5f} -- outside the field"
+
+
+@pytest.mark.parametrize(("name", "axis"), [("cyl", 2), ("cylinder", 2), ("zcyl", 2), ("xcyl", 0), ("ycyl", 1)])
+def test_all_five_spellings_fill_their_cone(name: str, axis: int) -> None:
+    """One field, five names -- so the taper is whole in all five or none of them.
+
+    `cylinder` and `zcyl` are `cyl`; `xcyl` and `ycyl` are the same field about another axis. All
+    five reached `_cyl_edge_sdf`, so all five lost the same half.
+    """
+    worst, sampled = _worst_inside_profile(getattr(sdf, name), axis, radius1=8.0, radius2=3.0)
+    assert sampled >= 100, f"{name}: only {sampled} interior points -- this measures nothing"
+    assert worst < 0.0, f"{name}: a point inside the profile reads {worst:+.5f} -- outside the field"
+
+
+#: A steep taper with a rounding at its **narrow** end, as ``(radius1, radius2, rounding1)``, and
+#: how far the field then sits from the profile CSG revolves. Figures only fall; an entry that
+#: stops reproducing should be deleted, not left as a licence.
+ARC_CLIPPED = {
+    (8.0, 20.0, 3.0): 0.51,
+    (4.0, 20.0, 3.0): 0.88,
+}
+
+
+@pytest.mark.parametrize("case", sorted(ARC_CLIPPED))
+def test_a_steep_cones_narrow_fillet_is_clipped_by_its_own_wall(case: tuple[float, float, float]) -> None:
+    """A second, separate defect this task measured and did **not** fix (SPEC PAR-5).
+
+    `_cyl_edge_sdf` ends with `max(wall, rim)`, and the wall is an *infinite* half-plane. BOSL2's
+    profile is a polygon: its wall segment stops at the fillet's tangent point and the arc takes
+    over. Near the tangent point the arc is vertical, so on a cone that *widens* away from this
+    end the wall line falls inside the arc and the half-plane shaves the fillet off.
+
+    It needs a steep taper and a large rounding to show: an 8-to-12 cone with a 2mm rounding reads
+    0.000000, while 8-to-20 with 3mm reads 0.51 and 4-to-20 reads 0.88. It is **not** what the
+    lost-taper fix above changed -- the same figures come out of the version before it, to six
+    decimal places -- so it is recorded here with its measurement rather than left silent or
+    folded into a change about something else. The fix is to stop the wall half-plane at the
+    tangent point, which means the rim candidate owning its own axial band.
+    """
+    radius1, radius2, rounding = case
+    worst = _worst_on_profile(sdf.cyl, 2, radius1=radius1, radius2=radius2, rounding1=rounding)
+    allowed = ARC_CLIPPED[case]
+    assert worst <= allowed, f"{case}: worst |field| on the profile is now {worst:.5f}, past the {allowed} recorded"
+    assert worst > 1e-9, (
+        f"{case}: the profile now reads {worst:.5f} -- this no longer reproduces, so delete its "
+        f"ARC_CLIPPED entry rather than leave a recorded defect that is fixed."
+    )
+
+
+def test_the_wall_of_a_cone_is_where_both_backends_put_it() -> None:
+    """The sharp statement, on the segment the midpoint rule skipped.
+
+    `_worst_on_profile` admits the midpoint of an *axis-aligned* profile segment because a chord
+    of an arc would sit inside the true curve and that is faceting, not a defect. A cone's wall is
+    straight, so every point along it is exact -- and it is the only part of a plain cone's
+    profile that the vertices do not already pin.
+    """
+    for radius1, radius2 in ((8.0, 2.0), (2.0, 8.0), (8.0, 0.0), (0.0, 8.0), (8.0, 8.5), (8.5, 8.0)):
+        shape = sdf.cyl(height=20.0, radius1=radius1, radius2=radius2, anchor=[0, 0, 0])
+        tree = shape._sdf_fn(lv.x(), lv.y(), lv.z())
+        worst = 0.0
+        for k in range(1, 20):
+            t = k / 20
+            r, z = radius1 + (radius2 - radius1) * t, -10.0 + 20.0 * t
+            worst = max(worst, abs(float(tree(r, 0.0, z))))
+        assert worst == pytest.approx(0.0, abs=1e-9), (
+            f"{radius1}-to-{radius2} cone: worst |field| along the wall is {worst}"
+        )
 
 
 @pytest.mark.parametrize(

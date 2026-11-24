@@ -3128,24 +3128,43 @@ def _cyl_edge_sdf(
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb, insets[0], insets[1])
     candidates = []
     for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
+        # `end` is the end face, negative inside; `wall` is the *perpendicular* distance to the
+        # slanted wall. Keeping those two frames apart is the whole of this fix. The **body** is
+        # bounded by the wall, while each rim's **treatment** is stated against that end's nominal
+        # radius -- `radial - r_ref`, which coincides with the wall only when `radius1 ==
+        # radius2`. One expression stood here doing both jobs, so on a taper it clamped the whole
+        # half to that end's radius and the cone lost its flare (see tests/test_sdf_rim.py).
+        end = lv.abs(axial) - hb
         if mode == EdgeMode.ROUND:
             assert not isinstance(a, tuple), "a rounding has one radius, not two legs"
-            qu = radial - r_ref + a
-            qv = lv.abs(axial) - hb + a
-            base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
+            # BOSL2's fillet is centred at `(r_ref - a, +-(hb - a))` -- measured from the end's
+            # *nominal* radius, which `cyl_profile` confirms: an 8-to-4 cone with a 2mm rounding
+            # puts the centre at (6, -8) exactly, 1.94029 from the wall rather than 2, so the arc
+            # is tangent to the end face and merely *meets* the wall. So this frame stays nominal.
+            qu, qv = radial - r_ref + a, end + a
+            rounded = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
+            # What the frame cannot carry is how far the solid reaches *between* the rims, and
+            # reading `radial - r_ref` as a half-width over the whole half is what lost a cone's
+            # flare. The rounded rectangle is only the corner's own statement; union it with the
+            # body that stops `a` short of the end face -- where the fillet takes over -- and the
+            # final `max(wall, rim)` keeps the result inside the wall.
+            base = lv.min(rounded, lv.max(wall, qv))
             if clip < 90.0 and a:
-                base = lv.min(base, _clip_fillet(radial - r_ref, lv.abs(axial) - hb, a, clip))
+                base = lv.min(base, _clip_fillet(radial - r_ref, end, a, clip))
         else:
             assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
             dx, dy = a if isinstance(a, tuple) else (a, a)
-            qu = radial - r_ref
-            qv = lv.abs(axial) - hb
             # The cut runs from (-dx, 0) to (0, -dy) in the corner's own frame, so the plane is
             # `qu/dx + qv/dy + 1 = 0`; multiplying up and normalising gives the signed distance
             # below. With dx == dy == c it is `(qu + qv + c) / sqrt(2)`, the 45-degree form this
             # was written as before generalising it.
+            #
+            # That frame is the *nominal* one -- the plane's two endpoints are `(r_ref - dx, hb)`
+            # and `(r_ref, hb - dy)` on the profile, both stated against the end radius -- so the
+            # cut keeps `radial - r_ref` while the body it cuts from uses the wall.
             leg = math.hypot(dx, dy) or 1.0
-            base = lv.max(lv.max(qu, qv), (qu * dy + qv * dx + dx * dy) / leg)
+            cut = ((radial - r_ref) * dy + end * dx + dx * dy) / leg
+            base = lv.max(lv.max(wall, end), cut)
         mask = lv.max(0, -sz * axial)
         candidates.append(base + _PENALTY * mask)
     rim = lv.min(candidates[0], candidates[1])

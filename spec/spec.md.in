@@ -611,6 +611,47 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T126 took the last recorded cross-backend disagreement and found it was not in the part.**
+`RobertsonMask` was the one row of six that refinement could not explain — 2.008mm, unmoved at any
+mesh resolution, 22 of its 27 vertices outside the SDF field — and it had been recorded as a known
+difference rather than chased. The defect was in `cyl`: **every tapered cylinder on the SDF backend
+had lost the half that ends at its narrower rim**, and had since the rim treatment was written.
+`_cyl_edge_sdf` builds each end as a corner in the `(radial - r_ref, |axial| - hb)` frame — the
+end's own radius read as a *vertical half-width* — and intersects the two with the wall. On an
+untapered cylinder that vertical line **is** the wall, so the term was redundant and correct; on a
+taper it is not, and it clamped the bottom half to `radius1` and the top half to `radius2`. An
+8-to-2 cone read **+1.96 at a point 0.44mm inside it**, and `cyl(diameter1=0)` — a plain cone, which
+is what `RobertsonMask` cuts a square recess with — had its entire lower half collapsed onto the
+axis. The fix measures the body from the wall line while leaving each rim's *treatment* in the
+nominal frame BOSL2 states it in, and because `radius1 == radius2` makes the wall distance reduce to
+`radial - radius1` exactly, every untapered cylinder evaluates identically.
+
+**Four guards missed it, all four for the same reason: a cone's defect lives in the interior of its
+wall, and every one of them only ever looked at the ends.** `bounds()` is analytic on both backends
+and agrees. `tests/test_every_part_field_evaluates.py` probes the CSG mesh's vertices, and a cone's
+vertices are its apex and its two end rings. `tests/test_sdf_rim.py` — written to catch exactly this
+class of thing, and which *does* test tapered cones — samples the profile's vertices plus the
+midpoints of its **axis-aligned** segments, and a cone's wall is the one straight segment that is
+not axis-aligned, so its midpoint was skipped; the rule was written to keep arc chords out, and a
+slanted wall is not an arc. Every vertex it did sample is a point where `radial - r_ref == 0`, which
+reads zero whether the term means anything or not. The new guard asks the complementary question —
+not "is every mesh vertex in the field?" but "is every point of the solid in the field?" — by
+sweeping the interior of the profile CSG revolves. It is one-sided for the mirror image of the
+reason the vertex probe is: CSG revolves that polygon exactly, and a rounding's chords are inscribed
+in its arc, so a point strictly inside the polygon is inside the ideal shape too and needs no
+tolerance.
+
+**A second defect in the same function is measured and deliberately not fixed.** `_cyl_edge_sdf`
+ends with `max(wall, rim)`, and that wall is an *infinite* half-plane, while BOSL2's profile stops
+its wall segment at the fillet's tangent point and lets the arc take over. Near that point the arc
+is vertical, so on a cone that widens away from the end the wall line falls inside the arc and
+shaves the fillet off. It takes a steep taper and a large rounding to show: 8-to-12 with a 2mm
+rounding reads 0.000000, while 8-to-20 with 3mm reads **0.51** and 4-to-20 reads **0.88**. The
+figures are identical to six decimal places before and after the lost-taper fix, so it is a
+separate defect and folding it into this change would have hidden which one the measurements belong
+to. It is recorded as a shrink-only entry carrying its numbers, and the entry must be deleted rather
+than quietly pass.
+
 **T124 closed the gap T123 had bounded, and the bound is off.** `pythonscad` 1.2.0 is the first
 release to ship typing for the native module, so the 27 errors it produced in eight files of
 `pybosl2` were not a regression in the wheel -- they were this package's own calls being
@@ -638,6 +679,26 @@ exactly four unresolved includes remained, all of them false positives. **A tool
 cannot be installed is still a gate's input**, and the way to find out what it says is to build it
 -- 33 minutes, with `ARCHFLAGS="-arch x86_64"` because a universal2 interpreter otherwise compiles
 for an architecture the Homebrew libraries do not have.
+
+**T125 took the pinned tools forward rather than holding them back, and a fourth place installs
+one.** T123 pinned three unpinned tools at whatever was already installed; T125 moved them to the
+current releases — ruff 0.17.6, pytest 9.2.0, mypy 2.4.1, and `mirrors-mypy` v1.19.0 → v2.4.1, a
+full major behind in the hook that runs before every commit. The place that was actually red on
+`main` was none of the workflows: `docs/Makefile`'s `tidy` target runs `ruff check --fix . && ruff
+format .` after Sphinx, so **the docs build is a lint gate**, and its ruff came from the `docs`
+extra's `>=0.4`. `make html` failed on `docs/_rstgen.py`, a file the docs build only reformats. The
+guard reads `pyproject.toml` as well as the workflows now, because a scan of the workflows alone
+would never have looked there.
+
+**And `dashed_stroke` returned a solid that cannot be used.** `Bosl2Solid(None)` is not an empty
+solid: `bounds()` raises, `vnf()` raises `AttributeError: 'NoneType' object has no attribute
+'mesh'`, and `|` raises a raw `TypeError` naming `NoneType` — three violations of the error contract
+from one return value, reachable with `dashpat=[0, 0]`. There is no usable empty solid to hand back,
+since the native `union([])` wraps to the same object, so the input is refused where it is given.
+The 2-D spelling answers the same input with an empty `Region`, which *is* usable, so the two
+dimensions differ deliberately and `Path3D.dashed_stroke`'s `Raises:` says so rather than the 2-D
+side being changed to match. It was found by type-checking against 1.2.0's stubs, which type
+`PyOpenSCAD` and so reject `None` at that call.
 
 **T123 found the gates depending on the day they ran.** The working copy was green --
 8507 passed -- and the pull request was red on the same commit: 26 failures on each of 3.11, 3.12
