@@ -3103,6 +3103,89 @@ def _clip_fillet(u: LVTree, w: LVTree, a: float, clip: float) -> LVTree:
     return lv.max(u + inset, lv.max(w, -w - depth))
 
 
+def _rounded_rim_sdf(wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a: float, clip: float) -> LVTree:
+    """Return the distance to one *rounded* rim, in the two frames a tapered wall needs.
+
+    The two frames are the whole of this. ``end`` is the end face, negative inside, and ``wall``
+    is the *perpendicular* distance to the slanted wall. A rim's **treatment** is stated against
+    that end's nominal radius, while the **body** it treats is bounded by the wall, and those
+    coincide only when ``radius1 == radius2``. One expression used to do both jobs, so on a taper
+    it clamped the whole half to that end's radius and a cone lost its flare -- the bottom half
+    cut to `radius1`, the top to `radius2` (T126).
+
+    BOSL2's fillet is centred at ``(r_ref - a, +-(hb - a))``, measured from the nominal radius,
+    which `cyl_profile` confirms: an 8-to-4 cone with a 2mm rounding puts the centre at exactly
+    ``(6, -8)``, **1.94029 from the wall rather than 2**. So the arc is tangent to the end face
+    and merely *meets* the wall -- it is not a tangent fillet, and the nominal frame is right.
+
+    What that frame cannot carry is how far the solid reaches *between* the rims, so the rounded
+    rectangle is unioned with the body, which stops ``a`` short of the end face where the fillet
+    takes over. That last ``a`` is the fillet's own **axial band**, and it is why the wall can
+    stop being applied globally: BOSL2's profile ends its wall *segment* at the tangent point and
+    lets the arc take over, and near that point the arc is vertical, so on a cone that widens away
+    from this end an infinite wall line falls inside the arc and shaves it -- 0.51 on an 8-to-20
+    cone with a 3mm rounding, 0.88 on 4-to-20 (T127).
+
+    ``min(wall, -qv)`` is the wall relaxed inside that band and nowhere else: as a distance it is
+    the union of "inside the wall" and "within ``a`` of the end face". **Dropping the wall term
+    instead also fixes the arc and passes every test**, because it changes no zero set -- and
+    measured over a 441-point grid it makes the field underestimate depth *inside* a plain
+    rounded cylinder by up to the rounding radius, for a shape that had nothing wrong with it.
+    Written this way, that same grid reports no change at all on any untapered cylinder.
+
+    Args:
+        wall: Perpendicular distance to the wall line, negative inside.
+        radial: The radial coordinate.
+        end: Distance past this end face, negative inside.
+        r_ref: This end's nominal radius.
+        a: The rounding radius; zero leaves the rim untreated.
+        clip: The angle to clip the fillet at, 90 for none.
+
+    Returns:
+        The distance to this rim's treated corner.
+
+    """
+    qu, qv = radial - r_ref + a, end + a
+    rounded = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
+    base = lv.max(lv.min(rounded, lv.max(wall, qv)), lv.min(wall, -qv))
+    if clip < 90.0 and a:
+        base = lv.min(base, _clip_fillet(radial - r_ref, end, a, clip))
+    return base
+
+
+def _chamfered_rim_sdf(
+    wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a: "float | tuple[float, float]"
+) -> LVTree:
+    """Return the distance to one *chamfered* rim.
+
+    The cut runs from ``(-dx, 0)`` to ``(0, -dy)`` in the corner's own frame, so the plane is
+    ``qu/dx + qv/dy + 1 = 0``; multiplying up and normalising gives the signed distance below.
+    With ``dx == dy == c`` it is ``(qu + qv + c) / sqrt(2)``, the 45-degree form this was written
+    as before `chamfer_angle=` and `from_end=` had to cross.
+
+    That frame is the **nominal** one -- the plane's endpoints are ``(r_ref - dx, hb)`` and
+    ``(r_ref, hb - dy)`` on the profile, both stated against the end radius -- so the cut keeps
+    ``radial - r_ref`` while the body it cuts from uses the wall. Measuring the cut from the wall
+    instead was the first thing tried for T126 and it moved the plane, breaking all five of T42's
+    treated-taper cases.
+
+    Args:
+        wall: Perpendicular distance to the wall line, negative inside.
+        radial: The radial coordinate.
+        end: Distance past this end face, negative inside.
+        r_ref: This end's nominal radius.
+        a: The chamfer size, or the ``(dx, dy)`` pair :func:`chamfer_legs` returns.
+
+    Returns:
+        The distance to this rim's treated corner.
+
+    """
+    dx, dy = a if isinstance(a, tuple) else (a, a)
+    leg = math.hypot(dx, dy) or 1.0
+    cut = ((radial - r_ref) * dy + end * dx + dx * dy) / leg
+    return lv.max(lv.max(wall, end), cut)
+
+
 def _cyl_edge_sdf(
     axial: LVTree,
     radial: LVTree,
@@ -3120,55 +3203,25 @@ def _cyl_edge_sdf(
     only 2 candidates -- top/bottom -- since the radial coordinate has no sign ambiguity to
     select between, unlike a rectangle's 4 corners).
 
-    A chamfer amount may be a scalar (a symmetric 45-degree cut) or the ``(dx, dy)`` pair
-    :func:`chamfer_legs` returns, which is what lets `chamfer_angle=` and `from_end=` cross.
+    Each candidate carries the wall itself -- see :func:`_rounded_rim_sdf` and
+    :func:`_chamfered_rim_sdf`, which is where the reasoning about the two frames lives -- so
+    there is no global `max(wall, rim)` here to clip a fillet the profile puts legitimately
+    outside the wall line.
     """
     hb = h / 2
     insets = tuple(a[1] if isinstance(a, tuple) else a for a in (amt1, amt2))
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb, insets[0], insets[1])
+    end = lv.abs(axial) - hb
     candidates = []
     for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
-        # `end` is the end face, negative inside; `wall` is the *perpendicular* distance to the
-        # slanted wall. Keeping those two frames apart is the whole of this fix. The **body** is
-        # bounded by the wall, while each rim's **treatment** is stated against that end's nominal
-        # radius -- `radial - r_ref`, which coincides with the wall only when `radius1 ==
-        # radius2`. One expression stood here doing both jobs, so on a taper it clamped the whole
-        # half to that end's radius and the cone lost its flare (see tests/test_sdf_rim.py).
-        end = lv.abs(axial) - hb
         if mode == EdgeMode.ROUND:
             assert not isinstance(a, tuple), "a rounding has one radius, not two legs"
-            # BOSL2's fillet is centred at `(r_ref - a, +-(hb - a))` -- measured from the end's
-            # *nominal* radius, which `cyl_profile` confirms: an 8-to-4 cone with a 2mm rounding
-            # puts the centre at (6, -8) exactly, 1.94029 from the wall rather than 2, so the arc
-            # is tangent to the end face and merely *meets* the wall. So this frame stays nominal.
-            qu, qv = radial - r_ref + a, end + a
-            rounded = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
-            # What the frame cannot carry is how far the solid reaches *between* the rims, and
-            # reading `radial - r_ref` as a half-width over the whole half is what lost a cone's
-            # flare. The rounded rectangle is only the corner's own statement; union it with the
-            # body that stops `a` short of the end face -- where the fillet takes over -- and the
-            # final `max(wall, rim)` keeps the result inside the wall.
-            base = lv.min(rounded, lv.max(wall, qv))
-            if clip < 90.0 and a:
-                base = lv.min(base, _clip_fillet(radial - r_ref, end, a, clip))
+            base = _rounded_rim_sdf(wall, radial, end, r_ref, a, clip)
         else:
             assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
-            dx, dy = a if isinstance(a, tuple) else (a, a)
-            # The cut runs from (-dx, 0) to (0, -dy) in the corner's own frame, so the plane is
-            # `qu/dx + qv/dy + 1 = 0`; multiplying up and normalising gives the signed distance
-            # below. With dx == dy == c it is `(qu + qv + c) / sqrt(2)`, the 45-degree form this
-            # was written as before generalising it.
-            #
-            # That frame is the *nominal* one -- the plane's two endpoints are `(r_ref - dx, hb)`
-            # and `(r_ref, hb - dy)` on the profile, both stated against the end radius -- so the
-            # cut keeps `radial - r_ref` while the body it cuts from uses the wall.
-            leg = math.hypot(dx, dy) or 1.0
-            cut = ((radial - r_ref) * dy + end * dx + dx * dy) / leg
-            base = lv.max(lv.max(wall, end), cut)
-        mask = lv.max(0, -sz * axial)
-        candidates.append(base + _PENALTY * mask)
-    rim = lv.min(candidates[0], candidates[1])
-    return lv.max(wall, rim)
+            base = _chamfered_rim_sdf(wall, radial, end, r_ref, a)
+        candidates.append(base + _PENALTY * lv.max(0, -sz * axial))
+    return lv.min(candidates[0], candidates[1])
 
 
 def cylinder(
