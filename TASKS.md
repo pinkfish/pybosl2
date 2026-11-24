@@ -72,6 +72,7 @@ spec renumbers as items close, and all but S-46a have.
 | — | Q-3 / E-4 | [T125](#t125--upgrade-the-pinned-tools-and-refuse-the-solid-that-cannot-be-used) ✅ | S |
 | — | PAR-1 / PAR-5 | [T126](#t126--the-cone-that-was-two-stepped-cylinders) ✅ | M |
 | — | PAR-5 | [T127](#t127--the-wall-that-did-not-know-where-to-stop) ✅ | S |
+| — | PAR-1 / PAR-5 | [T128](#t128--ask-the-filled-question-of-the-whole-family) ✅ | S |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -5417,6 +5418,64 @@ the loop body is `_rounded_rim_sdf` and `_chamfered_rim_sdf`, one per treatment,
 reasoning in a **docstring** — which the gate deliberately does not count, because counting them
 would make S-2 penalise documentation. Dumped over a 3087-point grid across seven shapes, the
 split changes **0 values**: a decomposition and nothing else. The budget was not raised.
+
+
+## T128 — Ask the filled question of the whole family ✅
+
+**Requirement:** SPEC PAR-1 (the two backends build the same solid), PAR-5.
+
+[T126](#t126--the-cone-that-was-two-stepped-cylinders) found that every tapered `cyl` on the SDF
+backend had lost the half ending at its narrower rim, and that **four separate guards could not
+see it**. The reason they could not is general, not specific to cylinders: all four ask about a
+*surface*.
+
+| instrument | what it samples |
+|---|---|
+| `bounds()` on both backends | two analytic triples |
+| `tests/test_every_part_field_evaluates.py` | the CSG mesh's **vertices** |
+| `tests/test_sdf_rim.py::_worst_on_profile` | the **profile** CSG revolves |
+| the recorded 2.008 disagreement | one number, filed rather than chased |
+
+Nothing asked whether the solid is **filled**. T126 closed that for cylinders, in the rim file
+where the fix lived. This asks it of the whole primitive family, because the next one will not be
+a cylinder.
+
+### The test
+
+`tests/test_every_solid_is_filled.py` sweeps each primitive's bounding box on a 13³ grid and
+compares the SDF field's sign against the CSG solid's own `inside()`, **two-sided** — a solid that
+is too *small* is precisely what nothing could see. The skipped band is the mesh's facet sagitta,
+derived exactly as `_facet_bound` derives it, not chosen: inside that band the backends are
+entitled to differ, since a tessellation inscribes, making a round shape's mesh slightly small and
+a round *hole's* mesh slightly tight. Curves are meshed at `fn=64` so the band is small and
+computable; left at the ambient default it would be 16x wider and swallow most of a small shape.
+
+### The result is negative, and the instrument is calibrated
+
+No other tapered primitive has the defect — `prismoid` (narrowing, widening, oblique, and to a
+point), `regular_prism`, `pie_slice`, `tube`, `rect_tube`, `sphere` and `cuboid` all agree exactly.
+
+That claim is worth nothing on its own, so the calibration was run against
+`pybosl2/sdf/shapes3d.py` as it stood **before** T126, and is recorded in the file's docstring:
+
+| row | points inside the mesh but outside the field | worst |
+|---|---|---|
+| `cyl narrowing` | 96 | +2.8650 |
+| `cyl widening` | 96 | +2.8650 |
+| `cyl to a point` | 52 | +3.4401 |
+| `cyl rounded` | 84 | +2.3412 |
+| `cyl chamfered` | 84 | +2.3412 |
+
+**5 failed, 13 passed** — and the thirteen that pass include `cyl plain`, because an untapered
+cylinder never had the defect. The instrument fires on exactly the shapes that were broken.
+
+### Its known blind spot, stated
+
+A defect thinner than the grid step is invisible here by construction. That is not hypothetical:
+T126 recorded that the shallow 8-to-8.5 taper passed the rim file's area sweep for the same
+reason, its missing sliver being 0.25mm against a 0.354mm step. Thin cylinder cases are pinned
+sharply by `tests/test_sdf_rim.py`; this file is for catching a *whole missing region* in a shape
+nobody thought to look at.
 
 
 ## Keeping this file honest
