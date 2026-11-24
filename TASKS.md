@@ -4810,6 +4810,11 @@ sit on the **Z axis**, where its field reads +2.5 of empty space, and 34 of its 
 on that axis with every one referenced by a face. Each of the six needs its own investigation, so
 they are named here rather than chased in this task.
 
+> **T122 corrected this table.** One of the six was a real defect (`ThreadHelix`, fixed), one
+> survived (`RobertsonMask`), and the remaining four were this paragraph's premise being applied
+> past where it holds: *faceting can only inscribe* is true of a primitive's own mesh and false
+> after a boolean. See [T122](#t122--the-thread-on-the-wrong-side-of-its-own-diameter).
+
 ### Plan rules
 
 * Evaluate the field, do not merely build it. Backend coverage asks whether `.shape` raises; that
@@ -4821,6 +4826,378 @@ they are named here rather than chased in this task.
   fix then is to raise the cap for that part rather than widen it everywhere.
 * `DISAGREE` entries carry a figure and shrink only, and a companion test fails when an entry has
   quietly reached zero, so a stale licence is noticed rather than kept.
+
+
+## T122 — The thread on the wrong side of its own diameter ✅
+
+**§12.2 item 81. PAR-1, S-46a, B2-1.**
+
+T121 nominated `ThreadHelix` — the largest of its six recorded cross-backend disagreements, 2.50,
+with all six departing vertices on the Z axis. The disagreement was real and was a symptom. The
+cause is that the ridge was built on the **inside** of the diameter it was given.
+
+`_build` referenced its swept section to the profile's *outermost* point:
+
+```python
+pmax = max(ys)
+section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]  # X <= 0: inward
+```
+
+BOSL2's `thread_helix` is explicit about the other direction — "the inner diameter (the base of the
+threads for external threading) is `d` (so the total diameter is `d + 2*thread_depth`)" — and after
+its `mirror([-1,1])` the profile's radial X runs from 0 at the base to `+thread_depth` at the crest.
+The reason this port had it backwards is in the same file: `_trapezoidal_profile` is normalised
+crest-at-zero, root at `-depth/pitch`, because `_thread_grid` cuts a **rod**, where the crest *is*
+the rod surface. One helper, two conventions, and the part needing the other one was referencing
+the wrong end of it. The fix is to reference the base instead:
+
+```python
+base = min(p[1] for p in prof)
+section = [[(py - base) * pitch, px * pitch] for px, py in prof]
+```
+
+### What an inward ridge cost, measured
+
+| claim | before | after |
+|---|---|---|
+| `ThreadHelix(d=20, pitch=4, depth=2)` radii | 8.0 … 10.0 | **10.0 … 12.0** |
+| the docstring example's threaded cylinder, `d=20` | 20.0 wide | **25.0 wide** |
+| PCO-1810 neck thread outer diameter (spec: 27.43) | **24.41** | 27.53 |
+| PCO-1881 neck thread outer diameter (spec: 27.40) | **24.10** | 27.50 |
+| PCO-1810 neck ridge vertices, before and after its two thread breaks | 276 → **276** | 276 → 394 |
+| `ThreadHelix` furthest CSG vertex outside its SDF field | 2.50 | **0.0000** |
+| the same with `thread_depth` 6 against a radius of 5 | 5.00 | **0.0000** |
+
+Three of those are the part failing at its stated purpose — "a single helical thread ridge, for
+adding threads onto your own cylinder". Its own rendering example,
+`cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape`, rendered a plain
+cylinder, because the ridge was inside the cylinder it was being added to and `|` returns a solid
+either way. Both bottle necks were built smooth: the thread sat inside the neck wall, where the
+union swallowed it. And the neck's two thread breaks — prismoid cuts placed at `threadbase_d/2` and
+reaching outward — removed nothing at all, because the ridge they were aimed at was inside them.
+
+**Nothing in the suite could see any of it.** Every test in `tests/test_bottlecaps.py` was an
+envelope test, and a neck's envelope is set by its 33mm support ring — 5.6mm wider than the thread
+crest it is supposed to have. `test_thread_helix_builds` asserted the helix was `approx(20.0)` wide
+with the comment *"the core diameter"*, which is the one number a ridge standing **on** a 20mm core
+cannot have: the test pinned the defect while its own prose described the fix.
+
+### The axis was the only place it could show up
+
+Inward is the one direction in which a thread profile can reach the helix axis. The part fixture's
+derived arguments are `ThreadHelix(10.0, 10.0)`, and `thread_depth` defaults to `pitch/2` = 5 = the
+radius, so the root landed exactly on the axis — where a sweep parameterised by `atan2(y, x)` has
+no angle, and the field answers differently depending on which side of a 1e-16 the vertex sits.
+Hence +2.5 at six vertices and exact agreement everywhere else. Outward, the profile cannot reach
+the axis however deep it is: `thread_depth=6` against a radius of 5 departed by 5.0 before and
+agrees exactly now.
+
+### A second defect, 3.2mm, in the cap that screws onto it
+
+The two bottle variants spell the cap thread's diameter differently upstream — PCO-1810 computes
+`thread_helix(d=thread_od - thread_depth*2)` from a local `thread_od = cap_id`, PCO-1881 passes the
+literal `d=25.5` — and the transcription gave both a single field, `cap_thread_od`, then applied
+PCO-1810's conversion to both. PCO-1881's internal thread was therefore built 3.2mm too small:
+crest at 22.3mm, root 1.54mm clear of the 28.58mm bore, a ring floating inside the cap attached to
+nothing. The field is `cap_thread_base_d` now and carries what upstream passes (25.38 and 25.5).
+Both caps' roots now reach their bores and both crests come inside their necks' thread crests,
+which are the two diameters an internal thread has to hit.
+
+### Then the instrument's own premise failed
+
+*Faceting can only inscribe, so a CSG vertex outside the field cannot be a tessellation artifact.*
+That is the sentence T119 built the whole cross-backend comparison on, and it is true of a
+primitive's own mesh. **It does not survive a boolean.** A union re-triangulates, and the vertices
+it creates lie on neither input surface:
+
+```
+two helical ridges, each base ring at exactly radius 6.00000
+their union's base ring reaches        5.94867  =  6 * cos(180/24)
+```
+
+Half a polygon step inside, in empty space as far as an exact field is concerned — and still a
+facet artifact, still converging as 1/fn². Which is what the four small entries in T121's table
+were doing all along:
+
+| part | default | fn=24 | fn=48 | fn=96 | facet bound at fn=96 |
+|---|---|---|---|---|---|
+| `KnuckleHinge` | 0.19098 | 0.00000 | 0.00035 | 0.00000 | 0.01632 |
+| `KnuckleHingePair` | 0.13384 | 0.02143 | 0.00728 | 0.00013 | 0.01632 |
+| `RingHook` | 0.11555 | 0.02114 | 0.00806 | 0.00022 | 0.00599 |
+| `SnapSocket` | 0.04966 | 0.00456 | 0.00140 | 0.00033 | 0.00433 |
+| `RobertsonMask` | 2.00912 | 2.00799 | 2.00799 | 2.00799 | 0.00117 |
+
+Four of the five converge to nothing; `RobertsonMask` does not move at all and exceeds its bound by
+1700x. So `DISAGREE` goes from six rows to one, and the comparison **refines before it believes a
+departure**: a part that departs is rebuilt at fn=96 and held to the sagitta of one polygon step at
+its own radial reach — `(1 - cos(pi/sides)) * reach`, an allowance derived from the part's size
+rather than chosen, as T121's recursion budget is derived from its outline's.
+
+### Controls
+
+| control | result |
+|---|---|
+| ridge referenced to `max` again (the old inward convention) | 11 tests fail across `test_threading.py` and `test_bottlecaps.py`, plus `test_every_part_field_evaluates.py::...[ThreadHelix]` |
+| PCO-1810's conversion applied to PCO-1881's cap again | 2 tests fail |
+| the refinement does not refine (`fn` ignored) | all four parts removed from `DISAGREE` fail — the refinement is load-bearing for exactly them |
+| a fixed entry left in `DISAGREE` (`KnuckleHinge: 0.20`) | `test_no_recorded_disagreement_is_really_a_facet_artifact[KnuckleHinge]` fails |
+| each thread-break fixture asserted against the *uncut* ridge first | the break test cannot pass by having nothing to cut |
+
+### Plan rules
+
+* A ridge's direction is a fact about the part's purpose, not a detail: a thread for adding to a
+  cylinder has to grow away from it, and the only test that can tell is one that measures the radii
+  the mesh occupies. An envelope cannot, when something wider sets the envelope.
+* A shared profile helper carries a convention. When two callers need opposite ones, the conversion
+  belongs at the call site and has to say which end it references, or the next caller gets whichever
+  convention the helper happened to be written for.
+* One field per upstream number. Where two variants spell the same dimension differently, a single
+  field with one conversion silently gives one of them the other's arithmetic.
+* **A one-sided criterion is one-sided for a reason; check that the reason still applies.** Faceting
+  inscribes *a surface*. After a boolean there is no single surface to inscribe, and the artifact
+  moves to the side the criterion treats as proof.
+* Refine before recording a disagreement. A departure that falls as 1/fn² is the mesh; one that does
+  not is the geometry. Nothing else distinguishes them, and the figure alone never did.
+
+
+## T123 — The three tools nobody pinned ✅
+
+**§12.2 item 81. Q-3, Q-1, E-5.**
+
+The pull request was red and the working copy was green. `pytest` passed locally with
+**8507 passed, 14 skipped, 10 xfailed**; the same commit in CI reported **26 failed** on every one
+of 3.11, 3.12 and 3.13, plus a `ruff check .` failure on a file that had not been touched. Nothing
+about the code differed. Three tools did, because three workflows install them unpinned and take
+whatever released most recently.
+
+| tool | local | CI | what it did |
+|---|---|---|---|
+| ruff | 0.16.0 (pinned in `.pre-commit-config.yaml`) | latest | `SIM102` grew to cover `elif` bodies → 1 lint error in `docs/_rstgen.py` |
+| pytest | 9.1.1 | 9.2.0 | `approx` stopped accepting nested sequences → 10 failures in one test |
+| pythonscad | 1.1.2 | 1.2.0 | `linear_extrude(scale=)` rejects a scalar → 7 failures; its stubs re-sign three functions → 9 more |
+
+**A gate that is not reproducible is not a gate.** Each of these turns a branch red with no commit
+behind it, and -- worse -- each is invisible to the person who can act on it. `ruff check .` was
+clean on every machine in the project while being broken in CI.
+
+### And a fourth reason `ruff check .` could not be trusted: the suite's own scratch file
+
+`tests/test_backend_type_parity.py` writes the module it hands to mypy to
+`REPO_ROOT/.mypy_parity_check.py` -- eleven times, for about a second each. `ruff check .` sees it
+there (it is not ignored) and reports `D100` and `CPY001`. Measured with a poller: **174 of 174**
+lint runs failed while that one file was in flight, and 0 of 271 after the scratch module moved to
+a temporary directory. CI never saw it, because lint and the suite are separate jobs on separate
+checkouts; what it did instead was report two errors, repeatedly, over several sessions, in a file
+that no longer existed by the time anyone looked for it. An error nobody can reproduce teaches
+people to disregard the gate, which is how the real one above went unnoticed.
+
+What mypy resolves is decided by *cwd*, which stays at the repository root either way -- the
+sibling gate this file's docstring says it reuses, `tests/test_docstring_examples.py`, has always
+written its snippets to a `tmp_path_factory` directory. A poller over a full suite run found no
+other test writing into the repository root, `tests/`, `pybosl2/` or `docs/` (0.4s sampling, 527s).
+
+### ruff: pinned, with a test that keeps the two pins together
+
+`.pre-commit-config.yaml` already declared `rev: v0.16.0`; `ci.yml` and `format.yml` installed
+`ruff` unpinned. They install `ruff==0.16.0` now, and
+`test_a_workflow_installing_ruff_pins_the_declared_version` fails if a workflow drops the pin or
+pins a different version from the one the hook declares -- either way, one of the two would be
+lying about what this repository lints with. `format.yml` matters most of the three: it *commits*
+what it reformats.
+
+The SIM102 finding is fixed as well rather than only pinned away, because it was a fair comment:
+`_build_name_index` had the same `elif isinstance(...)` / `if <public>` pair twice, and both are
+now one `_exported(node, all_list)` predicate. The refactor is proved inert -- both spellings
+build the identical 322-name index.
+
+### pytest: a nested `approx` that worked by accident
+
+`test_a_turn_onto_itself_leaves_the_box_alone` compared `(list(mn), list(mx))` against
+`pytest.approx` of the same shape. Nested sequences were supported up to 9.1 and raise
+`TypeError: pytest.approx() does not support nested data structures` from 9.2. The comparison was
+meaningful locally -- a changed box did fail it -- so this is not a weakened assertion, just one
+spelled in a way one pytest release accepted and the next did not. It compares one flat sequence of
+four numbers now, and the control (ignoring the symmetry record) still fails 14 tests.
+
+### pythonscad: the TypeError that uncovered two silent no-ops
+
+This is the one worth reading. `linear_extrude(scale=)` takes a number or an `[x, y]` pair in
+OpenSCAD; PythonSCAD only ever acts on the pair. Up to 1.1.2 a scalar was **dropped silently**, and
+`pybosl2/shapes2d/base.py` knew it -- it converts, with a comment saying why. Three call sites
+reached the native extruder directly and passed the scalar through, so, measured on 1.1.2:
+
+| call | built | should have built |
+|---|---|---|
+| `rounding_edge_mask(length=20, radius1=6, radius2=2)` | 6.1 x 6.1 at **both** ends | 6.1 tapering to 2.03 |
+| `fillet(length=20, radius1=6, radius2=2)` | the same, via `rounding_edge_mask` | the same taper |
+| `extrude_from_to(circle(radius=4), ..., scale=2)` | identical to `scale=1` | 7.88 → 15.77 |
+
+The third is the function's **own docstring example**. A tapered edge mask that does not taper is
+still a solid, still exports and still cuts something, which is the blind spot T89's groove and
+T115's strokes sat in -- and `test_fillet_builds` only asked whether it built. From 1.2.0 the same
+call raises `TypeError: Invalid linear_extrude scale parameter`, which is how a defect that had
+been shipping quietly arrived as seven red tests.
+
+The conversion is one helper now (`pybosl2._helpers.scale_pair`), used by every route to the native
+extruder, and `tests/test_a_scalar_scale_tapers.py` measures the two ends of what each public
+spelling builds -- four extrusion routes and two masks. The control that passes the scalar through
+again fails six of its eight tests.
+
+**Fixing the taper exposed a second defect in the same function.** `rounding_edge_mask` builds its
+cross-section at the *larger* radius and scales down, so a mask asked to **grow** from `radius1` to
+`radius2` was turned over afterwards -- with `rotate(180, [1, 0, 0])`, which reverses Y as well as
+Z. The cutter came out in the **-Y quadrant** while every other spelling of the same mask sits in
++X/+Y, so it was aimed at the wrong side of its edge. Nothing could see it while the taper itself
+was being dropped: both ends were the larger radius, and a mask that removes *something* near an
+edge produces a rounded-looking cube. It is `mirror([0, 0, 1])` now -- Z only -- and the two radius
+orders are each other's reverse, measured at both ends of both.
+
+Two tests had to be corrected rather than adjusted, and both described the fix in their own prose:
+
+* `test_extrude_from_to` asserted the solid was `approx(8.0)` wide -- the *unwidened* diameter --
+  with the comment "widened by scale=2". It is 16 wide now, and the untapered case is asserted
+  beside it.
+* `test_edge_profile_asymmetric` asserted `not inside([9.9, 9.9, 0])` and `inside([9.8, 9.8, 0])`
+  for "a shallow fillet -- 1mm here, so only the last 0.1mm goes". It measures the cut along the
+  45-degree diagonal at three heights now: **0.4438, 0.6340, 0.8242**, and the ratio between the
+  ends is `2.6 / 1.4` -- the mask's own radius ratio, which is the one form of the claim a facet
+  count has no vote in.
+
+### pythonscad: the stubs, bounded rather than guessed at
+
+The remaining 9 failures are `test_backend_type_parity`, which is the only gate that type-checks
+with the wheel installed and therefore the only one that sees its `.pyi` files change. 1.2.0
+re-signs `osimport` (overloads), `cylinder` and `sphere`, which produces **29 errors in 9 files of
+`pybosl2`** -- none of them about the two backends disagreeing, which is what that file exists to
+report. The `test` extra is bounded at `pythonscad<1.2` with the reason written next to it, one
+test states the bound in a single sentence instead of nine stack traces, and reconciling the stubs
+is [T124](#t124--reconcile-the-pythonscad-120-stubs).
+
+### Controls
+
+| control | result |
+|---|---|
+| a workflow installs `ruff` unpinned | `test_a_workflow_installing_ruff_pins_the_declared_version[ci.yml]` fails |
+| a workflow pins a ruff other than the hook's | the same test fails |
+| `scale_pair` hands the native a scalar again | 6 of the 8 taper tests fail |
+| the growing mask turned over about X again | `test_a_tapered_edge_mask_cuts_the_edge_it_is_aimed_at` fails; the taper-ratio test does **not**, which is why the quadrant needed its own assertion |
+| the symmetry record is ignored | 14 bounds tests fail (the flattened `approx` still bites) |
+| `_exported` re-expanded to the old nested `if` | ruff 0.17+ reports SIM102 again; the index is unchanged either way |
+
+### Plan rules
+
+* **Pin every tool a gate runs.** A lint rule set, an assertion library and a native wheel are all
+  inputs to the gates; unpinned, they make the gate's verdict depend on the day it ran.
+* One pin, one place. The version lives where the repository already declared it
+  (`.pre-commit-config.yaml` for ruff, the `test` extra for the wheel), and a test keeps the copies
+  together rather than a comment asking nicely.
+* A version bound carries its reason and its task number, or the next person reads it as caution
+  and widens it.
+* **When an upgrade turns something red, ask what the old version was hiding.** Three of these
+  failures were a parameter that had never done anything; the TypeError was the first thing to
+  report a defect that every release had shipped.
+* A fix that makes a dropped parameter real will break the tests written while it was dropped.
+  Both of the two here asserted the no-op and *described the taper* in the same breath, which is
+  the signature to look for -- a comment that does not match the number beside it.
+
+## T124 — Reconcile the pythonscad 1.2.0 stubs ✅
+
+**§12.2 item 81. PAR-1, Q-2.**
+
+`pythonscad<1.2` in the `test` extra is a bound, not a verdict. 1.2.0's `.pyi` files disagree with
+`pybosl2`'s calls in 29 places across 9 files, measured by
+`tests/test_backend_type_parity.py` (the only gate that type-checks with the wheel present):
+
+| shape of the error | count | example |
+|---|---|---|
+| a native handle arrives as `object` | 9 | `Argument 1 to "CsgSolid" has incompatible type "object"` |
+| `osimport` overloads no longer match a kwargs dict | 2 | `No overload variant of "osimport" matches ...` |
+| `cylinder` / `sphere` re-signed, so `**kwargs` mismatches | 2 | `expected "bool \| None"` |
+| `multmatrix` wants `Sequence[Sequence[float]]`, gets `list[object]` | 2 | `pybosl2/shapes3d/cylinder.py:546` |
+| `PyOpenSCAD` assigned to a `CsgSolid` variable | 8 | `pybosl2/shapes3d/cuboid.py:475` |
+| `CsgSolid(None)` / `polygon(Path2D)` / `Returning Any` | 6 | `pybosl2/_stroke3d.py:256` |
+
+Several look like this package being loose in ways the older stubs let pass, which is worth fixing
+on its own account. The rest are genuine signature changes, and a few may not be satisfiable
+against both stub versions at once -- in which case the question is which version the project
+supports, and that is a decision rather than a fix.
+
+### Closed, and the bound is off
+
+**The published 1.2.0 cannot be installed on this machine, and its sdist cannot be built at all.**
+It publishes **arm64-only** macOS wheels where 1.1.2 had `macosx_15_0_x86_64`, and the sdist is
+missing three sets of files its own sources include, every one of them a `MANIFEST.in` pattern that
+does not match what the build needs:
+
+| shipped | misses | files |
+|---|---|---|
+| `include ./src/utils/*.h` | `.hpp` | `scope_guard.hpp`, included by `src/io/export.cc` |
+| `include ./src/platform/*.h` | every `.mm` | `PlatformUtils-mac.mm`, added by `setup.py` on Darwin |
+| `recursive-include ./submodules/ *.h *.hpp *.cpp` | `.inl` | 9 libfive template files under `src/render/brep/` |
+
+The first breaks the build on *any* platform; the second on macOS specifically. Each was found by
+a separate ~30-minute compile, which is why the fourth round began by resolving the whole include
+graph statically -- 221 compiled sources, 475 files reached, and after the eleven files were
+supplied exactly four unresolved includes remained, all false positives (a system boost header, a
+generated one, a libtess2 internal, and a Tracy include behind an `#ifdef`).
+
+Built with the files supplied and `ARCHFLAGS="-arch x86_64"` -- this interpreter is universal2, so
+the default build compiles `-arch arm64 -arch x86_64` and would have failed at the link step
+against x86_64-only Homebrew libraries. 33 minutes, and the vendored libfive is byte-identical to
+`libfive/libfive@master` on a file that *is* shipped, so the `.inl` files fetched to fill the gap
+are the right ones rather than a guess.
+
+**What the real install then said.** `mypy --strict` reported **27 errors in 8 files** -- matching
+the staged `MYPYPATH` reproduction exactly, which is what made a 3-minute verify loop possible --
+and the full suite reported **8514 passed, 10 failed**, every failure in
+`tests/test_backend_type_parity.py`. So nothing about 1.2.0's *runtime* troubles this package once
+`scale_pair` is in place; the whole of the gap was the type surface.
+
+| group | count | what it was |
+|---|---|---|
+| `CsgShape2D(child)` / `Bosl2Solid(child)` | 6 | `child: object` is the protocol's own parameter, so the faith belongs at the construction site as a `cast` |
+| `_as_native_3d` returns | 3 | the function *is* the boundary; three casts say what its docstring says |
+| `**kwargs` dicts | 3 | `dict[str, Any]`: the native takes one precise type per name, which no narrower value type describes |
+| `_finish` / `_finish3` parameters | 3 | both accept a wrapper as well as a handle, and only `_finish` said so |
+| the two shear matrices | 2 | `list[list[float]]`, not a join of `list[int]` and `list[float]` |
+| `cuboid`'s `shape` variable | 8 | genuinely either kind; declared once before its first binding |
+| `polygon(Path2D)`, `textmetrics["advance"][0]` | 2 | plain floats, and the narrowing spelled out |
+
+**Two of the fixes are more than annotations.** `_finish3` never unwrapped, and
+`CsgSolid.__init__` does not either, so the wrapper spelling was one step from a `Bosl2Solid` whose
+`.shape` is a `Bosl2Solid` -- the hazard `_stroke3d` records hitting, where `.vnf()` fails on a
+perfectly good solid. It unwraps now, like its 2-D twin. And `polygon()` is handed plain floats
+rather than numpy rows, which is what every other native polygon call in the package already does.
+
+**One attempt went the wrong way and is worth recording.** Narrowing `child: object` to
+`CsgShape2D | PyOpenSCAD` on `position`/`align`/`attach` removed six errors and added **thirteen**:
+an implementation may *widen* a parameter, never narrow it, so the `Solid` and `Flat` protocols
+rejected the narrower signature. The parameter is `object` again and the cast sits at the
+construction site, which is where the faith actually lives.
+
+`pythonscad<1.2` is off the `test` extra, and
+`test_nothing_caps_pythonscad_below_the_release_that_carries_typing` reads the cap back so the next
+awkward stub release is not answered the same way.
+
+### How it was found (the original entry)
+
+**Do not start by widening the bound.** Install 1.2.0 in a scratch environment, run
+`tests/test_backend_type_parity.py`, and work the list down; the bound comes off when the list is
+empty, and `test_the_native_typing_this_gate_reads_is_present` is what says which contract your
+environment checks.
+
+Two things to know before starting. **1.2.0 publishes no macOS wheel** for this machine's platform
+tag (`macosx_15_0_x86_64`, cp314) while 1.1.2 does, and its sdist compiles the OpenSCAD core, so a
+scratch environment on macOS means a full C++ build; Linux has manylinux wheels for 3.11, 3.12 and
+3.13. And the `scale_pair` fix from T123 is **verified against 1.1.2 by measurement and against
+1.2.0 by reading its source** -- `src/python/py_extrude.cc` requires a two-element sequence -- so
+running the taper tests against a real 1.2.0 is the first thing worth doing here, not the last.
+
+One more thing this task should settle: `tests.yml`'s `typecheck` job installs `mypy numpy
+typing-extensions` and **not** the wheel, so `mypy --strict pybosl2 tests` passes there with every
+native symbol an `Any`. That is why CI's own mypy job was green while the parity test reported 29
+errors from the same commit. Whatever version the bound ends at, the job that type-checks should
+install what the gate is about.
 
 
 ## Keeping this file honest

@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 import textwrap
 from pathlib import Path
 
@@ -59,11 +60,27 @@ PAIRS = [
 ]
 
 
+#: Where the last `_typecheck` call put its scratch module. Recorded so that
+#: `test_the_gate_writes_nothing_into_the_working_tree` can ask, rather than assume.
+_LAST_SCRATCH: Path | None = None
+
+
 def _typecheck(source: str) -> str:
-    """Run `mypy --strict` over *source* and return its output, empty when clean."""
-    scratch = REPO_ROOT / ".mypy_parity_check.py"
-    scratch.write_text(source)
-    try:
+    """Run `mypy --strict` over *source* and return its output, empty when clean.
+
+    The scratch module lives in a temporary directory, not in the repository. It used to be
+    written to `REPO_ROOT/.mypy_parity_check.py`, and while it existed `ruff check .` reported
+    `D100` and `CPY001` against it -- so a lint run that overlapped this file's eleven mypy
+    invocations failed, which made the lint gate itself intermittent. What mypy resolves is
+    decided by *cwd*, which stays at the repository root; the file's own location does not
+    enter into it. `tests/test_docstring_examples.py`, the gate this one says it reuses, has
+    always written its snippets to a `tmp_path_factory` directory.
+    """
+    global _LAST_SCRATCH
+    with tempfile.TemporaryDirectory() as work:
+        scratch = Path(work) / "parity_check.py"
+        _LAST_SCRATCH = scratch
+        scratch.write_text(source)
         result = subprocess.run(
             [sys.executable, "-m", "mypy", "--strict", str(scratch)],
             capture_output=True,
@@ -71,8 +88,6 @@ def _typecheck(source: str) -> str:
             cwd=REPO_ROOT,
             check=False,
         )
-    finally:
-        scratch.unlink(missing_ok=True)
     return "" if result.returncode == 0 else result.stdout + result.stderr
 
 
@@ -95,6 +110,28 @@ def test_the_checker_is_actually_running() -> None:
     """SPEC PAR-1: a harness that always reports clean would pass every row above in silence."""
     assert _typecheck("x: int = 'not an int'\n"), "mypy reported nothing for a certain error"
     assert not _typecheck("x: int = 1\n"), "mypy reported something for correct code"
+
+
+def test_the_gate_writes_nothing_into_the_working_tree() -> None:
+    """SPEC Q-3: a gate that breaks another gate while it runs is not a gate.
+
+    The scratch module this file hands to mypy was written to the repository root, where
+    `ruff check .` sees it -- it is not ignored -- and reports `D100` and `CPY001`, for the
+    second or so each of the eleven mypy runs above takes. CI is unharmed, because lint and
+    the suite are separate jobs on separate checkouts. What it harms is the working copy:
+    `ruff check .` run against a suite already in flight reported two errors in a file that
+    no longer existed by the time anyone looked for it, repeatedly, over several sessions.
+    An error you cannot reproduce teaches you to disregard the gate.
+    """
+    assert not _typecheck("x: int = 1\n")
+    scratch = _LAST_SCRATCH
+    assert scratch is not None, "_typecheck did not record where it wrote"
+    assert REPO_ROOT not in scratch.parents, (
+        f"the scratch module is written inside the working tree ({scratch}), where the lint gate "
+        f"reads it; write it to a temporary directory -- mypy resolves imports from cwd, which "
+        f"stays at the repository root either way"
+    )
+    assert not scratch.exists(), f"the scratch module outlived the run that made it ({scratch})"
 
 
 # --- the sweep (T72) ----------------------------------------------------------------------------
@@ -277,4 +314,49 @@ def test_the_facade_absorbs_every_nullability_difference() -> None:
     assert not unabsorbed, (
         "these differences are recorded as nullability the façade normalises, but passing None "
         f"through the façade does not survive it: {unabsorbed}"
+    )
+
+
+def test_the_native_typing_this_gate_reads_is_present() -> None:
+    """The rows above are the full gate only where the installed wheel ships typing.
+
+    pythonscad 1.2.0 is the first release to carry `py.typed` and an `_openscad-stubs` package.
+    Before it, `mypy --strict` resolved every native call to `Any`, so no row here could fail for
+    a signature reason -- which is how 27 errors in eight files of `pybosl2` arrived the first
+    time CI installed 1.2.0, all of them our own calls being checked for the first time (T124).
+
+    1.2.0 also publishes **arm64-only** macOS wheels where 1.1.2 had x86_64, so an Intel Mac is
+    held at the untyped 1.1.x and runs the weaker check. That is worth skipping out loud for
+    rather than passing quietly: a green run here on such a machine does not mean what a green
+    run in CI means.
+    """
+    from importlib.metadata import PackageNotFoundError, distribution
+
+    try:
+        dist = distribution("pythonscad")
+    except PackageNotFoundError:
+        pytest.skip("pythonscad is not installed; the rows above resolve against the mock")
+    files = [str(f) for f in (dist.files or [])]
+    typed = [f for f in files if f.endswith(("py.typed", ".pyi"))]
+    if not typed:
+        pytest.skip(
+            f"pythonscad {dist.version} ships no typing (no py.typed, no .pyi), so the rows above "
+            f"check a weaker contract: every native call resolves to Any. 1.2.0 and later carry "
+            f"stubs, but publish arm64-only macOS wheels."
+        )
+    assert typed, "the installed pythonscad declares typing"
+
+
+def test_nothing_caps_pythonscad_below_the_release_that_carries_typing() -> None:
+    """A cap under 1.2 turns the gate above into a formality wherever it is honoured.
+
+    It was capped at `pythonscad<1.2` for exactly two commits, to get a red branch green while
+    the 27 errors were open. Reading the cap back is what keeps that a decision rather than a
+    habit -- and what stops the next awkward stub release being answered the same way.
+    """
+    extras = (REPO_ROOT / "pyproject.toml").read_text()
+    capped = [line.strip() for line in extras.splitlines() if '"pythonscad<' in line]
+    assert not capped, (
+        f"pyproject.toml caps pythonscad at {capped}, below the first release that ships stubs. "
+        f"Every row above then type-checks against Any and cannot fail on a signature."
     )

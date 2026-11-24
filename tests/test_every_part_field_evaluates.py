@@ -28,19 +28,27 @@ and the recursion stood still. `Rack`'s recursion was correct and simply deeper 
 allowed -- a rack's outline peels one tooth per level, so 84 points need about 21 -- and the guard's
 message blamed a self-intersecting outline for what was its own arithmetic.
 
-All three now evaluate *and* match their CSG mesh exactly. The six that do not match are recorded
-below; this file is the first thing to compare a part's two backends on anything but a box.
+All three now evaluate *and* match their CSG mesh exactly, and this file is the first thing to
+compare a part's two backends on anything but a box.
+
+It recorded six parts as building different geometry. **T122 left one.** `ThreadHelix` was a real
+defect -- its thread ridge grew inward from the diameter it was given, which is the only direction
+in which a thread profile can reach the helix axis -- and four were this file's criterion applied
+past where it holds. See `DISAGREE` below, and `tests/field_probe.py` for the premise and its
+limit.
 """
 
 from __future__ import annotations
 
+import math
+from contextlib import nullcontext
 from functools import lru_cache
 
 import numpy as np
 import pytest
 from part_fixtures import PARTS, arguments
 
-from pybosl2 import use_backend
+from pybosl2 import use_backend, use_defaults
 from pybosl2.sdf._libfive import lv
 
 #: Parts whose `.shape` is a 2-D path rather than a solid, so there is no field to evaluate and no
@@ -99,22 +107,50 @@ def test_some_parts_were_actually_examined() -> None:
 # The two backends compared on the field, not the box.
 # ----------------------------------------------------------------------------------------
 
-#: Parts whose CSG mesh has a vertex outside the SDF field, with how far outside. Faceting can only
-#: inscribe (see `tests/field_probe.py`), so each of these is a real difference between the two
-#: backends' geometry and not a tessellation artifact. Figures may fall, never rise; an entry that
-#: reaches zero should be deleted, not left as a licence nothing needs.
+#: Parts whose CSG mesh departs from the SDF field by more than refining the mesh can explain.
+#: One row left of six, and the five that went are the interesting part of this file.
 #:
-#: `ThreadHelix` is the instructive one: all six of its departing vertices sit on the Z axis, where
-#: its field reads +2.5 of empty space -- 34 of its 68 mesh vertices are on the axis and every one
-#: is referenced by a face. Whatever that is, it is not a tessellation of the same solid.
+#: `ThreadHelix` was a real defect and is fixed (T122): it grew its thread ridge *inward* from the
+#: diameter it was given, which is the one direction that lets a thread profile reach the helix
+#: axis, where the sweep's own angle is undefined. Its six departing vertices all sat on that
+#: axis. The ridge stands on `d` and grows outward now, as BOSL2 has it, and the part agrees with
+#: its field exactly at every resolution.
+#:
+#: The other four -- `KnuckleHinge` 0.19, `KnuckleHingePair` 0.13, `RingHook` 0.12, `SnapSocket`
+#: 0.05 -- were never differences at all. They were recorded on the strength of a premise that
+#: this file and `tests/field_probe.py` both stated as a general law: *faceting can only inscribe,
+#: so a CSG vertex outside the field cannot be a tessellation artifact*. That holds for a
+#: primitive's own mesh. **It does not survive a boolean.** A union re-triangulates, and the
+#: vertices it creates lie on neither input surface: two helical ridges whose base rings are each
+#: at exactly radius 6.00000 union to a mesh whose base ring reaches 5.94867 -- half a polygon
+#: step inside, in empty space as far as an exact field is concerned. Every one of the four falls
+#: as 1/fn^2 and reaches 0.0003 or less by fn=96, which is what a facet artifact does and what a
+#: geometry difference cannot do.
+#:
+#: So the comparison refines instead of trusting one measurement, and a row here now means "this
+#: departure survives refinement". Figures may fall, never rise; an entry that stops surviving
+#: refinement should be deleted, not left as a licence nothing needs.
 DISAGREE = {
-    "ThreadHelix": 2.51,
     "RobertsonMask": 2.01,
-    "KnuckleHinge": 0.20,
-    "KnuckleHingePair": 0.14,
-    "RingHook": 0.12,
-    "SnapSocket": 0.05,
 }
+
+#: A departure is measured again with this many sides before it is believed. 96 is chosen so the
+#: facet bound below is comfortably under every departure that survived it -- 0.0012 against
+#: `RobertsonMask`'s 2.008 -- while the four artifacts clear their own bounds by 13x or more.
+REFINED_FN = 96
+
+#: A departure at or below the exact-agreement floor is not examined further.
+TOLERANCE = 1e-6
+
+
+def _facet_bound(reach: float, sides: int) -> float:
+    """How far inside a circle of radius *reach* a chord of its *sides*-sided polygon cuts.
+
+    The whole allowance a facet artifact gets, derived from the part's own size rather than
+    chosen -- the sagitta of one polygon step. A mesh vertex further outside an exact field than
+    this cannot be explained by the mesh being a polygon.
+    """
+    return (1.0 - math.cos(math.pi / sides)) * reach
 
 
 #: A mesh of up to this many vertices is sampled in full.
@@ -130,8 +166,8 @@ FULL_SAMPLE = 320
 #:
 #: Striding is safe here in a way subsampling usually is not, and the reason is worth stating
 #: because it is the thing that would stop being true: **every part expensive enough to be strided
-#: agrees exactly**, and every disagreement in DISAGREE below has 4 to 22 departing vertices out of
-#: a mesh of 27 to 242 -- all under FULL_SAMPLE, so nothing being watched is strided at all. A part
+#: agrees exactly**, and the one disagreement left in DISAGREE has 22 departing vertices out of a
+#: mesh of 27 -- under FULL_SAMPLE, so nothing being watched is strided at all. A part
 #: that starts disagreeing *and* has thousands of vertices would be sampled thinly; that is the
 #: known blind spot, and the honest fix then is to raise the cap for that part, not to widen it
 #: everywhere.
@@ -139,22 +175,27 @@ STRIDED_SAMPLE = 60
 
 
 @lru_cache(maxsize=None)
-def _escape(name: str) -> tuple[float, int, int]:
-    """Return (furthest a CSG vertex sits outside the SDF field, how many do, how many vertices)."""
+def _escape(name: str, fn: int | None = None) -> tuple[float, int, int, float]:
+    """Measure *name*'s CSG mesh against its SDF field, meshed with *fn* sides where it curves.
+
+    Returns (furthest a vertex sits outside the field, how many do, how many were sampled, the
+    mesh's largest distance from the Z axis). The last one is what `_facet_bound` scales.
+    """
     cls = PARTS[name]
     args, kwargs = arguments(cls)
-    with use_backend("csg"):
+    with use_backend("csg"), use_defaults(fn=fn) if fn is not None else nullcontext():
         shape = cls(*args, **kwargs).shape
         vnf = shape.vnf() if callable(getattr(shape, "vnf", None)) else shape
     vertices = getattr(vnf, "vertices", None)
     points = np.asarray(vertices if vertices is not None else vnf.points, dtype=float)
+    reach = float(np.hypot(points[:, 0], points[:, 1]).max())
     if len(points) > FULL_SAMPLE:
         points = points[:: -(-len(points) // STRIDED_SAMPLE)]
     field = _sdf_shape(name)
     assert field is not None, f"{name} has no field to compare against"
     tree = field._sdf_fn(lv.x(), lv.y(), lv.z())  # type: ignore[attr-defined]
     found = np.asarray([float(tree(float(p[0]), float(p[1]), float(p[2]))) for p in points])
-    return float(found.max()), int((found > 1e-6).sum()), len(points)
+    return float(found.max()), int((found > TOLERANCE).sum()), len(points), reach
 
 
 COMPARABLE = sorted(name for name in SDF_PARTS if _sdf_shape(name) is not None and name not in {"Worm", "WormGear"})
@@ -162,15 +203,28 @@ COMPARABLE = sorted(name for name in SDF_PARTS if _sdf_shape(name) is not None a
 
 @pytest.mark.parametrize("name", COMPARABLE)
 def test_the_two_backends_build_the_same_part(name: str) -> None:
-    """A CSG vertex outside the SDF field is a real geometry difference, and most parts have none."""
-    worst, count, total = _escape(name)
+    """Most parts agree exactly; a part that departs is re-measured with a finer mesh.
+
+    A departure that falls under its own facet bound when the mesh is refined is the mesh being a
+    polygon. One that stays is the two backends building different geometry (SPEC PAR-1).
+    """
+    worst, count, total, _ = _escape(name)
     allowed = DISAGREE.get(name)
+    if worst <= TOLERANCE:
+        assert allowed is None, (
+            f"{name} agrees with its SDF field exactly. Delete its DISAGREE entry -- a list of "
+            f"known differences that includes things which agree stops being read."
+        )
+        return
+    refined, rcount, rtotal, reach = _escape(name, REFINED_FN)
+    bound = _facet_bound(reach, REFINED_FN)
     if allowed is None:
-        assert worst <= 1e-6, (
-            f"{name}: {count} of its {total} CSG vertices lie outside the SDF field, the furthest "
-            f"by {worst:.4f}. Faceting can only inscribe, so the two backends build different "
-            f"geometry (SPEC PAR-1). If that is known and accepted, it belongs in DISAGREE with "
-            f"its figure -- not unrecorded."
+        assert refined <= bound, (
+            f"{name}: {rcount} of its {rtotal} CSG vertices lie outside the SDF field at fn="
+            f"{REFINED_FN}, the furthest by {refined:.5f} -- past the {bound:.5f} a polygon of "
+            f"that many sides can cut inside a radius of {reach:.3f}. Refining the mesh did not "
+            f"remove it, so the two backends build different geometry. If that is known and "
+            f"accepted, it belongs in DISAGREE with its figure -- not unrecorded."
         )
     else:
         assert worst <= allowed, (
@@ -180,10 +234,17 @@ def test_the_two_backends_build_the_same_part(name: str) -> None:
 
 
 @pytest.mark.parametrize("name", sorted(DISAGREE))
-def test_no_recorded_disagreement_has_quietly_been_fixed(name: str) -> None:
-    """An entry that no longer disagrees is a stale licence, so it has to be noticed."""
-    worst, _, _ = _escape(name)
-    assert worst > 1e-6, (
-        f"{name} now agrees with its SDF field exactly. Delete its DISAGREE entry -- a list of "
-        f"known differences that includes things which agree stops being read."
+def test_no_recorded_disagreement_is_really_a_facet_artifact(name: str) -> None:
+    """The question four of the six recorded entries were never asked (T122).
+
+    They were recorded because a vertex sat outside the field and the premise said faceting could
+    not put it there. Refining the mesh removed all four. An entry that refinement explains is not
+    a disagreement, and leaving it here would licence the next one.
+    """
+    refined, _, _, reach = _escape(name, REFINED_FN)
+    bound = _facet_bound(reach, REFINED_FN)
+    assert refined > bound, (
+        f"{name} departs by {refined:.5f} at fn={REFINED_FN}, within the {bound:.5f} that a "
+        f"polygon of that many sides explains. Delete its DISAGREE entry -- this is a mesh "
+        f"artifact, not the two backends disagreeing."
     )

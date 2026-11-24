@@ -47,6 +47,19 @@ dependencies = [
 test = [
     "pytest>=7",
     "numpy",
+    # Unbounded, and that is the point. 1.2.0 is the first release to ship typing for the native
+    # module (`py.typed` and an `_openscad-stubs` package), which is the only reason
+    # tests/test_backend_type_parity.py can check a signature at all: before it, `mypy --strict`
+    # resolved every native call to `Any`. That is why installing it produced 27 errors in 8
+    # files of `pybosl2` the first time CI did -- not a regression in the wheel, our own calls
+    # being type-checked for the first time. T124 took them to zero against a real 1.2.0 install,
+    # and the full suite passes on it (8514 passed).
+    #
+    # Worth knowing if you are on an Intel Mac: 1.2.0 publishes **arm64-only** macOS wheels where
+    # 1.1.2 had x86_64, and its sdist does not build -- `MANIFEST.in` omits `src/utils/*.hpp`,
+    # every `*.mm`, and `submodules/**/*.inl`, so three sets of files have to be supplied by hand.
+    # Such a machine stays on the untyped 1.1.x and type-checks the weaker contract;
+    # `test_the_native_typing_this_gate_reads_is_present` says which one you are getting.
     "pythonscad",
     "typing-extensions",
     "shapely",
@@ -60,7 +73,12 @@ docs = [
     "sphinx>=7,<10",
     "shapely",
     "sphinx-immaterial>=0.13",
-    "ruff>=0.4",
+    # `docs/Makefile`'s `tidy` target runs `ruff check --fix . && ruff format .` after Sphinx, so
+    # the docs build is a lint gate too -- and the fourth place this repository installs ruff. It
+    # was `>=0.4`, and that is the gate that was red on main: a rule that grew to cover one more
+    # case failed `make html` on a file the docs build only reformats. Pinned with the rest, and
+    # tests/test_ci_gates.py fails if the copies drift apart.
+    "ruff==0.17.6",
 ]
 
 [project.urls]

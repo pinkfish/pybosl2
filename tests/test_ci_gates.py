@@ -90,3 +90,67 @@ def test_the_gate_refuses_to_skip_under_ci() -> None:
     assert 'os.environ.get("CI")' in body, "the gate must notice it is running in CI"
     assert "pytest.fail" in body, "in CI a missing checker must fail, not skip"
     assert "pytest.skip" in body, "locally it should still skip with a helpful reason"
+
+
+# --- the lint gate's own version (T122) ---------------------------------------------------------
+
+#: `rev: vX.Y.Z` on the ruff-pre-commit hook, which is where this repository declares the ruff it
+#: lints with.
+_PRECOMMIT_RUFF_REV = re.compile(r"ruff-pre-commit\n\s*rev:\s*v([0-9][^\s]*)")
+
+#: `ruff==X.Y.Z` as a workflow installs it.
+_WORKFLOW_RUFF_PIN = re.compile(r"ruff==([0-9][^\s\"']*)")
+
+
+def _precommit_ruff_version() -> str:
+    config = (WORKFLOWS.parent.parent / ".pre-commit-config.yaml").read_text()
+    found = _PRECOMMIT_RUFF_REV.search(config)
+    assert found, ".pre-commit-config.yaml no longer pins a ruff rev the way this test reads it"
+    return found.group(1)
+
+
+def test_every_declaration_of_ruff_names_the_declared_version() -> None:
+    """The lint gate runs in five places, and `pyproject.toml` is the one a workflow scan misses.
+
+    `docs/Makefile`'s `tidy` target runs `ruff check --fix . && ruff format .` after Sphinx, so
+    the docs build fails on a lint error like any other gate -- and its ruff comes from the
+    `docs` extra, which asked for `>=0.4`. That is the gate that was red on `main`: SIM102 grew
+    to cover `elif` bodies, and `make html` failed on a file the docs build does not even own.
+    The workflow scan above would never have looked there.
+    """
+    declared = _precommit_ruff_version()
+    pyproject = (WORKFLOWS.parent.parent / "pyproject.toml").read_text()
+    loose = [line.strip() for line in pyproject.splitlines() if '"ruff' in line and f'"ruff=={declared}"' not in line]
+    assert not loose, (
+        f"pyproject.toml declares ruff as {loose}, not =={declared} -- the docs build runs it as "
+        f"a gate, so an unpinned range there is the same hole as an unpinned workflow install."
+    )
+
+
+@pytest.mark.parametrize("workflow", sorted(WORKFLOWS.glob("*.y*ml")), ids=lambda p: p.name)
+def test_a_workflow_installing_ruff_pins_the_declared_version(workflow: Path) -> None:
+    """SPEC Q-3: a lint gate whose rule set arrives from the internet is not reproducible.
+
+    `pip install ruff` in a workflow installs whatever released most recently. A rule that grows
+    to cover one more case then turns a branch red with no commit behind it, while `ruff check .`
+    stays clean on every developer's machine -- which is how an error that nobody could reproduce
+    came to be reported against a file that had not changed. SIM102 reaching into `elif` bodies
+    did exactly that to `docs/_rstgen.py`.
+
+    So every workflow installs the version `.pre-commit-config.yaml` declares, and this test is
+    what keeps the two from drifting. Bumping ruff means bumping the rev and running it once,
+    which is the point: new rules arrive when someone is looking.
+    """
+    text = workflow.read_text()
+    if "ruff" not in text:
+        pytest.skip(f"{workflow.name} does not install ruff")
+    declared = _precommit_ruff_version()
+    pinned = _WORKFLOW_RUFF_PIN.findall(text)
+    assert pinned, (
+        f"{workflow.name} installs ruff without a version. Pin it to =={declared}, the rev "
+        f".pre-commit-config.yaml declares, so the gate cannot change without a commit."
+    )
+    assert set(pinned) == {declared}, (
+        f"{workflow.name} installs ruff {sorted(set(pinned))} while .pre-commit-config.yaml "
+        f"declares {declared}. One of the two is lying about what this repository lints with."
+    )

@@ -429,6 +429,12 @@ def cuboid(
 
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
+    # Either kind, and both are built here: the negative-edge paths come back from
+    # `_edge_mask_negative` as a wrapper, the rest from the native hull/cube/minkowski as a
+    # bare handle, and `_teardrop_bottom` and `_finish3` both unwrap -- measured, all four
+    # spellings mesh (plain, rounding=3, rounding=-3, chamfer=-3). Declared because mypy
+    # otherwise takes the first branch's type and calls the other seven errors (T124).
+    shape: "PyOpenSCAD | Bosl2Solid"
     if p1 is not None:
         if p2 is not None:
             mn = [min(p1[i], p2[i]) for i in range(3)]
@@ -1040,7 +1046,7 @@ def regular_prism(
     if realign:
         shape = shape.rotate(180 / sides, [0, 0, 1])
     if shift[0] or shift[1]:
-        shear = [
+        shear: list[list[float]] = [
             [1, 0, shift[0] / prism_len, 0],
             [0, 1, shift[1] / prism_len, 0],
             [0, 0, 1, 0],

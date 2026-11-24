@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
@@ -103,7 +103,7 @@ def osimport(
             s2.osimport("drawing.svg").resize([40, 40, 0]).linear_extrude(height=2).show()
 
     """
-    kwargs: dict[str, object] = {}
+    kwargs: dict[str, Any] = {}
     for value, name in ((convexity, "convexity"), (layer, "layer"), (dpi, "dpi"), (center, "center"), (id, "id")):
         if value is not None:
             kwargs[name] = value

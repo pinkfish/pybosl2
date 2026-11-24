@@ -152,6 +152,11 @@ _PATH_FALLBACK_MAP: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 
+def _exported(node: "ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef", all_list: list[str] | None) -> bool:
+    """True when *node* is a public name the module advertises, which is what the index holds."""
+    return not node.name.startswith("_") and (all_list is None or node.name in all_list)
+
+
 def _build_name_index() -> dict[str, dict[str, str]]:
     """Map every public name → ``{'module': …, 'type': …}`` from the pybosl2 package tree."""
     index: dict[str, list[dict[str, str]]] = {}
@@ -181,12 +186,10 @@ def _build_name_index() -> dict[str, dict[str, str]]:
                     all_list = [
                         e.value for e in node.value.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)
                     ]
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if not node.name.startswith("_") and (all_list is None or node.name in all_list):
-                    index.setdefault(node.name, []).append({"module": mod_name, "type": "function"})
-            elif isinstance(node, ast.ClassDef):
-                if not node.name.startswith("_") and (all_list is None or node.name in all_list):
-                    index.setdefault(node.name, []).append({"module": mod_name, "type": "class"})
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and _exported(node, all_list):
+                index.setdefault(node.name, []).append({"module": mod_name, "type": "function"})
+            elif isinstance(node, ast.ClassDef) and _exported(node, all_list):
+                index.setdefault(node.name, []).append({"module": mod_name, "type": "class"})
 
     # De-duplicate: prefer the entry whose module name ends with the object name
     deduped: dict[str, dict[str, str]] = {}

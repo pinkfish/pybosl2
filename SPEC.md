@@ -1387,6 +1387,129 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T124 closed the gap T123 had bounded, and the bound is off.** `pythonscad` 1.2.0 is the first
+release to ship typing for the native module, so the 27 errors it produced in eight files of
+`pybosl2` were not a regression in the wheel -- they were this package's own calls being
+type-checked for the first time. Six were `child: object`, which is the *protocol's* parameter, so
+the faith belongs at the construction site as a cast rather than in a narrower signature; narrowing
+it instead removed six errors and added **thirteen**, because an implementation may widen a
+parameter and never narrow it. Three were `_as_native_3d`, which *is* the boundary between `object`
+and a native handle and can check nothing. Eight were one `cuboid` variable that genuinely holds
+either kind. **Two were more than annotations**: `_finish3` never unwrapped and `CsgSolid.__init__`
+does not either, leaving the wrapper spelling one step from a `Bosl2Solid` whose `.shape` is a
+`Bosl2Solid` -- the hazard `_stroke3d` records hitting, where `.vnf()` fails on a perfectly good
+solid. With all of it fixed, `mypy --strict` is clean against a real 1.2.0 install and the full
+suite passes on it: **8514 passed**, with every remaining failure in the type gate that the fixes
+closed. So nothing about the new release troubles this package's runtime; the whole of the gap was
+the type surface, and `pythonscad<1.2` is off the `test` extra.
+
+**Getting a 1.2.0 to test against meant building one, and the published sdist does not build.**
+1.2.0 publishes arm64-only macOS wheels where 1.1.2 had x86_64, so an Intel Mac has no path to it:
+no wheel, and a source distribution whose `MANIFEST.in` omits three sets of files its own sources
+include -- `src/utils/*.hpp` (which breaks the build on every platform), every `*.mm` (which breaks
+it on macOS), and `submodules/**/*.inl` (9 libfive template files). Each omission cost a separate
+30-minute compile to discover, which is why the fourth attempt began by resolving the whole include
+graph statically: 221 compiled sources, 475 files reached, and after the eleven files were supplied
+exactly four unresolved includes remained, all of them false positives. **A tool version that
+cannot be installed is still a gate's input**, and the way to find out what it says is to build it
+-- 33 minutes, with `ARCHFLAGS="-arch x86_64"` because a universal2 interpreter otherwise compiles
+for an architecture the Homebrew libraries do not have.
+
+**T123 found the gates depending on the day they ran.** The working copy was green --
+8507 passed -- and the pull request was red on the same commit: 26 failures on each of 3.11, 3.12
+and 3.13, plus a lint error in a file nobody had touched. Three tools are installed unpinned by the
+workflows, and all three had moved: ruff's `SIM102` grew to cover `elif` bodies (1 lint error),
+`pytest.approx` stopped accepting nested sequences between 9.1 and 9.2 (10 failures), and
+`pythonscad` 1.2.0 both re-signed three functions in its stubs (9 failures) and started rejecting a
+scalar `linear_extrude(scale=)` (7 failures). **A gate whose rule set arrives from the internet
+reports on the day rather than on the code**, and every one of these was invisible to the person who
+could act on it. ruff is pinned to the version `.pre-commit-config.yaml` already declared, with a
+test that fails if the two copies drift; the nested `approx` is one flat sequence of four numbers;
+the `test` extra is bounded at `pythonscad<1.2` with its 29 stub errors written down and **T124**
+open to reconcile them -- with the note that `tests.yml`'s own mypy job installs neither the wheel
+nor the package's dependencies, so it was green on the same commit the parity gate failed on: the
+job that type-checks should install what the gate is about.
+
+**A fourth reason that gate could not be trusted was the suite's own scratch file.**
+`tests/test_backend_type_parity.py` wrote the module it hands to mypy into the repository root,
+eleven times per run, where `ruff check .` reports `D100` and `CPY001` against it: **174 of 174**
+lint runs failed while that file was in flight, and 0 of 271 after it moved to a temporary
+directory. CI never saw it -- separate jobs, separate checkouts -- so what it produced instead was
+two errors, repeatedly, in a file that no longer existed by the time anyone looked. An error nobody
+can reproduce is worse than a failure, because it teaches people to disregard the gate.
+
+**The upgrade that broke the build was the first thing to report a defect every release had
+shipped.** PythonSCAD only ever acts on the `[x, y]` form of `linear_extrude(scale=)`; up to 1.1.2 it
+**dropped a scalar silently**, and `pybosl2/shapes2d/base.py` knew that and converted, with a comment
+saying why, while three call sites passed the scalar straight to the native extruder. Measured on
+1.1.2: `rounding_edge_mask(length=20, radius1=6, radius2=2)` -- a *tapered* edge cutter -- came out
+**6.1 x 6.1 at both ends**, identical to the untapered mask; `fillet` inherited it; and
+`extrude_from_to(scale=2)`, the example in its own docstring, built exactly what `scale=1` builds.
+A mask that does not taper is still a solid, still exports and still cuts something, which is where
+T89's groove and T115's strokes hid, and the one test on it asked only whether it built. The
+conversion is one helper now, used by every route to the native extruder, and the two ends of what
+each public spelling builds are measured. **And making the taper real exposed a second defect in the same
+function**: the growing case was turned over with `rotate(180, [1, 0, 0])`, which reverses Y as well
+as Z, so that mask sat in the **-Y quadrant** and was aimed at the wrong side of its edge -- a Z
+mirror now, with both radius orders measured at both ends. Two tests had to be corrected rather than
+adjusted, and each described the fix in its own prose while asserting the no-op: "widened by
+scale=2" beside `approx(8.0)`, the unwidened diameter; and "a shallow fillet -- 1mm here" for a
+cutter that had no taper at all.
+
+**T122 took the disagreement T121 nominated and found the thread on the wrong side of its own
+diameter.** `ThreadHelix` referenced its swept section to the *outermost* point of the thread
+profile, so the ridge grew **inward** from the diameter it was given and occupied
+`[d/2 - thread_depth, d/2]`. BOSL2 is explicit about the other direction — "the inner diameter (the
+base of the threads for external threading) is `d` (so the total diameter is `d + 2*thread_depth`)"
+— and `_trapezoidal_profile` is normalised crest-at-zero because `_thread_grid` cuts a *rod*, where
+the crest is the rod surface. One shared helper, two conventions, and the part that needed the other
+one was referencing the wrong end of it.
+
+**A part whose purpose is "adding threads onto your own cylinder" added nothing.** Three measured
+consequences, none of which any existing test could see. Its own rendering example,
+`cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape`, rendered a plain
+cylinder: the ridge was inside the cylinder it was being added to, and `|` returns a solid either
+way. Both bottle necks were built with **no threads at all** — PCO-1810's thread reached a diameter
+of **24.41mm where the spec says 27.43**, buried inside the 24.51mm neck wall. And the neck's two
+thread breaks, prismoid cuts aimed at `threadbase_d/2`, **removed nothing**: measured, 276 ridge
+vertices before the cut and 276 after. Every test in `tests/test_bottlecaps.py` was an envelope
+test, and a neck's envelope is its 33mm support ring, 5.6mm wider than the thread crest it is
+supposed to have — so a smooth neck passed as a threaded one.
+
+**The cross-backend disagreement was a symptom, and the only direction that could produce it.**
+Inward is the one direction in which a thread profile can reach the helix axis, and
+`ThreadHelix(d=10, pitch=10)` — the fixture's derived arguments, with `thread_depth` defaulting to
+`pitch/2` — put the root exactly on it, where a sweep expressed in cylindrical coordinates has no
+angle to speak of. All six departing vertices were on that axis. With the ridge where BOSL2 puts it
+the part agrees with its field **exactly, at every resolution**, and so does a profile three times
+deeper than the radius, which used to depart by 5.0.
+
+**A second defect in the same neighbourhood: the PCO-1881 cap's thread was 3.2mm too small.** The
+two variants' upstream sources spell the number differently — PCO-1810 computes
+`thread_helix(d=thread_od - thread_depth*2)` from a local equal to the bore, PCO-1881 passes the
+literal `d=25.5` — and the transcription gave both a field called `cap_thread_od` and applied
+PCO-1810's conversion to both. So PCO-1881's internal thread had its crest at 22.3mm and its root
+1.54mm clear of the 28.58mm bore: a ring floating inside the cap, attached to nothing. The field is
+the helix diameter now, as upstream passes it, and both caps' roots reach their bores while both
+crests come inside their necks' thread crests.
+
+**Then the instrument's own premise failed, and took four of the six recorded disagreements with
+it.** *Faceting can only inscribe, so a CSG vertex outside the field cannot be a tessellation
+artifact* is true of a primitive's own mesh and **false after a boolean**: a union re-triangulates,
+and the vertices it creates lie on neither input surface. Two helical ridges whose base rings are
+each at exactly radius **6.00000** union to a mesh whose base ring reaches **5.94867** — half a
+polygon step inside, which an exact field reads as empty space. `KnuckleHinge` 0.19,
+`KnuckleHingePair` 0.13, `RingHook` 0.12 and `SnapSocket` 0.05 all fall as 1/fn² and reach 0.0003 or
+less by fn=96, which is what a facet artifact does and what a geometry difference cannot. They were
+never differences; they were recorded because a one-sided premise was applied to composed parts.
+
+**So the comparison refines before it believes a departure.** A part that departs is rebuilt at
+fn=96 and held to the sagitta of one polygon step at its own radial reach — an allowance derived
+from the part's size rather than chosen, as T121's recursion budget is. `RobertsonMask` exceeds its
+bound by 1700x and is the one row left; the four artifacts clear theirs by 13x or more. The control
+that matters is the one where the refinement does not refine: all four fail immediately, so the
+refinement is load-bearing for exactly the parts whose entries it removed.
+
 **T121 pointed T119's instrument at the parts and found three whose field cannot be evaluated at
 all.** `test_parts_backend_coverage` measures "40 of the 51 parts build on either backend" by asking
 whether `.shape` raises; it never evaluates the field that comes back, and nothing else did either,
@@ -1425,7 +1548,9 @@ only fall: `ThreadHelix` 2.50, `RobertsonMask` 2.01, `KnuckleHinge` 0.19, `Knuck
 `RingHook` 0.12, `SnapSocket` 0.05. Faceting can only inscribe, so each is real rather than
 tessellation. `ThreadHelix` is where to look next: all six of its departing vertices sit on the Z
 axis where its field reads +2.5 of empty space, and 34 of its 68 mesh vertices are on that axis,
-every one referenced by a face.
+every one referenced by a face. **(T122: one of the six. `ThreadHelix` was a real defect and is
+fixed; four were the premise in this paragraph being applied past where it holds, and only
+`RobertsonMask` survived. See the T122 entry above.)**
 
 **T120 used T119's instrument on the comparison that had been deferred for want of it, and the
 deferral's own caveat turned out to be the right one.** The four thread parts' route gap was left

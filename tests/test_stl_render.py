@@ -1007,8 +1007,20 @@ def test_extrude_from_to_diagonal_with_twist(tmp_path):
         name="eftdiag",
     )
     assert m.volume > 0
-    # the far end sits at [10,20,30]
-    np.testing.assert_allclose([m.bbmax[0], m.bbmax[1], m.bbmax[2]], [10, 20, 30], atol=6)
+    # The far end sits at [10, 20, 30], and the solid reaches past it by at most half the diagonal
+    # of the cross-section standing there -- an 8x4 square doubled by `scale=2`, so
+    # sqrt(16^2 + 8^2) / 2 = 8.94. The tolerance was 6, which fitted the *unscaled* profile: this
+    # rendered the same solid as `scale=1` for as long as the scalar scale was dropped on the way
+    # to the native extruder (T123), and the measured corner is [16.45, 27.53, 34.78].
+    np.testing.assert_allclose([m.bbmax[0], m.bbmax[1], m.bbmax[2]], [10, 20, 30], atol=9.0)
+    plain = _render(
+        tmp_path,
+        "extrude_from_to(s2.square([8, 4], center=True), [0, 0, 0], [10, 20, 30], twist=180)",
+        name="eftdiagplain",
+    )
+    assert m.volume > plain.volume * 1.5, (
+        f"scale=2 built {m.volume:.1f} against {plain.volume:.1f} untapered -- the taper is not there"
+    )
 
 
 def test_bounding_box_wraps_object(tmp_path):
@@ -1199,7 +1211,10 @@ def test_thread_helix_ridge(tmp_path):
         name="threadhelix",
     )
     assert m.volume > 0
-    np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)  # crest at diameter 20
+    # The ridge stands on d=20 and grows outward by thread_depth (pitch/2 = 2), so the rendered
+    # solid is 24 across. This read [20, 20] with the comment "crest at diameter 20" -- the
+    # inward-growing ridge of T122, asserted as if it were the design.
+    np.testing.assert_allclose(m.size[:2], [24, 24], atol=0.3)
 
 
 # -- screws, nuts and screw holes ---------------------------------------------------------

@@ -253,7 +253,18 @@ def dashed_stroke_3d(
     plen = _path_length_3d(raw)
     dlen = sum(dpat)
     if dlen < 1e-12:
-        return Bosl2Solid(None)
+        # `Bosl2Solid(None)` was returned here, and that is not an empty solid -- it is a solid
+        # that cannot be used: `bounds()` raises, `vnf()` raises `AttributeError: 'NoneType'
+        # object has no attribute 'mesh'`, and `|` raises a raw `TypeError` naming NoneType.
+        # `dashpat=[0, 0]` reaches it. There is no usable empty solid to hand back instead (the
+        # native `union([])` wraps to the same unusable object), so a pattern with no length is
+        # refused where it is given, per SPEC E-4. Found by pythonscad 1.2.0's stubs, which type
+        # `PyOpenSCAD` and so reject `None` at this call (T124).
+        raise Bosl2ValueError(
+            f"dashed_stroke(): the dash pattern needs a positive total length, got "
+            f"dashpat={dpat} which sums to {dlen:g}. Give at least one positive on/off length, "
+            f"such as dashpat=[3, 3]."
+        )
     doff: list[float] = []
     s = 0.0
     for x in dpat:
@@ -288,8 +299,15 @@ def dashed_stroke_3d(
             if seg_solid is not None:
                 shapes.append(seg_solid)
 
-    if not shapes:
-        return Bosl2Solid(None)
+    if not shapes:  # pragma: no cover
+        # No input reaches this. A zero-length path, a pattern longer than the path, a pattern of
+        # all-off, and a `mindash` above every dash were each tried: every one still produces at
+        # least one tube. Kept as a refusal rather than the `Bosl2Solid(None)` it used to return,
+        # for the reason above -- that object cannot be used by anything.
+        raise Bosl2ValueError(
+            f"dashed_stroke(): no dash fell on a path of length {plen:g} with dashpat={dpat}. "
+            f"Shorten the pattern, lengthen the path, or lower mindash."
+        )
     # `shapes` already holds wrappers, and `|` between two of them returns a wrapper, so the
     # reduction is the finished solid. Wrapping it again produced a Bosl2Solid whose `.shape` was
     # another Bosl2Solid -- which looks fine until something reaches for the native handle, at

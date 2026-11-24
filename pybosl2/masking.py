@@ -37,6 +37,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import polar_to_xy as _polar_to_xy
 from pybosl2._helpers import quantup
+from pybosl2._helpers import scale_pair as _scale_pair
 from pybosl2.exceptions import Bosl2ValueError
 
 from ._edges_lang import EDGE_OFFSETS
@@ -125,13 +126,18 @@ def rounding_edge_mask(
     # Wrapped, for the same reason _extrude_mask_along_edge() wraps: the native polygon()/
     # linear_extrude() pair hands back a bare native handle, which has no bounds() and no backend
     # tag, and will not compose with a Bosl2Solid on the right of a boolean.
-    if rad1 < rad2:
-        cross = mask2d_roundover(rad2, excess=excess, fn=fn, fa=fa, fs=fs)
-        shape = Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=rad1 / rad2))
-        return shape.rotate(180, [1, 0, 0])
-    cross = mask2d_roundover(rad1, excess=excess, fn=fn, fa=fa, fs=fs)
-    scale = rad2 / rad1 if rad1 else 1.0
-    return Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=scale))
+    # The cross-section is always the *larger* radius, scaled down to the smaller along the
+    # extrusion, and the growing case is turned over afterwards. It used to be turned over with
+    # `rotate(180, [1, 0, 0])`, which reverses Y as well as Z: a mask asked to grow from
+    # `radius1` to `radius2` came out in the -Y quadrant while every other spelling of the same
+    # cutter sits in +X/+Y, so it cut the wrong side of the edge it was aimed at. Invisible while
+    # the taper itself was being dropped (T123) -- both ends were the larger radius, and a mask
+    # that cuts *something* near an edge looks like a mask that works.
+    base, tip = (rad1, rad2) if rad1 >= rad2 else (rad2, rad1)
+    cross = mask2d_roundover(base, excess=excess, fn=fn, fa=fa, fs=fs)
+    scale = tip / base if base else 1.0
+    shape = Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=_scale_pair(scale)))
+    return shape.mirror([0, 0, 1]) if rad1 < rad2 else shape
 
 
 def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Solid":

@@ -90,7 +90,13 @@ class BottleThreadSpec:
     # -- cap --
     cap_id: float
     cap_tamper_ring_h: float
-    cap_thread_od: float
+    #: The diameter the cap's internal thread ridge *stands on*, exactly as passed to
+    #: `thread_helix(d=...)` upstream -- 25.38 for PCO-1810 (`thread_od - thread_depth*2`, with
+    #: `thread_od = cap_id`) and the literal 25.5 for PCO-1881. This used to be `cap_thread_od`
+    #: and carry each variant's *own* spelling of the number, with one variant's conversion
+    #: applied to both: PCO-1881's 25.5 is already the helix diameter upstream, so subtracting
+    #: twice the depth from it put that cap's thread 3.2 mm too small, floating clear of its bore.
+    cap_thread_base_d: float
     cap_thread_pitch: float
     cap_flank_angle: float
     cap_thread_depth: float
@@ -128,7 +134,7 @@ _PCO1810 = BottleThreadSpec(
     neck_turns=810,
     cap_id=28.58,
     cap_tamper_ring_h=14.10,
-    cap_thread_od=28.58,
+    cap_thread_base_d=25.38,
     cap_thread_pitch=3.18,
     cap_flank_angle=20,
     cap_thread_depth=1.6,
@@ -161,7 +167,7 @@ _PCO1881 = BottleThreadSpec(
     neck_turns=650,
     cap_id=28.58,
     cap_tamper_ring_h=11.20,
-    cap_thread_od=25.5,
+    cap_thread_base_d=25.5,
     cap_thread_pitch=2.70,
     cap_flank_angle=15,
     cap_thread_depth=1.6,
@@ -349,7 +355,7 @@ def _build_cap(
     thread_height = turns * diameter.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
     cap_thread = ThreadHelix(
-        d=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
+        d=diameter.cap_thread_base_d,
         pitch=diameter.cap_thread_pitch,
         thread_depth=diameter.cap_thread_depth,
         flank_angle=diameter.cap_flank_angle,

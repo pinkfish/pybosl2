@@ -58,6 +58,7 @@ from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2._helpers import pick_radius as _pick_radius
+from pybosl2._helpers import scale_pair as _scale_pair
 from pybosl2.constants import BACK, UP
 from pybosl2.enums import ResampleMethod
 from pybosl2.exceptions import Bosl2ValueError
@@ -170,7 +171,9 @@ def extrude_from_to(
         "height": height,
         "center": False,
         "twist": twist,
-        "scale": scale,
+        # a scalar here reached the native extruder untouched: silently ignored up to
+        # pythonscad 1.1.2, a TypeError from 1.2.0 (T122)
+        "scale": _scale_pair(scale),
         "convexity": convexity,
     }
     if slices is not None:

@@ -25,9 +25,20 @@ two can only be compared where both are defined: at the mesh's vertices. A tesse
 surface **inscribes** it, so a vertex sitting *inside* the field is faceting and shrinks as the
 facet count rises -- a rounded cylinder measures 0.2087 in at the default, then 0.0990, 0.0255,
 0.0064 and 0.0016 as `fn` doubles from 16, which is the quadratic convergence of an inscribed
-polygon. A vertex *outside* the field cannot be faceting. Every one of the 23 solids both backends
-build reads exactly 0.000000 on that side, so "no vertex escapes the field" is a scale-free claim
-needing no tolerance, and the bent `path_sweep` breaks it by +0.3162.
+polygon. Every one of the 23 solids both backends build reads exactly 0.000000 on the outside, so
+"no vertex escapes the field" is a scale-free claim needing no tolerance, and the bent `path_sweep`
+breaks it by +0.3162.
+
+**Where the one-sidedness stops holding, measured (T122).** "A vertex outside the field cannot be
+faceting" is a statement about one surface's own tessellation, and it does not survive a boolean. A
+union re-triangulates, and the vertices it creates lie on neither input surface: two helical ridges
+whose base rings are each at exactly radius 6.00000 union to a mesh whose base ring reaches
+5.94867 -- half a polygon step inside, which an exact field reads as empty space. Such a vertex is
+still a facet artifact and still converges as 1/fn^2; it simply converges from the *outside*. So
+for a composed part the question has to be asked by refining the mesh and seeing whether the
+departure goes away (`tests/test_every_part_field_evaluates.py`), and four of the six
+"disagreements" that file recorded turned out to be this. For a primitive, which is what the 23
+above are, the figure is zero and the sharp claim stands.
 """
 
 from __future__ import annotations
@@ -90,7 +101,9 @@ def worst_escape(csg_build: "Callable[[], Any]", sdf_build: "Callable[[], Any]")
 
     Returns:
         ``(furthest outside, furthest inside, the worst point)``. The first is the one that matters:
-        faceting can only inscribe, so anything above zero is a genuine disagreement.
+        a primitive's own tessellation can only inscribe, so anything above zero is a genuine
+        disagreement -- see the module docstring for the one thing that is not a primitive's own
+        tessellation, and what to do about it.
 
     """
     points = csg_vertices(csg_build)

@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, Any, cast, overload
 
 import numpy as np
 
@@ -394,7 +394,9 @@ def path_text(
         if not (len(lsize) == sides):
             raise Bosl2ValueError("path_text(): lettersize list must have one entry per character.")
     elif textmetrics:
-        lsize = [_otextmetrics(ch, font=font, size=size)["advance"][0] for ch in text]
+        # `advance` is the [x, y] the pen moves, but the stub types every value of the metrics
+        # dict as `float | list[float]`, so the subscript needs its narrowing spelled out (T124).
+        lsize = [float(cast("Sequence[float]", _otextmetrics(ch, font=font, size=size)["advance"])[0]) for ch in text]
     else:
         raise Bosl2ValueError(
             "path_text(): this build has no textmetrics, so the letter widths cannot be "
