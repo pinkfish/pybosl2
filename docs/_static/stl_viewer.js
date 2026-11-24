@@ -213,15 +213,23 @@ class Viewer {
       }
     }
 
-    this.mesh = new THREE.Mesh(
-      geo,
-      new THREE.MeshPhongMaterial({
-        color: this.color,
-        specular: 0x222222,
-        shininess: 25,
-        flatShading: false,
-      }),
-    );
+    // An example that sets `.color()` should render in that colour. The docs pipeline exports
+    // via 3MF and rewrites it as a colour STL (see tests/render_stl.py), so STLLoader reports
+    // `hasColors` and fills a per-vertex colour attribute; `data-stl-color` is then only the
+    // fallback for a mesh that carries none. `geo.alpha` comes from the same header and is 1
+    // for everything this pipeline writes, but honouring it costs one line and makes a
+    // hand-authored translucent mesh work.
+    const shared = { specular: 0x222222, shininess: 25, flatShading: false };
+    const material = geo.hasColors
+      ? new THREE.MeshPhongMaterial({
+          ...shared,
+          vertexColors: true,
+          transparent: geo.alpha !== undefined && geo.alpha < 1.0,
+          opacity: geo.alpha !== undefined ? geo.alpha : 1.0,
+        })
+      : new THREE.MeshPhongMaterial({ ...shared, color: this.color });
+
+    this.mesh = new THREE.Mesh(geo, material);
     this.scene.add(this.mesh);
     if (this.status) this.status.remove();
     this.syncSize();

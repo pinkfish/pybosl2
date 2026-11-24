@@ -122,7 +122,14 @@ class Bosl2ExampleDirective(Directive):
         return out
 
     def _render_stl(self, script: str, code: str) -> str | None:
-        digest = hashlib.sha256(f"stl\n{code}".encode()).hexdigest()[:16]
+        # The cache key has to change for a snippet whose *output* changed, and only for those.
+        # The colour export (`prefer_color` below) is byte-for-byte identical to the old plain
+        # one for anything that never calls `.color()` -- verified in
+        # tests/test_colored_stl_export.py -- so tagging every snippet would rename all 685
+        # cached meshes for unchanged content. Tagging only the ones that set a colour renames
+        # exactly the ones that now render differently.
+        tag = "stl-color" if (".color(" in code or "color_this(" in code) else "stl"
+        digest = hashlib.sha256(f"{tag}\n{code}".encode()).hexdigest()[:16]
         out_stl = _STL_DIR / f"{digest}.stl"
         if out_stl.is_file():
             return f"_stl/{out_stl.name}"
@@ -131,7 +138,10 @@ class Bosl2ExampleDirective(Directive):
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:
-            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl")
+            # `prefer_color` exports via 3MF and rewrites it as a colour STL, so an example
+            # that sets `.color()` renders in that colour instead of the viewer's default. It
+            # falls back to the plain export on its own, so nothing here has to handle that.
+            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl", prefer_color=True)
         except subprocess.TimeoutExpired:
             _logger.warning(f"pybosl2-example: STL export timed out after 300s for:\n{code[:200]}")
             return None
