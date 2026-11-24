@@ -229,10 +229,31 @@ def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LV
     return d
 
 
-def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _depth: int = 0) -> LVTree:
-    """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
-    if not (_depth < 16):
-        raise Bosl2ValueError("polygon decomposition recursed implausibly deep -- is the outline self-intersecting?")
+def _convex_deficiency_sdf(
+    x: LVTree,
+    y: LVTree,
+    ccw_pts: NDArray[np.float64],
+    _depth: int = 0,
+    _budget: int | None = None,
+) -> LVTree:
+    """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets).
+
+    The depth allowance comes from the outline's own vertex count, because that is what bounds it.
+    Every pocket is a strict sub-chain of its parent, so the recursion cannot go deeper than there
+    are points. A flat 16 stood here and was **not** a backstop against pathology, which is what
+    its message claimed: a rack's outline peels one tooth per level, so 84 points need about 21
+    levels, and `Rack` built an SDF solid whose field raised on evaluation rather than meshing
+    wrongly. Nothing noticed because an SDF solid meshes to nothing in the test environment, so no
+    test had ever evaluated a part's field (T121).
+    """
+    if _budget is None:
+        _budget = len(ccw_pts) + 8
+    if _depth > _budget:
+        raise Bosl2ValueError(
+            f"polygon decomposition recursed {_depth} deep on an outline of {len(ccw_pts)} points, "
+            f"past the {_budget} its size allows -- every pocket should be shorter than the outline "
+            f"it came from, so this outline is probably self-intersecting."
+        )
     if _is_convex(ccw_pts):
         return _halfplane_max_sdf(x, y, ccw_pts)
 
@@ -254,35 +275,59 @@ def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _
         chain.append(ccw_pts[i1])
         if len(chain) < 3:
             continue
-        pocket = _convex_deficiency_sdf(x, y, _ccw(np.asarray(chain)), _depth + 1)
+        pocket = _convex_deficiency_sdf(x, y, _ccw(np.asarray(chain)), _depth + 1, _budget)
         d = lv.max(d, -pocket)
     return d
 
 
 def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
-    """Return indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --.
+    """Return indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices.
 
-    a wrap-aware pass dropping every vertex that turns clockwise (or is collinear) between its
-    surviving neighbours.
+    A genuine hull, by Andrew's monotone chain, and not the convexity filter this used to be. That
+    filter walked the boundary dropping every vertex whose turn was not strictly left, repeatedly --
+    which is not a hull, because dropping a vertex can leave a neighbour that *was* convex looking
+    concave, and a single pass can over-prune. On one of `TorxMask`'s pockets, eight points
+    collapsed to **two**: four of them share a y and so were dropped as collinear, and the cascade
+    took the rest. A two-vertex "hull" has one stretch of boundary between its two vertices, so the
+    pocket extracted from it was the whole chain again, and `_convex_deficiency_sdf` recursed on an
+    identical eight points until its depth guard fired (SPEC S-2b). `Rack`, `RingGear` and
+    `TorxMask` all built an SDF solid whose field could not be evaluated at all.
+
+    The hull vertices of a *simple* polygon appear in its boundary order, so returning them sorted
+    by index keeps the CCW order the caller needs, and the hull of three or more non-collinear
+    points always has at least three vertices -- which is what makes every pocket a strict
+    sub-chain and the recursion finite.
+
+    Args:
+        ccw_pts: the polygon's vertices, counter-clockwise.
+
+    Returns:
+        Indices of the hull vertices, in increasing boundary order.
+
     """
     n = len(ccw_pts)
-    idx = list(range(n))
-    changed = True
-    while changed and len(idx) > 3:
-        changed = False
-        kept = []
-        m = len(idx)
-        for k in range(m):
-            ax, ay = ccw_pts[idx[(k - 1) % m]]
-            bx, by = ccw_pts[idx[k]]
-            cx, cy = ccw_pts[idx[(k + 1) % m]]
-            cross = (bx - ax) * (cy - by) - (by - ay) * (cx - bx)
-            if cross > 1e-12:
-                kept.append(idx[k])
-            else:
-                changed = True
-        idx = kept
-    return idx
+    if n < 3:
+        return list(range(n))
+    order = sorted(range(n), key=lambda i: (float(ccw_pts[i][0]), float(ccw_pts[i][1])))
+
+    def turn(o: int, a: int, b: int) -> float:
+        ox, oy = ccw_pts[o]
+        ax, ay = ccw_pts[a]
+        bx, by = ccw_pts[b]
+        return float((ax - ox) * (by - oy) - (ay - oy) * (bx - ox))
+
+    lower: list[int] = []
+    for i in order:
+        while len(lower) >= 2 and turn(lower[-2], lower[-1], i) <= 1e-12:
+            lower.pop()
+        lower.append(i)
+    upper: list[int] = []
+    for i in reversed(order):
+        while len(upper) >= 2 and turn(upper[-2], upper[-1], i) <= 1e-12:
+            upper.pop()
+        upper.append(i)
+    hull = set(lower) | set(upper)
+    return sorted(hull)
 
 
 def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:

@@ -847,8 +847,12 @@ SDF_PATHS_MORE_CASES: list[tuple[Callable[[], object], str]] = [
         "no non-degenerate edges",
     ),
     (
+        # The allowance comes from the outline's vertex count (T121), so the message names the
+        # depth reached, the outline it was reached on, and what that size allows. It used to say
+        # only "recursed implausibly deep -- is the outline self-intersecting?", which blamed the
+        # outline for a flat limit of 16 that a rack's 84 points legitimately exceeded.
         lambda: sdfp._convex_deficiency_sdf(None, None, np.zeros((3, 2)), _depth=16),
-        "recursed implausibly deep",
+        r"recursed 16 deep on an outline of 3 points, past the 11 its size allows",
     ),
     (lambda: sdfp.path_tangents(Path2D([[0.0, 0.0], [0.0, 0.0], [1.0, 1.0]]), uniform=False), "zero-length segment"),
     (lambda: sdfp.path_tangents(Path2D([[0.0, 0.0], [1.0, 1.0], [0.0, 0.0]])), "cannot normalize a zero tangent"),

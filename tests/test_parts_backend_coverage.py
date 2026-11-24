@@ -48,6 +48,11 @@ from pybosl2.exceptions import UnsupportedByBackendError
 #: `tests/field_probe.py` compares a CSG mesh against an SDF field at the mesh's own vertices, and
 #: a hand-rolled thread grid is exactly the VNF-built shape that comparison suits. So the obstacle
 #: is the geometry work, not the absence of an instrument -- and T120 then measured how much work:
+#:
+#: This file's own claim is narrower than it reads, which T121 found the hard way: it asks whether
+#: `.shape` raises, not whether the field it returns can be evaluated. `Rack`, `RingGear` and
+#: `TorxMask` passed here for as long as that distinction went unasked, while their fields raised on
+#: the first evaluation. `tests/test_every_part_field_evaluates.py` asks the other half.
 #: the two `spiral_sweep` implementations are the *same solid* (nine configurations, exactly 0.0),
 #: and `_rod_solid`'s grid matches a swept rod everywhere but within 0.181mm of its cut ends. What
 #: is left to port is the end treatment. See `tests/test_the_two_spiral_sweeps_agree.py`.
