@@ -611,6 +611,31 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T127 closed the defect T126 measured and declined to fix.** `_cyl_edge_sdf` ended with
+`max(wall, rim)`, and that wall is an *infinite* half-plane, while BOSL2's profile ends its wall
+*segment* at the fillet's tangent point and lets the arc take over. Near that point the arc is
+vertical, so on a cone that widens away from a rounded end the wall line falls inside the arc and
+shaves the fillet off: **0.51 on an 8-to-20 cone with a 3mm rounding, 0.88 on 4-to-20**. The fix is
+for each rim candidate to own its own axial band — the last `a` before the end face, where the
+fillet rather than the wall is the boundary — so the wall constraint can be relaxed exactly there
+and nowhere else.
+
+**The obvious form of that fix was measurably worse, and only a before-and-after of the field
+itself showed it.** Dropping the wall term from the rounded branch also fixes the arc and passes
+every test in the file. Dumped against the previous commit over a 441-point grid, it leaves the
+zero set of a plain rounded cylinder untouched — no sign changes anywhere — while making the field
+**underestimate depth inside it by up to the rounding radius**, 2.0mm on a 2mm rounding, for a
+shape that had nothing wrong with it. Writing the relaxation as `min(wall, -qv)`, which as a
+distance is the union of "inside the wall" and "within `a` of the end face", keeps the wall binding
+everywhere else: the same dump then reports **0 of 441 values changed** on every untapered case,
+and on the steep cone exactly one sign change, `+0.154` to `-0.392`, which is the shaved fillet
+coming back. A test suite that only ever asks about the zero set cannot tell these two apart, and
+the zero set is not the whole contract — `S-19`'s offsets and shells read the magnitude. Writing
+that reasoning down then put `_cyl_edge_sdf` past the 50-line limit, and `Q-5`'s length gate says
+to split rather than comment a function into sections: it is two helpers now, one per rim
+treatment, each carrying its reasoning in a docstring, which that gate deliberately does not count
+so that it cannot penalise documentation. The split changes 0 of 3087 sampled field values.
+
 **T126 took the last recorded cross-backend disagreement and found it was not in the part.**
 `RobertsonMask` was the one row of six that refinement could not explain — 2.008mm, unmoved at any
 mesh resolution, 22 of its 27 vertices outside the SDF field — and it had been recorded as a known
@@ -649,8 +674,9 @@ shaves the fillet off. It takes a steep taper and a large rounding to show: 8-to
 rounding reads 0.000000, while 8-to-20 with 3mm reads **0.51** and 4-to-20 reads **0.88**. The
 figures are identical to six decimal places before and after the lost-taper fix, so it is a
 separate defect and folding it into this change would have hidden which one the measurements belong
-to. It is recorded as a shrink-only entry carrying its numbers, and the entry must be deleted rather
-than quietly pass.
+to. It was recorded as a shrink-only entry carrying its numbers, and **T127 closed it** — at which
+point the entry's own message demanded its deletion, which is what a ratchet written that way is
+for.
 
 **T124 closed the gap T123 had bounded, and the bound is off.** `pythonscad` 1.2.0 is the first
 release to ship typing for the native module, so the 27 errors it produced in eight files of

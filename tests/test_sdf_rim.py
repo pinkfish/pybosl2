@@ -130,6 +130,11 @@ def test_all_five_spellings_build_the_same_rim(name: str, axis: int) -> None:
         (4.0, {"chamfer1": 2, "chamfer2": 2, "chamfer_angle1": 30, "chamfer_angle2": 30}),
         (5.0, {"rounding1": 1.5, "rounding2": 2.5}),
         (12.0, {"chamfer1": 1, "chamfer2": 3, "chamfer_angle2": 60}),
+        # Steep tapers with a rounding at the **narrow** end -- where the wall line falls inside
+        # the near-vertical arc. These read 0.51 and 0.88 until the rim candidates were given
+        # their own axial bands (T127); every other case here passed throughout.
+        (20.0, {"rounding1": 3}),
+        (20.0, {"radius1": 4.0, "rounding1": 3, "rounding2": 1}),
     ],
 )
 def test_a_treated_rim_moves_the_wall_of_a_cone(radius2: float, rim: dict[str, object]) -> None:
@@ -231,6 +236,7 @@ def _worst_inside_profile(
         ("a widening cone, chamfered", {"radius2": 12.0, "chamfer1": 2, "chamfer2": 2}),
         ("a widening cone, rounded", {"radius2": 12.0, "rounding1": 2, "rounding2": 2}),
         ("a rim treated at one end only", {"radius2": 4.0, "rounding1": 2}),
+        ("a steep taper rounded at its narrow end", {"radius2": 20.0, "rounding1": 3}),
     ],
 )
 def test_the_solid_fills_the_profile_csg_revolves(label: str, shape: dict[str, float]) -> None:
@@ -290,41 +296,6 @@ def test_all_five_spellings_fill_their_cone(name: str, axis: int) -> None:
     worst, sampled = _worst_inside_profile(getattr(sdf, name), axis, radius1=8.0, radius2=3.0)
     assert sampled >= 100, f"{name}: only {sampled} interior points -- this measures nothing"
     assert worst < 0.0, f"{name}: a point inside the profile reads {worst:+.5f} -- outside the field"
-
-
-#: A steep taper with a rounding at its **narrow** end, as ``(radius1, radius2, rounding1)``, and
-#: how far the field then sits from the profile CSG revolves. Figures only fall; an entry that
-#: stops reproducing should be deleted, not left as a licence.
-ARC_CLIPPED = {
-    (8.0, 20.0, 3.0): 0.51,
-    (4.0, 20.0, 3.0): 0.88,
-}
-
-
-@pytest.mark.parametrize("case", sorted(ARC_CLIPPED))
-def test_a_steep_cones_narrow_fillet_is_clipped_by_its_own_wall(case: tuple[float, float, float]) -> None:
-    """A second, separate defect this task measured and did **not** fix (SPEC PAR-5).
-
-    `_cyl_edge_sdf` ends with `max(wall, rim)`, and the wall is an *infinite* half-plane. BOSL2's
-    profile is a polygon: its wall segment stops at the fillet's tangent point and the arc takes
-    over. Near the tangent point the arc is vertical, so on a cone that *widens* away from this
-    end the wall line falls inside the arc and the half-plane shaves the fillet off.
-
-    It needs a steep taper and a large rounding to show: an 8-to-12 cone with a 2mm rounding reads
-    0.000000, while 8-to-20 with 3mm reads 0.51 and 4-to-20 reads 0.88. It is **not** what the
-    lost-taper fix above changed -- the same figures come out of the version before it, to six
-    decimal places -- so it is recorded here with its measurement rather than left silent or
-    folded into a change about something else. The fix is to stop the wall half-plane at the
-    tangent point, which means the rim candidate owning its own axial band.
-    """
-    radius1, radius2, rounding = case
-    worst = _worst_on_profile(sdf.cyl, 2, radius1=radius1, radius2=radius2, rounding1=rounding)
-    allowed = ARC_CLIPPED[case]
-    assert worst <= allowed, f"{case}: worst |field| on the profile is now {worst:.5f}, past the {allowed} recorded"
-    assert worst > 1e-9, (
-        f"{case}: the profile now reads {worst:.5f} -- this no longer reproduces, so delete its "
-        f"ARC_CLIPPED entry rather than leave a recorded defect that is fixed."
-    )
 
 
 def test_the_wall_of_a_cone_is_where_both_backends_put_it() -> None:

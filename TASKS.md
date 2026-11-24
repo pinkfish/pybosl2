@@ -71,6 +71,7 @@ spec renumbers as items close, and all but S-46a have.
 | 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
 | — | Q-3 / E-4 | [T125](#t125--upgrade-the-pinned-tools-and-refuse-the-solid-that-cannot-be-used) ✅ | S |
 | — | PAR-1 / PAR-5 | [T126](#t126--the-cone-that-was-two-stepped-cylinders) ✅ | M |
+| — | PAR-5 | [T127](#t127--the-wall-that-did-not-know-where-to-stop) ✅ | S |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -5344,6 +5345,78 @@ rounded end, the wall line falls inside the near-vertical arc and shaves it. 8-t
 rounding reads 0.000000; **8-to-20 with 3mm reads 0.51 and 4-to-20 reads 0.88**. The figures are
 identical to six decimals before and after this task's fix, so it is a separate defect, and the fix
 is for the rim candidate to own its own axial band rather than for the wall to be clipped globally.
+
+> **T127 closed this**, and the entry's own second assertion — "this no longer reproduces, so
+> delete its `ARC_CLIPPED` entry" — is what reported it. See
+> [T127](#t127--the-wall-that-did-not-know-where-to-stop).
+
+
+## T127 — The wall that did not know where to stop ✅
+
+**Requirement:** SPEC PAR-5 (an identical call shapes a solid identically on either backend).
+
+The defect [T126](#t126--the-cone-that-was-two-stepped-cylinders) measured and declined to fix,
+with its numbers: `_cyl_edge_sdf` ended with `max(wall, rim)`, applying the wall as an **infinite
+half-plane**. BOSL2's profile is a polygon — its wall *segment* ends at the fillet's tangent point
+and the arc takes over from there. Near that point the arc is vertical, so on a cone that widens
+away from a rounded end the wall line falls inside the arc and shaves it off.
+
+It needs a steep taper and a large rounding to show at all:
+
+| cone | rounding | worst \|field\| on the profile |
+|---|---|---|
+| 8-to-12 | 2mm | 0.000000 |
+| 8-to-20 | 3mm | **0.51** |
+| 4-to-20 | 3mm / 1mm | **0.88** |
+
+### The fix
+
+Each rim candidate owns its own **axial band** — the last `a` before the end face, where the
+fillet rather than the wall is the boundary — so the wall constraint is relaxed exactly there and
+nowhere else, and the global `max(wall, rim)` goes away because every candidate now carries the
+wall itself.
+
+### The obvious form of it was worse, and only a field dump showed that
+
+Simply dropping the wall term from the rounded branch (`min(max(rounded, -qv), max(wall, qv))`)
+also fixes the arc and **passes all 82 tests in the file**. Dumping the field over a 441-point
+grid and diffing it against the previous commit is what caught the cost:
+
+| case | values changed | worst | sign changes |
+|---|---|---|---|
+| plain cylinder | 0 / 441 | — | 0 |
+| plain, rounded | **110 / 441** | **2.000000** | 0 |
+| plain, clipped fillet | **110 / 441** | **2.000000** | 0 |
+
+No sign changes anywhere, so the *solid* was identical and no test could object — but the field
+now **underestimated depth inside a plain rounded cylinder by up to the rounding radius**, for a
+shape that had nothing wrong with it. Writing the relaxation as `min(wall, -qv)` instead — which
+as a distance is the union of "inside the wall" and "within `a` of the end face" — keeps the wall
+binding everywhere else. The same dump then reports:
+
+| case | values changed | worst | sign changes |
+|---|---|---|---|
+| plain, rounded / chamfered / clipped | **0 / 441** | — | 0 |
+| 8-to-4 taper, rounded | 96 / 441 | 1.68 | 0 |
+| 8-to-20 taper, rounded | 43 / 441 | 1.57 | **1** — `+0.154` to `-0.392` |
+
+That one sign change is the shaved fillet coming back, and it is the only place the solid moves.
+
+**The lesson is about the gate, not the arithmetic.** Every test in this file asks about the zero
+set — "is the field zero on the profile", "is every interior point inside" — and two
+implementations with identical zero sets and very different field quality are indistinguishable to
+all of them. The zero set is not the whole contract: `S-19`'s offsets and shells read the
+magnitude. A before-and-after dump of the field is cheap and is the only thing that saw it.
+
+### And writing that down broke a different gate, correctly
+
+`test_function_length.py` reported `sdf/shapes3d.py` at 8 over-long functions against a budget of
+7 — the reasoning above, as inline comments, pushed `_cyl_edge_sdf` past 50 code lines. The gate's
+own message says what to do: *"split it rather than commenting it into sections"* (PLAN S-2). So
+the loop body is `_rounded_rim_sdf` and `_chamfered_rim_sdf`, one per treatment, each carrying its
+reasoning in a **docstring** — which the gate deliberately does not count, because counting them
+would make S-2 penalise documentation. Dumped over a 3087-point grid across seven shapes, the
+split changes **0 values**: a decomposition and nothing else. The budget was not raised.
 
 
 ## Keeping this file honest
