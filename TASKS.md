@@ -4653,6 +4653,70 @@ cannot be closed by rotating the native sweep and leaving the bend silently wron
   zeros, or an empty vertex list, otherwise passes everything.
 
 
+## T120 — The caveat was right and the limitation was not ✅
+
+**§12.2 item 80. PAR-1, S-46a.**
+
+T103 reclassified four parts — `Nut`, `Screw`, `ThreadedNut`, `ThreadedRod` — from shape gaps to
+**route** gaps, and deferred closing them with this note:
+
+> The two `spiral_sweep` implementations agree on size *and* centre with an asymmetric profile —
+> better evidence than `path_sweep` gave — but **a box is still a size signature**, and that has
+> hidden a shape difference four times this session. Named, not guessed.
+
+The caveat was exactly right. The limitation was not, and T119 is why: the field evaluates to exact
+signed distances, so the two sweeps can be compared at the mesh's own vertices.
+
+**They are the same solid.** Nine configurations, 1960 vertices — three profiles, 1 to 10 turns,
+fractional turns, left-handed, `center=False` — and the furthest any vertex sits outside the other's
+field is **0.0000**. Not within faceting; exactly zero, on both sides. So the size-signature caveat
+is retired for this comparison.
+
+### What is actually in the way
+
+`ThreadedRod` does not use `spiral_sweep`. `_rod_solid` builds a vertex-array grid per thread start
+and merges them at the VNF level, because — as its own docstring says — Manifold cannot CSG-union
+coaxial helical solids. Its refusal says converting it "is a geometry change, not a dispatch one",
+and that is true. The field probe says *how much* of one:
+
+| rod | departing vertices | worst | distance in from an end plane |
+|---|---|---|---|
+| M20×2.5, 30mm | 48 / 1544 | 0.583 | 0.000–0.181 |
+| M16×2.0, 24mm | 44 / 1344 | 0.462 | 0.000–0.134 |
+| M10×1.5, 18/19.5/22.5mm | 28 / 832–1024 | 0.375 | 0.000–0.065 |
+
+**The body of the rod matches exactly.** Every departure is within a fifth of a millimetre of a cut
+end, where the grid carries material the sweep does not — the flush-cut ends the module header
+records as BOSL2's un-ported blunt-start and lead-in machinery. So whoever closes this gap is
+porting an end treatment, not a thread.
+
+### I nearly recorded that from two lucky fixtures
+
+The first reconstruction measured M20×2.5 and M16×2.0 — both exactly 12 turns — got 48 and 44
+departures at the ends, and the conclusion was ready to write. A third rod, M10×1.5 at 13.33 turns,
+departed on **50.9% of its vertices, reaching 9.971mm in from the ends**.
+
+The hypothesis that followed — whole turns agree, fractional turns do not — was also wrong: 12 and
+14 turns agreed, 13 and 15 did not. It is **parity**. The sweep's phase and the grid's line up under
+one of two half-turn offsets, and which one depends on whether the turn count is odd or even. With
+the offset chosen correctly every rod collapses to the same end-only residual.
+
+So the phase error was in my reconstruction, not in either implementation — and two fixtures that
+happened to share a turn count hid it. A part converted to the sweep route without getting this
+right builds a thread **rotated half a turn for odd turn counts**, which no bounding box would
+show, and which is exactly the class of defect the retired caveat was warning about. It is pinned
+by `test_the_comparison_is_sensitive_to_half_a_turn`.
+
+### Plan rules
+
+* `END_ZONE` is 0.25 against measurements of 0.065–0.181, and is load-bearing: a control that
+  picks the worse phase fails five tests on it. It cannot be satisfied by a thread wrong in the body.
+* The profile fixtures are asymmetric. A symmetric tooth agrees under reflection as well as under
+  equality, so it cannot tell a mirrored sweep from a matching one — held by a control that sweeps a
+  mirrored tooth and must see it.
+* Rod lengths must mix turn parities. Two fixtures at 12 turns is what hid the phase error.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

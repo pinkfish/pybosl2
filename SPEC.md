@@ -1387,6 +1387,31 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T120 used T119's instrument on the comparison that had been deferred for want of it, and the
+deferral's own caveat turned out to be the right one.** The four thread parts' route gap was left
+open with the note that the two `spiral_sweep` implementations "agree on size *and* centre with an
+asymmetric profile — but **a box is still a size signature**". Asked on the field instead, over nine
+configurations and 1960 vertices — three profiles, 1 to 10 turns, fractional turns, left-handed,
+uncentred — the furthest any vertex sits outside the other implementation's field is **0.0000**.
+The two sweeps are the same solid, and that caveat is retired.
+
+**What is in the way is an end treatment, not a thread.** `ThreadedRod` does not use `spiral_sweep`:
+`_rod_solid` builds a vertex-array grid per thread start and merges them at the VNF level because
+Manifold cannot CSG-union coaxial helical solids. Its refusal says converting it is a geometry
+change rather than a dispatch one, which is true, and the probe says how much of one — across five
+rods, 28 to 48 vertices of 832 to 1544 depart, by at most 0.583, and **every one of them sits within
+0.181mm of a cut end plane**. The body of the rod matches exactly. The ends are where BOSL2's
+blunt-start and lead-in machinery would go, which the module header records as un-ported.
+
+**Two fixtures that shared a turn count nearly put the wrong conclusion in this file.** The first
+reconstruction measured two rods, both at exactly 12 turns, and found the end-only residual. A third
+at 13.33 turns departed on **50.9% of its vertices, 9.971mm in from the ends**. The hypothesis that
+followed — whole turns agree — was wrong too: 12 and 14 agreed, 13 and 15 did not. It is **parity**,
+and the error was in the reconstruction's phase rather than in either implementation. A part
+converted to the sweep route without getting that right builds a thread rotated half a turn for odd
+turn counts — invisible to a bounding box, which is precisely what the retired caveat warned about,
+and now pinned by a test.
+
 **T119 measured the sentence that had deferred four pieces of work, and two of its three clauses
 were false.** The sentence — *libfive is stubbed, so an SDF solid meshes to nothing and `inside()`
 returns `False` everywhere, so only the analytic box can be read* — appears in four places and was

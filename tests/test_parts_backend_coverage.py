@@ -47,7 +47,10 @@ from pybosl2.exceptions import UnsupportedByBackendError
 #: -- true of meshing, and false of the field, which evaluates to exact signed distances (T119).
 #: `tests/field_probe.py` compares a CSG mesh against an SDF field at the mesh's own vertices, and
 #: a hand-rolled thread grid is exactly the VNF-built shape that comparison suits. So the obstacle
-#: is the geometry work, not the absence of an instrument.
+#: is the geometry work, not the absence of an instrument -- and T120 then measured how much work:
+#: the two `spiral_sweep` implementations are the *same solid* (nine configurations, exactly 0.0),
+#: and `_rod_solid`'s grid matches a swept rod everywhere but within 0.181mm of its cut ends. What
+#: is left to port is the end treatment. See `tests/test_the_two_spiral_sweeps_agree.py`.
 #: `WireBundle` belongs here too, by T100's measurement: the SDF backend builds a swept tube
 #: along a bent route as a field, so the shape has a distance-field form. Its sweep is a
 #: *different function* from the façade's -- the profile lands in another plane -- so closing
