@@ -520,9 +520,11 @@ class ThreadedNut(Buildable):
 class ThreadHelix(Buildable):
     """A single helical thread ridge, for adding threads onto your own cylinder.
 
-    The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,
-    or an explicit *profile*. Built entirely through spiral_sweep (VNF output),
-    so it does not accept fn/fa/fs smoothing parameters.
+    The ridge *stands on* diameter *d* and grows outward, so the threaded diameter is
+    ``d + 2 * thread_depth`` -- union it with a cylinder of diameter *d* and the threads are
+    the part that shows. Give *thread_depth* and *flank_angle*, or an explicit *profile*.
+    Built entirely through spiral_sweep (VNF output), so it does not accept fn/fa/fs
+    smoothing parameters.
 
     Examples:
         A trapezoidal thread helix around a cylinder:
@@ -549,7 +551,8 @@ class ThreadHelix(Buildable):
         """Create a single thread helix ridge for adding threads to your own cylinder.
 
         Args:
-            d: Crest diameter in mm.
+            d: Diameter in mm of the cylinder the ridge stands on; the crest sits at
+                ``d + 2 * thread_depth``.
             pitch: Thread pitch in mm.
             thread_depth: Thread depth in mm, or None for pitch/2.
             flank_angle: Flank angle in degrees (half of thread angle for
@@ -588,10 +591,18 @@ class ThreadHelix(Buildable):
             depth = thread_depth if thread_depth is not None else pitch / 2
             profile = _trapezoidal_profile(pitch, 2 * flank_angle, depth)
         prof = [[float(x), float(y)] for x, y in profile]
-        ys = [p[1] for p in prof]
-        pmax = max(ys)
         radius = d / 2
-        section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]
+        # `d` is the diameter the ridge *stands on*, as BOSL2's thread_helix has it: "the inner
+        # diameter (the base of the threads for external threading) is `d` (so the total diameter
+        # is `d + 2*thread_depth`)". `_trapezoidal_profile` is normalised the other way round --
+        # crest at y=0, root at -depth/pitch -- because `_thread_grid` cuts a *rod*, where the
+        # crest is the rod surface. Referencing the section to the profile's innermost point is
+        # what turns one into the other, and growing outward is the whole of the difference
+        # between a ridge you can add to your cylinder and a ridge buried inside it. A caller's
+        # own `profile` written in BOSL2's convention -- Y from 0 at the base upward -- is left
+        # exactly where it is, because then this shift is zero.
+        base = min(p[1] for p in prof)
+        section = [[(py - base) * pitch, px * pitch] for px, py in prof]
         lead = starts * pitch
         height = turns * lead
         thread: "Solid | None" = None

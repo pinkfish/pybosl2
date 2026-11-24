@@ -4810,6 +4810,11 @@ sit on the **Z axis**, where its field reads +2.5 of empty space, and 34 of its 
 on that axis with every one referenced by a face. Each of the six needs its own investigation, so
 they are named here rather than chased in this task.
 
+> **T122 corrected this table.** One of the six was a real defect (`ThreadHelix`, fixed), one
+> survived (`RobertsonMask`), and the remaining four were this paragraph's premise being applied
+> past where it holds: *faceting can only inscribe* is true of a primitive's own mesh and false
+> after a boolean. See [T122](#t122--the-thread-on-the-wrong-side-of-its-own-diameter).
+
 ### Plan rules
 
 * Evaluate the field, do not merely build it. Backend coverage asks whether `.shape` raises; that
@@ -4821,6 +4826,138 @@ they are named here rather than chased in this task.
   fix then is to raise the cap for that part rather than widen it everywhere.
 * `DISAGREE` entries carry a figure and shrink only, and a companion test fails when an entry has
   quietly reached zero, so a stale licence is noticed rather than kept.
+
+
+## T122 — The thread on the wrong side of its own diameter ✅
+
+**§12.2 item 81. PAR-1, S-46a, B2-1.**
+
+T121 nominated `ThreadHelix` — the largest of its six recorded cross-backend disagreements, 2.50,
+with all six departing vertices on the Z axis. The disagreement was real and was a symptom. The
+cause is that the ridge was built on the **inside** of the diameter it was given.
+
+`_build` referenced its swept section to the profile's *outermost* point:
+
+```python
+pmax = max(ys)
+section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]  # X <= 0: inward
+```
+
+BOSL2's `thread_helix` is explicit about the other direction — "the inner diameter (the base of the
+threads for external threading) is `d` (so the total diameter is `d + 2*thread_depth`)" — and after
+its `mirror([-1,1])` the profile's radial X runs from 0 at the base to `+thread_depth` at the crest.
+The reason this port had it backwards is in the same file: `_trapezoidal_profile` is normalised
+crest-at-zero, root at `-depth/pitch`, because `_thread_grid` cuts a **rod**, where the crest *is*
+the rod surface. One helper, two conventions, and the part needing the other one was referencing
+the wrong end of it. The fix is to reference the base instead:
+
+```python
+base = min(p[1] for p in prof)
+section = [[(py - base) * pitch, px * pitch] for px, py in prof]
+```
+
+### What an inward ridge cost, measured
+
+| claim | before | after |
+|---|---|---|
+| `ThreadHelix(d=20, pitch=4, depth=2)` radii | 8.0 … 10.0 | **10.0 … 12.0** |
+| the docstring example's threaded cylinder, `d=20` | 20.0 wide | **25.0 wide** |
+| PCO-1810 neck thread outer diameter (spec: 27.43) | **24.41** | 27.53 |
+| PCO-1881 neck thread outer diameter (spec: 27.40) | **24.10** | 27.50 |
+| PCO-1810 neck ridge vertices, before and after its two thread breaks | 276 → **276** | 276 → 394 |
+| `ThreadHelix` furthest CSG vertex outside its SDF field | 2.50 | **0.0000** |
+| the same with `thread_depth` 6 against a radius of 5 | 5.00 | **0.0000** |
+
+Three of those are the part failing at its stated purpose — "a single helical thread ridge, for
+adding threads onto your own cylinder". Its own rendering example,
+`cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape`, rendered a plain
+cylinder, because the ridge was inside the cylinder it was being added to and `|` returns a solid
+either way. Both bottle necks were built smooth: the thread sat inside the neck wall, where the
+union swallowed it. And the neck's two thread breaks — prismoid cuts placed at `threadbase_d/2` and
+reaching outward — removed nothing at all, because the ridge they were aimed at was inside them.
+
+**Nothing in the suite could see any of it.** Every test in `tests/test_bottlecaps.py` was an
+envelope test, and a neck's envelope is set by its 33mm support ring — 5.6mm wider than the thread
+crest it is supposed to have. `test_thread_helix_builds` asserted the helix was `approx(20.0)` wide
+with the comment *"the core diameter"*, which is the one number a ridge standing **on** a 20mm core
+cannot have: the test pinned the defect while its own prose described the fix.
+
+### The axis was the only place it could show up
+
+Inward is the one direction in which a thread profile can reach the helix axis. The part fixture's
+derived arguments are `ThreadHelix(10.0, 10.0)`, and `thread_depth` defaults to `pitch/2` = 5 = the
+radius, so the root landed exactly on the axis — where a sweep parameterised by `atan2(y, x)` has
+no angle, and the field answers differently depending on which side of a 1e-16 the vertex sits.
+Hence +2.5 at six vertices and exact agreement everywhere else. Outward, the profile cannot reach
+the axis however deep it is: `thread_depth=6` against a radius of 5 departed by 5.0 before and
+agrees exactly now.
+
+### A second defect, 3.2mm, in the cap that screws onto it
+
+The two bottle variants spell the cap thread's diameter differently upstream — PCO-1810 computes
+`thread_helix(d=thread_od - thread_depth*2)` from a local `thread_od = cap_id`, PCO-1881 passes the
+literal `d=25.5` — and the transcription gave both a single field, `cap_thread_od`, then applied
+PCO-1810's conversion to both. PCO-1881's internal thread was therefore built 3.2mm too small:
+crest at 22.3mm, root 1.54mm clear of the 28.58mm bore, a ring floating inside the cap attached to
+nothing. The field is `cap_thread_base_d` now and carries what upstream passes (25.38 and 25.5).
+Both caps' roots now reach their bores and both crests come inside their necks' thread crests,
+which are the two diameters an internal thread has to hit.
+
+### Then the instrument's own premise failed
+
+*Faceting can only inscribe, so a CSG vertex outside the field cannot be a tessellation artifact.*
+That is the sentence T119 built the whole cross-backend comparison on, and it is true of a
+primitive's own mesh. **It does not survive a boolean.** A union re-triangulates, and the vertices
+it creates lie on neither input surface:
+
+```
+two helical ridges, each base ring at exactly radius 6.00000
+their union's base ring reaches        5.94867  =  6 * cos(180/24)
+```
+
+Half a polygon step inside, in empty space as far as an exact field is concerned — and still a
+facet artifact, still converging as 1/fn². Which is what the four small entries in T121's table
+were doing all along:
+
+| part | default | fn=24 | fn=48 | fn=96 | facet bound at fn=96 |
+|---|---|---|---|---|---|
+| `KnuckleHinge` | 0.19098 | 0.00000 | 0.00035 | 0.00000 | 0.01632 |
+| `KnuckleHingePair` | 0.13384 | 0.02143 | 0.00728 | 0.00013 | 0.01632 |
+| `RingHook` | 0.11555 | 0.02114 | 0.00806 | 0.00022 | 0.00599 |
+| `SnapSocket` | 0.04966 | 0.00456 | 0.00140 | 0.00033 | 0.00433 |
+| `RobertsonMask` | 2.00912 | 2.00799 | 2.00799 | 2.00799 | 0.00117 |
+
+Four of the five converge to nothing; `RobertsonMask` does not move at all and exceeds its bound by
+1700x. So `DISAGREE` goes from six rows to one, and the comparison **refines before it believes a
+departure**: a part that departs is rebuilt at fn=96 and held to the sagitta of one polygon step at
+its own radial reach — `(1 - cos(pi/sides)) * reach`, an allowance derived from the part's size
+rather than chosen, as T121's recursion budget is derived from its outline's.
+
+### Controls
+
+| control | result |
+|---|---|
+| ridge referenced to `max` again (the old inward convention) | 11 tests fail across `test_threading.py` and `test_bottlecaps.py`, plus `test_every_part_field_evaluates.py::...[ThreadHelix]` |
+| PCO-1810's conversion applied to PCO-1881's cap again | 2 tests fail |
+| the refinement does not refine (`fn` ignored) | all four parts removed from `DISAGREE` fail — the refinement is load-bearing for exactly them |
+| a fixed entry left in `DISAGREE` (`KnuckleHinge: 0.20`) | `test_no_recorded_disagreement_is_really_a_facet_artifact[KnuckleHinge]` fails |
+| each thread-break fixture asserted against the *uncut* ridge first | the break test cannot pass by having nothing to cut |
+
+### Plan rules
+
+* A ridge's direction is a fact about the part's purpose, not a detail: a thread for adding to a
+  cylinder has to grow away from it, and the only test that can tell is one that measures the radii
+  the mesh occupies. An envelope cannot, when something wider sets the envelope.
+* A shared profile helper carries a convention. When two callers need opposite ones, the conversion
+  belongs at the call site and has to say which end it references, or the next caller gets whichever
+  convention the helper happened to be written for.
+* One field per upstream number. Where two variants spell the same dimension differently, a single
+  field with one conversion silently gives one of them the other's arithmetic.
+* **A one-sided criterion is one-sided for a reason; check that the reason still applies.** Faceting
+  inscribes *a surface*. After a boolean there is no single surface to inscribe, and the artifact
+  moves to the side the criterion treats as proof.
+* Refine before recording a disagreement. A departure that falls as 1/fn² is the mesh; one that does
+  not is the geometry. Nothing else distinguishes them, and the figure alone never did.
 
 
 ## Keeping this file honest

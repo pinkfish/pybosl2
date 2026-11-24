@@ -157,8 +157,71 @@ def test_thread_helix_builds() -> None:
     """A helix is `turns` * `pitch` tall, standing on a d=20 core -- more turns, more height."""
     three = ThreadHelix(20, 4, turns=3).shape
     two = ThreadHelix(20, 4, thread_depth=1.5, flank_angle=20, turns=2).shape
-    assert float(three.bounds().size[0]) == pytest.approx(20.0, abs=0.2)  # the core diameter
+    # `d` is the core it stands on, so the ridge reaches d + 2*thread_depth -- 20 + 2*(4/2).
+    # This read `approx(20.0)` with the comment "the core diameter", which is the one number a
+    # ridge standing *on* a 20 mm core cannot have: it pinned the profile growing inward.
+    assert float(three.bounds().size[0]) == pytest.approx(24.0, abs=0.2)
     assert float(three.bounds().size[2]) > float(two.bounds().size[2])
+
+
+def test_the_ridge_stands_on_d_and_grows_outward() -> None:
+    """SPEC B2-1: BOSL2's thread_helix puts the base of the threads at `d`.
+
+    "the inner diameter (the base of the threads for external threading) is `d` (so the total
+    diameter is `d + 2*thread_depth`)". This port referenced the section to the profile's
+    *outermost* point instead, so the ridge grew inward from `d` and occupied
+    ``[d/2 - thread_depth, d/2]``. Every consequence of that was invisible to a bounds check of
+    the helix alone, which is why this measures the radii the mesh actually occupies.
+    """
+    ridge = ThreadHelix(d=20, pitch=4, thread_depth=2, turns=3).shape
+    points = np.asarray(ridge.vnf().vertices, dtype=float)
+    radius = np.hypot(points[:, 0], points[:, 1])
+    assert float(radius.min()) == pytest.approx(10.0, abs=1e-6), "the ridge does not stand on d/2"
+    assert float(radius.max()) == pytest.approx(12.0, abs=1e-6), "the crest is not at d/2 + depth"
+
+
+@pytest.mark.parametrize(
+    ("label", "profile"),
+    [
+        # BOSL2's own thread_helix convention: Y runs from 0 at the base up to thread_depth/pitch
+        # at the crest. Upstream applies no shift to a caller's profile at all, and neither does
+        # this port for one written this way -- the reference point is already 0.
+        ("BOSL2 convention, y 0 .. +0.5", [[0.45, 0.0], [0.25, 0.5], [-0.25, 0.5], [-0.45, 0.0]]),
+        # This package's own ThreadProfile convention: crest at y=0, root negative, because
+        # `_thread_grid` cuts a rod whose crest is the rod surface.
+        ("this port's convention, y -0.5 .. 0", [[0.45, -0.5], [0.25, 0.0], [-0.25, 0.0], [-0.45, -0.5]]),
+    ],
+)
+def test_a_custom_profile_stands_on_d_in_either_convention(label: str, profile: list[list[float]]) -> None:
+    """The two conventions differ by where y=0 sits, and `d` is what both have to mean.
+
+    Referencing the section to the profile's innermost point reads both: it is a no-op on a
+    BOSL2-style profile, which upstream also leaves alone, and the conversion on one of this
+    package's own. Referenced to the outermost point instead -- what T122 fixed -- the BOSL2-style
+    profile would have been the one built inside `d`.
+    """
+    ridge = ThreadHelix(d=20, pitch=4, turns=2, profile=profile).shape
+    points = np.asarray(ridge.vnf().vertices, dtype=float)
+    radius = np.hypot(points[:, 0], points[:, 1])
+    assert float(radius.min()) == pytest.approx(10.0, abs=1e-6), f"{label}: not standing on d/2"
+    assert float(radius.max()) == pytest.approx(12.0, abs=1e-6), f"{label}: crest not at d/2 + depth"
+
+
+def test_a_ridge_added_to_its_own_cylinder_shows() -> None:
+    """The class docstring's example -- and the part's whole purpose -- read as a claim.
+
+    ``cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape`` was a rendering
+    example that rendered a plain cylinder: with the ridge inside `d` the union swallowed it
+    whole, and `|` returns a solid either way (PLAN X-8).
+    """
+    from pybosl2.shapes3d import cylinder
+
+    core = cylinder(diameter=20, height=30)
+    threaded = core | ThreadHelix(d=20, pitch=5, turns=6).shape
+    assert float(threaded.bounds().size[0]) > float(core.bounds().size[0]) + 1.0, (
+        "the threads are inside the cylinder they are meant to be added to"
+    )
+    assert float(threaded.bounds().size[0]) == pytest.approx(20 + 2 * 2.5, abs=0.2)
 
 
 def test_invalid_rod_dims_raise() -> None:

@@ -1199,7 +1199,10 @@ def test_thread_helix_ridge(tmp_path):
         name="threadhelix",
     )
     assert m.volume > 0
-    np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)  # crest at diameter 20
+    # The ridge stands on d=20 and grows outward by thread_depth (pitch/2 = 2), so the rendered
+    # solid is 24 across. This read [20, 20] with the comment "crest at diameter 20" -- the
+    # inward-growing ridge of T122, asserted as if it were the design.
+    np.testing.assert_allclose(m.size[:2], [24, 24], atol=0.3)
 
 
 # -- screws, nuts and screw holes ---------------------------------------------------------
