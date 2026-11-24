@@ -2679,9 +2679,11 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ThreadHelix</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A single helical thread ridge, for adding threads onto your own cylinder.</span>
 
-<span class="sd">    The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,</span>
-<span class="sd">    or an explicit *profile*. Built entirely through spiral_sweep (VNF output),</span>
-<span class="sd">    so it does not accept fn/fa/fs smoothing parameters.</span>
+<span class="sd">    The ridge *stands on* diameter *d* and grows outward, so the threaded diameter is</span>
+<span class="sd">    ``d + 2 * thread_depth`` -- union it with a cylinder of diameter *d* and the threads are</span>
+<span class="sd">    the part that shows. Give *thread_depth* and *flank_angle*, or an explicit *profile*.</span>
+<span class="sd">    Built entirely through spiral_sweep (VNF output), so it does not accept fn/fa/fs</span>
+<span class="sd">    smoothing parameters.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A trapezoidal thread helix around a cylinder:</span>
@@ -2708,7 +2710,8 @@
 <span class="w">        </span><span class="sd">"""Create a single thread helix ridge for adding threads to your own cylinder.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            d: Crest diameter in mm.</span>
+<span class="sd">            d: Diameter in mm of the cylinder the ridge stands on; the crest sits at</span>
+<span class="sd">                ``d + 2 * thread_depth``.</span>
 <span class="sd">            pitch: Thread pitch in mm.</span>
 <span class="sd">            thread_depth: Thread depth in mm, or None for pitch/2.</span>
 <span class="sd">            flank_angle: Flank angle in degrees (half of thread angle for</span>
@@ -2747,10 +2750,18 @@
             <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">profile</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">flank_angle</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">]</span>
-        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prof</span><span class="p">]</span>
-        <span class="n">pmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="p">[[(</span><span class="n">py</span> <span class="o">-</span> <span class="n">pmax</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">px</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">]</span> <span class="k">for</span> <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="ow">in</span> <span class="n">prof</span><span class="p">]</span>
+        <span class="c1"># `d` is the diameter the ridge *stands on*, as BOSL2's thread_helix has it: "the inner</span>
+        <span class="c1"># diameter (the base of the threads for external threading) is `d` (so the total diameter</span>
+        <span class="c1"># is `d + 2*thread_depth`)". `_trapezoidal_profile` is normalised the other way round --</span>
+        <span class="c1"># crest at y=0, root at -depth/pitch -- because `_thread_grid` cuts a *rod*, where the</span>
+        <span class="c1"># crest is the rod surface. Referencing the section to the profile's innermost point is</span>
+        <span class="c1"># what turns one into the other, and growing outward is the whole of the difference</span>
+        <span class="c1"># between a ridge you can add to your cylinder and a ridge buried inside it. A caller's</span>
+        <span class="c1"># own `profile` written in BOSL2's convention -- Y from 0 at the base upward -- is left</span>
+        <span class="c1"># exactly where it is, because then this shift is zero.</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prof</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="p">[[(</span><span class="n">py</span> <span class="o">-</span> <span class="n">base</span><span class="p">)</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">px</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">]</span> <span class="k">for</span> <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="ow">in</span> <span class="n">prof</span><span class="p">]</span>
         <span class="n">lead</span> <span class="o">=</span> <span class="n">starts</span> <span class="o">*</span> <span class="n">pitch</span>
         <span class="n">height</span> <span class="o">=</span> <span class="n">turns</span> <span class="o">*</span> <span class="n">lead</span>
         <span class="n">thread</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3303,7 +3314,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

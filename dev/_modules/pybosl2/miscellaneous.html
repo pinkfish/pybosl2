@@ -2209,6 +2209,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frame_map4_yz</span><span class="p">,</span> <span class="n">rot_from_to4</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">vec3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">scale_pair</span> <span class="k">as</span> <span class="n">_scale_pair</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
@@ -2323,7 +2324,9 @@
         <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
         <span class="s2">"center"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"twist"</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
-        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+        <span class="c1"># a scalar here reached the native extruder untouched: silently ignored up to</span>
+        <span class="c1"># pythonscad 1.1.2, a TypeError from 1.2.0 (T122)</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">_scale_pair</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span>
         <span class="s2">"convexity"</span><span class="p">:</span> <span class="n">convexity</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2766,7 +2769,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

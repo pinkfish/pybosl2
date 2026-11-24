@@ -5580,6 +5580,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#return-type" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -11255,6 +11265,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#return-type" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -15057,8 +15077,14 @@ rounded endcaps and joints by default.</p>
 <dt class="field-even" id="returns">Returns<span class="colon">:</span><a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> of unioned dash segments.</p>
 </dd>
-<dt class="field-odd" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Solid</p>
+<dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the path has fewer than two points, or <em>dashpat</em> has no positive
+    length. The 2-D spelling (<code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path2d.Path2D.dashed_stroke()</span></code>) answers a
+    pattern of zeros with an empty <a class="reference internal" href="regions.html#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>; a solid has no
+    usable empty form to hand back, so this refuses instead.</p>
+</dd>
+<dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
 </dd>
 </dl>
 <p class="example rubric">Examples</p>
@@ -15179,7 +15205,7 @@ rounded endcaps and joints by default.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

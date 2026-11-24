@@ -962,16 +962,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#pybosl2.shapes3d.extrusions.path_text-return-type" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Return type</span>
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2527,16 +2517,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#pybosl2.shapes3d.extrusions.path_text-return-type" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Return type</span>
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2678,43 +2658,40 @@ path yields a 2-D region.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.shapes3d.extrusions.path_text-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.shapes3d.extrusions.path_text.path"><span class="sig-name descname">path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | Path3D</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.path" title="Permalink to this definition">¶</a></dt><dd><p>path to place the text on, a Path2D (flat letters) or Path3D (extruded)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.path"><span class="n sig-name">path</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">Path3D</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.path" title="Permalink to this definition">¶</a></dt><dt><span class="n sig-name">path</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">Path2D</span></span></dt><dd><p>path to place the text on, a Path2D (flat letters) or Path3D (extruded)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.text"><span class="sig-name descname">text</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.text" title="Permalink to this definition">¶</a></dt><dd><p>text to create</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.text"><span class="n sig-name">text</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.text" title="Permalink to this definition">¶</a></dt><dd><p>text to create</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.font"><span class="sig-name descname">font</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.font" title="Permalink to this definition">¶</a></dt><dd><p>font to use (default “Liberation Sans”)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.font"><span class="n sig-name">font</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">str</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">'Liberation Sans'</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.font" title="Permalink to this definition">¶</a></dt><dd><p>font to use (default “Liberation Sans”)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.size" title="Permalink to this definition">¶</a></dt><dd><p>font size divided by 0.72 (default 10)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.size"><span class="n sig-name">size</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">10</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.size" title="Permalink to this definition">¶</a></dt><dd><p>font size divided by 0.72 (default 10)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.thickness"><span class="sig-name descname">thickness</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.thickness" title="Permalink to this definition">¶</a></dt><dd><p>thickness of the letters (not allowed for a 2-D path)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.thickness"><span class="n sig-name">thickness</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float<span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.thickness" title="Permalink to this definition">¶</a></dt><dd><p>thickness of the letters (not allowed for a 2-D path)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.lettersize"><span class="sig-name descname">lettersize</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.lettersize" title="Permalink to this definition">¶</a></dt><dd><p>scalar or array giving the size of the letters</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.lettersize"><span class="n sig-name">lettersize</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float<span class="w"> </span><span class="p">|</span><span class="w"> </span>collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.lettersize" title="Permalink to this definition">¶</a></dt><dd><p>scalar or array giving the size of the letters</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.center" title="Permalink to this definition">¶</a></dt><dd><p>center text on the path instead of starting at the first point (default False)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.center"><span class="n sig-name">center</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">bool</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.center" title="Permalink to this definition">¶</a></dt><dd><p>center text on the path instead of starting at the first point (default False)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.offset" title="Permalink to this definition">¶</a></dt><dd><p>distance to shift letters “up” towards the reader (default 0, 3-D paths only)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.offset"><span class="n sig-name">offset</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.offset" title="Permalink to this definition">¶</a></dt><dd><p>distance to shift letters “up” towards the reader (default 0, 3-D paths only)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.normal"><span class="sig-name descname">normal</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.normal" title="Permalink to this definition">¶</a></dt><dd><p>direction(s) pointing towards the reader of the text (3-D paths only)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.normal"><span class="n sig-name">normal</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>collections.abc.Sequence<span class="p">[</span>collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.normal" title="Permalink to this definition">¶</a></dt><dd><p>direction(s) pointing towards the reader of the text (3-D paths only)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.top"><span class="sig-name descname">top</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.top" title="Permalink to this definition">¶</a></dt><dd><p>direction(s) pointing towards the top of the text</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.top"><span class="n sig-name">top</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>collections.abc.Sequence<span class="p">[</span>collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.top" title="Permalink to this definition">¶</a></dt><dd><p>direction(s) pointing towards the top of the text</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.reverse" title="Permalink to this definition">¶</a></dt><dd><p>reverse the letters if true (default False, 3-D paths only)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.reverse"><span class="n sig-name">reverse</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">bool</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.reverse" title="Permalink to this definition">¶</a></dt><dd><p>reverse the letters if true (default False, 3-D paths only)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.textmetrics"><span class="sig-name descname">textmetrics</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.textmetrics" title="Permalink to this definition">¶</a></dt><dd><p>use the experimental textmetrics feature when lettersize is not given (default False)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.textmetrics"><span class="n sig-name">textmetrics</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">bool</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.textmetrics" title="Permalink to this definition">¶</a></dt><dd><p>use the experimental textmetrics feature when lettersize is not given (default False)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.kern"><span class="sig-name descname">kern</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.kern" title="Permalink to this definition">¶</a></dt><dd><p>scalar or array giving per-letter size adjustments (default 0)</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.kern"><span class="n sig-name">kern</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float<span class="w"> </span><span class="p">|</span><span class="w"> </span>collections.abc.Sequence<span class="p">[</span>float<span class="p">]</span></span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.kern" title="Permalink to this definition">¶</a></dt><dd><p>scalar or array giving per-letter size adjustments (default 0)</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies;
+<dt id="pybosl2.shapes3d.extrusions.path_text.fn"><span class="n sig-name">fn</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">int<span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fn=...)</span></code> value applies;
 <code class="docutils literal notranslate"><span class="pre">fn=0</span></code> opts back out to fa/fs.</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.fa"><span class="n sig-name">fa</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float<span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fa=...)</span></code> value applies.</p>
 </dd>
-<dt id="pybosl2.shapes3d.extrusions.path_text.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
+<dt id="pybosl2.shapes3d.extrusions.path_text.fs"><span class="n sig-name">fs</span><span class="p">:</span><span class="w"> </span><span class="n"><span class="desctype">float<span class="w"> </span><span class="p">|</span><span class="w"> </span>None</span></span><span class="w"> </span><span class="o">=</span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution. Omitted, the ambient <code class="docutils literal notranslate"><span class="pre">use_defaults(fs=...)</span></code> value applies.</p>
 </dd>
 </dl>
-</dd>
-<dt class="field-even" id="pybosl2.shapes3d.extrusions.path_text-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.extrusions.path_text-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid | Bosl2Shape2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2868,7 +2845,7 @@ When <em>None</em> (default) the arms are one-third of the overall size.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>
