@@ -31,49 +31,8 @@ jobs:
       - name: mypy
         run: mypy --strict -p pybosl2
 
-  test-and-coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      # `.[test]` carries mypy: tests/test_docstring_examples.py runs `mypy --strict` over every
-      # docstring example (SPEC Q-6), and that gate fails rather than skips when CI is set.
-      - name: Install dependencies
-        run: pip install -e ".[test]" coverage diff-cover
-
-      - name: Verify the docstring-example gate can run
-        run: python -m mypy --version
-      # Only the render tests are held back -- they drive the PythonSCAD app binary, which this
-      # runner does not install (the separate `render` job in tests.yml covers them). The SDF
-      # suites used to be excluded too, back when they needed a real libfive; they run against the
-      # numeric mock now, and excluding them left every line of pybosl2/_sdf/ looking untested to
-      # diff-cover even when it was thoroughly covered.
-      - name: Run tests with coverage
-        run: >
-          coverage run -m pytest tests/
-          --ignore=tests/test_stl_render.py
-          --ignore=tests/test_stl_render_2d.py
-          -q
-      - name: Generate coverage XML
-        run: coverage xml
-      - name: Check diff coverage (≥90% on new/modified code)
-        if: github.event_name == 'pull_request'
-        run: |
-          diff-cover coverage.xml \
-            --compare-branch=origin/${{ github.base_ref }} \
-            --fail-under=90 \
-            --html-report=diff-coverage.html
-      - name: Check overall coverage (≥79% baseline)
-        if: github.event_name == 'push'
-        run: |
-          coverage report --fail-under=79
-      - name: Upload coverage HTML (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: diff-coverage-report
-          path: diff-coverage.html
+# `test-and-coverage` lived here and ran the whole suite a seventh time per PR to measure
+# coverage. The measurement now rides on tests.yml's 3.12 matrix leg, which was already running
+# that same suite on that same Python. What stays here is the lint gate and the **only** mypy
+# run that type-checks against the real native stubs: tests.yml's `mypy (...)` legs install
+# `mypy numpy typing-extensions` without the package, so every native symbol is `Any` there.

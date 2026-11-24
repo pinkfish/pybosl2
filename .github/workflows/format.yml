@@ -1,6 +1,11 @@
 name: Format Python Code
 
-on: [push, pull_request]
+# Same double-run as tests.yml had: `push` on every branch plus `pull_request` ran this twice
+# for any commit with an open PR.
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   format:

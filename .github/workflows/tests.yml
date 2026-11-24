@@ -1,8 +1,14 @@
 name: tests
 
+# `pull_request` covers every branch that has one, and `push` covers `main`. Firing on both
+# `push: ['**']` and `pull_request` ran every job in this file **twice** for any commit with an
+# open PR: the two events land in different concurrency groups (`tests-refs/heads/<branch>` and
+# `tests-<pr number>`), so neither cancelled the other, and the suite ran 6 times per PR before
+# `CI`'s own copy made 7. A branch pushed without an open PR now runs nothing here, which is the
+# deliberate trade: open the PR and it is covered.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -48,7 +54,10 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
+      # Full history: diff-cover compares against `origin/<base ref>` on the coverage leg below.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -62,7 +71,7 @@ jobs:
       - name: Install package with test and docs extras
         run: |
           python -m pip install --upgrade pip
-          pip install -e '.[test,docs]'
+          pip install -e '.[test,docs]' coverage diff-cover
 
       - name: Verify the docstring-example gate can run
         run: python -m mypy --version
@@ -78,7 +87,43 @@ jobs:
           cd ..
 
       - name: Run tests (excluding render tests)
+        if: matrix.python-version != '3.12'
         run: pytest -q --deselect tests/test_stl_render.py --deselect tests/test_stl_render_2d.py
+
+      # The coverage gates used to be a whole separate job in ci.yml -- `test-and-coverage` --
+      # which ran this same suite, on this same Python, excluding these same render tests, for a
+      # seventh copy of an eight-minute run. Measuring one matrix leg costs that leg a little
+      # and nothing else. Only the render tests are held back: they drive the PythonSCAD app
+      # binary, which this runner does not install (the `test-render` job covers them).
+      - name: Run tests with coverage (excluding render tests)
+        if: matrix.python-version == '3.12'
+        run: >
+          coverage run -m pytest -q
+          --deselect tests/test_stl_render.py
+          --deselect tests/test_stl_render_2d.py
+
+      - name: Generate coverage XML
+        if: matrix.python-version == '3.12'
+        run: coverage xml
+
+      - name: Check diff coverage (>=90% on new/modified code)
+        if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
+        run: |
+          diff-cover coverage.xml \
+            --compare-branch=origin/${{ github.base_ref }} \
+            --fail-under=90 \
+            --html-report=diff-coverage.html
+
+      - name: Check overall coverage (>=79% baseline)
+        if: matrix.python-version == '3.12' && github.event_name == 'push'
+        run: coverage report --fail-under=79
+
+      - name: Upload coverage HTML (PR only)
+        if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-coverage-report
+          path: diff-coverage.html
 
   artifact:
     # SPEC Q-7: every other gate reads the working copy. This one asks what a release actually
