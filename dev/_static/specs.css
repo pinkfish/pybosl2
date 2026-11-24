@@ -1,0 +1,253 @@
+/* Spec-sheet panel layout, extending the sphinx-immaterial theme. */
+
+.spec-lede {
+    font-size: 1.05em;
+    color: var(--md-typeset-color);
+    max-width: 680px;
+    margin-bottom: 1.5em;
+}
+
+.spec-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+    margin: 1.5em 0 2.5em;
+}
+
+@media (max-width: 760px) {
+    .spec-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left column: viewer / schematic */
+.spec-draw {
+    position: relative;
+}
+
+.spec-caption {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--md-code-font, monospace);
+    font-size: 0.78em;
+    color: var(--md-typeset-color);
+    opacity: 0.65;
+    margin-bottom: 0.5em;
+}
+
+.spec-viewer {
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--md-default-bg-color);
+}
+
+.spec-viewer canvas {
+    display: block;
+}
+
+.spec-poster {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spec-poster svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+/* Right column: info panel */
+.spec-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.75em;
+}
+
+.spec-info-header h2 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.spec-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.72em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.spec-pass {
+    background: #d4edda;
+    color: #155724;
+}
+
+[data-md-color-scheme="slate"] .spec-pass {
+    background: #1a3a2a;
+    color: #57d9a3;
+}
+
+/* Variant selector */
+.spec-taglabel {
+    font-size: 0.72em;
+    color: var(--md-default-fg-color--light);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 1.2em 0 0.5em;
+}
+
+.spec-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.2em;
+}
+
+.spec-tag {
+    padding: 4px 12px;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 6px;
+    background: var(--md-code-bg-color);
+    font-family: var(--md-code-font, monospace);
+    font-size: 0.78em;
+    color: var(--md-typeset-color);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.spec-tag:hover,
+.spec-tag.active {
+    border-color: var(--md-accent-fg-color);
+    background: var(--md-accent-fg-color--transparent);
+}
+
+/* Stats */
+.spec-stats {
+    display: flex;
+    gap: 1.5em;
+    margin-bottom: 1.2em;
+}
+
+.spec-stat-v {
+    display: block;
+    font-family: var(--md-code-font, monospace);
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.spec-stat-l {
+    display: block;
+    font-size: 0.7em;
+    color: var(--md-default-fg-color--light);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Code block */
+.spec-code-wrap {
+    position: relative;
+    margin-bottom: 1em;
+}
+
+.spec-code {
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: var(--md-code-bg-color);
+    font-family: var(--md-code-font, monospace);
+    font-size: 0.82em;
+    color: var(--md-code-fg-color);
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.spec-code-wrap .md-clipboard {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.spec-code-wrap .md-clipboard.copied {
+    color: var(--md-accent-fg-color);
+}
+
+/* Proof callout */
+.spec-proof {
+    display: flex;
+    gap: 1em;
+    padding: 12px 16px;
+    margin-bottom: 1.2em;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+}
+
+.spec-proof-big {
+    font-family: var(--md-code-font, monospace);
+    font-size: 1.6em;
+    font-weight: 700;
+    color: var(--md-accent-fg-color);
+    flex-shrink: 0;
+}
+
+.spec-proof-txt {
+    font-size: 0.85em;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Test count */
+.spec-tests {
+    font-family: var(--md-code-font, monospace);
+    font-size: 0.75em;
+    color: var(--md-default-fg-color--light);
+    margin-top: 0.5em;
+}
+
+/* Gallery index page */
+.spec-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 2em 0;
+}
+
+.spec-card {
+    display: block;
+    padding: 1.2em 1.4em;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.15s;
+}
+
+.spec-card:hover {
+    border-color: var(--md-accent-fg-color);
+    text-decoration: none;
+}
+
+.spec-card .spec-card-name {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: var(--md-typeset-color);
+}
+
+.spec-card .spec-card-name .py {
+    color: var(--md-default-fg-color--light);
+    font-weight: 400;
+}
+
+.spec-card .spec-card-desc {
+    margin-top: 0.5em;
+    font-size: 0.85em;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Legacy: hide the old spec-sheet-callout styled boxes (now using sphinx-immaterial theme) */
