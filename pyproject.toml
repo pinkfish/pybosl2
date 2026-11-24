@@ -46,6 +46,12 @@ dependencies = [
 # install the suite and silently skip that gate.
 test = [
     "pytest>=7",
+    # The suite runs under `-n auto`: 11m50 serial against 7m38 on four cores, same 8371 tests.
+    # `pytest-cov` rather than bare `coverage` because `coverage run -m pytest -n auto` only
+    # traces the parent process -- measured, it reports 0% of 21282 statements, while
+    # `pytest --cov -n auto` reports the real figure.
+    "pytest-xdist>=3",
+    "pytest-cov>=5",
     "numpy",
     # Unbounded, and that is the point. 1.2.0 is the first release to ship typing for the native
     # module (`py.typed` and an `_openscad-stubs` package), which is the only reason

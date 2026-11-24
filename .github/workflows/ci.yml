@@ -9,30 +9,34 @@ on:
 permissions:
   contents: read
 
+# Without this, a second push while the first is still running costs a full duplicate of this
+# workflow -- only tests.yml was cancelling superseded runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  lint-and-typecheck:
+  # Lint only. `mypy` used to run here as well, and it was for a long time the **only** mypy run
+  # that saw the real native stubs -- tests.yml's legs installed no package, so every native
+  # symbol was `Any`. Those legs install `.[test]` now and cover 3.11/3.12/3.13, which makes this
+  # copy redundant, and dropping it takes `.[test]` (numpy, shapely, the ~24MB pythonscad wheel)
+  # off this job's install entirely.
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
       # ruff is pinned to the version .pre-commit-config.yaml declares, and
       # tests/test_ci_gates.py fails if the two drift apart. Unpinned, this job installed
       # whatever ruff had released that morning: a rule that grew to cover a new case turned a
       # green branch red with no commit behind it (SIM102 reaching `elif` bodies did exactly
       # that), and `ruff check .` passing locally stopped meaning anything.
-      - name: Install dependencies
-        run: pip install -e ".[test]" "ruff==0.17.6" mypy
+      - name: Install ruff
+        run: pip install "ruff==0.17.6"
       - name: ruff check
         run: ruff check .
       - name: ruff format check
         run: ruff format --check .
-      - name: mypy
-        run: mypy --strict -p pybosl2
-
-# `test-and-coverage` lived here and ran the whole suite a seventh time per PR to measure
-# coverage. The measurement now rides on tests.yml's 3.12 matrix leg, which was already running
-# that same suite on that same Python. What stays here is the lint gate and the **only** mypy
-# run that type-checks against the real native stubs: tests.yml's `mypy (...)` legs install
-# `mypy numpy typing-extensions` without the package, so every native symbol is `Any` there.
