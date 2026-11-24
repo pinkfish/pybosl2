@@ -1387,6 +1387,29 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T128 asked T126's question of the whole primitive family, and the answer is no.** Every
+cross-backend instrument before T126 asked about a *surface*: `bounds()` compares two analytic
+boxes, the part sweep evaluates the field at the CSG mesh's **vertices**, and the rim file
+evaluates it on the **profile** CSG revolves. None of them asks whether the solid is *filled*,
+which is exactly how a cone that had lost half its taper passed all three — a cone's mesh vertices
+are its apex and two end rings, all corners, where the broken term read zero anyway. T126 closed
+that for cylinders inside the rim file where the fix lived; the next such defect will not be a
+cylinder.
+
+`tests/test_every_solid_is_filled.py` sweeps each primitive's bounding box and compares the SDF
+field's sign against the CSG solid's own point-in-solid test, two-sided, skipping a band derived
+from the mesh's facet sagitta rather than chosen — inside that band the two are *entitled* to
+differ, because a tessellation inscribes, so a round shape's mesh is slightly small and a round
+hole's mesh is slightly tight. **No other tapered primitive has the defect:** `prismoid` (either
+way, obliquely, and to a point), `regular_prism`, `pie_slice`, `tube`, `rect_tube`, `sphere` and
+`cuboid` all agree exactly.
+
+**A negative result from an uncalibrated instrument is worth nothing**, so the calibration was run
+and is recorded in the file: against `pybosl2/sdf/shapes3d.py` as it stood before T126 it reports
+**5 failed, 13 passed** — the five tapered `cyl` rows, by 96, 96, 52, 84 and 84 points and up to
+3.44mm — while every other row stays clean, `cyl plain` among them, because an untapered cylinder
+never had the defect. It fires on exactly what was broken and on nothing else.
+
 **T127 closed the defect T126 measured and declined to fix.** `_cyl_edge_sdf` ended with
 `max(wall, rim)`, and that wall is an *infinite* half-plane, while BOSL2's profile ends its wall
 *segment* at the fillet's tangent point and lets the arc take over. Near that point the arc is
