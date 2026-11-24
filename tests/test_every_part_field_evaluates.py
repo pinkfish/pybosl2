@@ -31,10 +31,13 @@ message blamed a self-intersecting outline for what was its own arithmetic.
 All three now evaluate *and* match their CSG mesh exactly, and this file is the first thing to
 compare a part's two backends on anything but a box.
 
-It recorded six parts as building different geometry. **T122 left one.** `ThreadHelix` was a real
-defect -- its thread ridge grew inward from the diameter it was given, which is the only direction
-in which a thread profile can reach the helix axis -- and four were this file's criterion applied
-past where it holds. See `DISAGREE` below, and `tests/field_probe.py` for the premise and its
+It recorded six parts as building different geometry. **T122 left one, and T126 found what it
+was.** `ThreadHelix` was a real defect -- its thread ridge grew inward from the diameter it was
+given, which is the only direction in which a thread profile can reach the helix axis -- four were
+this file's criterion applied past where it holds, and the last, `RobertsonMask` at 2.008, was a
+defect in `cyl` itself: every tapered cylinder on the SDF backend had lost the half that ends at
+its narrower rim, so the cone `RobertsonMask` cuts with had its whole lower half collapsed onto the
+axis. `DISAGREE` is empty now. See it below, and `tests/field_probe.py` for the premise and its
 limit.
 """
 
@@ -108,7 +111,7 @@ def test_some_parts_were_actually_examined() -> None:
 # ----------------------------------------------------------------------------------------
 
 #: Parts whose CSG mesh departs from the SDF field by more than refining the mesh can explain.
-#: One row left of six, and the five that went are the interesting part of this file.
+#: **Empty**, and the six rows it used to hold are the interesting part of this file.
 #:
 #: `ThreadHelix` was a real defect and is fixed (T122): it grew its thread ridge *inward* from the
 #: diameter it was given, which is the one direction that lets a thread profile reach the helix
@@ -127,16 +130,27 @@ def test_some_parts_were_actually_examined() -> None:
 #: as 1/fn^2 and reaches 0.0003 or less by fn=96, which is what a facet artifact does and what a
 #: geometry difference cannot do.
 #:
-#: So the comparison refines instead of trusting one measurement, and a row here now means "this
+#: `RobertsonMask`, the last row and the only one refinement could not explain, was the real thing
+#: twice over: a 2.008 departure that did not move at all with the mesh, and a defect in `cyl`
+#: rather than in the part (T126). It cuts a square recess with `prismoid & cyl(diameter1=0)`, and
+#: a **tapered** SDF cylinder was building each rim as a corner in the `(radial - r_ref, |axial| -
+#: hb)` frame -- the end's own radius read as a vertical half-width. On an untapered cylinder that
+#: line *is* the wall, so nothing noticed for as long as the backend has existed; on a taper it cut
+#: the bottom half to `radius1` and the top half to `radius2`, and with `diameter1=0` that is the
+#: axis. 22 of the part's 27 vertices sat outside the field because most of the cone was missing.
+#: Both backends agree exactly now, and the guard that can see it is in `tests/test_sdf_rim.py`:
+#: this file samples the *mesh's vertices*, and a cone's vertices are its apex and its two end
+#: rings -- the corners where the broken term read zero anyway.
+#:
+#: So the comparison refines instead of trusting one measurement, and a row here would mean "this
 #: departure survives refinement". Figures may fall, never rise; an entry that stops surviving
 #: refinement should be deleted, not left as a licence nothing needs.
-DISAGREE = {
-    "RobertsonMask": 2.01,
-}
+DISAGREE: dict[str, float] = {}
 
 #: A departure is measured again with this many sides before it is believed. 96 is chosen so the
-#: facet bound below is comfortably under every departure that survived it -- 0.0012 against
-#: `RobertsonMask`'s 2.008 -- while the four artifacts clear their own bounds by 13x or more.
+#: facet bound below is comfortably under every departure that has had to survive it -- 0.0012
+#: against `RobertsonMask`'s 2.008 -- while the four facet artifacts clear their own bounds by 13x
+#: or more.
 REFINED_FN = 96
 
 #: A departure at or below the exact-agreement floor is not examined further.
@@ -165,12 +179,11 @@ FULL_SAMPLE = 320
 #: machine is not a measurement, and three of them in a row looked consistent enough to act on.
 #:
 #: Striding is safe here in a way subsampling usually is not, and the reason is worth stating
-#: because it is the thing that would stop being true: **every part expensive enough to be strided
-#: agrees exactly**, and the one disagreement left in DISAGREE has 22 departing vertices out of a
-#: mesh of 27 -- under FULL_SAMPLE, so nothing being watched is strided at all. A part
-#: that starts disagreeing *and* has thousands of vertices would be sampled thinly; that is the
-#: known blind spot, and the honest fix then is to raise the cap for that part, not to widen it
-#: everywhere.
+#: because it is the thing that would stop being true: **every part agrees exactly**, so nothing
+#: being watched is strided at all. The last part that did disagree had 22 departing vertices out
+#: of a mesh of 27, well under FULL_SAMPLE. A part that starts disagreeing *and* has thousands of
+#: vertices would be sampled thinly; that is the known blind spot, and the honest fix then is to
+#: raise the cap for that part, not to widen it everywhere.
 STRIDED_SAMPLE = 60
 
 
@@ -233,18 +246,23 @@ def test_the_two_backends_build_the_same_part(name: str) -> None:
         )
 
 
-@pytest.mark.parametrize("name", sorted(DISAGREE))
-def test_no_recorded_disagreement_is_really_a_facet_artifact(name: str) -> None:
+def test_no_recorded_disagreement_is_really_a_facet_artifact() -> None:
     """The question four of the six recorded entries were never asked (T122).
 
     They were recorded because a vertex sat outside the field and the premise said faceting could
     not put it there. Refining the mesh removed all four. An entry that refinement explains is not
     a disagreement, and leaving it here would licence the next one.
+
+    `DISAGREE` is empty (T126), so this walks nothing -- deliberately a loop rather than a
+    parametrisation, which would make the empty case an unexplained skip instead of a kept rule.
+    The sibling above enforces the other direction for every part: a departure refinement cannot
+    explain and that is not recorded here fails.
     """
-    refined, _, _, reach = _escape(name, REFINED_FN)
-    bound = _facet_bound(reach, REFINED_FN)
-    assert refined > bound, (
-        f"{name} departs by {refined:.5f} at fn={REFINED_FN}, within the {bound:.5f} that a "
-        f"polygon of that many sides explains. Delete its DISAGREE entry -- this is a mesh "
-        f"artifact, not the two backends disagreeing."
-    )
+    for name in sorted(DISAGREE):
+        refined, _, _, reach = _escape(name, REFINED_FN)
+        bound = _facet_bound(reach, REFINED_FN)
+        assert refined > bound, (
+            f"{name} departs by {refined:.5f} at fn={REFINED_FN}, within the {bound:.5f} that a "
+            f"polygon of that many sides explains. Delete its DISAGREE entry -- this is a mesh "
+            f"artifact, not the two backends disagreeing."
+        )
