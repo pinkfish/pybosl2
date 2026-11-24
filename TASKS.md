@@ -4960,6 +4960,186 @@ rather than chosen, as T121's recursion budget is derived from its outline's.
   not is the geometry. Nothing else distinguishes them, and the figure alone never did.
 
 
+## T123 — The three tools nobody pinned ✅
+
+**§12.2 item 81. Q-3, Q-1, E-5.**
+
+The pull request was red and the working copy was green. `pytest` passed locally with
+**8507 passed, 14 skipped, 10 xfailed**; the same commit in CI reported **26 failed** on every one
+of 3.11, 3.12 and 3.13, plus a `ruff check .` failure on a file that had not been touched. Nothing
+about the code differed. Three tools did, because three workflows install them unpinned and take
+whatever released most recently.
+
+| tool | local | CI | what it did |
+|---|---|---|---|
+| ruff | 0.16.0 (pinned in `.pre-commit-config.yaml`) | latest | `SIM102` grew to cover `elif` bodies → 1 lint error in `docs/_rstgen.py` |
+| pytest | 9.1.1 | 9.2.0 | `approx` stopped accepting nested sequences → 10 failures in one test |
+| pythonscad | 1.1.2 | 1.2.0 | `linear_extrude(scale=)` rejects a scalar → 7 failures; its stubs re-sign three functions → 9 more |
+
+**A gate that is not reproducible is not a gate.** Each of these turns a branch red with no commit
+behind it, and -- worse -- each is invisible to the person who can act on it. `ruff check .` was
+clean on every machine in the project while being broken in CI.
+
+### And a fourth reason `ruff check .` could not be trusted: the suite's own scratch file
+
+`tests/test_backend_type_parity.py` writes the module it hands to mypy to
+`REPO_ROOT/.mypy_parity_check.py` -- eleven times, for about a second each. `ruff check .` sees it
+there (it is not ignored) and reports `D100` and `CPY001`. Measured with a poller: **174 of 174**
+lint runs failed while that one file was in flight, and 0 of 271 after the scratch module moved to
+a temporary directory. CI never saw it, because lint and the suite are separate jobs on separate
+checkouts; what it did instead was report two errors, repeatedly, over several sessions, in a file
+that no longer existed by the time anyone looked for it. An error nobody can reproduce teaches
+people to disregard the gate, which is how the real one above went unnoticed.
+
+What mypy resolves is decided by *cwd*, which stays at the repository root either way -- the
+sibling gate this file's docstring says it reuses, `tests/test_docstring_examples.py`, has always
+written its snippets to a `tmp_path_factory` directory. A poller over a full suite run found no
+other test writing into the repository root, `tests/`, `pybosl2/` or `docs/` (0.4s sampling, 527s).
+
+### ruff: pinned, with a test that keeps the two pins together
+
+`.pre-commit-config.yaml` already declared `rev: v0.16.0`; `ci.yml` and `format.yml` installed
+`ruff` unpinned. They install `ruff==0.16.0` now, and
+`test_a_workflow_installing_ruff_pins_the_declared_version` fails if a workflow drops the pin or
+pins a different version from the one the hook declares -- either way, one of the two would be
+lying about what this repository lints with. `format.yml` matters most of the three: it *commits*
+what it reformats.
+
+The SIM102 finding is fixed as well rather than only pinned away, because it was a fair comment:
+`_build_name_index` had the same `elif isinstance(...)` / `if <public>` pair twice, and both are
+now one `_exported(node, all_list)` predicate. The refactor is proved inert -- both spellings
+build the identical 322-name index.
+
+### pytest: a nested `approx` that worked by accident
+
+`test_a_turn_onto_itself_leaves_the_box_alone` compared `(list(mn), list(mx))` against
+`pytest.approx` of the same shape. Nested sequences were supported up to 9.1 and raise
+`TypeError: pytest.approx() does not support nested data structures` from 9.2. The comparison was
+meaningful locally -- a changed box did fail it -- so this is not a weakened assertion, just one
+spelled in a way one pytest release accepted and the next did not. It compares one flat sequence of
+four numbers now, and the control (ignoring the symmetry record) still fails 14 tests.
+
+### pythonscad: the TypeError that uncovered two silent no-ops
+
+This is the one worth reading. `linear_extrude(scale=)` takes a number or an `[x, y]` pair in
+OpenSCAD; PythonSCAD only ever acts on the pair. Up to 1.1.2 a scalar was **dropped silently**, and
+`pybosl2/shapes2d/base.py` knew it -- it converts, with a comment saying why. Three call sites
+reached the native extruder directly and passed the scalar through, so, measured on 1.1.2:
+
+| call | built | should have built |
+|---|---|---|
+| `rounding_edge_mask(length=20, radius1=6, radius2=2)` | 6.1 x 6.1 at **both** ends | 6.1 tapering to 2.03 |
+| `fillet(length=20, radius1=6, radius2=2)` | the same, via `rounding_edge_mask` | the same taper |
+| `extrude_from_to(circle(radius=4), ..., scale=2)` | identical to `scale=1` | 7.88 → 15.77 |
+
+The third is the function's **own docstring example**. A tapered edge mask that does not taper is
+still a solid, still exports and still cuts something, which is the blind spot T89's groove and
+T115's strokes sat in -- and `test_fillet_builds` only asked whether it built. From 1.2.0 the same
+call raises `TypeError: Invalid linear_extrude scale parameter`, which is how a defect that had
+been shipping quietly arrived as seven red tests.
+
+The conversion is one helper now (`pybosl2._helpers.scale_pair`), used by every route to the native
+extruder, and `tests/test_a_scalar_scale_tapers.py` measures the two ends of what each public
+spelling builds -- four extrusion routes and two masks. The control that passes the scalar through
+again fails six of its eight tests.
+
+**Fixing the taper exposed a second defect in the same function.** `rounding_edge_mask` builds its
+cross-section at the *larger* radius and scales down, so a mask asked to **grow** from `radius1` to
+`radius2` was turned over afterwards -- with `rotate(180, [1, 0, 0])`, which reverses Y as well as
+Z. The cutter came out in the **-Y quadrant** while every other spelling of the same mask sits in
++X/+Y, so it was aimed at the wrong side of its edge. Nothing could see it while the taper itself
+was being dropped: both ends were the larger radius, and a mask that removes *something* near an
+edge produces a rounded-looking cube. It is `mirror([0, 0, 1])` now -- Z only -- and the two radius
+orders are each other's reverse, measured at both ends of both.
+
+Two tests had to be corrected rather than adjusted, and both described the fix in their own prose:
+
+* `test_extrude_from_to` asserted the solid was `approx(8.0)` wide -- the *unwidened* diameter --
+  with the comment "widened by scale=2". It is 16 wide now, and the untapered case is asserted
+  beside it.
+* `test_edge_profile_asymmetric` asserted `not inside([9.9, 9.9, 0])` and `inside([9.8, 9.8, 0])`
+  for "a shallow fillet -- 1mm here, so only the last 0.1mm goes". It measures the cut along the
+  45-degree diagonal at three heights now: **0.4438, 0.6340, 0.8242**, and the ratio between the
+  ends is `2.6 / 1.4` -- the mask's own radius ratio, which is the one form of the claim a facet
+  count has no vote in.
+
+### pythonscad: the stubs, bounded rather than guessed at
+
+The remaining 9 failures are `test_backend_type_parity`, which is the only gate that type-checks
+with the wheel installed and therefore the only one that sees its `.pyi` files change. 1.2.0
+re-signs `osimport` (overloads), `cylinder` and `sphere`, which produces **29 errors in 9 files of
+`pybosl2`** -- none of them about the two backends disagreeing, which is what that file exists to
+report. The `test` extra is bounded at `pythonscad<1.2` with the reason written next to it, one
+test states the bound in a single sentence instead of nine stack traces, and reconciling the stubs
+is [T124](#t124--reconcile-the-pythonscad-120-stubs).
+
+### Controls
+
+| control | result |
+|---|---|
+| a workflow installs `ruff` unpinned | `test_a_workflow_installing_ruff_pins_the_declared_version[ci.yml]` fails |
+| a workflow pins a ruff other than the hook's | the same test fails |
+| `scale_pair` hands the native a scalar again | 6 of the 8 taper tests fail |
+| the growing mask turned over about X again | `test_a_tapered_edge_mask_cuts_the_edge_it_is_aimed_at` fails; the taper-ratio test does **not**, which is why the quadrant needed its own assertion |
+| the symmetry record is ignored | 14 bounds tests fail (the flattened `approx` still bites) |
+| `_exported` re-expanded to the old nested `if` | ruff 0.17+ reports SIM102 again; the index is unchanged either way |
+
+### Plan rules
+
+* **Pin every tool a gate runs.** A lint rule set, an assertion library and a native wheel are all
+  inputs to the gates; unpinned, they make the gate's verdict depend on the day it ran.
+* One pin, one place. The version lives where the repository already declared it
+  (`.pre-commit-config.yaml` for ruff, the `test` extra for the wheel), and a test keeps the copies
+  together rather than a comment asking nicely.
+* A version bound carries its reason and its task number, or the next person reads it as caution
+  and widens it.
+* **When an upgrade turns something red, ask what the old version was hiding.** Three of these
+  failures were a parameter that had never done anything; the TypeError was the first thing to
+  report a defect that every release had shipped.
+* A fix that makes a dropped parameter real will break the tests written while it was dropped.
+  Both of the two here asserted the no-op and *described the taper* in the same breath, which is
+  the signature to look for -- a comment that does not match the number beside it.
+
+## T124 — Reconcile the pythonscad 1.2.0 stubs
+
+**§12.2 item 81. PAR-1, Q-2.**
+
+`pythonscad<1.2` in the `test` extra is a bound, not a verdict. 1.2.0's `.pyi` files disagree with
+`pybosl2`'s calls in 29 places across 9 files, measured by
+`tests/test_backend_type_parity.py` (the only gate that type-checks with the wheel present):
+
+| shape of the error | count | example |
+|---|---|---|
+| a native handle arrives as `object` | 9 | `Argument 1 to "CsgSolid" has incompatible type "object"` |
+| `osimport` overloads no longer match a kwargs dict | 2 | `No overload variant of "osimport" matches ...` |
+| `cylinder` / `sphere` re-signed, so `**kwargs` mismatches | 2 | `expected "bool \| None"` |
+| `multmatrix` wants `Sequence[Sequence[float]]`, gets `list[object]` | 2 | `pybosl2/shapes3d/cylinder.py:546` |
+| `PyOpenSCAD` assigned to a `CsgSolid` variable | 8 | `pybosl2/shapes3d/cuboid.py:475` |
+| `CsgSolid(None)` / `polygon(Path2D)` / `Returning Any` | 6 | `pybosl2/_stroke3d.py:256` |
+
+Several look like this package being loose in ways the older stubs let pass, which is worth fixing
+on its own account. The rest are genuine signature changes, and a few may not be satisfiable
+against both stub versions at once -- in which case the question is which version the project
+supports, and that is a decision rather than a fix.
+
+**Do not start by widening the bound.** Install 1.2.0 in a scratch environment, run
+`tests/test_backend_type_parity.py`, and work the list down; the bound comes off when the list is
+empty, and `test_the_installed_pythonscad_is_the_one_this_gate_was_written_against` is what says so.
+
+Two things to know before starting. **1.2.0 publishes no macOS wheel** for this machine's platform
+tag (`macosx_15_0_x86_64`, cp314) while 1.1.2 does, and its sdist compiles the OpenSCAD core, so a
+scratch environment on macOS means a full C++ build; Linux has manylinux wheels for 3.11, 3.12 and
+3.13. And the `scale_pair` fix from T123 is **verified against 1.1.2 by measurement and against
+1.2.0 by reading its source** -- `src/python/py_extrude.cc` requires a two-element sequence -- so
+running the taper tests against a real 1.2.0 is the first thing worth doing here, not the last.
+
+One more thing this task should settle: `tests.yml`'s `typecheck` job installs `mypy numpy
+typing-extensions` and **not** the wheel, so `mypy --strict pybosl2 tests` passes there with every
+native symbol an `Any`. That is why CI's own mypy job was green while the parity test reported 29
+errors from the same commit. Whatever version the bound ends at, the job that type-checks should
+install what the gate is about.
+
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 import textwrap
 from pathlib import Path
 
@@ -59,11 +60,27 @@ PAIRS = [
 ]
 
 
+#: Where the last `_typecheck` call put its scratch module. Recorded so that
+#: `test_the_gate_writes_nothing_into_the_working_tree` can ask, rather than assume.
+_LAST_SCRATCH: Path | None = None
+
+
 def _typecheck(source: str) -> str:
-    """Run `mypy --strict` over *source* and return its output, empty when clean."""
-    scratch = REPO_ROOT / ".mypy_parity_check.py"
-    scratch.write_text(source)
-    try:
+    """Run `mypy --strict` over *source* and return its output, empty when clean.
+
+    The scratch module lives in a temporary directory, not in the repository. It used to be
+    written to `REPO_ROOT/.mypy_parity_check.py`, and while it existed `ruff check .` reported
+    `D100` and `CPY001` against it -- so a lint run that overlapped this file's eleven mypy
+    invocations failed, which made the lint gate itself intermittent. What mypy resolves is
+    decided by *cwd*, which stays at the repository root; the file's own location does not
+    enter into it. `tests/test_docstring_examples.py`, the gate this one says it reuses, has
+    always written its snippets to a `tmp_path_factory` directory.
+    """
+    global _LAST_SCRATCH
+    with tempfile.TemporaryDirectory() as work:
+        scratch = Path(work) / "parity_check.py"
+        _LAST_SCRATCH = scratch
+        scratch.write_text(source)
         result = subprocess.run(
             [sys.executable, "-m", "mypy", "--strict", str(scratch)],
             capture_output=True,
@@ -71,8 +88,6 @@ def _typecheck(source: str) -> str:
             cwd=REPO_ROOT,
             check=False,
         )
-    finally:
-        scratch.unlink(missing_ok=True)
     return "" if result.returncode == 0 else result.stdout + result.stderr
 
 
@@ -95,6 +110,28 @@ def test_the_checker_is_actually_running() -> None:
     """SPEC PAR-1: a harness that always reports clean would pass every row above in silence."""
     assert _typecheck("x: int = 'not an int'\n"), "mypy reported nothing for a certain error"
     assert not _typecheck("x: int = 1\n"), "mypy reported something for correct code"
+
+
+def test_the_gate_writes_nothing_into_the_working_tree() -> None:
+    """SPEC Q-3: a gate that breaks another gate while it runs is not a gate.
+
+    The scratch module this file hands to mypy was written to the repository root, where
+    `ruff check .` sees it -- it is not ignored -- and reports `D100` and `CPY001`, for the
+    second or so each of the eleven mypy runs above takes. CI is unharmed, because lint and
+    the suite are separate jobs on separate checkouts. What it harms is the working copy:
+    `ruff check .` run against a suite already in flight reported two errors in a file that
+    no longer existed by the time anyone looked for it, repeatedly, over several sessions.
+    An error you cannot reproduce teaches you to disregard the gate.
+    """
+    assert not _typecheck("x: int = 1\n")
+    scratch = _LAST_SCRATCH
+    assert scratch is not None, "_typecheck did not record where it wrote"
+    assert REPO_ROOT not in scratch.parents, (
+        f"the scratch module is written inside the working tree ({scratch}), where the lint gate "
+        f"reads it; write it to a temporary directory -- mypy resolves imports from cwd, which "
+        f"stays at the repository root either way"
+    )
+    assert not scratch.exists(), f"the scratch module outlived the run that made it ({scratch})"
 
 
 # --- the sweep (T72) ----------------------------------------------------------------------------
@@ -277,4 +314,33 @@ def test_the_facade_absorbs_every_nullability_difference() -> None:
     assert not unabsorbed, (
         "these differences are recorded as nullability the façade normalises, but passing None "
         f"through the façade does not survive it: {unabsorbed}"
+    )
+
+
+def test_the_installed_pythonscad_is_the_one_this_gate_was_written_against() -> None:
+    """The stubs this file type-checks against ship with the wheel, so its version decides.
+
+    pythonscad 1.2.0 re-signs `osimport`, `cylinder` and `sphere`, which produces 29 errors in
+    nine files of `pybosl2` that 1.1.x does not, and every row above fails with the whole list
+    attached -- nine times. That reads as "the two backends disagree about what they accept",
+    which is what this file is for, and is not what happened. `pyproject.toml` bounds the `test`
+    extra at `pythonscad<1.2` for that reason; this says so in one line instead of nine.
+    """
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        installed = version("pythonscad")
+    except PackageNotFoundError:
+        pytest.skip("pythonscad is not installed; the rows above resolve against the stub shim")
+    declared = (REPO_ROOT / "pyproject.toml").read_text()
+    assert "pythonscad<1.2" in declared, (
+        "the pythonscad bound in pyproject.toml has moved -- update this test with it, and the "
+        "29 stub errors it exists to explain"
+    )
+    major, minor, *_ = (int(part) for part in installed.split(".")[:2])
+    assert (major, minor) < (1, 2), (
+        f"pythonscad {installed} is installed, outside the `pythonscad<1.2` the test extra "
+        f"declares. Its stubs re-sign osimport/cylinder/sphere, so every row in this file fails "
+        f"with 29 unrelated errors from inside pybosl2. Reinstall with `pip install -e '.[test]'`, "
+        f"or close T124 (TASKS.md) and lift the bound."
     )

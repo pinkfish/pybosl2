@@ -124,7 +124,13 @@ def test_extrude_from_to() -> None:
 
     tapered = m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2)
     assert float(tapered.bounds().size[2]) == pytest.approx(20.0)  # straight up, 20 tall
-    assert float(tapered.bounds().size[0]) == pytest.approx(8.0, abs=0.3)  # widened by scale=2
+    # scale=2 doubles the far end, so the widest section is the top: 2 * the 8mm circle. This
+    # asserted `approx(8.0)` -- the *unwidened* diameter -- with the comment "widened by scale=2",
+    # and passed for as long as the scalar scale was being dropped on the way to the native
+    # extruder (T123).
+    assert float(tapered.bounds().size[0]) == pytest.approx(16.0, abs=0.3)
+    untapered = m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90)
+    assert float(untapered.bounds().size[0]) == pytest.approx(8.0, abs=0.3)
 
 
 def test_extrude_from_to_same_point_raises() -> None:

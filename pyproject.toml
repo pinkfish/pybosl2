@@ -47,7 +47,15 @@ dependencies = [
 test = [
     "pytest>=7",
     "numpy",
-    "pythonscad",
+    # Bounded on purpose. `pythonscad` ships .pyi stubs, and tests/test_backend_type_parity.py
+    # type-checks user code against them with the wheel installed -- the only gate that does, so
+    # it is the only one that sees them change. 1.2.0's stubs give `osimport`, `cylinder` and
+    # `sphere` different signatures and produce **29 errors in 9 files of pybosl2** that 1.1.x
+    # does not; reconciling them is its own task (T124 in TASKS.md), not something to discover
+    # from an unpinned install on a morning when something else is being reviewed. The *runtime*
+    # difference 1.2.0 brought -- `linear_extrude(scale=)` rejecting a scalar instead of silently
+    # dropping it -- is fixed and portable (see `pybosl2._helpers.scale_pair`).
+    "pythonscad<1.2",
     "typing-extensions",
     "shapely",
     "mypy>=1.8",

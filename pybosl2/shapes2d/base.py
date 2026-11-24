@@ -33,6 +33,9 @@ from pybosl2._helpers import (
     frag_count as _frag_count,
 )
 from pybosl2._helpers import require_anchor
+from pybosl2._helpers import (
+    scale_pair as _scale_pair,
+)
 from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.bounds import Bounds2D
@@ -642,9 +645,9 @@ class CsgShape2D(BaseShape):
             "height": height,
             "center": center,
             "twist": twist,
-            # the native drops a *scalar* scale= silently (a vector is honoured), so a uniform
-            # taper would come out as a plain prism; hand it the vector form it acts on
-            "scale": [float(scale), float(scale)] if isinstance(scale, (int, float)) else list(scale),
+            # the native only ever acts on the vector form -- see `scale_pair`, which three
+            # other call sites were bypassing with a scalar until T122
+            "scale": _scale_pair(scale),
         }
         for name, value in (("slices", slices), ("convexity", convexity), ("fn", fn), ("fa", fa), ("fs", fs)):
             if value is not None:

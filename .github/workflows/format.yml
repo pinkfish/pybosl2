@@ -14,8 +14,10 @@ jobs:
         with:
           python-version: '3.x'
 
+      # Pinned with the rest -- see ci.yml. This job *commits* what it reformats, so an
+      # unpinned formatter can rewrite the repository on an upstream release.
       - name: Install Ruff
-        run: pip install ruff
+        run: pip install "ruff==0.16.0"
 
       - name: Format with Ruff
         run: ruff format .

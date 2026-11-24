@@ -381,6 +381,38 @@ def polar_to_xy(radius: float, angle: float) -> list[float]:
     return [radius * math.cos(rad), radius * math.sin(rad)]
 
 
+def scale_pair(scale: "float | Sequence[float]") -> list[float]:
+    """Return an extrusion *scale* in the ``[x, y]`` form the native ``linear_extrude`` acts on.
+
+    OpenSCAD takes a number or a 2-vector; PythonSCAD only ever acts on the vector, and what it
+    does with a scalar has changed under us. Up to 1.1.2 it **dropped it silently**, so a uniform
+    taper came out a plain prism -- `rounding_edge_mask(radius1=6, radius2=2)` measured
+    6.1 x 6.1 at *both* ends, identical to the untapered mask, and `extrude_from_to(scale=2)`
+    (its own docstring example) built the same solid as `scale=1`. From 1.2.0 the same call is a
+    `TypeError: Invalid linear_extrude scale parameter`, which is how the silent version was
+    finally noticed. Every call that reaches the native extruder goes through here.
+
+    Args:
+        scale: A uniform scale factor, or an ``[x, y]`` pair.
+
+    Returns:
+        A two-element list of floats.
+
+    Raises:
+        ValueError: If a sequence is given that is not two numbers long.
+
+    """
+    if isinstance(scale, (int, float)):
+        return [float(scale), float(scale)]
+    pair = [float(v) for v in scale]
+    if len(pair) != 2:
+        raise Bosl2ValueError(
+            f"scale must be a number or an [x, y] pair, got {len(pair)} values -- "
+            f"linear_extrude() scales the top face in X and Y only."
+        )
+    return pair
+
+
 def rotate2d(point: Sequence[float], degrees: float) -> list[float]:
     rad = math.radians(degrees)
     c, s = math.cos(rad), math.sin(rad)

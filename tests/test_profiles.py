@@ -6,6 +6,9 @@
 
 """Tests for pybosl2/masking.py: cuboid corner, face and edge profile masking methods."""
 
+import numpy as np
+import pytest
+
 from pybosl2._edges_lang import Anchor
 from pybosl2.masking import mask2d_roundover, rounding_edge_mask
 from pybosl2.shapes3d import cuboid, sphere
@@ -60,13 +63,63 @@ def test_edge_profile_specific_edges() -> None:
     assert rounded.inside([0.0, 0.0, 9.9])
 
 
+def _diagonal_cut(solid: object, z: float) -> float:
+    """How far in along the 45-degree diagonal the corner has been cut at height *z*."""
+    low, high = 7.0, 10.0
+    for _ in range(40):
+        middle = (low + high) / 2
+        if solid.inside([middle, middle, z]):  # type: ignore[attr-defined]
+            low = middle
+        else:
+            high = middle
+    return 10.0 - (low + high) / 2
+
+
 def test_edge_profile_asymmetric() -> None:
-    """A tapered edge mask cuts a shallow fillet -- 1mm here, so only the last 0.1mm goes."""
+    """A tapered edge mask cuts a fillet that grows along the edge, in step with its own radius.
+
+    `rounding_edge_mask(length=30, radius1=1, radius2=3)` presents radius 1.4 at the cube's floor
+    and 2.6 at its lid, so the cut deepens by exactly that ratio between them -- which is the
+    scale-free form of the claim, and the only one a facet count does not get a vote in.
+
+    This test read ``not inside([9.9, 9.9, 0])`` and ``inside([9.8, 9.8, 0])`` with the comment
+    "a shallow fillet -- 1mm here, so only the last 0.1mm goes". Both passed against a cutter
+    that had **no taper at all** and sat in the wrong quadrant (T123): `linear_extrude` was being
+    handed a scalar `scale`, which the native dropped, and the growing case was turned over with
+    `rotate(180, [1, 0, 0])`, which mirrors Y as well as Z.
+    """
     cutter = rounding_edge_mask(length=30, radius1=1, radius2=3)
     rounded = cuboid([20, 20, 20]).edge_mask(edges=Anchor.Z, mask=cutter).realize()
-    assert not rounded.inside([9.9, 9.9, 0.0])  # right at the vertical edge
-    assert rounded.inside([9.8, 9.8, 0.0])  # ...but the small radius leaves the rest
+    floor, middle, lid = (_diagonal_cut(rounded, z) for z in (-9.0, 0.0, 9.0))
+    assert floor < middle < lid, (
+        f"the cut measures {floor:.4f}, {middle:.4f}, {lid:.4f} up the edge; a mask tapering from "
+        f"radius 1 to radius 3 has to deepen"
+    )
+    assert lid / floor == pytest.approx(2.6 / 1.4, rel=0.02), (
+        f"the cut grew by {lid / floor:.4f} where the mask's radius grows by {2.6 / 1.4:.4f}"
+    )
     assert rounded.inside([9.9, 0.0, 0.0])  # and the faces are untouched
+    assert rounded.inside([0.0, 0.0, 9.9])
+
+
+def test_a_tapered_edge_mask_cuts_the_edge_it_is_aimed_at() -> None:
+    """SPEC E-5: the two radii may be given in either order and mean the same cutter, reversed.
+
+    The growing case was mirrored in Y as well as Z, which put the cutter in the -Y quadrant --
+    every other spelling of this mask sits in +X/+Y. It still removed material near an edge, so
+    `edge_mask` still produced a rounded-looking cube and no test could see which side went.
+    """
+    growing = rounding_edge_mask(length=30, radius1=1, radius2=3)
+    shrinking = rounding_edge_mask(length=30, radius1=3, radius2=1)
+    for solid, label in ((growing, "radius1=1, radius2=3"), (shrinking, "radius1=3, radius2=1")):
+        points = np.asarray(solid.vnf().vertices, dtype=float)
+        assert float(points[:, 0].max()) == pytest.approx(3.0, abs=1e-6), f"{label}: not 3 wide in +X"
+        assert float(points[:, 1].max()) == pytest.approx(3.0, abs=1e-6), f"{label}: not 3 wide in +Y"
+        assert float(points[:, 1].min()) > -0.2, f"{label}: the cutter reaches into -Y"
+    grow = np.asarray(growing.vnf().vertices, dtype=float)
+    shrink = np.asarray(shrinking.vnf().vertices, dtype=float)
+    assert float(grow[grow[:, 2] < -14.9][:, 0].max()) == pytest.approx(1.0, abs=1e-6)
+    assert float(shrink[shrink[:, 2] < -14.9][:, 0].max()) == pytest.approx(3.0, abs=1e-6)
 
 
 def test_edge_mask_applies_children() -> None:

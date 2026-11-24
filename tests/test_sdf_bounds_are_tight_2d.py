@@ -229,11 +229,15 @@ def test_a_turn_onto_itself_leaves_the_box_alone(label: str, build: object, step
     would pass a single-step test while still widening the box on the second turn.
     """
     shape = build()  # type: ignore[operator]
-    before = (list(shape.mn), list(shape.mx))
+    before = [*shape.mn, *shape.mx]
     once = shape.rotate(step)
     twice = shape.rotate(2 * step)
     for turns, turned in ((1, once), (2, twice)):
-        got = (list(turned.mn), list(turned.mx))
+        # One flat sequence of four numbers, not a pair of lists. `pytest.approx` accepted a
+        # nested structure up to 9.1 and raises `TypeError: does not support nested data
+        # structures` from 9.2, so the pair spelling passed here and failed in CI on nothing but
+        # the pytest that happened to be installed.
+        got = [*turned.mn, *turned.mx]
         assert got == pytest.approx(before, abs=1e-9), (
             f"{label} turned {turns * step:g} degrees -- {turns} step(s) of its own symmetry -- "
             f"reports {got} where it had {before}. The shape is unchanged; the box is not."

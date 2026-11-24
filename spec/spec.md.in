@@ -611,6 +611,47 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T123 found the gates depending on the day they ran.** The working copy was green --
+8507 passed -- and the pull request was red on the same commit: 26 failures on each of 3.11, 3.12
+and 3.13, plus a lint error in a file nobody had touched. Three tools are installed unpinned by the
+workflows, and all three had moved: ruff's `SIM102` grew to cover `elif` bodies (1 lint error),
+`pytest.approx` stopped accepting nested sequences between 9.1 and 9.2 (10 failures), and
+`pythonscad` 1.2.0 both re-signed three functions in its stubs (9 failures) and started rejecting a
+scalar `linear_extrude(scale=)` (7 failures). **A gate whose rule set arrives from the internet
+reports on the day rather than on the code**, and every one of these was invisible to the person who
+could act on it. ruff is pinned to the version `.pre-commit-config.yaml` already declared, with a
+test that fails if the two copies drift; the nested `approx` is one flat sequence of four numbers;
+the `test` extra is bounded at `pythonscad<1.2` with its 29 stub errors written down and **T124**
+open to reconcile them -- with the note that `tests.yml`'s own mypy job installs neither the wheel
+nor the package's dependencies, so it was green on the same commit the parity gate failed on: the
+job that type-checks should install what the gate is about.
+
+**A fourth reason that gate could not be trusted was the suite's own scratch file.**
+`tests/test_backend_type_parity.py` wrote the module it hands to mypy into the repository root,
+eleven times per run, where `ruff check .` reports `D100` and `CPY001` against it: **174 of 174**
+lint runs failed while that file was in flight, and 0 of 271 after it moved to a temporary
+directory. CI never saw it -- separate jobs, separate checkouts -- so what it produced instead was
+two errors, repeatedly, in a file that no longer existed by the time anyone looked. An error nobody
+can reproduce is worse than a failure, because it teaches people to disregard the gate.
+
+**The upgrade that broke the build was the first thing to report a defect every release had
+shipped.** PythonSCAD only ever acts on the `[x, y]` form of `linear_extrude(scale=)`; up to 1.1.2 it
+**dropped a scalar silently**, and `pybosl2/shapes2d/base.py` knew that and converted, with a comment
+saying why, while three call sites passed the scalar straight to the native extruder. Measured on
+1.1.2: `rounding_edge_mask(length=20, radius1=6, radius2=2)` -- a *tapered* edge cutter -- came out
+**6.1 x 6.1 at both ends**, identical to the untapered mask; `fillet` inherited it; and
+`extrude_from_to(scale=2)`, the example in its own docstring, built exactly what `scale=1` builds.
+A mask that does not taper is still a solid, still exports and still cuts something, which is where
+T89's groove and T115's strokes hid, and the one test on it asked only whether it built. The
+conversion is one helper now, used by every route to the native extruder, and the two ends of what
+each public spelling builds are measured. **And making the taper real exposed a second defect in the same
+function**: the growing case was turned over with `rotate(180, [1, 0, 0])`, which reverses Y as well
+as Z, so that mask sat in the **-Y quadrant** and was aimed at the wrong side of its edge -- a Z
+mirror now, with both radius orders measured at both ends. Two tests had to be corrected rather than
+adjusted, and each described the fix in its own prose while asserting the no-op: "widened by
+scale=2" beside `approx(8.0)`, the unwidened diameter; and "a shallow fillet -- 1mm here" for a
+cutter that had no taper at all.
+
 **T122 took the disagreement T121 nominated and found the thread on the wrong side of its own
 diameter.** `ThreadHelix` referenced its swept section to the *outermost* point of the thread
 profile, so the ridge grew **inward** from the diameter it was given and occupied

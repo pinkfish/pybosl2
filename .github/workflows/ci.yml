@@ -17,8 +17,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # ruff is pinned to the version .pre-commit-config.yaml declares, and
+      # tests/test_ci_gates.py fails if the two drift apart. Unpinned, this job installed
+      # whatever ruff had released that morning: a rule that grew to cover a new case turned a
+      # green branch red with no commit behind it (SIM102 reaching `elif` bodies did exactly
+      # that), and `ruff check .` passing locally stopped meaning anything.
       - name: Install dependencies
-        run: pip install -e ".[test]" ruff mypy
+        run: pip install -e ".[test]" "ruff==0.16.0" mypy
       - name: ruff check
         run: ruff check .
       - name: ruff format check
