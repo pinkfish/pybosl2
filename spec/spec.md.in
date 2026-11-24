@@ -611,6 +611,34 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T124 closed the gap T123 had bounded, and the bound is off.** `pythonscad` 1.2.0 is the first
+release to ship typing for the native module, so the 27 errors it produced in eight files of
+`pybosl2` were not a regression in the wheel -- they were this package's own calls being
+type-checked for the first time. Six were `child: object`, which is the *protocol's* parameter, so
+the faith belongs at the construction site as a cast rather than in a narrower signature; narrowing
+it instead removed six errors and added **thirteen**, because an implementation may widen a
+parameter and never narrow it. Three were `_as_native_3d`, which *is* the boundary between `object`
+and a native handle and can check nothing. Eight were one `cuboid` variable that genuinely holds
+either kind. **Two were more than annotations**: `_finish3` never unwrapped and `CsgSolid.__init__`
+does not either, leaving the wrapper spelling one step from a `Bosl2Solid` whose `.shape` is a
+`Bosl2Solid` -- the hazard `_stroke3d` records hitting, where `.vnf()` fails on a perfectly good
+solid. With all of it fixed, `mypy --strict` is clean against a real 1.2.0 install and the full
+suite passes on it: **8514 passed**, with every remaining failure in the type gate that the fixes
+closed. So nothing about the new release troubles this package's runtime; the whole of the gap was
+the type surface, and `pythonscad<1.2` is off the `test` extra.
+
+**Getting a 1.2.0 to test against meant building one, and the published sdist does not build.**
+1.2.0 publishes arm64-only macOS wheels where 1.1.2 had x86_64, so an Intel Mac has no path to it:
+no wheel, and a source distribution whose `MANIFEST.in` omits three sets of files its own sources
+include -- `src/utils/*.hpp` (which breaks the build on every platform), every `*.mm` (which breaks
+it on macOS), and `submodules/**/*.inl` (9 libfive template files). Each omission cost a separate
+30-minute compile to discover, which is why the fourth attempt began by resolving the whole include
+graph statically: 221 compiled sources, 475 files reached, and after the eleven files were supplied
+exactly four unresolved includes remained, all of them false positives. **A tool version that
+cannot be installed is still a gate's input**, and the way to find out what it says is to build it
+-- 33 minutes, with `ARCHFLAGS="-arch x86_64"` because a universal2 interpreter otherwise compiles
+for an architecture the Homebrew libraries do not have.
+
 **T123 found the gates depending on the day they ran.** The working copy was green --
 8507 passed -- and the pull request was red on the same commit: 26 failures on each of 3.11, 3.12
 and 3.13, plus a lint error in a file nobody had touched. Three tools are installed unpinned by the

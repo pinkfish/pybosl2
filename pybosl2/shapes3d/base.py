@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -86,7 +86,7 @@ def _ocylinder(
     (:func:`pybosl2.defaults.use_defaults`) before the renderer's own $fa/$fs.
     """
     fn, fa, fs = _resolve_facets(fn, fa, fs)
-    kw = {}
+    kw: dict[str, Any] = {}
     for full, nat in (
         (height, "h"),
         (radius, "r"),
@@ -115,7 +115,7 @@ def _osphere(
     (:func:`pybosl2.defaults.use_defaults`) before the renderer's own $fa/$fs.
     """
     fn, fa, fs = _resolve_facets(fn, fa, fs)
-    kw = {}
+    kw: dict[str, Any] = {}
     for full, nat in (
         (radius, "r"),
         (center, "center"),
@@ -174,7 +174,7 @@ def osimport(
             (osimport(str(part)) - cuboid([100, 100, 50]).up(25)).show()
 
     """
-    kwargs: dict[str, object] = {}
+    kwargs: dict[str, Any] = {}
     for value, name in ((convexity, "convexity"), (origin, "origin"), (center, "center")):
         if value is not None:
             kwargs[name] = value
@@ -190,13 +190,18 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
     """
     from pybosl2._helpers import unwrap
 
+    # Three casts, and they are the honest spelling: this function's whole job is to *be* the
+    # boundary between `object` and a native handle, and nothing here can check which it has.
+    # `unwrap` returns Any and the last branch hands back whatever it was given. pythonscad 1.2.0
+    # is the first release to type `PyOpenSCAD`, so these became "Returning Any from function
+    # declared to return PyOpenSCAD" (T124); the casts say what the docstring already says.
     unwrapped = unwrap(obj)
     if unwrapped is not obj:  # a Bosl2Solid / Bosl2Shape2D wrapper
-        return unwrapped
+        return cast("PyOpenSCAD", unwrapped)
     geom = getattr(obj, "geometry", None)  # VNF / Path2D / Region
     if callable(geom):
-        return unwrap(geom())
-    return obj
+        return cast("PyOpenSCAD", unwrap(geom()))
+    return cast("PyOpenSCAD", obj)
 
 
 # ---------------------------------------------------------------------------
@@ -808,7 +813,8 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         """
         p = self.anchor_point(anchor, bbox=bbox)
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
+        # `child` is `object` because the Solid protocol says so; see the 2-D twin (T124).
+        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
         placed = csolid.translate(p)
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
@@ -861,7 +867,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         face = require_anchor(anchor, "anchor").vector
         edge = Anchor.CENTER.vector if align is None else align.vector
         factor = -1.0 if inside else 1.0
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
+        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
         child_anchor = Point([edge[i] - factor * face[i] for i in range(3)])
         cpt = csolid.anchor_point(child_anchor)
         dest = self.anchor_point(Point([face[i] + edge[i] for i in range(3)]), bbox=bbox)
@@ -919,7 +925,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = parent_anchor.vector
         ca = -pa if child_anchor is None else require_anchor(child_anchor, "child_anchor").vector
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
+        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
         cpt = csolid.anchor_point(ca)
         placed = csolid.translate([-cpt[0], -cpt[1], -cpt[2]])
         # CENTER has no direction, so there is no pair of faces to bring together and nothing to
@@ -1615,7 +1621,13 @@ def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[f
 
 
 def _finish3(
-    shape: PyOpenSCAD,
+    # Handle *or* wrapper, as `_finish` in the 2-D twin already declared: `cuboid()`'s
+    # negative-rounding paths hand over a wrapper and the rest a bare handle. It did not unwrap,
+    # and `CsgSolid.__init__` does not either, so the wrapper spelling was one step from a
+    # Bosl2Solid whose `.shape` is a Bosl2Solid -- which looks right until something reaches for
+    # the native handle and `.vnf()` fails on a perfectly good solid (the hazard `_stroke3d`
+    # records hitting). Unwrapped at the top now, and typed for what it accepts (T124).
+    shape: "PyOpenSCAD | Bosl2Solid",
     offset: Sequence[float],
     spin: float,
     orient: Anchor | Sequence[float],
@@ -1636,12 +1648,13 @@ def _finish3(
         A Bosl2Solid wrapping the finished geometry.
 
     """
+    native = cast("PyOpenSCAD", Bosl2Solid._unwrap(shape))
     if offset[0] or offset[1] or offset[2]:
-        shape = shape.translate(offset)
+        native = native.translate(offset)
     if spin:
-        shape = shape.rotate(spin, [0, 0, 1])
-    shape = _orient_rotate(shape, orient)
-    return Bosl2Solid(shape, size=size, anchor=anchor)
+        native = native.rotate(spin, [0, 0, 1])
+    native = _orient_rotate(native, orient)
+    return Bosl2Solid(native, size=size, anchor=anchor)
 
 
 def _anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:

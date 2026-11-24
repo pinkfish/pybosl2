@@ -317,30 +317,46 @@ def test_the_facade_absorbs_every_nullability_difference() -> None:
     )
 
 
-def test_the_installed_pythonscad_is_the_one_this_gate_was_written_against() -> None:
-    """The stubs this file type-checks against ship with the wheel, so its version decides.
+def test_the_native_typing_this_gate_reads_is_present() -> None:
+    """The rows above are the full gate only where the installed wheel ships typing.
 
-    pythonscad 1.2.0 re-signs `osimport`, `cylinder` and `sphere`, which produces 29 errors in
-    nine files of `pybosl2` that 1.1.x does not, and every row above fails with the whole list
-    attached -- nine times. That reads as "the two backends disagree about what they accept",
-    which is what this file is for, and is not what happened. `pyproject.toml` bounds the `test`
-    extra at `pythonscad<1.2` for that reason; this says so in one line instead of nine.
+    pythonscad 1.2.0 is the first release to carry `py.typed` and an `_openscad-stubs` package.
+    Before it, `mypy --strict` resolved every native call to `Any`, so no row here could fail for
+    a signature reason -- which is how 27 errors in eight files of `pybosl2` arrived the first
+    time CI installed 1.2.0, all of them our own calls being checked for the first time (T124).
+
+    1.2.0 also publishes **arm64-only** macOS wheels where 1.1.2 had x86_64, so an Intel Mac is
+    held at the untyped 1.1.x and runs the weaker check. That is worth skipping out loud for
+    rather than passing quietly: a green run here on such a machine does not mean what a green
+    run in CI means.
     """
-    from importlib.metadata import PackageNotFoundError, version
+    from importlib.metadata import PackageNotFoundError, distribution
 
     try:
-        installed = version("pythonscad")
+        dist = distribution("pythonscad")
     except PackageNotFoundError:
-        pytest.skip("pythonscad is not installed; the rows above resolve against the stub shim")
-    declared = (REPO_ROOT / "pyproject.toml").read_text()
-    assert "pythonscad<1.2" in declared, (
-        "the pythonscad bound in pyproject.toml has moved -- update this test with it, and the "
-        "29 stub errors it exists to explain"
-    )
-    major, minor, *_ = (int(part) for part in installed.split(".")[:2])
-    assert (major, minor) < (1, 2), (
-        f"pythonscad {installed} is installed, outside the `pythonscad<1.2` the test extra "
-        f"declares. Its stubs re-sign osimport/cylinder/sphere, so every row in this file fails "
-        f"with 29 unrelated errors from inside pybosl2. Reinstall with `pip install -e '.[test]'`, "
-        f"or close T124 (TASKS.md) and lift the bound."
+        pytest.skip("pythonscad is not installed; the rows above resolve against the mock")
+    files = [str(f) for f in (dist.files or [])]
+    typed = [f for f in files if f.endswith(("py.typed", ".pyi"))]
+    if not typed:
+        pytest.skip(
+            f"pythonscad {dist.version} ships no typing (no py.typed, no .pyi), so the rows above "
+            f"check a weaker contract: every native call resolves to Any. 1.2.0 and later carry "
+            f"stubs, but publish arm64-only macOS wheels."
+        )
+    assert typed, "the installed pythonscad declares typing"
+
+
+def test_nothing_caps_pythonscad_below_the_release_that_carries_typing() -> None:
+    """A cap under 1.2 turns the gate above into a formality wherever it is honoured.
+
+    It was capped at `pythonscad<1.2` for exactly two commits, to get a red branch green while
+    the 27 errors were open. Reading the cap back is what keeps that a decision rather than a
+    habit -- and what stops the next awkward stub release being answered the same way.
+    """
+    extras = (REPO_ROOT / "pyproject.toml").read_text()
+    capped = [line.strip() for line in extras.splitlines() if '"pythonscad<' in line]
+    assert not capped, (
+        f"pyproject.toml caps pythonscad at {capped}, below the first release that ships stubs. "
+        f"Every row above then type-checks against Any and cannot fail on a signature."
     )

@@ -47,15 +47,20 @@ dependencies = [
 test = [
     "pytest>=7",
     "numpy",
-    # Bounded on purpose. `pythonscad` ships .pyi stubs, and tests/test_backend_type_parity.py
-    # type-checks user code against them with the wheel installed -- the only gate that does, so
-    # it is the only one that sees them change. 1.2.0's stubs give `osimport`, `cylinder` and
-    # `sphere` different signatures and produce **29 errors in 9 files of pybosl2** that 1.1.x
-    # does not; reconciling them is its own task (T124 in TASKS.md), not something to discover
-    # from an unpinned install on a morning when something else is being reviewed. The *runtime*
-    # difference 1.2.0 brought -- `linear_extrude(scale=)` rejecting a scalar instead of silently
-    # dropping it -- is fixed and portable (see `pybosl2._helpers.scale_pair`).
-    "pythonscad<1.2",
+    # Unbounded, and that is the point. 1.2.0 is the first release to ship typing for the native
+    # module (`py.typed` and an `_openscad-stubs` package), which is the only reason
+    # tests/test_backend_type_parity.py can check a signature at all: before it, `mypy --strict`
+    # resolved every native call to `Any`. That is why installing it produced 27 errors in 8
+    # files of `pybosl2` the first time CI did -- not a regression in the wheel, our own calls
+    # being type-checked for the first time. T124 took them to zero against a real 1.2.0 install,
+    # and the full suite passes on it (8514 passed).
+    #
+    # Worth knowing if you are on an Intel Mac: 1.2.0 publishes **arm64-only** macOS wheels where
+    # 1.1.2 had x86_64, and its sdist does not build -- `MANIFEST.in` omits `src/utils/*.hpp`,
+    # every `*.mm`, and `submodules/**/*.inl`, so three sets of files have to be supplied by hand.
+    # Such a machine stays on the untyped 1.1.x and type-checks the weaker contract;
+    # `test_the_native_typing_this_gate_reads_is_present` says which one you are getting.
+    "pythonscad",
     "typing-extensions",
     "shapely",
     "mypy>=1.8",

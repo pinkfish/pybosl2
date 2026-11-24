@@ -146,7 +146,10 @@ def _opposite_angle_to_adjacent(opposite: float, angle: float) -> float:
 
 @backend_only("csg")
 def _finish(
-    shape: PyOpenSCAD,
+    # A wrapper is accepted as well as a bare handle: `_unwrap` below is what makes that work and
+    # the docstring says so, but the annotation claimed `PyOpenSCAD` only -- which made `ring()`
+    # and `hex_mask()` type errors against pythonscad 1.2.0's stubs while working perfectly (T124).
+    shape: "PyOpenSCAD | Bosl2Shape2D",
     offset: Anchor | Sequence[float],
     spin: float,
     size: Sequence[float] | None = None,
@@ -159,14 +162,17 @@ def _finish(
     nominal box metadata to carry on the wrapper, for the shapes that have one. A shape that is
     already wrapped (``ring()`` composes two circles) is unwrapped first, never double-wrapped.
     """
-    shape = Bosl2Shape2D._unwrap(shape)
+    # A separate name, because it is a different thing: `shape` is "handle or wrapper" and
+    # `native` is the handle `_unwrap` returned. Reusing the parameter kept its declared union
+    # and made the wrap below a type error against pythonscad 1.2.0's stubs (T124).
+    native = cast("PyOpenSCAD", Bosl2Shape2D._unwrap(shape))
     off: list[float] = list(offset.vector_2d) if isinstance(offset, Anchor) else list(offset)[:2]
     if off[0] != 0 or off[1] != 0:
-        shape = shape.translate(off)
+        native = native.translate(off)
     if spin:
         # Native 2-D rotate needs the 3-vector form; a bare scalar is rejected.
-        shape = shape.rotate([0, 0, spin])
-    return Bosl2Shape2D(shape, size=size, anchor=anchor)
+        native = native.rotate([0, 0, spin])
+    return Bosl2Shape2D(native, size=size, anchor=anchor)
 
 
 class CsgShape2D(BaseShape):
@@ -395,7 +401,10 @@ class CsgShape2D(BaseShape):
 
         """
         p = self.anchor_point(anchor, bbox=bbox)
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        # `child` is `object` because the Flat protocol says so -- an implementation may
+        # widen a parameter, never narrow it -- and a wrapper is the only thing we can
+        # recognise. Anything else is a native handle on the caller's word (T124).
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
         placed = cshape.translate(p)
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
@@ -432,7 +441,7 @@ class CsgShape2D(BaseShape):
         face = list(require_anchor(anchor, "anchor").vector_2d)
         edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
         factor = -1.0 if inside else 1.0
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
         child_anchor = Point([edge[0] - factor * face[0], edge[1] - factor * face[1]])
         cpt = cshape.anchor_point(child_anchor)
         dest = self.anchor_point(Point([face[0] + edge[0], face[1] + edge[1]]), bbox=bbox)
@@ -479,7 +488,7 @@ class CsgShape2D(BaseShape):
         parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = list(parent_anchor.vector_2d)
         ca = [-pa[0], -pa[1]] if child_anchor is None else list(require_anchor(child_anchor, "child_anchor").vector_2d)
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
         cpt = cshape.anchor_point(ca)
         placed = cshape.translate([-cpt[0], -cpt[1]])
         angle_rad = math.atan2(-pa[1], -pa[0]) - math.atan2(ca[1], ca[0])

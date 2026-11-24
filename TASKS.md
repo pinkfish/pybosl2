@@ -5100,7 +5100,7 @@ is [T124](#t124--reconcile-the-pythonscad-120-stubs).
   Both of the two here asserted the no-op and *described the taper* in the same breath, which is
   the signature to look for -- a comment that does not match the number beside it.
 
-## T124 — Reconcile the pythonscad 1.2.0 stubs
+## T124 — Reconcile the pythonscad 1.2.0 stubs ✅
 
 **§12.2 item 81. PAR-1, Q-2.**
 
@@ -5122,9 +5122,69 @@ on its own account. The rest are genuine signature changes, and a few may not be
 against both stub versions at once -- in which case the question is which version the project
 supports, and that is a decision rather than a fix.
 
+### Closed, and the bound is off
+
+**The published 1.2.0 cannot be installed on this machine, and its sdist cannot be built at all.**
+It publishes **arm64-only** macOS wheels where 1.1.2 had `macosx_15_0_x86_64`, and the sdist is
+missing three sets of files its own sources include, every one of them a `MANIFEST.in` pattern that
+does not match what the build needs:
+
+| shipped | misses | files |
+|---|---|---|
+| `include ./src/utils/*.h` | `.hpp` | `scope_guard.hpp`, included by `src/io/export.cc` |
+| `include ./src/platform/*.h` | every `.mm` | `PlatformUtils-mac.mm`, added by `setup.py` on Darwin |
+| `recursive-include ./submodules/ *.h *.hpp *.cpp` | `.inl` | 9 libfive template files under `src/render/brep/` |
+
+The first breaks the build on *any* platform; the second on macOS specifically. Each was found by
+a separate ~30-minute compile, which is why the fourth round began by resolving the whole include
+graph statically -- 221 compiled sources, 475 files reached, and after the eleven files were
+supplied exactly four unresolved includes remained, all false positives (a system boost header, a
+generated one, a libtess2 internal, and a Tracy include behind an `#ifdef`).
+
+Built with the files supplied and `ARCHFLAGS="-arch x86_64"` -- this interpreter is universal2, so
+the default build compiles `-arch arm64 -arch x86_64` and would have failed at the link step
+against x86_64-only Homebrew libraries. 33 minutes, and the vendored libfive is byte-identical to
+`libfive/libfive@master` on a file that *is* shipped, so the `.inl` files fetched to fill the gap
+are the right ones rather than a guess.
+
+**What the real install then said.** `mypy --strict` reported **27 errors in 8 files** -- matching
+the staged `MYPYPATH` reproduction exactly, which is what made a 3-minute verify loop possible --
+and the full suite reported **8514 passed, 10 failed**, every failure in
+`tests/test_backend_type_parity.py`. So nothing about 1.2.0's *runtime* troubles this package once
+`scale_pair` is in place; the whole of the gap was the type surface.
+
+| group | count | what it was |
+|---|---|---|
+| `CsgShape2D(child)` / `Bosl2Solid(child)` | 6 | `child: object` is the protocol's own parameter, so the faith belongs at the construction site as a `cast` |
+| `_as_native_3d` returns | 3 | the function *is* the boundary; three casts say what its docstring says |
+| `**kwargs` dicts | 3 | `dict[str, Any]`: the native takes one precise type per name, which no narrower value type describes |
+| `_finish` / `_finish3` parameters | 3 | both accept a wrapper as well as a handle, and only `_finish` said so |
+| the two shear matrices | 2 | `list[list[float]]`, not a join of `list[int]` and `list[float]` |
+| `cuboid`'s `shape` variable | 8 | genuinely either kind; declared once before its first binding |
+| `polygon(Path2D)`, `textmetrics["advance"][0]` | 2 | plain floats, and the narrowing spelled out |
+
+**Two of the fixes are more than annotations.** `_finish3` never unwrapped, and
+`CsgSolid.__init__` does not either, so the wrapper spelling was one step from a `Bosl2Solid` whose
+`.shape` is a `Bosl2Solid` -- the hazard `_stroke3d` records hitting, where `.vnf()` fails on a
+perfectly good solid. It unwraps now, like its 2-D twin. And `polygon()` is handed plain floats
+rather than numpy rows, which is what every other native polygon call in the package already does.
+
+**One attempt went the wrong way and is worth recording.** Narrowing `child: object` to
+`CsgShape2D | PyOpenSCAD` on `position`/`align`/`attach` removed six errors and added **thirteen**:
+an implementation may *widen* a parameter, never narrow it, so the `Solid` and `Flat` protocols
+rejected the narrower signature. The parameter is `object` again and the cast sits at the
+construction site, which is where the faith actually lives.
+
+`pythonscad<1.2` is off the `test` extra, and
+`test_nothing_caps_pythonscad_below_the_release_that_carries_typing` reads the cap back so the next
+awkward stub release is not answered the same way.
+
+### How it was found (the original entry)
+
 **Do not start by widening the bound.** Install 1.2.0 in a scratch environment, run
 `tests/test_backend_type_parity.py`, and work the list down; the bound comes off when the list is
-empty, and `test_the_installed_pythonscad_is_the_one_this_gate_was_written_against` is what says so.
+empty, and `test_the_native_typing_this_gate_reads_is_present` is what says which contract your
+environment checks.
 
 Two things to know before starting. **1.2.0 publishes no macOS wheel** for this machine's platform
 tag (`macosx_15_0_x86_64`, cp314) while 1.1.2 does, and its sdist compiles the OpenSCAD core, so a

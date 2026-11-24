@@ -537,7 +537,7 @@ def cyl(
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         shape = shape.rotate(180 / sides, [0, 0, 1])
     if shift[0] or shift[1]:
-        shear = [
+        shear: list[list[float]] = [
             [1, 0, shift[0] / length_val, 0],
             [0, 1, shift[1] / length_val, 0],
             [0, 0, 1, 0],

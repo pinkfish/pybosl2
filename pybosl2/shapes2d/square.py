@@ -262,7 +262,10 @@ def polygon(
     from pybosl2.paths import require_path
 
     path = cast("Path2D", require_path(path, "path", "polygon", _Path2D))
-    return _finish(_opolygon(path), anchor, spin)
+    # Iterating a Path2D yields numpy rows: the native accepts them, but no annotation of
+    # `polygon()` describes that, and every other native polygon call in this package already
+    # hands over plain floats because the FFI boundary rejects numpy scalars elsewhere (T124).
+    return _finish(_opolygon([[float(point[0]), float(point[1])] for point in path]), anchor, spin)
 
 
 # ---------------------------------------------------------------------------
