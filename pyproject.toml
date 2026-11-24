@@ -68,7 +68,12 @@ docs = [
     "sphinx>=7,<10",
     "shapely",
     "sphinx-immaterial>=0.13",
-    "ruff>=0.4",
+    # `docs/Makefile`'s `tidy` target runs `ruff check --fix . && ruff format .` after Sphinx, so
+    # the docs build is a lint gate too -- and the fourth place this repository installs ruff. It
+    # was `>=0.4`, and that is the gate that was red on main: a rule that grew to cover one more
+    # case failed `make html` on a file the docs build only reformats. Pinned with the rest, and
+    # tests/test_ci_gates.py fails if the copies drift apart.
+    "ruff==0.17.6",
 ]
 
 [project.urls]

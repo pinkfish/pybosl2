@@ -1301,6 +1301,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` of unioned dash segments.
 
+        Raises:
+            ValueError: If the path has fewer than two points, or *dashpat* has no positive
+                length. The 2-D spelling (:meth:`pybosl2.path2d.Path2D.dashed_stroke`) answers a
+                pattern of zeros with an empty :class:`~pybosl2.regions.Region`; a solid has no
+                usable empty form to hand back, so this refuses instead.
+
         Examples:
             A dashed stroke along a 3-D path:
 

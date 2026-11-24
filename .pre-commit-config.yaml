@@ -8,7 +8,7 @@ repos:
 
   # Official repository for Ruff linting and formatting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.0
+    rev: v0.17.6
     hooks:
       - id: ruff-check
         args: [ --fix ]
@@ -16,7 +16,7 @@ repos:
 
   # mypy static type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.0
+    rev: v2.4.1
     hooks:
       - id: mypy
         args: [--strict, pybosl2, tests]

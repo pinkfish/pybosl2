@@ -972,6 +972,11 @@ def test_path3d_rejections_say_what_to_pass(call: Callable[[], object], expected
 STROKE_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: Path3D([[0.0, 0.0, 0.0]]).stroke(width=1), "at least 2 points"),
     (lambda: Path3D([[0.0, 0.0, 0.0]]).dashed_stroke(dashpat=[5, 2]), "at least 2 points"),
+    # A pattern with no length used to return `Bosl2Solid(None)`: a solid whose `bounds()` raises,
+    # whose `vnf()` raises `AttributeError` on NoneType, and whose `|` raises a raw `TypeError`.
+    # Nothing could use it and nothing checked for it (T124).
+    (lambda: Path3D(_P3).dashed_stroke(dashpat=[0, 0]), "needs a positive total length"),
+    (lambda: Path3D(_P3).dashed_stroke(dashpat=[0]), "needs a positive total length"),
     (
         lambda: Path3D([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]).stroke(width=1, endcap1=_BUTT_CAP, endcap2=_BUTT_CAP),
         "no drawable segments",

@@ -109,6 +109,24 @@ def _precommit_ruff_version() -> str:
     return found.group(1)
 
 
+def test_every_declaration_of_ruff_names_the_declared_version() -> None:
+    """The lint gate runs in five places, and `pyproject.toml` is the one a workflow scan misses.
+
+    `docs/Makefile`'s `tidy` target runs `ruff check --fix . && ruff format .` after Sphinx, so
+    the docs build fails on a lint error like any other gate -- and its ruff comes from the
+    `docs` extra, which asked for `>=0.4`. That is the gate that was red on `main`: SIM102 grew
+    to cover `elif` bodies, and `make html` failed on a file the docs build does not even own.
+    The workflow scan above would never have looked there.
+    """
+    declared = _precommit_ruff_version()
+    pyproject = (WORKFLOWS.parent.parent / "pyproject.toml").read_text()
+    loose = [line.strip() for line in pyproject.splitlines() if '"ruff' in line and f'"ruff=={declared}"' not in line]
+    assert not loose, (
+        f"pyproject.toml declares ruff as {loose}, not =={declared} -- the docs build runs it as "
+        f"a gate, so an unpinned range there is the same hole as an unpinned workflow install."
+    )
+
+
 @pytest.mark.parametrize("workflow", sorted(WORKFLOWS.glob("*.y*ml")), ids=lambda p: p.name)
 def test_a_workflow_installing_ruff_pins_the_declared_version(workflow: Path) -> None:
     """SPEC Q-3: a lint gate whose rule set arrives from the internet is not reproducible.

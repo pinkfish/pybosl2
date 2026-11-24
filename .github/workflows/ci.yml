@@ -23,7 +23,7 @@ jobs:
       # green branch red with no commit behind it (SIM102 reaching `elif` bodies did exactly
       # that), and `ruff check .` passing locally stopped meaning anything.
       - name: Install dependencies
-        run: pip install -e ".[test]" "ruff==0.16.0" mypy
+        run: pip install -e ".[test]" "ruff==0.17.6" mypy
       - name: ruff check
         run: ruff check .
       - name: ruff format check
