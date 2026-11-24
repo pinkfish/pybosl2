@@ -21,7 +21,7 @@
     
     
       
-        <title>Enums - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>Enums - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -94,7 +94,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -225,10 +225,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2708,6 +2708,9 @@ than two independent sizes (SPEC G-1, G-7).</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.enums.</span></span><span class="sig-name descname"><span class="pre">PartitionCutType</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.enums.PartitionCutType" title="pybosl2.enums.PartitionCutType.__init__.values (Python parameter)"><span class="n"><span class="pre">values</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/enums.html#PartitionCutType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.enums.PartitionCutType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
 <p>Cut profile style for <code class="xref py py-func docutils literal notranslate"><span class="pre">partition()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">partition_mask()</span></code>.</p>
+<p>One enum, two vocabularies. <code class="docutils literal notranslate"><span class="pre">square</span></code>, <code class="docutils literal notranslate"><span class="pre">triangle</span></code>, <code class="docutils literal notranslate"><span class="pre">halfsine</span></code> and <code class="docutils literal notranslate"><span class="pre">semicircle</span></code> are
+<em>section</em> profiles, used in a <code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code> descriptor; they have no tiling form, so
+they cannot be repeated along a cut and refuse as <code class="docutils literal notranslate"><span class="pre">cutpath=</span></code>. The other eight tile.</p>
 <dl class="py attribute objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.enums.PartitionCutType.FLAT">
 <span class="sig-name descname"><span class="pre">FLAT</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'flat'</span></code><a class="headerlink" href="#pybosl2.enums.PartitionCutType.FLAT" title="Link to this definition">¶</a></dt>
@@ -2955,7 +2958,7 @@ than two independent sizes (SPEC G-1, G-7).</p>
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -2975,7 +2978,7 @@ than two independent sizes (SPEC G-1, G-7).</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

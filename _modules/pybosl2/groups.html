@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.groups - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.groups - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2499,7 +2499,7 @@
 <span class="sd">    silent wrong answer, and it survived because the rule had no single home to be right in.</span>
 
 <span class="sd">    Both are named at the call site rather than defaulted, because each backend anchors in its own</span>
-<span class="sd">    vocabulary: the CSG backend passes :class:`~pybosl2.enums.Anchor` members and the SDF backend</span>
+<span class="sd">    vocabulary: the CSG backend passes :class:`~pybosl2._edges_lang.Anchor` members and the SDF backend</span>
 <span class="sd">    passes the raw direction vectors of `pybosl2/sdf/_constants.py`. One type variable spans all</span>
 <span class="sd">    three anchors so the resolver hands back exactly what it was given.</span>
 
@@ -2525,11 +2525,11 @@
 <a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement</span><span class="p">(</span>
     <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span>
     <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
     <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Anchor | Sequence[float] | None"</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Resolve a placement group against the loose members, refusing a call that gives both.</span>
@@ -2595,10 +2595,10 @@
 <a class="viewcode-back" href="../../foundational/groups.html#pybosl2.groups.resolve_placement_2d">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_placement_2d</span><span class="p">(</span>
     <span class="n">placement</span><span class="p">:</span> <span class="s2">"Placement | None"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">_AnchorT</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="n">_SpinT</span><span class="p">,</span>
     <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
     <span class="n">defaults</span><span class="p">:</span> <span class="s2">"Placement | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[_AnchorT | Anchor | Sequence[float], _SpinT | float]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolve a placement for a 2-D constructor, which has an anchor and a spin but no orient.</span>
@@ -3103,7 +3103,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3123,7 +3123,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

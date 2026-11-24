@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.caps - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.caps - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2163,31 +2163,39 @@
 
 <span class="sd">Provides the :class:`CapType` enum, the :class:`CapSpec` dataclass for</span>
 <span class="sd">controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,</span>
-<span class="sd">:mod:`pybosl2.beziers`, and :mod:`pybosl2.drawing`.</span>
+<span class="sd">:mod:`pybosl2.beziers`, and the strokes in :mod:`pybosl2.path2d` / :mod:`pybosl2.path3d`.</span>
 
 <span class="sd">Cap types</span>
 <span class="sd">    ``NONE`` -- no cap (open end)</span>
 <span class="sd">    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)</span>
-<span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)</span>
-<span class="sd">    ``CIRCLE`` -- round-over end cap (planned)</span>
+<span class="sd">    ``ROUND`` / ``SPHERE`` -- spherical end cap; one cap under two names</span>
+<span class="sd">    ``CIRCLE`` -- round-over end cap: a flat end with its rim filleted;</span>
+<span class="sd">    `length` sets fillet radius as a fraction of the half-width (1.0 is ``ROUND``, 0.0 is ``BUTT``)</span>
 <span class="sd">    ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles</span>
+<span class="sd">    ``X`` / ``LINE`` -- flat 2-D markers; the 3-D consumers refuse them</span>
 <span class="sd">    ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)</span>
 
 <span class="sd">.. note::</span>
-<span class="sd">    Fancy sweep cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are</span>
-<span class="sd">    scaffolding only -- they resolve to flat caps. Full BOSL2 cap profiles</span>
-<span class="sd">    need the sweep's 3-D end-profile geometry exported into</span>
-<span class="sd">    :class:`~pybosl2.vnf.VNF` and are not yet ported.</span>
+<span class="sd">    A cap type that a consumer cannot build **refuses**; it never quietly returns a butt cap.</span>
+<span class="sd">    That is not free: each of the three consumers -- the sweep path, the 3-D stroke and the 2-D</span>
+<span class="sd">    stroke -- decides what it handles by listing the members it knows, and every fall-through</span>
+<span class="sd">    lands on a flat end (:func:`endcap_polys` returns ``[]``, ``_cap_style`` returns ``"flat"``).</span>
+<span class="sd">    A butt cap is a perfectly good solid, so nothing downstream notices. Four members were</span>
+<span class="sd">    falling through when this was measured, and this note used to describe two of them as</span>
+<span class="sd">    intended behaviour -- while ``ROUND`` and ``SPHERE``, which it called scaffolding, had been</span>
+<span class="sd">    doming the sweep all along. ``tests/test_cap_types_are_not_silently_flat.py`` compares every</span>
+<span class="sd">    member against ``BUTT`` in all three consumers so the next one cannot arrive unnoticed.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span> <span class="k">as</span> <span class="n">_replace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2NotImplementedError</span><span class="p">,</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
@@ -2214,8 +2222,10 @@
 <span class="sd">    Sweep/skin cap types:</span>
 <span class="sd">        ``NONE`` -- no cap (open end)</span>
 <span class="sd">        ``BUTT`` -- flat end cap</span>
-<span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical (planned)</span>
-<span class="sd">        ``CIRCLE`` -- round-over (planned)</span>
+<span class="sd">        ``ROUND`` / ``SPHERE`` -- spherical dome; the two are one cap, not two</span>
+<span class="sd">        ``CIRCLE`` -- round-over: a flat end with a filleted rim. The family ``ROUND`` is the</span>
+<span class="sd">        extreme of -- `length` is the fillet radius over the half-width, 1.0 giving ``ROUND``</span>
+<span class="sd">        exactly and 0.0 giving ``BUTT``</span>
 <span class="sd">        ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape</span>
 
 <span class="sd">    Stroke endcap/joint types:</span>
@@ -2225,7 +2235,12 @@
 <span class="sd">        ``BLOCK`` / ``SQUARE`` -- rectangular block</span>
 <span class="sd">        ``CHISEL`` -- chisel edge</span>
 <span class="sd">        ``TAIL`` / ``TAIL2`` -- tail shapes</span>
-<span class="sd">        ``CROSS`` / ``X`` / ``LINE`` -- line markers</span>
+<span class="sd">        ``CROSS`` -- line marker</span>
+<span class="sd">        ``X`` / ``LINE`` -- flat 2-D line markers. The 3-D consumers refuse these: a cap</span>
+<span class="sd">        profile is revolved about the path axis, and a revolved line is a disc.</span>
+
+<span class="sd">    Every member either changes the geometry or refuses by name in each of the three consumers</span>
+<span class="sd">    -- the sweep path, the 3-D stroke and the 2-D stroke. None of them quietly returns a butt cap.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2309,11 +2324,17 @@
 <span class="sd">    """</span>
 
     <span class="n">cap_type</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">DEFAULT_CAP</span>
-    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">extent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="c1"># `None`, not 0.0 (SPEC D-4): a dimension left out means "not supplied, decide for me", and</span>
+    <span class="c1"># `normalize_one` fills it from `_DEFAULTS`. These defaulted to 0.0, which D-4 reserves for</span>
+    <span class="c1"># *off* -- so a directly-built `CapSpec(CapType.ARROW)` declared every dimension off and</span>
+    <span class="c1"># produced a five-point polygon of zero size. It unions to nothing, so `CapSpec(ARROW,</span>
+    <span class="c1"># color="red")` silently lost the arrow, and even naming `length=3.5` did not help because</span>
+    <span class="c1"># `width` still multiplied it away. An explicit 0.0 still means off.</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2382,19 +2403,38 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_dim</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a cap dimension as a number; `normalize_one` fills every `None` before these are read."""</span>
+    <span class="k">return</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">normalize_one</span><span class="p">(</span><span class="n">cap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CapSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Normalize a single cap value to a fully-resolved :class:`CapSpec`.</span>
 
-<span class="sd">    If given a raw :class:`CapType`, looks up the default :class:`CapSpec`</span>
-<span class="sd">    from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it</span>
-<span class="sd">    unchanged.</span>
+<span class="sd">    A raw :class:`CapType` becomes its :data:`_DEFAULTS` entry. A :class:`CapSpec` keeps every</span>
+<span class="sd">    dimension it names and takes the rest from the same table, because `None` means "not supplied"</span>
+<span class="sd">    and not "off" (SPEC D-4).</span>
+
+<span class="sd">    This returned a `CapSpec` **unchanged**, one sentence after promising a "fully-resolved" one,</span>
+<span class="sd">    and the two cannot both hold for a spec that names only the fields its caller cared about.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cap: The cap to build.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`CapSpec` carrying every dimension the table declares for its type. Fields the</span>
+<span class="sd">        table leaves unset stay ``None`` and read as 0, which is their documented neutral --</span>
+<span class="sd">        `height` computes itself from width and length, and `angle` is no rotation.</span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cap</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">_DEFAULTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">cap_type</span><span class="p">,</span> <span class="n">_DEFAULTS</span><span class="p">[</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">])</span>
+        <span class="n">filled</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"length"</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">,</span> <span class="s2">"extent"</span><span class="p">,</span> <span class="s2">"angle"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">_replace</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="o">**</span><span class="n">filled</span><span class="p">)</span> <span class="k">if</span> <span class="n">filled</span> <span class="k">else</span> <span class="n">cap</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cap</span> <span class="o">=</span> <span class="n">CapType</span><span class="p">(</span><span class="n">cap</span><span class="p">)</span>
@@ -2486,6 +2526,12 @@
 <span class="sd">        (X is the line direction, Y is perpendicular).</span>
 
 <span class="sd">    """</span>
+    <span class="c1"># Resolve unconditionally rather than trusting the caller to have done it. `normalize_one` is</span>
+    <span class="c1"># idempotent -- a spec with no `None` left comes back as itself -- and skipping it is silent:</span>
+    <span class="c1"># an unresolved dimension reads as zero and yields a polygon of zero size, which unions to</span>
+    <span class="c1"># nothing. That is the same failure the `None` defaults were introduced to remove, one layer</span>
+    <span class="c1"># down, and the tests for the round-over walked straight into it.</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[]</span>
 
@@ -2494,15 +2540,9 @@
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"CapType.CUSTOM requires path= on the CapSpec"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span><span class="p">]]</span>
 
-    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">Bosl2NotImplementedError</span><span class="p">(</span>
-            <span class="s2">"CapType.CIRCLE is not built in this port yet. Use CapType.ROUND for a rounded end, or "</span>
-            <span class="s2">"CapSpec with a custom path for an exact circle."</span>
-        <span class="p">)</span>
-
-    <span class="n">w</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
-    <span class="n">l2</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">extent</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">extent</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
     <span class="n">w2</span> <span class="o">=</span> <span class="n">w</span> <span class="o">-</span> <span class="n">l2</span>
     <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">lw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="k">else</span> <span class="n">lw</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">ss</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">w2</span>
@@ -2522,9 +2562,39 @@
     <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DIAMOND</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="o">-</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">]])</span>
+    <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
+        <span class="c1"># A round-over: the end stays flat in the middle and its rim is filleted by `p`. That makes</span>
+        <span class="c1"># it the family ROUND is the extreme of -- at `p = s` the two arcs meet and the outline is</span>
+        <span class="c1"># a semicircle, which is exactly ROUND's cap, and at `p = 0` there is no fillet and it is</span>
+        <span class="c1"># BUTT. Both ends are existing behaviour, so the shape is pinned without a reference to</span>
+        <span class="c1"># check against, which is the whole difficulty with this member: `_DEFAULTS` gives CIRCLE</span>
+        <span class="c1"># the same numbers as ROUND, so the table never said what distinguished them.</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mf">1e-12</span><span class="p">:</span>
+            <span class="c1"># A round-over of zero radius is a square end, which is BUTT. Returning no polygon is</span>
+            <span class="c1"># what says so: the callers read an empty list as "no cap", and the end is left flat.</span>
+            <span class="c1"># This is the one place an empty return is a *result* rather than the fall-through T59</span>
+            <span class="c1"># was written to catch -- the caller asked for no fillet and got none.</span>
+            <span class="k">return</span> <span class="n">poly</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">p</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">rim</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">rim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">flat</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">rim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="n">flat</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="p">])</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rim</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">DOT</span><span class="p">:</span>
+        <span class="c1"># `s * length`, like every branch around it. This used a bare `s`, dropping the `length=2.0`</span>
+        <span class="c1"># that `_DEFAULTS` gives DOT to make it twice the size of ROUND -- so in 2-D a dot came out</span>
+        <span class="c1"># exactly the same size as a round cap, which is the one thing it is not meant to be. The</span>
+        <span class="c1"># 3-D stroke had hardcoded the doubling (`sphere(radius=width)`) and so was right by</span>
+        <span class="c1"># accident; the two now agree because both read the table.</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">th</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">16</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
-        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">th</span><span class="p">])</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">th</span><span class="p">])</span>
     <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]])</span>
@@ -2555,9 +2625,9 @@
         <span class="n">pp</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="mf">0.17</span><span class="p">)</span>
         <span class="n">poly</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span> <span class="o">-</span> <span class="n">pp</span><span class="p">,</span> <span class="n">ss</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ss</span><span class="p">]])</span>
 
-    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">angle</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="n">cos_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">))</span>
-        <span class="n">sin_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">cos_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">)))</span>
+        <span class="n">sin_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">angle</span><span class="p">)))</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos_a</span> <span class="o">-</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span> <span class="o">+</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poly</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">poly</span></div>
 
@@ -2576,11 +2646,12 @@
 <span class="sd">        The trim distance in world units (0.0 for non-arrow styles).</span>
 
 <span class="sd">    """</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="k">else</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="k">else</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">,</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW3</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ARROW2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">_dim</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">return</span> <span class="mf">0.0</span></div>
 
 
@@ -2605,31 +2676,40 @@
     <span class="k">return</span> <span class="p">[[</span><span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">at</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poly</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">trim_ends</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">trim1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">trim2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">trim_ends</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">trim1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">trim2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment).</span>
 
+<span class="sd">    Pulling the body back is what puts an arrow's *tip* on the point the caller named instead of</span>
+<span class="sd">    its base -- see :func:`endcap_trim`, which is where the distance comes from.</span>
+
+<span class="sd">    This read `p[0]` and `p[1]` and wrote `[x, y]`, so it was two-dimensional while living in a</span>
+<span class="sd">    module both strokes share. Handed a 3-D path it returned a **ragged** list -- the trimmed end</span>
+<span class="sd">    lost its Z and the untouched points kept theirs -- and measured the trim along the XY shadow of</span>
+<span class="sd">    a segment that might be mostly vertical. Nothing called it with 3-D input, which is why that</span>
+<span class="sd">    went unnoticed, and is also why the 3-D stroke could not honour a trim it had no working</span>
+<span class="sd">    helper for. It works in whatever dimension it is given now.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        body: The stroke body the cap is attached to.</span>
+<span class="sd">        body: The stroke body the cap is attached to, in any dimension.</span>
 <span class="sd">        trim1: How much to trim from the start so the cap keeps the requested end position.</span>
 <span class="sd">        trim2: How much to trim from the end.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">        The path with its end points moved inward, in the dimension it arrived in.</span>
+
 <span class="sd">    """</span>
-    <span class="n">body</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">body</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">trim1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">b0</span> <span class="o">-</span> <span class="n">a0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">-</span> <span class="n">a1</span>
-        <span class="n">seglen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">trim1</span><span class="p">,</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="n">seglen</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglen</span>
-        <span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a0</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">t</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">trim2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">b0</span> <span class="o">-</span> <span class="n">a0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">-</span> <span class="n">a1</span>
-        <span class="n">seglen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">trim2</span><span class="p">,</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="n">seglen</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglen</span>
-        <span class="n">body</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a0</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="n">a1</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">*</span> <span class="n">t</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">body</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">body</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">points</span>
+    <span class="k">for</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">,</span> <span class="n">trim</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">trim1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">trim2</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">trim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">near</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">far</span><span class="p">]</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)))]</span>
+        <span class="n">seglen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">delta</span><span class="p">))</span> <span class="ow">or</span> <span class="mf">1.0</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">trim</span><span class="p">,</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="n">seglen</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglen</span>
+        <span class="n">points</span><span class="p">[</span><span class="n">near</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">t</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">delta</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="n">points</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">oriented_to</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">outdir</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">at</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -2697,7 +2777,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -2717,7 +2797,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.partitions - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.partitions - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2164,7 +2164,7 @@
 <span class="c1">#    mixin: a half-cut intersects the solid with a half-space mask, auto-sized from the object's</span>
 <span class="c1">#    native bounding box (so the BOSL2 ``s=`` mask-size argument is optional here). partition()</span>
 <span class="c1">#    returns the two interlocking pieces. The 2-D cut-path generators (:func:`partition_path` and</span>
-<span class="c1">#    friends) return :class:`~pybosl2.paths.Path2D` objects; the mask builders return Bosl2Solids.</span>
+<span class="c1">#    friends) return :class:`~pybosl2.path2d.Path2D` objects; the mask builders return Bosl2Solids.</span>
 <span class="c1">#</span>
 <span class="c1">#    Only matrix/path math and pybosl2.transforms/constants are imported at load time; native</span>
 <span class="c1">#    primitives, shapes2d.arc, and Bosl2Solid are imported lazily inside the functions that need</span>
@@ -2179,7 +2179,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
@@ -2189,6 +2189,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_num</span><span class="p">,</span> <span class="n">zrot4</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">DOWN</span><span class="p">,</span> <span class="n">FRONT</span><span class="p">,</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PartitionCutType</span>
@@ -2267,6 +2268,21 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Section: named cut sub-paths</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="c1">#: Cut profiles that exist only as `partition_path` *sections*, with no tiling form -- so they are</span>
+<span class="c1">#: not usable as `cutpath=` on a mask, and refuse there. Four of `PartitionCutType`'s twelve.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Named here rather than left implicit because `PartitionCutType` is one enum serving two</span>
+<span class="c1">#: vocabularies, which is what let its docstring promise all twelve to `partition_mask`.</span>
+<span class="n">SECTION_ONLY_CUT_TYPES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">SQUARE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">TRIANGLE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">HALFSINE</span><span class="p">,</span>
+        <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">SEMICIRCLE</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_partition_subpath</span><span class="p">(</span>
@@ -2362,8 +2378,17 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
+    <span class="c1"># A `Bosl2ValueError` and not a `Bosl2NotImplementedError`, deliberately: these four are</span>
+    <span class="c1"># *section* forms, used by `partition_path`'s letter descriptors, and a section has no tiling</span>
+    <span class="c1"># form to repeat along a cut. That is a category difference, not unfinished work, so framing it</span>
+    <span class="c1"># as a gap would promise a feature that is not coming. The message has to say which, though --</span>
+    <span class="c1"># it read "unsupported cut type ... use a PartitionCutType member or its name" at a caller who</span>
+    <span class="c1"># had passed exactly that (SPEC E-2).</span>
     <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"partition_path(): unsupported cut type </span><span class="si">{</span><span class="n">cptype</span><span class="si">!r}</span><span class="s2">; use a PartitionCutType member or its name."</span>
+        <span class="sa">f</span><span class="s2">"partition(): </span><span class="si">{</span><span class="n">cptype</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is a section profile, not a tiling one, so it cannot be "</span>
+        <span class="sa">f</span><span class="s2">"repeated along a cut. Tiling patterns: "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">PartitionCutType</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">SECTION_ONLY_CUT_TYPES</span><span class="p">))</span><span class="si">}</span><span class="s2">. "</span>
+        <span class="sa">f</span><span class="s2">"Use </span><span class="si">{</span><span class="n">cptype</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> in a partition_path() descriptor, or pass an explicit Path2D."</span>
     <span class="p">)</span>
 
 
@@ -2383,7 +2408,18 @@
     <span class="n">cs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator, list-item]</span>
     <span class="n">sub</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutpath</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">sub</span> <span class="o">=</span> <span class="n">_partition_subpath</span><span class="p">(</span><span class="n">PartitionCutType</span><span class="p">(</span><span class="n">cutpath</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="c1"># `PartitionCutType(cutpath)` raises a bare `ValueError` for a name it does not know, so a</span>
+        <span class="c1"># misspelt cut pattern came out of the enum rather than the library and `except Bosl2Error`</span>
+        <span class="c1"># missed it (SPEC E-1). The message now also names what is available (SPEC E-2).</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="n">PartitionCutType</span><span class="p">(</span><span class="n">cutpath</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"partition(): </span><span class="si">{</span><span class="n">cutpath</span><span class="si">!r}</span><span class="s2"> is not a cut pattern. "</span>
+                <span class="sa">f</span><span class="s2">"Use one of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">PartitionCutType</span><span class="p">))</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"or pass an explicit Path2D."</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">_partition_subpath</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cutpath</span><span class="p">]</span>
     <span class="n">reps_raw</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">length</span> <span class="o">-</span> <span class="n">cs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">cs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gap</span><span class="p">))</span>
@@ -2605,6 +2641,7 @@
     <span class="n">altpath</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seglen</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
     <span class="n">segwidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2631,7 +2668,7 @@
 <span class="sd">        fs: minimum fragment size for circle resolution. Omitted, the ambient ``use_defaults(fs=...)`` value applies.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.paths.Path2D` (closed when *y* is given).</span>
+<span class="sd">        A :class:`~pybosl2.path2d.Path2D` (closed when *y* is given).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A wall profile mixing jigsaw and hammerhead joints, stroked into a divider:</span>
@@ -2749,6 +2786,7 @@
 
 <div class="viewcode-block" id="partition_mask">
 <a class="viewcode-back" href="../../foundational/partitions.html#pybosl2.partitions.partition_mask">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_mask</span><span class="p">(</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
@@ -2759,6 +2797,7 @@
     <span class="n">cutpath_centered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2817,6 +2856,7 @@
 
 <div class="viewcode-block" id="partition_cut_mask">
 <a class="viewcode-back" href="../../foundational/partitions.html#pybosl2.partitions.partition_cut_mask">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_cut_mask</span><span class="p">(</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
@@ -2825,6 +2865,7 @@
     <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">cutpath_centered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2857,12 +2898,15 @@
 <span class="sd">            mask.show()</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
-
     <span class="n">cs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">ribbon</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">slop</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+    <span class="c1"># `linear_extrude` already returns a `Solid`, and under `@backend_only("csg")` that Solid is a</span>
+    <span class="c1"># `Bosl2Solid`. Wrapping it again made `partition_cut_mask(...).shape` a `CsgSolid` rather than</span>
+    <span class="c1"># the native handle C-14a says it is, which left the mask unmeshable -- and the extra wrap was</span>
+    <span class="c1"># how the function satisfied its own `-&gt; Bosl2Solid` annotation, so removing it needs the cast</span>
+    <span class="c1"># the decorator already justifies (T107).</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Bosl2Solid"</span><span class="p">,</span> <span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
 
 
 
@@ -2939,7 +2983,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
-        <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2994,6 +3039,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3024,6 +3070,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3054,6 +3101,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3084,6 +3132,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3114,6 +3163,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3144,6 +3194,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cut_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -3177,6 +3228,7 @@
         <span class="n">cutpath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">=</span> <span class="s2">"jigsaw"</span><span class="p">,</span>
         <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">cutpath_centered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3307,7 +3359,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3327,7 +3379,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

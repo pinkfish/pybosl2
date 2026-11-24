@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.surfaces3d - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.surfaces3d - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2442,6 +2442,7 @@
     <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span>
     <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">FRONT</span> <span class="o">+</span> <span class="n">LEFT</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
@@ -2486,12 +2487,13 @@
 <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">heightfield</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="s2">"Callable[[float, float], float | None] | Sequence[Sequence[float]]"</span><span class="p">,</span>
-    <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">bottom</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span>
     <span class="n">maxz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">99</span><span class="p">,</span>
     <span class="n">xrange</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">yrange</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2513,6 +2515,12 @@
 <span class="sd">        orient:    direction to rotate the top towards (default UP)</span>
 
 <span class="sd">    """</span>
+    <span class="c1"># `None` means the default, as it does on the SDF spelling. This read `(100, 100)` as the</span>
+    <span class="c1"># default, so `size=None` -- which the other backend accepts, and which the parity budget</span>
+    <span class="c1"># recorded as a mere nullability difference -- reached the subscript below as a raw</span>
+    <span class="c1"># `TypeError: 'NoneType' object is not subscriptable` (SPEC PAR-1, E-1).</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
     <span class="n">sz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">size</span>
     <span class="n">style_key</span> <span class="o">=</span> <span class="n">style</span> <span class="k">if</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"alt"</span><span class="p">,</span> <span class="s2">"quincunx"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"default"</span>
@@ -2608,6 +2616,7 @@
     <span class="n">transpose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">aspect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">xrange</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">yrange</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -2938,6 +2947,7 @@
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3018,6 +3028,7 @@
     <span class="n">border</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">roughness</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a rectangular tile carrying a repeated *texture*.</span>
@@ -3132,6 +3143,7 @@
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">inch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">LEFT</span><span class="o">.</span><span class="n">vector</span> <span class="o">+</span> <span class="n">BACK</span><span class="o">.</span><span class="n">vector</span> <span class="o">+</span> <span class="n">TOP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
@@ -3236,7 +3248,14 @@
                     <span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
                     <span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">colors</span><span class="p">[(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+                <span class="c1"># `.shape` because `pieces` holds native handles: the ticks come from `_ocube` and</span>
+                <span class="c1"># this one comes back from the façade's `linear_extrude` as a `CsgSolid`. Appended</span>
+                <span class="c1"># as the wrapper, the list alternated native and wrapped, and `base | p` fell</span>
+                <span class="c1"># through to pythonscad's own operator with an argument it does not understand --</span>
+                <span class="c1"># so **every** `labels=True` call raised a bare</span>
+                <span class="c1"># `TypeError: invalid argument left to operator` (T107). Unwrapping at the FFI</span>
+                <span class="c1"># boundary inside a native builder is what C-14a says a wrapper's `.shape` is for.</span>
+                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
     <span class="n">base</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -3244,11 +3263,12 @@
     <span class="n">shape</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="n">length_v</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">width_v</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_box3</span><span class="p">([</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span> <span class="n">anchor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
-        <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">),</span>
-        <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span>
-        <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="c1"># `_finish3` already returns a `Bosl2Solid`; every other caller in this file returns it</span>
+    <span class="c1"># directly. Wrapping it again made `ruler(...).shape` a `CsgSolid` rather than the native</span>
+    <span class="c1"># handle C-14a says it is, so `.vnf()` reached `.mesh` on a wrapper and the ruler could not be</span>
+    <span class="c1"># meshed or exported at all. `mypy --strict` cannot see it: `PyOpenSCAD` is an untyped</span>
+    <span class="c1"># third-party class, so the constructor's parameter accepts anything (T107).</span>
+    <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length_v</span><span class="p">,</span> <span class="n">width_v</span><span class="p">,</span> <span class="n">thickness</span><span class="p">],</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span></div>
 
 </code></pre></div>
 
@@ -3299,7 +3319,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3319,7 +3339,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

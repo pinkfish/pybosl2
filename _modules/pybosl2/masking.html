@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.masking - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.masking - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2188,6 +2188,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">polar_to_xy</span> <span class="k">as</span> <span class="n">_polar_to_xy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">scale_pair</span> <span class="k">as</span> <span class="n">_scale_pair</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span>
@@ -2232,6 +2233,7 @@
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2277,13 +2279,18 @@
     <span class="c1"># Wrapped, for the same reason _extrude_mask_along_edge() wraps: the native polygon()/</span>
     <span class="c1"># linear_extrude() pair hands back a bare native handle, which has no bounds() and no backend</span>
     <span class="c1"># tag, and will not compose with a Bosl2Solid on the right of a boolean.</span>
-    <span class="k">if</span> <span class="n">rad1</span> <span class="o">&lt;</span> <span class="n">rad2</span><span class="p">:</span>
-        <span class="n">cross</span> <span class="o">=</span> <span class="n">mask2d_roundover</span><span class="p">(</span><span class="n">rad2</span><span class="p">,</span> <span class="n">excess</span><span class="o">=</span><span class="n">excess</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">cross</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">rad1</span> <span class="o">/</span> <span class="n">rad2</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">cross</span> <span class="o">=</span> <span class="n">mask2d_roundover</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">excess</span><span class="o">=</span><span class="n">excess</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="n">rad2</span> <span class="o">/</span> <span class="n">rad1</span> <span class="k">if</span> <span class="n">rad1</span> <span class="k">else</span> <span class="mf">1.0</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">cross</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">))</span></div>
+    <span class="c1"># The cross-section is always the *larger* radius, scaled down to the smaller along the</span>
+    <span class="c1"># extrusion, and the growing case is turned over afterwards. It used to be turned over with</span>
+    <span class="c1"># `rotate(180, [1, 0, 0])`, which reverses Y as well as Z: a mask asked to grow from</span>
+    <span class="c1"># `radius1` to `radius2` came out in the -Y quadrant while every other spelling of the same</span>
+    <span class="c1"># cutter sits in +X/+Y, so it cut the wrong side of the edge it was aimed at. Invisible while</span>
+    <span class="c1"># the taper itself was being dropped (T123) -- both ends were the larger radius, and a mask</span>
+    <span class="c1"># that cuts *something* near an edge looks like a mask that works.</span>
+    <span class="n">base</span><span class="p">,</span> <span class="n">tip</span> <span class="o">=</span> <span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">)</span> <span class="k">if</span> <span class="n">rad1</span> <span class="o">&gt;=</span> <span class="n">rad2</span> <span class="k">else</span> <span class="p">(</span><span class="n">rad2</span><span class="p">,</span> <span class="n">rad1</span><span class="p">)</span>
+    <span class="n">cross</span> <span class="o">=</span> <span class="n">mask2d_roundover</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">excess</span><span class="o">=</span><span class="n">excess</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">tip</span> <span class="o">/</span> <span class="n">base</span> <span class="k">if</span> <span class="n">base</span> <span class="k">else</span> <span class="mf">1.0</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">cross</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">_scale_pair</span><span class="p">(</span><span class="n">scale</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">shape</span><span class="o">.</span><span class="n">mirror</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">rad1</span> <span class="o">&lt;</span> <span class="n">rad2</span> <span class="k">else</span> <span class="n">shape</span></div>
 
 
 
@@ -2372,6 +2379,7 @@
     <span class="n">except_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EdgeAtom</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_cutter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2417,6 +2425,7 @@
     <span class="n">except_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EdgeAtom</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2578,6 +2587,7 @@
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2638,6 +2648,7 @@
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2718,6 +2729,11 @@
 
 
 
+<span class="c1">#: Steepest lean from vertical a teardrop profile may reach, in degrees. 45 is what an FDM</span>
+<span class="c1">#: printer bridges without support, and is `os_teardrop`'s `max_angle` default.</span>
+<span class="n">_MAX_LEAN</span> <span class="o">=</span> <span class="mf">45.0</span>
+
+
 <div class="viewcode-block" id="Mask2D">
 <a class="viewcode-back" href="../../foundational/masking.html#pybosl2.masking.Mask2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Mask2D</span><span class="p">:</span>
@@ -2745,6 +2761,7 @@
         <span class="n">inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
         <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2843,6 +2860,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">cove</span><span class="p">(</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2861,21 +2879,20 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
         <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="c1"># The arc is centred on the corner, so it bulges *away* from it and the mask scoops the</span>
+        <span class="c1"># corner out -- which is what a cove is. Centred at `(radius, radius)` and swept 180..270,</span>
+        <span class="c1"># as this was until T89, it is `Mask2D.roundover`'s arc exactly: the two came out the same</span>
+        <span class="c1"># polygon, cove differing only by two duplicated vertices, so `cove_edges` rounded rather</span>
+        <span class="c1"># than coved. The areas say which is which -- a roundover takes `r^2 - pi*r^2/4` off the</span>
+        <span class="c1"># corner and a cove takes the quarter-disc `pi*r^2/4` itself.</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span><span class="n">radius</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">radius</span><span class="p">],</span>
-            <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">radius</span><span class="p">],</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">radius</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                    <span class="n">radius</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+            <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">90.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -2885,6 +2902,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">tear</span><span class="p">(</span>
         <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">maxgap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2904,22 +2922,29 @@
 
         <span class="n">_</span> <span class="o">=</span> <span class="n">maxgap</span>
         <span class="n">excess</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="c1"># An eighth-circle off the wall, then straight at `_MAX_LEAN` -- `os_teardrop` in</span>
+        <span class="c1"># `pybosl2.skin` states the same convention, and it is what makes the edge printable: the</span>
+        <span class="c1"># steepest lean from vertical anywhere on the cut is exactly `_MAX_LEAN`.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Until T90 the arc swept 135 degrees past 180 rather than 45, and the tip was placed at</span>
+        <span class="c1"># `r * (1 - sqrt(2))` -- negative, on the far side of the corner -- where the arc it has to</span>
+        <span class="c1"># meet ends at `r * (1 - 1/sqrt(2))`. The loop crossed itself, so the cutter had no</span>
+        <span class="c1"># interior at all: it shoelaced to 1.110 against an even-odd fill of 2.903, and reached</span>
+        <span class="c1"># `x = 5.12`, `y = -1.24` on a corner every other profile keeps inside `[-excess, r]`.</span>
+        <span class="n">lean</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">_MAX_LEAN</span><span class="p">)</span>
+        <span class="c1"># Where the straight run, dropping at `lean` from the arc's end, meets the face y = 0.</span>
+        <span class="n">tip_x</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lean</span><span class="p">))</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lean</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">lean</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">tip_x</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span>
         <span class="p">]</span>
-        <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="c1"># The arc spans an eighth turn, so it gets an eighth of the fragments a full circle would.</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">135.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                    <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-        <span class="n">tip</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)),</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))]</span>
-        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+            <span class="n">ang</span> <span class="o">=</span> <span class="n">lean</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">r</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span> <span class="n">r</span> <span class="o">-</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">)])</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">tip_x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -2989,6 +3014,7 @@
         <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">round_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3034,15 +3060,17 @@
 
         <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">chamfer</span><span class="p">,</span> <span class="n">round_radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
         <span class="n">half_w</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="c1"># The channel itself, filled. Until T89 this traced the channel's *outline* -- up one wall,</span>
+        <span class="c1"># along the floor, down the other, and back around an outer rectangle one `excess` bigger --</span>
+        <span class="c1"># which closes into a hairline frame of thickness `excess` enclosing almost nothing, so the</span>
+        <span class="c1"># cutter scratched rather than grooved: 2.4mm^3 off a 30x30x20 box where a roundover of the</span>
+        <span class="c1"># same size took 396. The floor sits at y=0 so that `depth` is measured from the face, and</span>
+        <span class="c1"># only the mouth carries the excess, because only the mouth leaves the solid.</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">half_w</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
-            <span class="p">[</span><span class="o">-</span><span class="n">half_w</span> <span class="o">-</span> <span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
-            <span class="p">[</span><span class="o">-</span><span class="n">half_w</span> <span class="o">-</span> <span class="n">excess</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
-            <span class="p">[</span><span class="o">-</span><span class="n">half_w</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">half_w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
             <span class="p">[</span><span class="n">half_w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
             <span class="p">[</span><span class="n">half_w</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">half_w</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">half_w</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </div>
@@ -3204,7 +3232,7 @@
 <span class="sd">        Only *width* is required (SPEC D-2): a groove's depth follows from its width unless you</span>
 <span class="sd">        say otherwise -- half the width is the proportion that reads as a groove rather than a</span>
 <span class="sd">        slot -- and its length is however long the thing being grooved is, which *size* supplies</span>
-<span class="sd">        when you pass it and :meth:`~pybosl2.shapes3d.base.CsgSolid.groove_edges` supplies for you</span>
+<span class="sd">        when you pass it and :func:`~pybosl2.masking.mask3d_groove` supplies for you</span>
 <span class="sd">        (SPEC P-3, S-26a). This took three required positionals, which SPEC D-2 says is never</span>
 <span class="sd">        acceptable.</span>
 
@@ -3307,7 +3335,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3327,7 +3355,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

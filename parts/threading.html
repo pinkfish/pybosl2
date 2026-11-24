@@ -21,7 +21,7 @@
     
     
       
-        <title>Threading - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>Threading - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -94,7 +94,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -225,10 +225,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -3066,7 +3066,7 @@ starts and <em>left_handed</em> flips the helix.</p>
 </dd>
 <dt id="pybosl2.parts.threading.ThreadedRod.__init__.pitch"><span class="sig-name descname">pitch</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedRod.__init__.pitch" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.threading.ThreadedRod.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[float]] | ThreadProfile</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedRod.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.threading.ThreadedRod.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | ThreadProfile</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedRod.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.threading.ThreadedRod.__init__.starts"><span class="sig-name descname">starts</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedRod.__init__.starts" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3142,7 +3142,7 @@ starts and <em>left_handed</em> flips the helix.</p>
 </dd>
 <dt id="pybosl2.parts.threading.ThreadedNut.__init__.pitch"><span class="sig-name descname">pitch</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedNut.__init__.pitch" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.threading.ThreadedNut.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[float]] | ThreadProfile</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedNut.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.threading.ThreadedNut.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | ThreadProfile</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedNut.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.threading.ThreadedNut.__init__.shape"><span class="sig-name descname">shape</span><span class="p"> : </span><span class="desctype"><span class="desctype">NutShape</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadedNut.__init__.shape" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3216,9 +3216,11 @@ starts and <em>left_handed</em> flips the helix.</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.threading.</span></span><span class="sig-name descname"><span class="pre">ThreadHelix</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.d" title="pybosl2.parts.threading.ThreadHelix.__init__.d (Python parameter)"><span class="n"><span class="pre">d</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.pitch" title="pybosl2.parts.threading.ThreadHelix.__init__.pitch (Python parameter)"><span class="n"><span class="pre">pitch</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.thread_depth" title="pybosl2.parts.threading.ThreadHelix.__init__.thread_depth (Python parameter)"><span class="n"><span class="pre">thread_depth</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.flank_angle" title="pybosl2.parts.threading.ThreadHelix.__init__.flank_angle (Python parameter)"><span class="n"><span class="pre">flank_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">15</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.turns" title="pybosl2.parts.threading.ThreadHelix.__init__.turns (Python parameter)"><span class="n"><span class="pre">turns</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.starts" title="pybosl2.parts.threading.ThreadHelix.__init__.starts (Python parameter)"><span class="n"><span class="pre">starts</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.left_handed" title="pybosl2.parts.threading.ThreadHelix.__init__.left_handed (Python parameter)"><span class="n"><span class="pre">left_handed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.threading.ThreadHelix.__init__.profile" title="pybosl2.parts.threading.ThreadHelix.__init__.profile (Python parameter)"><span class="n"><span class="pre">profile</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/parts/threading.html#ThreadHelix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.ThreadHelix" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Buildable</span></code></p>
 <p>A single helical thread ridge, for adding threads onto your own cylinder.</p>
-<p>The thread crest is at diameter <em>d</em>; give <em>thread_depth</em> and <em>flank_angle</em>,
-or an explicit <em>profile</em>. Built entirely through spiral_sweep (VNF output),
-so it does not accept fn/fa/fs smoothing parameters.</p>
+<p>The ridge <em>stands on</em> diameter <em>d</em> and grows outward, so the threaded diameter is
+<code class="docutils literal notranslate"><span class="pre">d</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">thread_depth</span></code> – union it with a cylinder of diameter <em>d</em> and the threads are
+the part that shows. Give <em>thread_depth</em> and <em>flank_angle</em>, or an explicit <em>profile</em>.
+Built entirely through spiral_sweep (VNF output), so it does not accept fn/fa/fs
+smoothing parameters.</p>
 <p class="example rubric">Examples</p>
 <p>A trapezoidal thread helix around a cylinder:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cylinder</span> <span class="k">as</span> <span class="n">cyl</span>
@@ -3244,7 +3246,7 @@ so it does not accept fn/fa/fs smoothing parameters.</p>
 </dd>
 <dt id="pybosl2.parts.threading.ThreadHelix.__init__.left_handed"><span class="sig-name descname">left_handed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadHelix.__init__.left_handed" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.threading.ThreadHelix.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[float]] | ThreadProfile | None</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadHelix.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.threading.ThreadHelix.__init__.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | ThreadProfile | None</span></span><a class="headerlink" href="#pybosl2.parts.threading.ThreadHelix.__init__.profile" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
@@ -3459,7 +3461,7 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3479,7 +3481,7 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

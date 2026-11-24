@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.miscellaneous - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.miscellaneous - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2160,7 +2160,7 @@
 <span class="c1">#    path_extrude, cylindrical_extrude), the bounding box, chain_hull, and the minkowski-based</span>
 <span class="c1">#    transforms (minkowski_difference, offset3d, round3d).</span>
 <span class="c1">#</span>
-<span class="c1">#    The two path extrusions are methods on :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.paths.Path3D`</span>
+<span class="c1">#    The two path extrusions are methods on :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.path3d.Path3D`</span>
 <span class="c1">#    via the :class:`Extrudable` mixin, and -- unlike BOSL2, which extrudes its *children* -- they</span>
 <span class="c1">#    take the 2-D cross-section as a *profile* argument: a native 2-D shape, a Path2D/Region, a</span>
 <span class="c1">#    Bosl2Solid wrapping 2-D geometry, or a zero-argument factory that returns fresh geometry (the</span>
@@ -2184,16 +2184,32 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.flat</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flat</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+
+    <span class="c1">#: What the extrusions take as a 2-D cross-section. The module docstring has always named</span>
+    <span class="c1">#: these four -- a native 2-D shape, a `Path2D`/`Region`, a wrapper around 2-D geometry, or a</span>
+    <span class="c1">#: zero-argument factory returning fresh geometry -- and the signatures said `object`, which</span>
+    <span class="c1">#: names none of them. The `Any` is the first member: a raw native handle has no type to give,</span>
+    <span class="c1">#: so this union cannot be narrower than `Any` for the checker. It is still worth naming, for</span>
+    <span class="c1">#: the reason `PathLike` and `RegionLike` are: a reader learns what to pass, which `object`</span>
+    <span class="c1">#: never says. Declared inside the block because its members are (T73's `RegionLike` again).</span>
+    <span class="n">ProfileLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Flat</span> <span class="o">|</span> <span class="n">Solid</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Any</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frame_map4_yz</span><span class="p">,</span> <span class="n">rot_from_to4</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">vec3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">scale_pair</span> <span class="k">as</span> <span class="n">_scale_pair</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
@@ -2215,7 +2231,7 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.</span>
 
 <span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.</span>
@@ -2225,7 +2241,7 @@
     <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Callable[[], Any]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.</span>
 
 <span class="sd">    (the "children" form, safe for frep handles); anything else is meshed once and reused.</span>
@@ -2260,12 +2276,13 @@
 <div class="viewcode-block" id="extrude_from_to">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.extrude_from_to">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extrude_from_to</span><span class="p">(</span>
-    <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
     <span class="n">pt1</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">pt2</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Linearly extrude a 2-D *profile* between two 3-D points.</span>
@@ -2307,7 +2324,9 @@
         <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
         <span class="s2">"center"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"twist"</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
-        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+        <span class="c1"># a scalar here reached the native extruder untouched: silently ignored up to</span>
+        <span class="c1"># pythonscad 1.1.2, a TypeError from 1.2.0 (T122)</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">_scale_pair</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span>
         <span class="s2">"convexity"</span><span class="p">:</span> <span class="n">convexity</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2320,12 +2339,13 @@
 <div class="viewcode-block" id="cylindrical_extrude">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.cylindrical_extrude">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cylindrical_extrude</span><span class="p">(</span>
-    <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -2491,20 +2511,30 @@
 <div class="viewcode-block" id="Extrudable">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Extrudable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.path2d.Path2D` and.</span>
 
-<span class="sd">    :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead</span>
+<span class="sd">    :class:`~pybosl2.path3d.Path3D`. Both take the 2-D cross-section as a *profile* argument instead</span>
 <span class="sd">    of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).</span>
+
+<span class="sd">    **Both are CSG-only, and say so now.** They are built out of native primitives -- `path_extrude`</span>
+<span class="sd">    clips with `pythonscad.cube`, and `path_extrude2d` takes its corner fillets from</span>
+<span class="sd">    `_planar_half`, which cuts with `pythonscad.square` -- so neither follows the active backend</span>
+<span class="sd">    however the profile is dispatched. Under `use_backend("sdf")` they used to fail from inside,</span>
+<span class="sd">    with an `AttributeError` about `_sdf_fn` or a complaint that "every argument must be a</span>
+<span class="sd">    PyShape": raw exceptions no `except Bosl2Error` could catch, naming an internal detail rather</span>
+<span class="sd">    than the call the caller made (SPEC E-1, E-6, B-9).</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Extrudable.path_extrude2d">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable.path_extrude2d">[docs]</a>
+    <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude2d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extrude a 2-D *profile* along this 2-D path, standing it vertically.</span>
@@ -2585,9 +2615,11 @@
 
 <div class="viewcode-block" id="Extrudable.path_extrude">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable.path_extrude">[docs]</a>
+    <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">clipsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
@@ -2595,7 +2627,7 @@
 
 <span class="sd">        Places an oriented linear extrusion for each segment and clips it at the mitre planes</span>
 <span class="sd">        between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps</span>
-<span class="sd">        :func:`~pybosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary</span>
+<span class="sd">        :func:`~pybosl2.skin.Sweepable.path_sweep` is faster and cleaner; this exists for extruding an arbitrary</span>
 <span class="sd">        native 2-D object (text, multi-part shapes) that is not a single polygon.</span>
 
 <span class="sd">        Args:</span>
@@ -2717,7 +2749,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -2737,7 +2769,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

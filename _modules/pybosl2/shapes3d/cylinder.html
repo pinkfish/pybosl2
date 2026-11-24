@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.shapes3d.cylinder - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.shapes3d.cylinder - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2693,7 +2693,7 @@
         <span class="n">sides</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="n">sides</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">shear</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">shear</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">length_val</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">length_val</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -2802,15 +2802,13 @@
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">effective_clip</span>
 
-    <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># `bool` is a subclass of `int`, so an `isinstance(teardrop, (int, float))` test answers</span>
-        <span class="c1"># True for `teardrop=True` and takes the boolean itself as the angle -- a **1 degree**</span>
-        <span class="c1"># teardrop, which is a rounding with an imperceptible flat on it rather than the 45 the</span>
-        <span class="c1"># flag is supposed to mean. The bool has to be ruled out before the number is read.</span>
-        <span class="n">td_ang</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">teardrop</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">teardrop</span><span class="p">)</span>
-        <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">eff_clip</span><span class="p">,</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">td_ang</span><span class="p">)</span>
+    <span class="c1"># T45 said this rule was "written once and both backends read it". Only half of that was true:</span>
+    <span class="c1"># `effective_clip` was written, the SDF backend read it, and this function kept its own copy of</span>
+    <span class="c1"># the formula -- so when T62 corrected the copy in `effective_clip`, the CSG rim did not move.</span>
+    <span class="c1"># The duplicate is gone; there is one definition and this is a call to it.</span>
+    <span class="n">eff_clip</span> <span class="o">=</span> <span class="n">effective_clip</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">)</span>
 
     <span class="n">_check_rim_treatments</span><span class="p">(</span><span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">rounding1</span><span class="p">,</span> <span class="n">rounding2</span><span class="p">,</span> <span class="n">chamfer1</span><span class="p">,</span> <span class="n">chamfer2</span><span class="p">)</span>
 
@@ -3494,6 +3492,7 @@
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3638,7 +3637,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3658,7 +3657,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

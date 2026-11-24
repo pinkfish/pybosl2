@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.regions - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.regions - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2169,17 +2169,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Polygon</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">RoundingMethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># for the annotations only -- importing shapes2d here would be circular</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
@@ -2230,7 +2230,7 @@
     <span class="k">return</span> <span class="n">paths</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">inward_probe</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">inward_probe</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a point strictly inside *poly* and on no other polygon's boundary.</span>
 
 <span class="sd">    The midpoint of the first edge, nudged inward. WHICH side is inward depends on the winding, so</span>
@@ -2281,6 +2281,17 @@
     <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">))]</span>
 
 
+<span class="c1"># `Region(paths=...)` is a constructor, and `Any` told a caller nothing about what it takes</span>
+<span class="c1"># (SPEC C-20): a sequence of outlines, a single flat point list, or a shapely geometry.</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+
+    <span class="c1">#: What :class:`Region` accepts. Declared inside the type-checking block because its members</span>
+    <span class="c1">#: are: `PathLike` cannot be imported at runtime here without a cycle, and a string-valued</span>
+    <span class="c1">#: alias hides the reference from the linter, which then removes the import as unused.</span>
+    <span class="n">RegionLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PathLike</span><span class="p">]</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span>
+
+
 <div class="viewcode-block" id="Region">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Region</span><span class="p">:</span>
@@ -2328,7 +2339,7 @@
 
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="s2">"RegionLike"</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a region from path outlines or a shapely geometry.</span>
 
 <span class="sd">        When *paths* is a list of :class:`~pybosl2.path2d.Path2D` objects that</span>
@@ -2529,6 +2540,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">from_svg</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -2767,6 +2779,7 @@
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chamfer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2800,13 +2813,14 @@
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.round_corners">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">round_corners</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">RoundingMethod</span> <span class="o">=</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">,</span>
         <span class="n">cut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">joint</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">curvature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3044,6 +3058,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -3062,7 +3077,7 @@
 
 <span class="sd">        The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under</span>
 <span class="sd">        the default CSG backend, or a :class:`~pybosl2.sdf.shapes3d.PyShape` under</span>
-<span class="sd">        ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend</span>
+<span class="sd">        ``use_backend("sdf")``. See :meth:`pybosl2.path2d.Path2D.linear_extrude` for per-backend</span>
 <span class="sd">        options.</span>
 
 <span class="sd">        The SDF backend's prism is the union of the outlines' fields, so it can only express a</span>
@@ -3180,6 +3195,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3279,7 +3295,7 @@
 <span class="sd">        Produces the filled region as a thin flat solid with every path's vertices labelled in</span>
 <span class="sd">        red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...`` (BOSL2</span>
 <span class="sd">        ``debug_region()``). A single-path region defers to</span>
-<span class="sd">        :meth:`~pybosl2.paths.Path2D.debug_polygon`.</span>
+<span class="sd">        :meth:`~pybosl2.path2d.Path2D.debug_polygon`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            size: Text size for vertex labels.</span>
@@ -3301,6 +3317,15 @@
         <span class="n">solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">vertices</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">solid</span>
+        <span class="c1"># `text3d` is CSG-only -- it renders a font, which the SDF backend has no equivalent for --</span>
+        <span class="c1"># and it is imported *here* rather than at the top of the module so that importing</span>
+        <span class="c1"># `pybosl2.regions` does not drag a backend module in for a debug helper most callers never</span>
+        <span class="c1"># use. The refusal below names this call rather than letting `text3d`'s own name surface</span>
+        <span class="c1"># from three frames down, which is what a caller can act on (SPEC B-9, E-5).</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">refuse_text_labels</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
+
+        <span class="n">refuse_text_labels</span><span class="p">(</span><span class="s2">"Region.debug_region(vertices=True)"</span><span class="p">)</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">text3d</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
@@ -3526,7 +3551,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -3546,7 +3571,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

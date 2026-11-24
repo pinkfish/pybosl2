@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.parts.gears - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.parts.gears - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -3810,6 +3810,26 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nominal</span> <span class="o">=</span> <span class="p">[</span><span class="n">teeth</span> <span class="o">*</span> <span class="n">center</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">height</span><span class="p">)]</span>
+        <span class="c1"># The catalogue, as data. `Rack2d` builds its path in `__init__` (it is on C-14's</span>
+        <span class="c1"># eager list), but that is no reason for its dimensions to be unreadable (SPEC S-46).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">teeth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pressure_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">pressure_angle</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Number of teeth on the rack."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Total height of the rack bar in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pressure_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Pressure angle in degrees."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pressure_angle</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
@@ -4219,6 +4239,12 @@
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">diam_pitch</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Kept as named attributes as well as in `_args`, so a caller can read the worm's</span>
+        <span class="c1"># dimensions off it without building one (SPEC S-46, C-14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">diameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">starts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">left_handed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
@@ -4264,6 +4290,26 @@
         <span class="c1"># Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so</span>
         <span class="c1"># bounds() reports a wider solid -- mating parts line up on the pitch cylinder.</span>
         <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">diameter</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Worm outside diameter in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Worm length in mm."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">starts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Number of thread starts."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_starts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">left_handed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether the thread is left-handed."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_left_handed</span>
 
     <span class="nd">@property</span>
     <span class="c1"># Not "2-D geometry" -- that reason was copy-pasted from BevelGear. A worm is a swept helical</span>
@@ -4502,7 +4548,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -4522,7 +4568,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.skin - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.skin - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2804,6 +2804,14 @@
     <span class="k">return</span> <span class="n">vnf</span> <span class="k">if</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">vnf</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
 
+<span class="c1">#: Squared-length floor below which a reflection vector counts as vanishing. Squared, because</span>
+<span class="c1">#: it is compared against `v @ v` rather than `norm(v)`.</span>
+<span class="n">_EPS_SQ</span> <span class="o">=</span> <span class="mf">1e-18</span>
+
+<span class="c1">#: Floor below which two consecutive path points count as the same point.</span>
+<span class="n">_EPS_LEN</span> <span class="o">=</span> <span class="mf">1e-9</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_sweep</span><span class="p">(</span>
     <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="n">Path3D</span><span class="p">,</span>
@@ -2833,9 +2841,32 @@
     <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">npts</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path must have at least 2 points."</span><span class="p">)</span>
+    <span class="c1"># A repeated point has no direction, so the frame walk below divides by its squared length and</span>
+    <span class="c1"># every transform downstream comes back `NaN` -- and the sweep *returns*, so a caller got a</span>
+    <span class="c1"># solid whose bounds were `[nan, nan, nan]` with no exception and no warning (T101). Refused</span>
+    <span class="c1"># rather than deduplicated silently, because dropping a point renumbers the path and the</span>
+    <span class="c1"># per-point lists (`tangent=`, a per-point `scale=` or `normal=`) are matched against it: a</span>
+    <span class="c1"># silent dedup turns a correct call into a length mismatch, or applies the wrong value at every</span>
+    <span class="c1"># point after the duplicate.</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">patharr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">repeated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">steps</span> <span class="o">&lt;=</span> <span class="n">_EPS_LEN</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">repeated</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">at</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">repeated</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"path_sweep(): the path repeats a point at index </span><span class="si">{</span><span class="n">at</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">patharr</span><span class="p">[</span><span class="n">at</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">), which "</span>
+            <span class="sa">f</span><span class="s2">"has no direction to sweep along. Call .deduplicate() on the path first."</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">tangent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_u</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">path3d</span><span class="p">(</span><span class="n">tangent</span><span class="p">)])</span>
+        <span class="c1"># One per path point. Unchecked, a short list reached `tangents[i % npts]` as a raw</span>
+        <span class="c1"># `IndexError` naming an axis rather than the parameter, and an empty one did the same at</span>
+        <span class="c1"># index 0 (SPEC E-1, E-4). `% npts` makes the index legal, so the error surfaces inside</span>
+        <span class="c1"># numpy rather than at the call that was wrong.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tangents</span><span class="p">)</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"path_sweep(): tangent= needs one tangent per path point, </span><span class="si">{</span><span class="n">npts</span><span class="si">}</span><span class="s2"> here, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tangents</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span><span class="o">.</span><span class="n">tangents</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
@@ -2898,7 +2929,13 @@
                 <span class="n">refl_t</span> <span class="o">=</span> <span class="n">tangents</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">v1</span> <span class="o">@</span> <span class="n">tangents</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span> <span class="o">/</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">v1</span>
                 <span class="n">v2</span> <span class="o">=</span> <span class="n">tangents</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span> <span class="o">-</span> <span class="n">refl_t</span>
                 <span class="n">c2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">v2</span><span class="p">)</span>
-                <span class="n">radius</span> <span class="o">=</span> <span class="n">refl_r</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">refl_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span>
+                <span class="c1"># `v2` vanishes exactly when the reflected tangent already *is* the next tangent,</span>
+                <span class="c1"># so the second reflection of the double-reflection frame is the identity and the</span>
+                <span class="c1"># radius carries straight over. Unguarded this divided by zero, which is how</span>
+                <span class="c1"># `tangent=` with a uniform list of directions -- the obvious thing to pass, and</span>
+                <span class="c1"># what a 2-D tangent becomes once padded -- came back as a bare `ZeroDivisionError`</span>
+                <span class="c1"># from inside the frame walk (T101).</span>
+                <span class="n">radius</span> <span class="o">=</span> <span class="n">refl_r</span> <span class="k">if</span> <span class="n">c2</span> <span class="o">&lt;=</span> <span class="n">_EPS_SQ</span> <span class="k">else</span> <span class="n">refl_r</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v2</span> <span class="o">@</span> <span class="n">refl_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span>
                 <span class="n">cur</span> <span class="o">=</span> <span class="n">frame_map</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">tangents</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
             <span class="n">reference</span> <span class="o">=</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -3044,10 +3081,23 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
     <span class="n">maxlen</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">refine_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">))</span>
-    <span class="n">resampled</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path3D</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">maxlen</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
+    <span class="c1"># `sampling` was normalised above and then never read, so `SamplingType` changed nothing at all:</span>
+    <span class="c1"># LENGTH spaces the new points by arc length and SEGMENT spreads them evenly per segment, and</span>
+    <span class="c1"># `subdivide_path` has carried that distinction the whole time under the same two names (T106).</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubdivideMethod</span>
+
+    <span class="n">subdivide</span> <span class="o">=</span> <span class="n">SubdivideMethod</span><span class="p">(</span><span class="n">sampling</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">resampled</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Path3D</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">maxlen</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">subdivide</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
+    <span class="p">]</span>
     <span class="n">fixedprof</span> <span class="o">=</span> <span class="p">[</span><span class="n">resampled</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">sides</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">method</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">:</span>
+        <span class="c1"># `method_list`, not `method`. `SkinMethod` is a `StrEnum`, so `method[i - 1]` indexed the</span>
+        <span class="c1"># *string*: `SkinMethod.DIRECT[0]` is `'d'`, which never equals `SkinMethod.DIRECT`, so this</span>
+        <span class="c1"># comparison was always false and **every** skin reindexed -- the DIRECT branch was dead and</span>
+        <span class="c1"># the two methods built the same solid. `method_list` exists for this and was used only in</span>
+        <span class="c1"># the validation loop above (T106).</span>
+        <span class="k">if</span> <span class="n">method_list</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">:</span>
             <span class="n">fixedprof</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resampled</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fixedprof</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">_reindex_polygon</span><span class="p">(</span><span class="n">fixedprof</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">resampled</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
@@ -3831,13 +3881,13 @@
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">joint_top</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">joint_bottom</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">joint_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">curvature_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">joint_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">curvature_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="n">joint_bot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">k_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">k_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).</span>
 
@@ -4488,7 +4538,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -4508,7 +4558,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>

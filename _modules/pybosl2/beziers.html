@@ -17,7 +17,7 @@
     
     
       
-        <title>pybosl2.beziers - pybosl2 (PythonSCAD port) 0.7.12 documentation</title>
+        <title>pybosl2.beziers - pybosl2 (PythonSCAD port) 0.7.13 documentation</title>
       
     
     
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -85,7 +85,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.12 documentation
+            pybosl2 (PythonSCAD port) 0.7.13 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,10 +216,10 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.12 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.12 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.13 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.13 documentation" data-md-component="logo">
       <img src="../../_static/logo.png" alt="logo">
     </a>
-    pybosl2 (PythonSCAD port) 0.7.12 documentation
+    pybosl2 (PythonSCAD port) 0.7.13 documentation
   </label>
   
     <div class="md-nav__source">
@@ -2209,7 +2209,6 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">PointLike</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -2229,7 +2228,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Bezier</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""A Bezier curve or path: a list of control points, with every bezier operation as a method.</span>
 
-<span class="sd">    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the</span>
+<span class="sd">    Subclasses ``list`` (the same trick as :class:`pybosl2.path2d.Path2D`), so it is a drop-in for the</span>
 <span class="sd">    raw control-point lists the toolkit passes around, while giving the chained object form::</span>
 
 <span class="sd">        Bezier([[44, 5], [48, 6], [64, -15]]).points([0.2 * i for i in range(6)])</span>
@@ -2629,8 +2628,8 @@
 
 <span class="sd">        Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling</span>
 <span class="sd">        each segment uniformly and concatenating the results. Returns a</span>
-<span class="sd">        :class:`~pybosl2.paths.Path2D` for 2-D points or</span>
-<span class="sd">        :class:`~pybosl2.paths.Path3D` for 3-D.</span>
+<span class="sd">        :class:`~pybosl2.path2d.Path2D` for 2-D points or</span>
+<span class="sd">        :class:`~pybosl2.path3d.Path3D` for 3-D.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            splinesteps: Number of uniform segments to sample per curve segment.</span>
@@ -2638,8 +2637,8 @@
 <span class="sd">            endpoint: Whether to include the final endpoint in the output.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.paths.Path2D` for 2-D points or</span>
-<span class="sd">            :class:`~pybosl2.paths.Path3D` for 3-D points containing the</span>
+<span class="sd">            A :class:`~pybosl2.path2d.Path2D` for 2-D points or</span>
+<span class="sd">            :class:`~pybosl2.path3d.Path3D` for 3-D points containing the</span>
 <span class="sd">            sampled bezier path.</span>
 
 <span class="sd">        Examples:</span>
@@ -2956,7 +2955,15 @@
             <span class="n">tang</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">):</span>
                 <span class="n">ctrl</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">(</span><span class="n">bezpath</span><span class="p">[</span><span class="n">seg</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="n">tang</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ctrl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))))</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">ctrl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)))</span>
+                <span class="c1"># Consecutive segments share a junction, and `path_curve` emits that point once.</span>
+                <span class="c1"># This kept both copies of its tangent, so the list ran one long and every tangent</span>
+                <span class="c1"># after the first junction was paired with the wrong path point: at the junction a</span>
+                <span class="c1"># frame built from `tangent[i]` sat 15.2 degrees off the path's local direction</span>
+                <span class="c1"># where `tangent[i + 1]` sat 1.25 off (T101). Surplus at the end of a list indexed</span>
+                <span class="c1"># `[i % npts]` is read by nothing, which is why a quiet misalignment was the only</span>
+                <span class="c1"># symptom.</span>
+                <span class="n">tang</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">seg</span> <span class="k">else</span> <span class="n">samples</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
             <span class="n">tang</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span>  <span class="c1"># type: ignore[no-redef]</span>
@@ -3045,7 +3052,11 @@
             <span class="n">tang</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">):</span>
                 <span class="n">ctrl</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">(</span><span class="n">bezpath</span><span class="p">[</span><span class="n">seg</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="n">tang</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ctrl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))))</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">ctrl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)))</span>
+                <span class="c1"># The same junction duplicate `sweep` had; see the note there. Two copies of the</span>
+                <span class="c1"># loop, one defect, and fixing the first is what made the second visible -- the</span>
+                <span class="c1"># count check in `_path_sweep` still reported a mismatch (T101).</span>
+                <span class="n">tang</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">seg</span> <span class="k">else</span> <span class="n">samples</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
             <span class="n">tang</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))))</span>
@@ -3682,7 +3693,7 @@
 
 <div class="viewcode-block" id="BezierPatch.vnf">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.vnf">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">vnf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vnf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Mesh this patch into a :class:`~pybosl2.vnf.VNF`.</span>
 
 <span class="sd">        Samples the patch at *splinesteps* intervals in both *u* and *v*</span>
@@ -3753,8 +3764,8 @@
             <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BezierPatch</span><span class="p">)</span> <span class="k">else</span> <span class="n">BezierPatch</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">BezierPatch</span><span class="p">)</span> <span class="ow">or</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">patches</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">_as_patch</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"np.ndarray"</span><span class="p">,</span> <span class="n">patches</span><span class="p">))</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">union</span><span class="p">([</span><span class="n">_as_patch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">])</span></div>
+            <span class="k">return</span> <span class="n">_as_patch</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"np.ndarray"</span><span class="p">,</span> <span class="n">patches</span><span class="p">))</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">union</span><span class="p">([</span><span class="n">_as_patch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="BezierPatch.flat">
@@ -3763,6 +3774,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">flat</span><span class="p">(</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
         <span class="n">trans</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
@@ -3988,7 +4000,7 @@
         <span class="n">showpatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Visualize this patch as native geometry (BOSL2 debug_bezier_patches).</span>
 
 <span class="sd">        Renders the surface, control-point net lines, and control points as</span>
@@ -4004,8 +4016,8 @@
 <span class="sd">            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered</span>
-<span class="sd">            patch surface, control net, and control-point markers.</span>
+<span class="sd">            The rendered patch surface, control net and control-point markers, as a</span>
+<span class="sd">            :class:`~pybosl2._backend.Solid` on whichever backend is active.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -4054,12 +4066,14 @@
 <span class="sd">    operator") while ``tube | sphere`` worked, so whether a caller's union succeeded came down to</span>
 <span class="sd">    which kind of piece it happened to start with.</span>
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span>
-
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span>
 
     <span class="n">p3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">sphere</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">))</span>  <span class="c1"># the native takes r/d, not radius/diameter</span>
+    <span class="c1"># Through the façade, so the marker is built by whichever backend is active (SPEC A-10). It</span>
+    <span class="c1"># took `pythonscad.sphere` and wrapped the result in `Bosl2Solid`, which made this the one</span>
+    <span class="c1"># native call in an otherwise neutral debug helper -- `_debug_tube` beside it has always gone</span>
+    <span class="c1"># through `path_sweep`, which returns a `Solid` on either backend.</span>
+    <span class="k">return</span> <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="debug_bezier_patches">
@@ -4072,12 +4086,20 @@
     <span class="n">showdots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">showpatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Native geometry showing bezier patches: surfaces, control points and control-net lines.</span>
 
-<span class="sd">    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.</span>
+<span class="sd">    Returns whichever :class:`~pybosl2._backend.Solid` the active backend builds.</span>
 <span class="sd">    Requires the real PythonSCAD app; builds on VNF.polyhedron() and the</span>
 <span class="sd">    ported path_sweep tube.</span>
+
+<span class="sd">    **It builds on either backend.** It used to fail halfway through under `use_backend("sdf")` --</span>
+<span class="sd">    "cannot combine a 'csg'-backend solid with a 'sdf'-backend solid" -- and T57 marked it</span>
+<span class="sd">    `@backend_only("csg")` so it would at least refuse under its own name. That was a workaround</span>
+<span class="sd">    for a one-line defect: of its two markers, `_debug_tube` had always gone through `path_sweep`</span>
+<span class="sd">    (neutral), and only `_sphere_at` reached for `pythonscad.sphere` and wrapped the result. Taking</span>
+<span class="sd">    that one through the façade makes the whole helper neutral, which beats refusing well</span>
+<span class="sd">    (SPEC A-10, PAR-1).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        patches: A single patch or list of patches to debug-visualise.</span>
@@ -4089,12 +4111,10 @@
 <span class="sd">        style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patch</span>
-<span class="sd">        surfaces, control nets, and control-point markers.</span>
+<span class="sd">        The rendered patch surfaces, control nets and control-point markers, as a</span>
+<span class="sd">        :class:`~pybosl2._backend.Solid` on whichever backend is active.</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
-
     <span class="c1"># is_patch() only recognises a list/tuple, so a BezierPatch or an (R, C, 3) array -- both of</span>
     <span class="c1"># which the signature accepts -- used to fall through and be iterated as if each row were a</span>
     <span class="c1"># whole patch, failing with "patch rows must be a 3-D array".</span>
@@ -4152,9 +4172,11 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_VNF</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off."</span><span class="p">)</span>
-    <span class="c1"># Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the</span>
-    <span class="c1"># result with no bounding box of its own.</span>
-    <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="c1"># Every piece is already a `Solid` on whichever backend is active -- `path_sweep` returns one</span>
+    <span class="c1"># (SPEC S-19a), the façade sphere returns one, and `VNF.polyhedron()` dispatches. The wrap that</span>
+    <span class="c1"># stood here tested `isinstance(result, Bosl2Solid)` and so re-wrapped an `SdfSolid` into a CSG</span>
+    <span class="c1"># wrapper, which is how this returned a `CsgSolid` from inside `use_backend("sdf")` (SPEC A-6).</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Solid"</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
 
 </code></pre></div>
 
@@ -4205,7 +4227,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    9.1.0.
+    9.1.1.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -4225,7 +4247,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../../_static/sphinx_immaterial_theme.ce3f826234c1e494c.min.js?v=6917d573"></script>
         <script type="module" src="../../_static/stl_viewer.js?v=048dc819"></script>
     
   </body>
