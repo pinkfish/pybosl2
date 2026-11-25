@@ -84,7 +84,7 @@ spec renumbers as items close, and all but S-46a have.
 | 19 | PAR-4 / PAR-5 / B2-1 | [T47](#t47--trimcorners-and-the-instrument-that-was-there-all-along) ✅ | S |
 | 20 | PAR-4 / PAR-5 / S-2b | [T48](#t48--the-last-option-gap) ✅ | S |
 | 21 | S-2b / PAR-5 | [T49](#t49--measure-the-bounds-instead-of-writing-them) ✅ | M |
-| 22 | A-1 / PAR-1 / B-4 | [T50](#t50--audit-the-layering-debt) 🔶 | M |
+| 22 | A-1 / PAR-1 / B-4 | [T50](#t50--audit-the-layering-debt) ✅ | M |
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
@@ -1656,12 +1656,11 @@ class, two spellings of one shared parameter (C-17, C-21).
 
 ### What remains
 
-4 violations after T56, none of them a runtime module-level import.
-The three that are not going away moved to `[capability_edges]` in T55:
-
-* `path2d -> miscellaneous` and `path3d -> miscellaneous` — see below; the reason is measured now,
-  and it is neither of the two things it looked like.
-* `regions -> shapes3d` — deferred since T53; see below.
+**Nothing.** `known_violations` is empty as of
+[T133](#t133--the-last-three-debt-rows-and-the-six-defects-behind-them), from 16 when this was
+first measured. Four capability edges remain and are not debt — `path2d -> miscellaneous`,
+`path3d -> miscellaneous`, `regions -> shapes3d` (T52/T53, moved out of the debt list by T55) and
+`skin -> sdf` (T133) — each with a test that holds the capability in place.
 
 
 ## T52 — `Extrudable` cannot move, and now we know why 🔶
@@ -5903,3 +5902,231 @@ inscribe it, so the profile reads a hair small at any finite facet count. A seco
 premise separately — a 10-to-4 cone with a 2mm rounding reaches 9.311939, not 10 — so the pair
 cannot pass by both sides being wrong together. Six treated-taper rows joined
 `test_sdf_bounds_are_tight.py`, so the blind spot closes rather than this one case.
+
+
+## T133 — The last three debt rows, and the six defects behind them ✅
+
+**Requirement:** SPEC A-1 (a lower layer must not import a higher one), A-6, PAR-1, B-4, E-1, E-6.
+**§12.2 item 22, concluded. `known_violations` 3 → 0.**
+
+Three rows left in `spec/layers.toml`'s debt list, each with a stated reason for why the edge could
+not close. **All three reasons were wrong, in three different ways** — which is the fourth
+consecutive task in which a stated reason in that file has not survived being measured (T50, T52/T53,
+T56, T58). The rows are gone and the file now says what each measurement found.
+
+### `_helpers -> _native`: the reason answered a question nobody asked
+
+The row said closing it meant building through the façade, which returns a wrapper rather than the
+raw native handle every caller wants. That is true, and it assumes the coercion has to stay at L2.
+**Measured, all four callers are at L3** — `shapes2d/base.py`, `shapes2d/ops.py` (twice) and
+`miscellaneous.py` — so nothing at L2 was ever asking for it.
+
+`as_native_2d` and `is_child_2d` moved to `pybosl2.shapes2d.base`, beside the `native("polygon")`
+handle the coercion calls. **The edge closed with no rewrite at all.** Two pieces of prose had been
+pointing at the right answer the whole time: `miscellaneous.py`'s docstring said
+*"see `pybosl2.shapes2d._as_native_2d`, which this defers to"* while the function it named lived in
+`_helpers`, and `ops.py`'s import block carried the comment *"Import base class and helper
+functions from shapes2d.base"* above three imports from `_helpers`. **Stale prose is not only
+wrong; it can be right about something nobody acted on.**
+
+### `path3d -> _stroke3d`: the row described the one call that was correct
+
+It named `Path3D.stroke`, which **already dispatched**: `get_backend().stroke(...)` whenever the
+backend was not csg, and an import of the backend module only for the csg case — for which
+`CsgBackend.stroke` declares the same method with the same signature, forwarding to the same
+function. One line of dispatch instead of a branch, and the edge closed.
+
+What the row did not name is `Path3D.dashed_stroke`, three methods below, which called
+`dashed_stroke_3d` **unconditionally**. That function is `@builds_with("csg")`, so:
+
+```python
+with use_backend("sdf"):
+    Path3D([...]).dashed_stroke(dashpat=[5, 2])  # -> CsgSolid, backend='csg'
+```
+
+A solid the other backend owns, from inside an `sdf` block, silently — while its own sibling one
+screen above got it right. **A debt row is a place a reader looks for what is wrong with a module,
+and this one pointed away from it.**
+
+A dashed stroke is a dash table plus one ordinary stroke per dash, and only the stroke needs a
+backend. The cutting is `dash_segments_3d` in `_helpers` now — plane-and-space arithmetic, the
+`arc` finding from T50 over again — each dash goes through the dispatched `stroke`, and the
+CSG-only duplicate in `_stroke3d` is deleted rather than kept and typed. The csg output is
+unchanged: `test_drawing.py`'s cylinder and sphere counts pass untouched.
+
+### `skin -> sdf`: in the right place for the wrong list
+
+Its reason — a helical sweep has a closed-form distance field, and meshing one is B-5's lossy
+conversion — **is a capability, not work nobody has got round to**, which is the exact distinction
+T55 added `capability_edges` for. T55 moved three rows and left this one.
+
+It is in `capability_edges` now with a test that pins the capability rather than the import:
+under `use_backend("sdf")`, `Path2D.spiral_sweep` must be the backend's own field **to the last
+bit**, measured over a 567-point lattice, with two controls — the grid can tell that helix from one
+half a turn longer, and `to_sdf` refuses on a CSG solid outright, so **meshing is a one-way door**
+and the import is the only route to the exactness. That last one is what makes it architecture:
+without the edge the capability is not slower, it is gone.
+
+### Six defects, one class, found by looking for the layering
+
+| | under `use_backend("sdf")`, before |
+|---|---|
+| `Path3D.dashed_stroke` | `CsgSolid`, silently |
+| `miscellaneous.extrude_from_to` | `CsgSolid`, silently |
+| `miscellaneous.cylindrical_extrude` | `CsgSolid`, silently |
+| `masking.rounding_edge_mask` | `CsgSolid`, silently |
+| `miscellaneous.chain_hull` | `TypeError: Error during parsing hull. arguments must be solids or arrays` |
+| `miscellaneous.minkowski_difference` | `Bosl2ValueError: bounds(): object has no native bounding box…` |
+
+Six functions and four distinct ways of not saying it. Two of the three ways are ones this campaign
+has already named: the raw native exception no `except Bosl2Error` can catch (T51) and the true
+sentence about the wrong thing, three frames from the call (T53, T57).
+
+**Two of them were duplicating an operation both backends already had.** `chain_hull` reached
+`pythonscad.hull` while every solid has a `hull` method that works on either backend, and
+`minkowski_difference` failed inside `_native_bounds` while the active backend's solid has the
+operation of its own. T53's finding, again: *the same feature turned out to be written twice*, and
+one of the copies was CSG-only.
+
+**And `masking.rounding_edge_mask` is the one worth reading twice.** It sits in the module whose
+own layering row says *"a mask cutter is built by whichever backend is active"*, three lines above
+`chamfer_edge_mask`, whose docstring records this precise lesson:
+
+> It is built as a turned prism rather than an extruded diamond polygon so that it works on either
+> backend — `polygon().linear_extrude()` is a CSG-only construction, and this cutter is what
+> `cubetruss` and `tripod_mounts` chamfer with, so it was the thing keeping them CSG-only.
+
+Its sibling was still `_opolygon(cross).linear_extrude(...)` wrapped in `Bosl2Solid` by hand. **The
+lesson was written down, next door, in the same file.** It builds through the façade now, and a
+*tapered* cutter — which needs `linear_extrude(scale=)`, an argument the SDF extruder does not have
+— refuses under its own name instead of reaching the extruder and raising a bare `TypeError` about
+a keyword. `SdfShape2D.linear_extrude` declares `scale`, `twist` and `slices` for the same reason
+`cyl` declares `teardrop` (B-9): a refusal should name what the caller wrote. That is T51's
+`convexity` fix with the sign reversed — `convexity` is a renderer hint a field may ignore, and a
+taper is a different surface, so one is accepted and ignored and the others are refused.
+
+`SdfShape.minkowski_difference` was broken on its own account: it read
+`self.to_csg().minkowski_difference(*diffs, size=size)`, **converting the receiver and leaving the
+diffs as SDF shapes**, so the CSG implementation got a `PyShape` where it wanted a native solid and
+raised `TypeError: invalid argument left to operator`. A conversion applied to one operand and not
+the other is the shape of defect T58 found in `debug_bezier_patches`. It is a negative offset now,
+which is what eroding a solid by a ball is — exact for the sphere it is almost always called with,
+and measurably better than the CSG answer it used to borrow: a 20mm cube eroded by a 3mm sphere
+reads 14.0 × 14.0 × 14.0, against the mesh's 14.0 × 14.2937 × 14.2937.
+
+### The check that was missing, and the blind spot it has
+
+Five of these had been found before, one per task, each by accident while looking at something else
+(T50, T51, T53, T58, and now six at once). `tests/test_neutral_geometry_is_not_gated.py` checks the
+**marked** functions — that nothing refuses for no reason — and **the converse had no check at
+all**: a function that builds CSG whatever the backend and declares nothing. So five sat in the
+code simultaneously, two of them in the module whose layering row claims the opposite.
+
+`tests/test_a_neutral_call_does_not_hand_back_csg.py` asks it both ways, because neither way is
+enough on its own:
+
+* **statically**, every public callable returning a backend-owned solid that reaches native CSG —
+  as an import, or as a call to a module-level native alias, or through a `@builds_with` helper —
+  must say which backend it builds for. Seven entries of residue, all inside the CSG backend's own
+  code, each with its reason, ratcheted and checked for staleness.
+* **dynamically**, each of the six is called on both backends and the result is looked at: an
+  sdf-backed solid, or a refusal naming the call. Never a `CsgSolid`.
+
+The static half's blind spot is stated in the file rather than hidden: it sees a native reach
+written as an import or an alias call, and not one arriving through a helper in another module —
+which is why it misses `extrude_from_to`, whose only reach is
+`_as_native_2d(profile).linear_extrude(...)`. **A scan that cannot say what it misses is worse than
+one that can**, and the dynamic half is there because this one can.
+
+Run against `main` before the fix: **7 failures** — all six calls, plus the static ratchet on four
+of them. Three controls: the scan must see a planted violation in both spellings, must leave a
+`@backend_only` function alone, and the dynamic half must be able to tell a foreign solid from a
+native one.
+
+### What is left on the layering
+
+`known_violations` is **empty**, from 16 when this was first measured. Four were never debt
+(typing-only), two closed by moving code to the layer it belonged in, one by dispatching through a
+protocol door that already existed, one by deleting a hand-written wrap, three were counted twice,
+one was already sanctioned by a check it had never been put to, and **four are capability edges**
+with tests holding them in place. The ratchet reads 0, and a new upward runtime import now fails
+the parametrised check with no list left to be added to.
+
+Still open and recorded rather than guessed: `SdfShape`'s `to_csg()`-based methods — `repair`,
+`oversample`, `separate`, `wrap`, `pull`, `partition` — all return a `CsgSolid` from inside
+`use_backend("sdf")`. Each says *"via CSG conversion"* in its docstring, which is a declaration of
+sorts, and each is typed `-> PyShape`, which is not. That is a seventh instance of this class and a
+task of its own; the new scan does not see them because they are in `pybosl2/sdf/`, which it skips.
+`minkowski`'s half-of-the-bounding-diagonal radius is a second: it reads 1.73r for a sphere of
+radius r, where the inscribed ball this task used for `minkowski_difference` reads exactly r.
+
+
+## T134 — A cone was published as not watertight ✅
+
+**Requirement:** SPEC S-55 (an unwatertight mesh is a bug the caller wants to hear about), DOC-1.
+
+Two things were sitting in the open from earlier in this wave: `docs/specs/bottlecaps.rst` was
+stale in the repository, and regenerating it flipped `pco1810_neck` to `"wt": false` **while
+`part.vnf().is_watertight()` said `True` for the same part**. Two checks implementing the same
+rule — every undirected edge shared by exactly two faces — disagreeing about one solid.
+
+### Both were right about what they were given
+
+`VNF.is_watertight()` reads `faces`, which are vertex **indices**, so it measures the mesh *this
+library built*. `stl_metrics()` reads an STL, which is a triangle soup with no indices in it, so it
+re-identifies shared vertices by position and measures *what the renderer tessellated that mesh
+into*. **Two meshes, not two rules** — which is why no amount of reading the two implementations
+side by side explained it. They are the same eight lines.
+
+### The renderer's mesh has slivers in it, and the count could not survive one
+
+Rendering the neck fresh gave 4038 triangles with **8 edges carrying four incident faces each**. An
+edge with four faces looks like a non-manifold seam, and the eight of them sat in one plane at
+z = 24.300 — which is exactly `support_h + neck_h - lip_h = 21 + 5 - 1.7`, the plane the thread's
+`bottom_half()` cut lands in once it is raised. A plausible story about a CSG union touching along
+a coplanar face, and wrong.
+
+The mesh has **8 degenerate triangles**: two of the three vertices the same point. One of them is
+
+```
+(-1.3103, 12.4663, 24.3000)  (0.0000, 12.4663, 24.3000)  (0.0000, 12.4663, 24.3000)
+```
+
+A triangle like that covers no area and bounds nothing, and **its three edges are one edge listed
+twice** — a side the mesh's two real faces already share. So the count goes from 2 to 4, and the
+solid reads open. Dropping the eight slivers leaves 6045 edges, every one shared exactly twice.
+
+**Rounding was the first suspect and the measurement cleared it.** `stl_metrics` fuses vertices by
+`np.round(tris, 4)`, and rounding is a grid rather than a tolerance — two points a hair apart land
+in different cells if they straddle a boundary. But the eight bad edges are stable at 3, 4, 5, 6
+and 7 decimals, which no rounding artifact would be.
+
+### It was never about the bottle
+
+Run over the 93 meshes the spec pages ship:
+
+| part | triangles | degenerate | edges miscounted | watertight |
+|---|---|---|---|---|
+| `cone(radius1=10, radius2=3, chamfer=1)` | 360 | **120** | 63 | False → **True** |
+| `cylinder(radius=10, chamfer=2)` | 360 | **120** | 63 | False → **True** |
+| `ball_bearing("r8")` | 2978 | 12 | 8 | False → **True** |
+| `pco1810_neck()` | 4038 | 8 | 8 | False → **True** |
+
+**A chamfered cylinder had been published as not watertight for as long as this function has
+existed**, and so had a chamfered cone — a third of each one's triangles are slivers, from the fan
+the chamfered rim is tessellated as. The plain cylinder beside them on the same page has none, so
+it is the chamfer that produces them, not a cone's apex, which was the first guess.
+Three of the seven `wt: false` entries in the metrics cache were this; the `wiring` ones are
+genuinely open, and `shapes2d-squircle` has one real bad edge left after the slivers are dropped,
+which is recorded rather than chased.
+
+The fix is three lines: skip a triangle whose three vertices are not three distinct points.
+`tests/test_the_watertight_measurement_is_sound.py` holds it with a tetrahedron — the smallest
+closed manifold — plus one sliver laid on an existing edge, and three controls: an open mesh must
+still read open, a mesh of nothing but slivers must not read closed, and the two cone meshes in the
+cache must really carry the 120 slivers the table claims.
+
+**The disagreement was the useful part.** `pco1810_neck`'s eight slivers are nothing — the
+part was always watertight — but they were the only reason anybody looked, and 63 miscounted edges
+on a cone were sitting behind them. A check whose two spellings agree is not evidence that either
+is right; one that disagrees is evidence that something is worth reading.

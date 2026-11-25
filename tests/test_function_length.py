@@ -47,7 +47,9 @@ LIMIT = 50
 #: `solid.py`'s five will not come down by splitting.
 BUDGET: dict[str, int] = {
     "_shape.py": 1,
-    "_stroke3d.py": 1,
+    # 1 until T133, which deleted `dashed_stroke_3d` -- the CSG-only duplicate of a feature that
+    # became backend-neutral -- rather than keeping it and splitting it.
+    "_stroke3d.py": 0,
     "beziers.py": 3,
     "caps.py": 1,
     "distributors.py": 2,

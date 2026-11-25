@@ -17,22 +17,16 @@ from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
-
-# Import base class and helper functions from shapes2d.base
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
-)
-from pybosl2._helpers import (
-    as_native_2d as _as_native_2d,
-)
-from pybosl2._helpers import (
-    is_child_2d as _is_child_2d,
 )
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 from pybosl2.exceptions import Bosl2ValueError
 
 from .base import Bosl2Shape2D, Shape2DLike, _finish
+from .base import as_native_2d as _as_native_2d
+from .base import is_child_2d as _is_child_2d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

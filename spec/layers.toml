@@ -65,6 +65,7 @@ L5_parts = ["parts"]
 "regions -> flat" = "Region.geometry() builds through the façade (A-10)."
 "beziers -> solid" = "`debug_bezier_patches` marks control points with spheres from the façade, so the marker is built by whichever backend is active (A-10). It reached `pythonscad.sphere` directly until T58 -- the one native call in a helper whose other piece, `_debug_tube`, had always gone through `path_sweep`."
 "masking -> solid" = "A mask cutter is built by whichever backend is active, so `masking` takes `cuboid` from the façade rather than from a backend module. It sat in known_violations until T56 measured it: the section's own check -- is the target a façade module? -- passes, and reaching *down* to the neutral façade is the thing A-10 asks for, not a layer being dodged."
+"masking -> flat" = "The 2-D half of the same thing, and the half that was missing: `rounding_edge_mask` extrudes its roundover cross-section, and until T133 it did so with `pythonscad.polygon().linear_extrude()` wrapped in a `Bosl2Solid` by hand -- so it returned a `CsgSolid` from inside `use_backend(\"sdf\")`, in the module whose `masking -> solid` row above says a mask cutter is built by whichever backend is active. It takes `polygon` from the 2-D façade now, and a *tapered* cutter refuses on a field backend under its own name, because `linear_extrude(scale=)` is a different surface rather than a render hint (A-10, B-9)."
 
 # Runtime module-level edges, plus the deferred ones that are not cycles. Every one is debt and
 # the list only shrinks. `A-10` marks the geometry bridge -- a geometry type reaching a backend
@@ -90,9 +91,29 @@ L5_parts = ["parts"]
 # a quarter worse than it was, and the staleness check could not see it -- it asked whether the
 # edge existed, not whether it was the *kind* of edge this list is for.
 [known_violations]
-"_helpers -> _native" = "`as_native_2d` coerces a bare point list into a native polygon, which means calling `native(\"polygon\")`. That is CSG machinery in a geometry module -- the same shape as `Extrudable`, one layer down -- and the fix is the same size: the coercion would have to build through the façade, which returns a wrapper rather than the raw handle its callers want."
-"path3d -> _stroke3d" = "`Path3D.stroke` calls the 3-D stroke, which lives in a backend module. Its 2-D twin `path2d -> _stroke2d` is a legitimate cycle because `_stroke2d` takes a `Path2D`; this one is not, because `_stroke3d` takes a `PathLike`. T56 typed its three `path: Any` parameters (a C-20 defect on its own) and confirmed `PathLike` is the honest type -- narrowing to `Path3D` would have manufactured the cycle rather than found one."
-"skin -> sdf" = "`spiral_sweep` dispatches to the SDF backend's own exact form when that backend is active, because a helical sweep has a closed-form distance field and meshing one would be B-5's lossy conversion. It cannot go through the façade: `pybosl2.solid` carries no `spiral_sweep`. This is the `masking -> solid` case without a façade equivalent to reach."
+# Empty, as of T133. All three of the last rows said the edge could not close, and all three
+# reasons were measured and wrong in a different way -- which is the fourth time running that a
+# stated reason in this file has not survived being checked (T50, T52/T53, T56, T58).
+#
+# `_helpers -> _native` said closing it meant building through the façade, which returns a wrapper
+# rather than the raw handle every caller wants. That is true and it was answering a question
+# nobody asked: all four callers of `as_native_2d`/`is_child_2d` are at L3, so nothing at L2 was
+# ever asking for the coercion. It moved to `pybosl2.shapes2d.base`, beside the `native("polygon")`
+# handle it calls -- where `miscellaneous`'s docstring had been saying it lived all along -- and
+# the edge closed with no rewrite.
+#
+# `path3d -> _stroke3d` named `Path3D.stroke`, which **already dispatched**: it called
+# `get_backend().stroke(...)` whenever the backend was not csg, and imported the backend module
+# only for the csg case -- for which the protocol declares the same method, forwarding to the same
+# function. The row described the one call that was right. It did not mention
+# `Path3D.dashed_stroke`, which called `@builds_with("csg")` code unconditionally and so returned a
+# `CsgSolid` from inside `use_backend("sdf")`: an A-6 defect the debt row was pointing away from.
+# The dash cutting is neutral path arithmetic in `_helpers` now, each dash goes through the
+# dispatched `stroke`, and the CSG-only duplicate is gone.
+#
+# `skin -> sdf` was in the right place for the wrong list: its reason -- a helical sweep has a
+# closed-form field and meshing one is B-5's lossy conversion -- is a capability, not a thing
+# nobody has got round to. It is in `capability_edges` below, with a test that pins the exactness.
 
 # Upward edges that buy a capability the layer below cannot have. Unlike `known_violations` these
 # are not going away, and saying so is more useful than a list that never shrinks: a reader of the
@@ -119,3 +140,7 @@ pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusio
 [capability_edges."regions -> shapes3d"]
 reason = "`Region.debug_region(vertices=True)` numbers each vertex with `text3d`, which renders a font and is CSG-only. It cannot go through the façade: `pybosl2.solid` is by design the primitives *both* backends expose. Deferred, so importing `pybosl2.regions` does not pull a backend module in, and the labels refuse under their own name."
 pinned_by = "tests/test_neutral_geometry_is_not_gated.py::test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on"
+
+[capability_edges."skin -> sdf"]
+reason = "`spiral_sweep` dispatches to the SDF backend's own exact form when that backend is active. `skin`'s own route builds a `VNF` and calls `.polyhedron()` on it, which is SPEC B-5's lossy conversion -- and meshing is a one-way door, because `to_sdf` refuses on a CSG solid outright, so the exactness would be gone with nothing able to recover it. It cannot go through the façade either: `pybosl2.solid` carries no `spiral_sweep`. This is the `masking -> solid` case with no façade equivalent to reach, and it sat in `known_violations` until T133 measured the difference between \"nobody has done this\" and \"doing it would cost something\"."
+pinned_by = "tests/test_the_two_spiral_sweeps_agree.py::test_the_skin_sweep_takes_the_exact_route_on_sdf"

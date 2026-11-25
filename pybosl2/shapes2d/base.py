@@ -27,14 +27,14 @@ from pybosl2._helpers import (
     arc_points as _arc_points,
 )
 from pybosl2._helpers import (
-    as_native_2d as _as_native_2d,
-)
-from pybosl2._helpers import (
     frag_count as _frag_count,
 )
 from pybosl2._helpers import require_anchor
 from pybosl2._helpers import (
     scale_pair as _scale_pair,
+)
+from pybosl2._helpers import (
+    unwrap as _unwrap_shape,
 )
 from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
@@ -69,6 +69,49 @@ else:
     _opolygon = native("polygon")
     _osquare = native("square")
     _otext = native("text")
+
+
+def as_native_2d(obj: Any) -> Any:
+    """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
+
+    a :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
+
+    This lived in `pybosl2._helpers` (L2) until T133, and the debt row for the `_helpers -> _native`
+    edge said closing it meant building through the façade -- which returns a wrapper, not the raw
+    handle every caller here wants. Measured, no caller needed that: all four sites are at L3
+    (`shapes2d.base`, `shapes2d.ops`, `miscellaneous`), so nothing at L2 was ever asking, and the
+    coercion simply moved to the layer that owns `native("polygon")`. The edge closed with no
+    rewrite (SPEC A-1).
+
+    Args:
+        obj: The object to inspect.
+
+    """
+    unwrapped = _unwrap_shape(obj)
+    if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
+        return unwrapped
+    geom = getattr(obj, "geometry", None)  # Path2D / Region
+    if callable(geom):
+        return _unwrap_shape(geom())
+    if isinstance(obj, (list, tuple)):  # a bare [[x, y], ...] point list
+        return _opolygon([[float(p[0]), float(p[1])] for p in obj])
+    return obj
+
+
+def is_child_2d(obj: Any) -> bool:
+    """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or.
+
+    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
+
+    Args:
+        obj: The object to inspect.
+
+    """
+    if not isinstance(obj, (list, tuple)):
+        return True  # a wrapper or a native handle
+    if callable(getattr(obj, "geometry", None)):
+        return True  # Path2D / Region
+    return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2
 
 
 def _arc_between_points(
@@ -601,7 +644,7 @@ class CsgShape2D(BaseShape):
                 slot.linear_extrude(height=3).show()
 
         """
-        return Bosl2Shape2D(_ohull(self.shape, *[_as_native_2d(o) for o in others]))
+        return Bosl2Shape2D(_ohull(self.shape, *[as_native_2d(o) for o in others]))
 
     # ---- 2-D -> 3-D (returns a Bosl2Solid) ----
 

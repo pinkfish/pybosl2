@@ -813,6 +813,9 @@ class SdfShape2D(Colorable, Distributable):
         center: bool = False,
         convexity: int | None = None,  # noqa: ARG002 - a render hint; the field has no facets
         res: int | None = None,
+        scale: "float | Sequence[float] | None" = None,
+        twist: float | None = None,
+        slices: int | None = None,
     ) -> PyShape:
         """Extrude this 2-D shape to *height* along Z -- the `Flat` contract's spelling.
 
@@ -834,9 +837,19 @@ class SdfShape2D(Colorable, Distributable):
                 (SPEC B-9's tessellation carve-out, C-21).
             res: Sampling resolution; the ambient default applies when omitted. Omitted, the ambient
                 ``use_defaults(res=...)`` value applies.
+            scale: Refused under its own name. Unlike *convexity* this is not a renderer hint: a
+                scaled extrusion is a different surface, and a distance field's extrusion is a
+                prism. Declared so the refusal names the argument the caller wrote, the way
+                `cyl(teardrop=)` does, instead of a bare ``TypeError`` about a keyword (B-9).
+            twist: Refused under its own name, as *scale*.
+            slices: Refused under its own name, as *scale* -- it only means anything to a tapered
+                or twisted extrusion.
 
         Returns:
             The extruded :class:`PyShape`.
+
+        Raises:
+            UnsupportedByBackendError: If *scale*, *twist* or *slices* is given.
 
         Examples:
             .. pythonscad-example::
@@ -848,6 +861,18 @@ class SdfShape2D(Colorable, Distributable):
                 shape.show()
 
         """
+        shaping = {"scale": scale, "twist": twist, "slices": slices}
+        given = [name for name, value in shaping.items() if value is not None]
+        if given:
+            from pybosl2.exceptions import UnsupportedByBackendError
+
+            raise UnsupportedByBackendError(
+                f"linear_extrude({'=, '.join(given)}=)",
+                "sdf",
+                hint="a distance field's extrusion is a prism; tapering or twisting one is a "
+                "different surface, not a render hint that can be ignored the way `convexity` "
+                'is. Build it inside `with use_backend("csg")` and bring it over with .to_csg().',
+            )
         return self.extrude(
             height,
             rounding_top=rounding_top,

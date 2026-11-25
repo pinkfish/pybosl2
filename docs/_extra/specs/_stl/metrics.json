@@ -284,7 +284,7 @@
    "tris": 2978,
    "vol": "2,400.7",
    "bbox": "29\u00d728\u00d76",
-   "wt": false
+   "wt": true
   }
  },
  "linear_bearings": {
@@ -407,20 +407,20 @@
  },
  "bottlecaps": {
   "pco1810-neck": {
-   "tris": 4130,
-   "vol": "4,358.5",
+   "tris": 4038,
+   "vol": "4,797.9",
    "bbox": "33\u00d733\u00d726",
    "wt": true
   },
   "pco1810-cap": {
-   "tris": 932,
-   "vol": "4,793.7",
+   "tris": 2014,
+   "vol": "4,850.3",
    "bbox": "33\u00d733\u00d716",
    "wt": true
   },
   "pco1881-neck": {
-   "tris": 3934,
-   "vol": "3,465.0",
+   "tris": 3672,
+   "vol": "3,640.3",
    "bbox": "33\u00d733\u00d722",
    "wt": true
   }
@@ -462,7 +462,7 @@
    "tris": 360,
    "vol": "2,902.4",
    "bbox": "20\u00d720\u00d720",
-   "wt": false
+   "wt": true
   },
   "prismoid": {
    "tris": 12,
@@ -504,7 +504,7 @@
    "tris": 360,
    "vol": "6,004.5",
    "bbox": "20\u00d720\u00d720",
-   "wt": false
+   "wt": true
   },
   "octahedron": {
    "tris": 8,

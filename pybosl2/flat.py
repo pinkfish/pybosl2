@@ -85,13 +85,26 @@ class Flat(Shape, Protocol):
         *,
         center: bool = False,
         convexity: int | None = None,
+        scale: "float | Sequence[float] | None" = None,
+        twist: float | None = None,
+        slices: int | None = None,
     ) -> Solid:
         """Extrude this 2-D shape into a 3-D solid.
+
+        *scale*, *twist* and *slices* shape the extrusion rather than hinting at its rendering, so
+        unlike *convexity* the SDF backend cannot ignore them -- a distance field's extrusion is a
+        prism. They are on the shared contract so that a caller passing one gets a refusal naming
+        the argument it wrote, the way `cyl(teardrop=)` does, instead of a bare `TypeError` about a
+        keyword from inside the backend (T133; SPEC C-17, C-21, B-9).
 
         Args:
             height: Height of the extrusion.
             center: Centre the result on Z instead of sitting it on the XY plane.
-            convexity: Convexity hint for preview rendering.
+            convexity: Convexity hint for preview rendering; a field backend may ignore it.
+            scale: Scale factor at the far end, tapering the extrusion. CSG only.
+            twist: Degrees of rotation over the extrusion's height. CSG only.
+            slices: Number of intermediate layers a twisted or tapered extrusion is built from.
+                CSG only.
 
         """
         ...

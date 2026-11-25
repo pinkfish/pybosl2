@@ -29,7 +29,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -83,9 +83,13 @@ __all__ = [
 def _as_native_2d(profile: "ProfileLike") -> Any:
     """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
-    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.
+    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d.base.as_native_2d`, which this defers to.
+
+    The docstring said `pybosl2.shapes2d` for as long as the function it named lived in
+    `pybosl2._helpers`, one layer down. T133 moved the coercion to the layer the docstring had been
+    pointing at all along, which is where `native("polygon")` already is.
     """
-    from pybosl2._helpers import as_native_2d as _coerce
+    from pybosl2.shapes2d.base import as_native_2d as _coerce
 
     return _coerce(profile)
 
@@ -122,6 +126,7 @@ def _planar_half(shape: Any, keep_positive_x: bool, s: float) -> Any:
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg")
 def extrude_from_to(
     profile: "ProfileLike",
     pt1: Sequence[float],
@@ -133,6 +138,12 @@ def extrude_from_to(
     convexity: int = 10,
 ) -> Bosl2Solid:
     """Linearly extrude a 2-D *profile* between two 3-D points.
+
+    **CSG-only, and it says so now.** The profile is coerced to a native 2-D handle and extruded
+    with the native `linear_extrude`, whose `twist`, `scale` and `slices` the SDF backend's
+    extruder does not have -- so this builds CSG geometry whatever backend is selected. Until T133
+    nothing said so: inside `use_backend("sdf")` it returned a `CsgSolid`, silently, which is the
+    A-6 defect `backend_only` exists to prevent (SPEC B-4, B-9, E-6).
 
     The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between
     them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.
@@ -182,6 +193,7 @@ def extrude_from_to(
     return Bosl2Solid(solid)
 
 
+@backend_only("csg")
 def cylindrical_extrude(
     profile: "ProfileLike",
     inner_radius: float | None = None,
@@ -198,6 +210,11 @@ def cylindrical_extrude(
     fs: float | None = None,
 ) -> Bosl2Solid:
     """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2.
+
+    **CSG-only, and it says so now.** Each facet is cut from the profile with `pythonscad.square`
+    and extruded natively, so this builds CSG geometry whatever backend is selected -- the same
+    situation as `path_extrude2d`, which T51 marked for the same reason. Until T133 it returned a
+    `CsgSolid` from inside `use_backend("sdf")` without a word (SPEC B-4, B-9, E-6).
 
     cylindrical_extrude()).
 
@@ -281,6 +298,22 @@ def cylindrical_extrude(
 def chain_hull(*objects: object) -> Bosl2Solid:
     """Union the hulls of each consecutive pair of *objects*.
 
+    Every solid already has a `hull` method and both backends implement it -- this reached
+    `pythonscad.hull` directly until T133, so inside `use_backend("sdf")` it failed from the native
+    parser with `TypeError: Error during parsing hull. arguments must be solids or arrays`: not a
+    `Bosl2Error`, so the documented `except Bosl2Error` could not catch it, and naming nothing the
+    caller had written. It hulls consecutive pairs through the solids' own method now, which
+    follows the active backend (SPEC A-6, PAR-1, E-1).
+
+    Args:
+        *objects: The solids to hull in sequence, or one sequence of them.
+
+    Returns:
+        The union of the hull of each consecutive pair, on whichever backend is active.
+
+    Raises:
+        Bosl2ValueError: If no shape is given.
+
     Examples:
         .. pythonscad-example::
 
@@ -290,18 +323,13 @@ def chain_hull(*objects: object) -> Bosl2Solid:
             chain_hull([sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
 
     """
-    from pythonscad import hull as _hull
-
-    from pybosl2.shapes3d import Bosl2Solid
-
     objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
     if not objs:
         raise Bosl2ValueError("chain_hull(): needs at least one shape to hull.")
-    natives = [unwrap(o) for o in objs]
-    if len(natives) == 1:
-        return Bosl2Solid(natives[0])
-    hulls = [_hull(natives[i - 1], natives[i]) for i in range(1, len(natives))]
-    return Bosl2Solid(reduce(operator.or_, hulls))
+    solids = [_as_solid(o, "chain_hull") for o in objs]
+    if len(solids) == 1:
+        return solids[0]
+    return reduce(operator.or_, [solids[i - 1].hull(solids[i]) for i in range(1, len(solids))])
 
 
 def minkowski_difference(base: object, *diffs: object, size: float = 1000, convexity: int = 10) -> Bosl2Solid:
@@ -314,24 +342,62 @@ def minkowski_difference(base: object, *diffs: object, size: float = 1000, conve
         convexity: Convexity hint for the renderer.
 
     """
-    _ = (size, convexity)
+    _ = convexity
     from pythonscad import cube as _cube
     from pythonscad import minkowski as _mink
 
+    from pybosl2._backend import current_backend
     from pybosl2.shapes3d import Bosl2Solid
 
-    b = unwrap(base)
     raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
+    if not raw:
+        raise Bosl2ValueError("minkowski_difference(): needs at least one diff shape.")
+    if current_backend() != "csg":
+        # The body below is the CSG implementation -- `pythonscad.cube` for the bounding shells and
+        # the native `minkowski` for the erosion -- and `Bosl2Solid.minkowski_difference` forwards
+        # here, which is why this is the implementation and not the wrapper. Under another backend
+        # it used to run anyway and fail inside `_native_bounds`, with a `Bosl2ValueError` about a
+        # missing native bounding box: a true sentence about the wrong thing, three frames from
+        # the call. The active backend's solid has this operation of its own, so hand it over
+        # (T133, SPEC A-6, E-1).
+        return _as_solid(base, "minkowski_difference").minkowski_difference(*raw, size=size)
+    b = unwrap(base)
     # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
     ds = [unwrap(d) for d in raw]
-    if not (ds):
-        raise Bosl2ValueError("minkowski_difference(): needs at least one diff shape.")
     center, sz = Bosl2Solid(b)._center_size() if isinstance(base, Bosl2Solid) else _native_bounds(b)
     box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])
     box1 = _cube([sz[i] + 2 for i in range(3)], center=True).translate([float(c) for c in center])
     shell = box1 - b
     carve = reduce(operator.or_, [_mink(shell, d) for d in ds]) if len(ds) > 1 else _mink(shell, ds[0])
     return Bosl2Solid(box0 - carve)
+
+
+def _as_solid(obj: object, function: str) -> "Bosl2Solid":
+    """Return *obj* as a solid on the active backend, so an operation can go through its methods.
+
+    A solid arrives as itself; a raw native handle is wrapped. Reaching for a shape's own method
+    instead of a native function is what lets `chain_hull` and `minkowski_difference` follow the
+    active backend -- both reached `pythonscad` directly until T133 (SPEC A-6).
+
+    Args:
+        obj: A solid, or a raw native handle.
+        function: The caller's name, for the message if *obj* is neither.
+
+    Raises:
+        Bosl2ValueError: If *obj* is not a solid and has no native handle to wrap.
+
+    """
+    from pybosl2.shapes3d import Bosl2Solid
+
+    if hasattr(obj, "hull") and hasattr(obj, "bounds"):
+        return cast("Bosl2Solid", obj)
+    native = unwrap(obj)
+    if native is None or isinstance(native, (list, tuple)):
+        raise Bosl2ValueError(
+            f"{function}(): every argument must be a solid, got {type(obj).__name__}. Build each "
+            f"one with a constructor from `pybosl2.solid` first."
+        )
+    return Bosl2Solid(native)
 
 
 def _native_bounds(shape: Any) -> tuple[list[float], list[float]]:

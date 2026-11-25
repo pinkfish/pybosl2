@@ -33,12 +33,13 @@ if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.shapes3d.base import Bosl2Solid
 
+from pybosl2._backend import current_backend
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import polar_to_xy as _polar_to_xy
 from pybosl2._helpers import quantup
 from pybosl2._helpers import scale_pair as _scale_pair
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
 
 from ._edges_lang import EDGE_OFFSETS
 from ._edges_lang import edges as resolve_edges
@@ -84,8 +85,8 @@ def rounding_edge_mask(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> "Bosl2Solid":
-    """Return a standalone 3-D edge-rounding cutter of length *length*, for manual positioning.
+) -> "Solid":
+    """Return a standalone 3-D edge-rounding cutter of length *length*, on the active backend.
 
     Args:
         length: Length of the cutter along its axis (default 1).
@@ -103,7 +104,11 @@ def rounding_edge_mask(
         fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
 
     Returns:
-        A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
+        The cutter, built by whichever backend is active.
+
+    Raises:
+        UnsupportedByBackendError: If a taper (*radius1* differing from *radius2*) is asked for on
+            a backend whose extruder has no `scale`.
 
     """
     length = length if length is not None else (height if height is not None else 1.0)
@@ -121,11 +126,6 @@ def rounding_edge_mask(
         diameter=diameter,
         dflt=1.0,
     )
-    from pybosl2.shapes3d import Bosl2Solid
-
-    # Wrapped, for the same reason _extrude_mask_along_edge() wraps: the native polygon()/
-    # linear_extrude() pair hands back a bare native handle, which has no bounds() and no backend
-    # tag, and will not compose with a Bosl2Solid on the right of a boolean.
     # The cross-section is always the *larger* radius, scaled down to the smaller along the
     # extrusion, and the growing case is turned over afterwards. It used to be turned over with
     # `rotate(180, [1, 0, 0])`, which reverses Y as well as Z: a mask asked to grow from
@@ -136,7 +136,8 @@ def rounding_edge_mask(
     base, tip = (rad1, rad2) if rad1 >= rad2 else (rad2, rad1)
     cross = mask2d_roundover(base, excess=excess, fn=fn, fa=fa, fs=fs)
     scale = tip / base if base else 1.0
-    shape = Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=_scale_pair(scale)))
+
+    shape = _extrude_rim_cross_section(cross, length, scale)
     return shape.mirror([0, 0, 1]) if rad1 < rad2 else shape
 
 
@@ -197,6 +198,47 @@ def _orient_mask_along_edge(
     center[a1] = s1 * size[a1] / 2
     center[a2] = s2 * size[a2] / 2
     return shape.multmatrix(m).translate(center)
+
+
+def _extrude_rim_cross_section(cross: "Path2D", length: float, scale: float) -> "Solid":
+    """Extrude a cutter's 2-D cross-section to *length*, tapering to *scale* at the far end.
+
+    Built through the façade, so the cutter belongs to the active backend (SPEC A-10). Until T133
+    `rounding_edge_mask` did this as `_opolygon(cross).linear_extrude(...)` wrapped in a
+    `Bosl2Solid` by hand, which returned a `CsgSolid` from inside `use_backend("sdf")` -- in the
+    module whose own layering row says a mask cutter is built by whichever backend is active, and
+    three lines above `chamfer_edge_mask`, whose docstring records this exact lesson:
+    `polygon().linear_extrude()` is a CSG-only construction, and that is what used to keep
+    `cubetruss` and `tripod_mounts` CSG-only (SPEC A-6, PAR-1).
+
+    Args:
+        cross: The cutter's cross-section.
+        length: Length along the extrusion axis, centred on the origin.
+        scale: Scale at the far end; 1 for a straight cutter.
+
+    Raises:
+        UnsupportedByBackendError: If a taper is asked for on a backend whose extruder has no
+            `scale`. A field's extrusion is a prism and scaling one end is a different surface,
+            not a render hint that can be ignored the way `convexity` is (B-9) -- so it refuses
+            under its own name rather than reaching the extruder and raising a bare `TypeError`
+            about a keyword.
+
+    """
+    from pybosl2.flat import polygon as _flat_polygon
+    from pybosl2.path2d import Path2D as _Path2D
+
+    flat = _flat_polygon(cross if isinstance(cross, _Path2D) else _Path2D(cross))
+    if abs(scale - 1.0) <= 1e-12:
+        return flat.linear_extrude(height=length, center=True)
+    if current_backend() != "csg":
+        raise UnsupportedByBackendError(
+            "rounding_edge_mask(radius1=, radius2=)",
+            current_backend(),
+            hint="a tapered cutter needs linear_extrude(scale=), which the SDF extruder does not "
+            "have. Give one radius for a straight cutter, or build the tapered one inside "
+            '`with use_backend("csg")`.',
+        )
+    return flat.linear_extrude(height=length, center=True, scale=_scale_pair(scale))
 
 
 def _extrude_mask_along_edge(
