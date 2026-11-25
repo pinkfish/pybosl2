@@ -115,6 +115,44 @@ jobs:
           test -f "dist/pybosl2-${VERSION}.tar.gz"
           test -f "dist/pybosl2-${VERSION}-py3-none-any.whl"
 
+      # A PyPI upload cannot be taken back -- a filename is burned even if the release is
+      # yanked -- so the wheel is opened and installed *before* it is published, not after.
+      # tests.yml's `artifact` job asks these same questions on every PR (SPEC Q-7), but a PR
+      # is not what gets published: the release builds its own wheel from a freshly bumped
+      # version.py, and that build has never been exercised. `py.typed` is in the list because
+      # it went missing from every published wheel once already while `mypy --strict` stayed
+      # clean on every commit -- setuptools includes `.pyi` files unasked and that marker not.
+      - name: The wheel that is about to be published carries its type declarations
+        run: |
+          python - "dist/pybosl2-${{ steps.ver.outputs.version }}-py3-none-any.whl" <<'PY'
+          import pathlib, sys, zipfile
+          # The exact filename the step above verified, not a glob: a `dist/` holding more than
+          # one wheel would otherwise have this checking an arbitrary one, and `pip install
+          # dist/*.whl` below refusing to resolve two versions at once.
+          wheel = pathlib.Path(sys.argv[1])
+          names = set(zipfile.ZipFile(wheel).namelist())
+          stubs = sorted(p.as_posix() for p in pathlib.Path("pybosl2").rglob("*.pyi"))
+          missing = [n for n in ["pybosl2/py.typed", *stubs] if n not in names]
+          if missing:
+              raise SystemExit(f"{wheel.name} is missing: {missing}")
+          print(f"{wheel.name}: py.typed and {len(stubs)} stubs present")
+          PY
+
+      - name: And installs and imports from a clean virtualenv
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          python -m venv /tmp/release-check
+          /tmp/release-check/bin/pip install --quiet --upgrade pip
+          /tmp/release-check/bin/pip install --quiet "dist/pybosl2-${VERSION}-py3-none-any.whl"
+          /tmp/release-check/bin/python - "$VERSION" <<'PY'
+          import sys
+          import pybosl2
+          expected = sys.argv[1]
+          if pybosl2.__version__ != expected:
+              raise SystemExit(f"installed {pybosl2.__version__!r}, release says {expected!r}")
+          print("import ok:", pybosl2.__version__)
+          PY
+
       - name: Attach build artifacts to the release
         if: ${{ github.event_name == 'release' }}
         env:

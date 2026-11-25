@@ -54,6 +54,41 @@ function getRenderer() {
   return renderer;
 }
 
+// ---------------------------------------------------------------------------
+// context lifecycle — one context per page, and none at all while hidden
+// ---------------------------------------------------------------------------
+//
+// Browsers cap live WebGL contexts at roughly 16. This page already shares one between all of
+// its viewers, which is what stopped canvases flashing blank on a page like `solid.py`'s 32
+// examples -- but each *tab* still holds its own, so a reader with a handful of API pages open
+// exhausts the cap, `new THREE.WebGLRenderer` throws on the next page they open, and every
+// viewer on it reports "WebGL is unavailable". A hidden tab has no reason to keep its context.
+//
+// Ported from pythonscad_boxes, which hit this first.
+
+function disposeRenderer() {
+  if (!renderer) return;
+  renderer.dispose();
+  renderer.forceContextLoss();
+  renderer = null;
+  // Not a failure: the next blit re-creates the context lazily, so every viewer has to be
+  // redrawn once it does.
+  rendererFailed = false;
+  for (const v of viewers) v.dirty = true;
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    disposeRenderer();
+    return;
+  }
+  // Coming back, a failure that was only the cap being briefly full can now succeed.
+  rendererFailed = false;
+  for (const v of viewers) v.dirty = true;
+});
+
+window.addEventListener("pagehide", disposeRenderer);
+
 function blit(v) {
   const r = getRenderer();
   if (!r) return;
@@ -213,15 +248,23 @@ class Viewer {
       }
     }
 
-    this.mesh = new THREE.Mesh(
-      geo,
-      new THREE.MeshPhongMaterial({
-        color: this.color,
-        specular: 0x222222,
-        shininess: 25,
-        flatShading: false,
-      }),
-    );
+    // An example that sets `.color()` should render in that colour. The docs pipeline exports
+    // via 3MF and rewrites it as a colour STL (see tests/render_stl.py), so STLLoader reports
+    // `hasColors` and fills a per-vertex colour attribute; `data-stl-color` is then only the
+    // fallback for a mesh that carries none. `geo.alpha` comes from the same header and is 1
+    // for everything this pipeline writes, but honouring it costs one line and makes a
+    // hand-authored translucent mesh work.
+    const shared = { specular: 0x222222, shininess: 25, flatShading: false };
+    const material = geo.hasColors
+      ? new THREE.MeshPhongMaterial({
+          ...shared,
+          vertexColors: true,
+          transparent: geo.alpha !== undefined && geo.alpha < 1.0,
+          opacity: geo.alpha !== undefined ? geo.alpha : 1.0,
+        })
+      : new THREE.MeshPhongMaterial({ ...shared, color: this.color });
+
+    this.mesh = new THREE.Mesh(geo, material);
     this.scene.add(this.mesh);
     if (this.status) this.status.remove();
     this.syncSize();

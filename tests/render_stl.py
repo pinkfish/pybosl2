@@ -22,6 +22,8 @@ import os
 import struct
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -191,6 +193,140 @@ def render_object(
     return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
 
 
+def _packed_magics_color(displaycolor: str) -> int:
+    """Pack a 3MF ``displaycolor`` into a Magics STL attribute word.
+
+    The colour STL convention VisCAM and Magics introduced -- and the one three.js's
+    ``STLLoader`` reads, surfacing it as ``geometry.hasColors`` -- puts five bits per channel in
+    the per-facet attribute: bits 0-4 red, 5-9 green, 10-14 blue, and bit 15 clear to mean "this
+    facet carries its own colour".
+
+    Args:
+        displaycolor: A 3MF colour such as ``"#FF0000FF"`` (the alpha byte is ignored; the
+            format has nowhere to put it).
+
+    Returns:
+        The 16-bit attribute word.
+
+    """
+    red, green, blue = (int(displaycolor[i : i + 2], 16) for i in (1, 3, 5))
+    scaled = [min(31, max(0, round(channel / 255.0 * 31))) for channel in (red, green, blue)]
+    return scaled[0] | (scaled[1] << 5) | (scaled[2] << 10)
+
+
+def convert_3mf_to_colored_stl(threemf_path: Path, stl_out_path: Path) -> bool:
+    """Rewrite a multi-material 3MF as a binary STL carrying one colour per facet.
+
+    **Why this exists.** An STL has no colour, so a docs example whose whole point is colour --
+    `rainbow_colors`, say -- rendered in the viewer's flat default, which is the one thing that
+    example is not about. 3MF does carry colour: PythonSCAD writes a `<basematerials>` table and
+    tags each triangle with `pid`/`p1`. So the export goes to 3MF and is rewritten here into the
+    STL colour extension, which keeps one file format for the viewer *and* the download link.
+
+    **Colour survives a union, measured, including an overlapping one.** PythonSCAD tags
+    *triangles* with `p1` rather than tagging objects with `pindex`, so merging bodies does not
+    merge their colours: three disjoint `rainbow_colors(3)` cuboids come out 12 tagged facets
+    each, and a cuboid overlapping a cylinder comes out 48 red and 92 steelblue. The one loss is
+    resolution -- five bits a channel, so pure channels are exact and steelblue `(70, 130, 180)`
+    returns as `(74, 132, 181)`.
+
+    Args:
+        threemf_path: The 3MF to read.
+        stl_out_path: Where to write the binary STL.
+
+    Returns:
+        True if a colour STL was written. False when the 3MF held no triangles, or when nothing in
+        it was deliberately coloured -- in both cases the caller should fall back to the plain
+        export rather than ship an empty mesh or a uniformly yellow one.
+
+    """
+    with zipfile.ZipFile(threemf_path) as archive:
+        root = ET.fromstring(archive.read("3D/3dmodel.model"))
+
+    # Tags are namespaced and the namespace has changed between 3MF revisions, so match on the
+    # local name rather than pinning a URI that a future PythonSCAD might bump.
+    palettes: dict[str, list[int]] = {}
+    # PythonSCAD always writes an implicit first entry named "Default" -- its own preview yellow,
+    # #F9D72C -- and names anything a caller asked for "Color N". Tracking the names is what lets
+    # a model with no colour of its own be recognised below.
+    defaults: dict[str, list[bool]] = {}
+    for group in root.iter():
+        if not group.tag.endswith("basematerials"):
+            continue
+        bases = [base for base in group if base.tag.endswith("base")]
+        key = group.attrib.get("id", "1")
+        palettes[key] = [_packed_magics_color(base.attrib.get("displaycolor", "#CCCCCCFF")) for base in bases]
+        defaults[key] = [base.attrib.get("name", "") == "Default" for base in bases]
+
+    fallback = next(iter(palettes.values()), [])
+    fallback_defaults = next(iter(defaults.values()), [])
+    triangles: list[tuple[tuple[float, float, float], ...]] = []
+    attributes: list[int] = []
+    deliberate: list[bool] = []
+    for mesh in root.iter():
+        if not mesh.tag.endswith("mesh"):
+            continue
+        holders = {suffix: [e for e in mesh if e.tag.endswith(suffix)] for suffix in ("vertices", "triangles")}
+        if not holders["vertices"] or not holders["triangles"]:
+            continue
+        points = [
+            (float(v.attrib["x"]), float(v.attrib["y"]), float(v.attrib["z"]))
+            for v in holders["vertices"][0]
+            if v.tag.endswith("vertex")
+        ]
+        for face in holders["triangles"][0]:
+            if not face.tag.endswith("triangle"):
+                continue
+            corners = tuple(points[int(face.attrib[key])] for key in ("v1", "v2", "v3"))
+            group_id = face.attrib.get("pid", "1")
+            palette = palettes.get(group_id, fallback)
+            named_default = defaults.get(group_id, fallback_defaults)
+            index = int(face.attrib.get("p1", 0))
+            triangles.append(corners)
+            attributes.append(palette[index] if index < len(palette) else 0)
+            deliberate.append(not (index < len(named_default) and named_default[index]))
+
+    if not triangles:
+        return False
+
+    # **Decline when nothing was actually coloured.** Every export carries the "Default" material,
+    # so a model that never calls `.color()` still tags all of its facets -- with PythonSCAD's
+    # preview yellow. Writing that as a facet colour would paint all 176 uncoloured examples
+    # #F9D72C and, worse, pin them there: the viewer's own colour is theme-aware and follows the
+    # light/dark toggle, and a facet colour overrides it. Returning False hands the caller back to
+    # the plain export, which is byte-for-byte what it produced before this route existed.
+    if not any(deliberate):
+        return False
+
+    # "COLOR=" in the first bytes is what the convention uses to announce per-facet colour; the
+    # default it carries is only used for facets that do not set their own.
+    header = b"COLOR=" + bytes((255, 255, 255, 255)) + b" pybosl2 colour STL"
+    with stl_out_path.open("wb") as handle:
+        handle.write(header.ljust(80, b"\0")[:80])
+        handle.write(struct.pack("<I", len(triangles)))
+        for corners, attribute in zip(triangles, attributes, strict=True):
+            normal = _facet_normal(corners)
+            handle.write(struct.pack("<3f", *normal))
+            for corner in corners:
+                handle.write(struct.pack("<3f", *corner))
+            handle.write(struct.pack("<H", attribute))
+    return True
+
+
+def _facet_normal(corners: "tuple[tuple[float, float, float], ...]") -> tuple[float, float, float]:
+    """Return the unit normal of a triangle, or zeros when it is degenerate.
+
+    A zero normal is legal in an STL and viewers recompute from the winding, which is what
+    `stl_viewer.js` does; refusing to divide by a zero length is the only thing that matters.
+    """
+    (ax, ay, az), (bx, by, bz), (cx, cy, cz) = corners
+    ux, uy, uz = bx - ax, by - ay, bz - az
+    vx, vy, vz = cx - ax, cy - ay, cz - az
+    nx, ny, nz = uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx
+    length = math.sqrt(nx * nx + ny * ny + nz * nz)
+    return (nx / length, ny / length, nz / length) if length else (0.0, 0.0, 0.0)
+
+
 def render_stl_script(
     script_source: str,
     out_stl: Path,
@@ -198,12 +334,37 @@ def render_stl_script(
     timeout: float = 180.0,
     cwd: str | None = None,
     export_format: str | None = None,
+    prefer_color: bool = False,
 ) -> StlResult:
     """Run a full python-mode *script_source* (ending in ``.show()``) in the real app, exporting STL.
 
     The lower-level entry point behind :func:`render_object`; also used by the docs
     ``pybosl2-example`` directive to generate a downloadable STL for each example.
+
+    With *prefer_color*, the export goes to 3MF and is rewritten as a colour STL by
+    :func:`convert_3mf_to_colored_stl`, so `.color()` in an example survives into the viewer.
+    It is **opt-in** rather than the default because the test suite compares meshes rather than
+    looking at them, and a changed file format there would be churn with no reader. Anything that
+    does not work -- the 3MF step, the rewrite, a build of PythonSCAD without 3MF -- falls back to
+    the plain export, since a grey mesh is worth more than a missing one.
+
+    Args:
+        script_source: The python-mode script, ending in ``.show()``.
+        out_stl: Where to write the mesh.
+        render_cmd: Unused; kept for call-site compatibility.
+        timeout: Seconds to allow the app.
+        cwd: Working directory for the subprocess.
+        export_format: Passed to ``--export-format``.
+        prefer_color: Try the 3MF-to-colour-STL route first.
+
+    Returns:
+        The :class:`StlResult` for whichever route produced a mesh.
+
     """
+    if prefer_color:
+        colored = _render_colored_stl(script_source, out_stl, timeout=timeout, cwd=cwd)
+        if colored is not None:
+            return colored
     binary = find_pythonscad_binary()
     if binary is None:
         raise FileNotFoundError("no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)")
@@ -268,6 +429,29 @@ def render_stl_script(
             stderr,
         )
     return StlResult(True, out_stl, None, stderr)
+
+
+def _render_colored_stl(script_source: str, out_stl: Path, timeout: float, cwd: str | None) -> "StlResult | None":
+    """Export via 3MF and rewrite it as a colour STL, or None to let the caller fall back.
+
+    Returning None rather than a failed :class:`StlResult` is the point: a build that cannot write
+    3MF, or a model with no per-facet material, is not an error -- it just means the plain export
+    is the right answer, and the caller carries on to it.
+    """
+    staging = out_stl.with_name(f".{out_stl.stem}.3mf")
+    try:
+        result = render_stl_script(script_source, staging, timeout=timeout, cwd=cwd, export_format="3mf")
+        if not (result.ok and staging.is_file() and staging.stat().st_size):
+            return None
+        try:
+            if not convert_3mf_to_colored_stl(staging, out_stl):
+                return None
+        except (zipfile.BadZipFile, KeyError, ET.ParseError, ValueError, OSError):
+            # A 3MF this cannot read is a reason to fall back, not to fail the build.
+            return None
+        return StlResult(True, out_stl, None, result.stderr)
+    finally:
+        staging.unlink(missing_ok=True)
 
 
 def parse_stl(path: Path) -> np.ndarray:
