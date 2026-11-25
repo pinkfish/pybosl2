@@ -57,7 +57,7 @@ spec renumbers as items close, and all but S-46a have.
 | 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) ✅ | M |
 | 9 | PAR-3 / B-5 / B-P4 | [T34](#t34--decide-what-fill-means-on-a-distance-field) ✅ | S |
-| 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) 🔶 | L |
+| 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) ✅ | L |
 | 7a | PLAN D-P4 / DOC-2 | [T35](#t35--give-every-public-callable-an-args-section) ✅ | M |
 | 7b | PLAN O-6b | [T36](#t36--give-text-the-anchor-language) ✅ | S |
 | 7c | G-8 / S-34 / S-35 | [T37](#t37--build-texture-or-stop-advertising-it) ✅ | L |
@@ -75,6 +75,7 @@ spec renumbers as items close, and all but S-46a have.
 | — | PAR-1 / PAR-5 | [T128](#t128--ask-the-filled-question-of-the-whole-family) ✅ | S |
 | — | X-3 / E-5 / O-6b | [T129](#t129--the-enum-that-refused-its-own-values) ✅ | S |
 | — | B2-1 / PAR-4 / PAR-5 | [T130](#t130--the-rim-that-was-measured-against-the-wrong-wall) ✅ | M |
+| 7 | G-1 / G-6 / G-7 | [T131](#t131--the-group-wiring-nothing-counted) ✅ | S |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -373,7 +374,7 @@ confirms it fails when a listed feature works: restoring the old `fill` fails it
 original never did.
 
 
-## T30 — Group the arguments that travel together 🔶
+## T30 — Group the arguments that travel together ✅
 
 **Closes:** §12.2 item 7 (in part) · **Implements:** G-1 … G-5 (new) · **Size:** L
 
@@ -443,7 +444,7 @@ Two things fell out of the wiring:
   have been there from the start, and is the same lesson as T30's first sweep: verify the
   invariant, do not trust the edit.
 
-**Still open**, and why:
+**Open at the time, and why** — all of it has since landed; see the close below:
 
 **`EdgeTreatment` (third pass).** Built and wired into the 13 façade constructors taking both
 `rounding` and `chamfer`. Three things the measurement changed about the plan:
@@ -495,6 +496,21 @@ application, not the vocabulary. T37.
   duplication rather than a missing group — T31.
 * **The façade's parameter duplication (B-3) is untouched.** A group removes three parameters from
   a signature that has forty; T31 is still the task that addresses the rest.
+
+### Closed at T131, and three of the four had landed elsewhere
+
+`Texturing` **is** built: T37 built `texture=` and T41 built it on the SDF backend, so the promise
+the group would have been polish on is now kept, and the group is wired into the 5 façade
+constructors taking the five parameters. The per-end variants and the façade's parameter
+duplication both went to [T31](#t31--slim-the-façade). `EdgeSelection` is wired into the 2 façade
+constructors taking `edges`+`except_edges`.
+
+What was left was the **measure**. Every count in this section was written here rather than
+asserted anywhere, which is how T40 and T42 came to claim 113 and 41 open option gaps against a
+figure that had been zero for two tasks. [T131](#t131--the-group-wiring-nothing-counted) is the
+gate, and running it found the two constructors this section's "both members" framing had hidden:
+`teardrop` takes a chamfer and no rounding, `regular_ngon` a rounding and no chamfer, and neither
+accepted the group that carries either one.
 
 ---
 
@@ -5750,3 +5766,77 @@ exactly and the only residue is the wall-tangent height: `rounding × (1 - cos(�
 already carves out, and this port does not reproduce it. On a taper it does **not** converge, which
 is the defect above, and that part is now closed. Recorded here rather than left implicit, because
 "it converges away" is a claim and the figures are the evidence for it.
+
+## T131 — The group wiring nothing counted ✅
+
+**Requirement:** SPEC G-1 (a family that travels together is a group), G-6, G-7, B2-3.
+
+**T30's counts were in the task log, not in a test.** It recorded `Placement` as "wired into all
+19 façade solid constructors" and `EdgeTreatment` into "the 13 taking both `rounding` and
+`chamfer`", and nothing measured either. That is the same shape as T40's *"113 remain"* and T42's
+*"41 gaps"* — both of which were **nothing** by the time T130 reran the measure two tasks later.
+G-1's own enforcement is a single test about 2-D placement; `tests/test_groups.py` checks that each
+group exists, composes and refuses a conflict, and none of it asks **who accepts one**.
+
+Measured, the counts held — and the scan found two constructors the "both members" reading had
+hidden:
+
+| constructor | takes | why it was skipped |
+|---|---|---|
+| `solid.teardrop` | `chamfer`, `chamfer1`, `chamfer2` | a teardrop's rim has no rounded form |
+| `flat.regular_ngon` | `rounding` | a polygon's corners round, they do not chamfer |
+
+Both were reasonable to skip while an edge treatment was *two independent sizes*, because half of
+the group would have been inapplicable. **`EdgeTreatment` carries one kind and one size** (G-7), so
+there is nothing inapplicable about it — and a caller holding one had to unpack it by hand, which
+means asking *"is this a rounding or a chamfer?"*, the one question the group exists to answer for
+them. The gate is stated over *any* member rather than all of them for exactly that reason.
+
+They accept it now, and `resolve_edge_treatment` grew a `kinds=` argument so the kind a shape has
+no form for is **refused by name** rather than quietly applied as the other one:
+
+```
+teardrop(): the treatment is a rounding, and teardrop() applies only a chamfer -- so there is no
+size it could use. Pass EdgeTreatment.chamfer(...), or build the shape with a constructor that
+rounds.
+```
+
+That is G-6's rule one level down — where a group means less to a *shape* than it can express, the
+member it cannot honour is refused rather than dropped, because honouring a rounding by chamfering
+instead is the silent wrong answer E-5 forbids.
+
+### The refusal had no guard, and the control is how that surfaced
+
+Reverting the `kinds` check left **every test in the suite passing**. So the four tests in
+`TestEdgeTreatmentKindsAShapeCanApply` are the point rather than the decoration: two assert the
+group is a spelling of the loose argument and not a second behaviour (a teardrop's chamfer really
+removes material — 1192.30 mm³ plain, 1154.77 at `chamfer=1`, 1050.99 at `chamfer=2`), and two
+assert the refusal. A fifth control, disabling the check so the wrong kind is honoured instead of
+refused, fails the same two.
+
+### The partition is asserted in both directions, and that is the part worth keeping
+
+Nine public callables take `anchor`/`spin`/`orient` and do not accept `placement=`: `cone`,
+`cross`, `heightfield`, `cylindrical_heightfield`, `text3d`, `hexagon`, `octagon`, `pentagon`,
+`right_triangle`. Every one is `@backend_only("csg")`, and **every** group-accepting constructor is
+a façade one. At 19-to-0 that is a design rather than drift, and the reason is B2-3: those
+constructors are the BOSL2-faithful layer, where the loose spelling BOSL2 uses *is* the API, and a
+group on one of them would offer portable ergonomics on a door that opens onto a single backend.
+
+Nothing said so anywhere, which is why the measure reads 19 of 25 and looks like six missing until
+you see what the six are. The gate asserts the partition both ways, so a group added to a
+backend-only constructor fails with the two things to do instead — give the shape a façade entry,
+or keep the loose spelling.
+
+**`Facets` is the one group with a ceiling rather than a floor.** G-4 settled that resolution's
+public answer is the ambient `use_defaults(fn=64)` block, not a group threaded through every call,
+so 53 façade constructors take `fn`/`fa`/`fs` and **none** takes `facets=`. That assertion is the
+only one in the file that fails by something being *added*.
+
+### What this closes
+
+[T30](#t30--group-the-arguments-that-travel-together) had four open items when T130 reran the
+backlog, and three had already landed elsewhere: `Texturing` was blocked on `texture=` refusing
+everywhere and T37/T41 built it (5 of 5 wired), the per-end variants and the façade's parameter
+duplication both went to T31. `EdgeSelection` is wired into the 2 façade constructors taking the
+pair. What was left was the measure, and this is it.

@@ -19,11 +19,12 @@ from pybosl2 import (
     Texturing,
     cuboid,
     cyl,
+    teardrop,
     use_defaults,
 )
 from pybosl2.defaults import resolve_facets, resolve_res
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.flat import circle, rect, square
+from pybosl2.flat import circle, rect, regular_ngon, square
 from pybosl2.groups import resolve_placement, resolve_placement_2d
 
 
@@ -292,3 +293,44 @@ class TestFacets:
             smooth = cyl(height=10, radius=5)
         assert len(coarse.vnf().vertices) == 12  # 6 facets, two rings
         assert len(smooth.vnf().vertices) > len(coarse.vnf().vertices)
+
+
+class TestEdgeTreatmentKindsAShapeCanApply:
+    """Where a shape has a form for one treatment and not the other (SPEC G-6, G-7, E-5).
+
+    `teardrop` takes `chamfer`/`chamfer1`/`chamfer2` and no `rounding`; `regular_ngon` takes
+    `rounding` and no `chamfer`. Both took their loose member and no group at all, so a caller
+    holding an `EdgeTreatment` had to unpack it -- which means asking "is this a rounding or a
+    chamfer?", the one question the group exists to answer for them (T131).
+
+    The group they now accept carries *either* kind, so the half-measure to avoid is honouring the
+    kind the shape does have a form for and quietly ignoring the other. That is the silent wrong
+    answer E-5 forbids, and the reason these four tests exist: removing the refusal leaves every
+    other test in the suite passing.
+    """
+
+    def test_a_teardrop_chamfers_from_the_group_exactly_as_from_the_loose_argument(self) -> None:
+        """The group is a spelling, and a teardrop's chamfer is a real change to the solid."""
+        plain = teardrop(radius=6, height=10).vnf().volume()
+        loose = teardrop(radius=6, height=10, chamfer=1).vnf().volume()
+        grouped = teardrop(radius=6, height=10, treatment=EdgeTreatment.chamfer(1)).vnf().volume()
+        assert grouped == pytest.approx(loose), f"the group gives {grouped} and chamfer=1 gives {loose}"
+        assert loose < plain, f"chamfer=1 removed nothing: {loose} against {plain} plain"
+
+    def test_a_rounding_handed_to_a_teardrop_is_refused_not_chamfered(self) -> None:
+        """A teardrop's rim has no rounded form, so there is no size the group could use."""
+        with pytest.raises(Bosl2ValueError, match=r"applies only a chamfer"):
+            teardrop(radius=6, height=10, treatment=EdgeTreatment.rounding(1))
+
+    def test_a_regular_ngon_rounds_from_the_group_exactly_as_from_the_loose_argument(self) -> None:
+        """The mirror case, in the plane and with the other kind."""
+        plain = regular_ngon(sides=6, radius=10).bounds().size
+        loose = regular_ngon(sides=6, radius=10, rounding=2).bounds().size
+        grouped = regular_ngon(sides=6, radius=10, treatment=EdgeTreatment.rounding(2)).bounds().size
+        assert [float(v) for v in grouped] == pytest.approx([float(v) for v in loose])
+        assert float(loose[0]) < float(plain[0]), "rounding=2 did not pull the corners in"
+
+    def test_a_chamfer_handed_to_a_regular_ngon_is_refused_not_rounded(self) -> None:
+        """A polygon's corners round and do not chamfer, so the chamfer kind has nowhere to go."""
+        with pytest.raises(Bosl2ValueError, match=r"applies only a rounding"):
+            regular_ngon(sides=6, radius=10, treatment=EdgeTreatment.chamfer(2))

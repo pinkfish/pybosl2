@@ -19,6 +19,7 @@ from pybosl2._backend import Shape, current_backend
 from pybosl2._edges_lang import resolve_anchor
 from pybosl2.constants import CENTER
 from pybosl2.defaults import resolve_res as _resolve_res
+from pybosl2.enums import EdgeTreatmentKind
 from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.groups import EdgeTreatment, Placement, resolve_edge_treatment, resolve_placement_2d
 
@@ -796,6 +797,7 @@ def regular_ngon(
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     placement: Placement | None = None,
+    treatment: EdgeTreatment | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -815,6 +817,9 @@ def regular_ngon(
         inner_diameter: Diameter of the inscribed circle.
         side: Length of each side.
         rounding: Corner rounding radius (CSG backend only).
+        treatment: A rounding as one value (SPEC G-1). A regular polygon's corners round and do not
+            chamfer, so a chamfer treatment is refused by name rather than rounded instead
+            (SPEC G-6); giving it beside rounding= raises (SPEC G-3).
         realign: Rotate by half a side (CSG backend only).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor (CSG backend only).
@@ -842,6 +847,7 @@ def regular_ngon(
             regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()
 
     """
+    rounding, _ = resolve_edge_treatment(treatment, rounding, 0, "regular_ngon", kinds=(EdgeTreatmentKind.ROUNDING,))
     anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="regular_ngon")
     if current_backend() == "sdf":
         return _regular_ngon_sdf(

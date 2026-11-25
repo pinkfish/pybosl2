@@ -2588,6 +2588,8 @@ A parameter family that appears on more than three public callables and is alway
 '''
 enforced_by = [
     "tests/test_groups.py::TestPlacementInThePlane::test_one_placement_serves_an_outline_and_the_solid_from_it",
+    "tests/test_group_coverage.py::test_every_facade_constructor_taking_a_family_accepts_its_group",
+    "tests/test_group_coverage.py::test_a_group_is_a_facade_ergonomic_and_stays_there",
 ]
 status = "enforced"
 
@@ -2603,6 +2605,8 @@ Where a group means less in one dimension than another, the members that do not 
 '''
 enforced_by = [
     "tests/test_groups.py::TestPlacementInThePlane::test_a_placement_that_really_orients_is_refused",
+    "tests/test_groups.py::TestEdgeTreatmentKindsAShapeCanApply::test_a_rounding_handed_to_a_teardrop_is_refused_not_chamfered",
+    "tests/test_groups.py::TestEdgeTreatmentKindsAShapeCanApply::test_a_chamfer_handed_to_a_regular_ngon_is_refused_not_rounded",
 ]
 status = "enforced"
 
@@ -2709,6 +2713,7 @@ statement = '''
 '''
 enforced_by = [
     "tests/test_ambient_docs.py::test_every_facet_parameter_documents_the_ambient_default",
+    "tests/test_group_coverage.py::test_resolution_is_not_offered_as_a_group",
 ]
 status = "enforced"
 
