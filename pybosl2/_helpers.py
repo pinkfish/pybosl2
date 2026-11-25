@@ -1363,3 +1363,58 @@ def rim_chamfer_points(
     inner = [radius - radial, end]
     on_wall = [radius + wall_r, end + wall_z]
     return [on_wall, inner] if top else [inner, on_wall]
+
+
+def rim_widest_radius(
+    radius1: float,
+    radius2: float,
+    length: float,
+    amount: float,
+    *,
+    top: bool,
+    chamfer: "tuple[float, float, float] | None" = None,
+) -> float:
+    """How far out one treated rim actually reaches, which is no longer its nominal radius.
+
+    A rim treatment cuts the corner off, so the widest ring of a treated cone lies **inside** the
+    nominal radius -- and the fillet reaches its own widest point only at the *wider* end, because
+    that is the end whose arc sweeps through the horizontal. A fillet centred at ``c`` runs from
+    the end face round to its tangent point on the wall; the horizontal lies inside that span when
+    the wall leans away from this end, so the reach is ``c + amount`` there and the tangent point
+    ``c + amount cos(vang)`` otherwise.
+
+    **This is the bound T130 invalidated and did not notice.** Under the superseded rule the centre
+    sat at ``radius - amount``, so the arc's widest point was the nominal radius *exactly* and
+    ``max(radius1, radius2)`` was tight by construction. With the centre on the corner's incentre
+    it is **0.688 too wide** on a 10-to-4 cone with a 2mm rounding and 1.032 with a 3mm one, against
+    the 0.35 `tests/test_sdf_bounds_are_tight.py` allows -- and the three bounds lists that would
+    have caught it all pair a taper with an untreated rim or a treatment with a straight wall. That
+    is the blind spot T130's own record describes, in the one place its author did not look (T132).
+
+    Args:
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        length: Length along the axis.
+        amount: The rounding radius, or the chamfer size when *chamfer* is given. Zero leaves the
+            rim untreated, and the nominal radius is then the answer.
+        top: Describe the top rim rather than the bottom.
+        chamfer: The ``(radial, wall_radial, wall_axial)`` triple :func:`rim_chamfer_legs` returns
+            for this end, when the rim is chamfered rather than rounded.
+
+    Returns:
+        The largest radial coordinate this rim's profile reaches.
+
+    """
+    nominal = radius2 if top else radius1
+    if not amount:
+        return nominal
+    if chamfer is not None:
+        # A chamfer is two points: one inset along the end face, one on the wall. The wall point is
+        # the further out of the two whenever the wall leans away from this end.
+        return max(nominal - chamfer[0], nominal + chamfer[1])
+    vang = rim_wall_angle(radius1, radius2, length)
+    centre = rim_fillet_centre(radius1, radius2, length, amount, top=top)[0]
+    leans_away = vang < 0 if top else vang > 0
+    if leans_away:
+        return centre + amount
+    return centre + amount * math.cos(math.radians(vang))

@@ -24,7 +24,13 @@ from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor, resolve_anchor
-from pybosl2._helpers import effective_clip, rim_chamfer_legs, rim_fillet_centre, rim_wall_angle
+from pybosl2._helpers import (
+    effective_clip,
+    rim_chamfer_legs,
+    rim_fillet_centre,
+    rim_wall_angle,
+    rim_widest_radius,
+)
 from pybosl2._native import native
 from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
@@ -3213,6 +3219,41 @@ def _chamfered_rim_sdf(
     return lv.max(lv.max(wall, end), cut)
 
 
+def _treated_maxr(
+    length: float, radius1: float, radius2: float, amt1: "RimAmount", amt2: "RimAmount", mode: EdgeMode
+) -> float:
+    """The widest radius a cylinder with treated rims actually reaches.
+
+    ``max(radius1, radius2)`` is the answer only while the rim treatment keeps a point on the
+    nominal radius, which is what the superseded fillet rule did and BOSL2's does not: the fillet
+    is tangent to the wall, so on a tapered cone its widest point is inside the nominal radius.
+    See :func:`pybosl2._helpers.rim_widest_radius` for the figures and for how T130 came to leave
+    this 1.032 too wide.
+
+    Args:
+        length: Length along the axis.
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        amt1: The bottom rim's amount, as :func:`_rim_amounts` returns it.
+        amt2: The top rim's amount.
+        mode: Whether the rims are rounded or chamfered.
+
+    Returns:
+        The largest radial coordinate the solid reaches.
+
+    """
+    vang = rim_wall_angle(radius1, radius2, length)
+    widest = 0.0
+    for amt, top in ((amt1, False), (amt2, True)):
+        size = _rim_size(amt)
+        legs = None
+        if size and mode == EdgeMode.CHAMFER:
+            spec = amt if isinstance(amt, tuple) else (size, None, False)
+            legs = rim_chamfer_legs(spec[0], spec[1], spec[2], vang, top=top)
+        widest = max(widest, rim_widest_radius(radius1, radius2, length, size, top=top, chamfer=legs))
+    return widest
+
+
 def _cyl_edge_sdf(
     axial: LVTree,
     radial: LVTree,
@@ -3568,7 +3609,7 @@ def cyl(
     else:
         clip = effective_clip(clip_angle, teardrop)
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode, clip)  # noqa: E731
-    maxr = max(rad1, rad2)
+    maxr = _treated_maxr(length, rad1, rad2, amt1, amt2, mode)
     if texture is not None and texture != "none":
         # The texture pushes the surface out by at most `tex_depth` past the plain radius (and an
         # inset pulls it in first). A bound that ignored it would clip the peaks off.
@@ -3716,7 +3757,7 @@ def _cyl_axis(
         radial = _lv_hypot(others[0], others[1])
         return _cyl_edge_sdf(axial, radial, length, rad1, rad2, amt1, amt2, mode, clip)
 
-    maxr = max(rad1, rad2)
+    maxr = _treated_maxr(length, rad1, rad2, amt1, amt2, mode)
     if textured is not None:
         inset = float(tex_depth) if tex_inset is True else float(tex_inset)
         maxr += max(0.0, float(tex_depth) - inset)
@@ -4217,7 +4258,7 @@ def tube(
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         return lv.max(outer_sdf(x, y, z), -inner_sdf(x, y, z))
 
-    maxr = max(rad1, rad2)
+    maxr = _treated_maxr(length, rad1, rad2, amt1, amt2, mode)
     shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
     shape = _symmetric(shape, (0.0, 0.0, 1.0))
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
