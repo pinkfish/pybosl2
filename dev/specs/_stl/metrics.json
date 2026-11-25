@@ -284,7 +284,7 @@
    "tris": 2978,
    "vol": "2,400.7",
    "bbox": "29\u00d728\u00d76",
-   "wt": false
+   "wt": true
   }
  },
  "linear_bearings": {
@@ -410,7 +410,7 @@
    "tris": 4038,
    "vol": "4,797.9",
    "bbox": "33\u00d733\u00d726",
-   "wt": false
+   "wt": true
   },
   "pco1810-cap": {
    "tris": 2014,
@@ -462,7 +462,7 @@
    "tris": 304,
    "vol": "2,853.7",
    "bbox": "19\u00d719\u00d720",
-   "wt": false
+   "wt": true
   },
   "prismoid": {
    "tris": 12,
@@ -504,7 +504,7 @@
    "tris": 304,
    "vol": "6,004.5",
    "bbox": "20\u00d720\u00d720",
-   "wt": false
+   "wt": true
   },
   "octahedron": {
    "tris": 8,

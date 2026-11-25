@@ -2246,13 +2246,26 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="s2">"float | Sequence[float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid.</span>
+
+<span class="sd">        *scale*, *twist* and *slices* shape the extrusion rather than hinting at its rendering, so</span>
+<span class="sd">        unlike *convexity* the SDF backend cannot ignore them -- a distance field's extrusion is a</span>
+<span class="sd">        prism. They are on the shared contract so that a caller passing one gets a refusal naming</span>
+<span class="sd">        the argument it wrote, the way `cyl(teardrop=)` does, instead of a bare `TypeError` about a</span>
+<span class="sd">        keyword from inside the backend (T133; SPEC C-17, C-21, B-9).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            height: Height of the extrusion.</span>
 <span class="sd">            center: Centre the result on Z instead of sitting it on the XY plane.</span>
-<span class="sd">            convexity: Convexity hint for preview rendering.</span>
+<span class="sd">            convexity: Convexity hint for preview rendering; a field backend may ignore it.</span>
+<span class="sd">            scale: Scale factor at the far end, tapering the extrusion. CSG only.</span>
+<span class="sd">            twist: Degrees of rotation over the extrusion's height. CSG only.</span>
+<span class="sd">            slices: Number of intermediate layers a twisted or tapered extrusion is built from.</span>
+<span class="sd">                CSG only.</span>
 
 <span class="sd">        """</span>
         <span class="o">...</span></div>

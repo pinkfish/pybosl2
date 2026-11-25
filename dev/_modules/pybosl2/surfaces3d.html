@@ -2935,7 +2935,6 @@
 
 <div class="viewcode-block" id="fillet">
 <a class="viewcode-back" href="../../paths/surfaces3d.html#pybosl2.surfaces3d.fillet">[docs]</a>
-<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">fillet</span><span class="p">(</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2951,8 +2950,14 @@
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return a concave edge-fillet mask of length *length* and radius *radius*.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a concave edge-fillet mask of length *length* and radius *radius*, on the active backend.</span>
+
+<span class="sd">    **Not CSG-only any more.** It carried `@backend_only("csg")` because the cutter it forwards to</span>
+<span class="sd">    was built with `polygon().linear_extrude()`; T133 routed that through the façade, and this</span>
+<span class="sd">    function is nothing but the forward plus an angle check -- so the marker was gating the module</span>
+<span class="sd">    rather than anything the function does, which is the defect T50 found in `arc` (SPEC B-4,</span>
+<span class="sd">    PAR-1). A *tapered* fillet still refuses on a field backend, from the mask, under its own name.</span>
 
 <span class="sd">    A cutter you subtract to round a 90-degree edge (the concave complement of a rounded corner).</span>
 <span class="sd">    Positioned manually like ``rounding_edge_mask`` -- origin at the sharp edge, +X/+Y into the</span>
