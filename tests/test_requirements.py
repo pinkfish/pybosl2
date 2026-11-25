@@ -201,7 +201,7 @@ def test_the_untriaged_backlog_only_shrinks() -> None:
 #: How many requirements nothing checks. Each carries a `note` saying what is missing, so this is
 #: a work list rather than a status. It only shrinks: writing the guard removes one, and a rule
 #: that stops being checked has to be argued for rather than quietly downgraded.
-UNENFORCED_BUDGET = 1
+UNENFORCED_BUDGET = 0
 
 
 def test_the_unenforced_list_only_shrinks() -> None:
