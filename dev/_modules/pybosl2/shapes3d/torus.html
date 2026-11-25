@@ -2187,6 +2187,7 @@
     <span class="n">_anchor_offset_cyl</span><span class="p">,</span>
     <span class="n">_finish3</span><span class="p">,</span>
     <span class="n">_ocylinder</span><span class="p">,</span>
+    <span class="n">_orevolve</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
@@ -2195,7 +2196,6 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_ohull</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_ominkowski</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyhedron</span> <span class="k">as</span> <span class="n">_opolyhedron</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">rotate_extrude</span> <span class="k">as</span> <span class="n">_orotate_extrude</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span> <span class="k">as</span> <span class="n">_osphere_native</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">textmetrics</span> <span class="k">as</span> <span class="n">_otextmetrics</span>
 <span class="k">else</span><span class="p">:</span>
@@ -2204,7 +2204,6 @@
     <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"hull"</span><span class="p">)</span>
     <span class="n">_ominkowski</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"minkowski"</span><span class="p">)</span>
     <span class="n">_opolyhedron</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polyhedron"</span><span class="p">)</span>
-    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
     <span class="n">_osphere_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"sphere"</span><span class="p">)</span>
     <span class="n">_otextmetrics</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"textmetrics"</span><span class="p">)</span>
 
@@ -2390,7 +2389,7 @@
 
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="n">min_rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">profile</span> <span class="o">=</span> <span class="n">_arc_points</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="n">min_rad</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="p">[</span><span class="n">maj_rad</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">_orevolve</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_cyl</span><span class="p">(</span><span class="n">maj_rad</span> <span class="o">+</span> <span class="n">min_rad</span><span class="p">,</span> <span class="n">maj_rad</span> <span class="o">+</span> <span class="n">min_rad</span><span class="p">,</span> <span class="n">min_rad</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">use_anchor</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">)</span></div>
 

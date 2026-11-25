@@ -3506,6 +3506,8 @@
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3544,6 +3546,8 @@
 <span class="sd">        diameter: Overall size (see above)</span>
 <span class="sd">        inner_radius: Overall size (see above)</span>
 <span class="sd">        inner_diameter: Overall size (see above)</span>
+<span class="sd">        outer_radius: Overall size (see above); BOSL2's ``or=``, a synonym for radius.</span>
+<span class="sd">        outer_diameter: Overall size (see above); BOSL2's ``od=``, a synonym for diameter.</span>
 <span class="sd">        side: Overall size (see above)</span>
 <span class="sd">        length: Prism height (default 1)</span>
 <span class="sd">        radius1: Bottom radius, for a tapered prism (CSG backend).</span>
@@ -3608,6 +3612,8 @@
                     <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
                     <span class="s2">"inner_radius"</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
                     <span class="s2">"inner_diameter"</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
+                    <span class="s2">"outer_radius"</span><span class="p">:</span> <span class="n">outer_radius</span><span class="p">,</span>
+                    <span class="s2">"outer_diameter"</span><span class="p">:</span> <span class="n">outer_diameter</span><span class="p">,</span>
                     <span class="s2">"side"</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
                     <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
                     <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
