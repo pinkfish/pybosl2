@@ -2369,6 +2369,44 @@
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span><span class="n">UP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_stagger_mode</span><span class="p">(</span><span class="n">stagger</span><span class="p">:</span> <span class="s2">"bool | StaggerMode | str | None"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StaggerMode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *stagger* as a :class:`StaggerMode`, accepting the boolean spelling too.</span>
+
+<span class="sd">    `grid_copies(stagger=)` is annotated `bool | StaggerMode` and used to validate against the</span>
+<span class="sd">    literal list `(False, True, StaggerMode.ALT)`, so **two of the enum's three values were</span>
+<span class="sd">    refused by the only function that takes it**: `StaggerMode.NONE` and `StaggerMode.STANDARD`</span>
+<span class="sd">    both raised, while the type said they were fine and mypy agreed. `"alt"` happened to work</span>
+<span class="sd">    only because `StaggerMode` is a `StrEnum` and compares equal to its own value.</span>
+
+<span class="sd">    Normalising here rather than widening that list is what the rest of the function needs: it</span>
+<span class="sd">    tests `stagger is False` in three places, and an enum member is never `False`, so merely</span>
+<span class="sd">    accepting `StaggerMode.NONE` would have made "none" lay out a staggered grid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        stagger: ``False``/``None`` or :attr:`StaggerMode.NONE` for a square grid, ``True`` or</span>
+<span class="sd">            :attr:`StaggerMode.STANDARD` for a staggered one, :attr:`StaggerMode.ALT` to stagger</span>
+<span class="sd">            the other rows. The string spellings are accepted as the enum's values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The equivalent :class:`StaggerMode`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: If *stagger* is not one of those.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">NONE</span>
+    <span class="k">if</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">STANDARD</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StaggerMode</span><span class="p">(</span><span class="n">stagger</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">mode</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">StaggerMode</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"grid_copies(): stagger must be True, False or one of </span><span class="si">{</span><span class="n">allowed</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">stagger</span><span class="si">!r}</span><span class="s2">."</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">grid_copies</span><span class="p">(</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2383,15 +2421,16 @@
 <span class="sd">    Args:</span>
 <span class="sd">        spacing: Distance between adjacent copies.</span>
 <span class="sd">        size: Extent to spread the copies over, one number or one per axis.</span>
-<span class="sd">        stagger: Offset alternate rows by half a step, for a hexagonal packing.</span>
+<span class="sd">        stagger: Offset alternate rows by half a step, for a hexagonal packing. ``True`` or</span>
+<span class="sd">            :attr:`StaggerMode.STANDARD`; :attr:`StaggerMode.ALT` staggers the other rows;</span>
+<span class="sd">            ``False`` or :attr:`StaggerMode.NONE` for a square grid.</span>
 <span class="sd">        inside: Keep only the copies whose centres fall inside this outline.</span>
 <span class="sd">        nonzero: Use the nonzero winding rule for *inside* rather than even-odd.</span>
 <span class="sd">        axes: Which plane the grid lies in, as two of ``"xyz"``.</span>
 <span class="sd">        num_copies: How many copies to make.</span>
 
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">stagger</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): stagger must be False, True or 'alt'."</span><span class="p">)</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">_stagger_mode</span><span class="p">(</span><span class="n">stagger</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">"xyz"</span><span class="p">:</span>
@@ -2421,7 +2460,7 @@
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">spacing</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">polar_to_xy</span>
 
-        <span class="n">spacing</span> <span class="o">=</span> <span class="n">polar_to_xy</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span> <span class="k">if</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="k">else</span> <span class="p">[</span><span class="n">spacing</span><span class="p">,</span> <span class="n">spacing</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type,list-item]</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="n">polar_to_xy</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">NONE</span> <span class="k">else</span> <span class="p">[</span><span class="n">spacing</span><span class="p">,</span> <span class="n">spacing</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type,list-item]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
         <span class="n">spacing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">spacing</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">spacing</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
     <span class="k">elif</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2430,7 +2469,7 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">spacing</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">div</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="kc">False</span> <span class="k">else</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">div</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">NONE</span> <span class="k">else</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
             <span class="n">spacing</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">div</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">div</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">num_copies</span><span class="p">):</span>
@@ -2464,14 +2503,14 @@
         <span class="p">)</span>
 
     <span class="n">mats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">stagger</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">])</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">-</span> <span class="n">offset</span>
                 <span class="k">if</span> <span class="n">keep</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
                     <span class="n">mats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">translate4</span><span class="p">(</span><span class="n">permax</span><span class="p">(</span><span class="n">pos</span><span class="p">)))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">staggermod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">staggermod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="n">cols1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">cols2</span> <span class="o">=</span> <span class="n">num_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cols1</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -3044,7 +3083,9 @@
 <span class="sd">        Args:</span>
 <span class="sd">            spacing: Distance between adjacent copies.</span>
 <span class="sd">            size: Extent to spread the copies over, one number or one per axis.</span>
-<span class="sd">            stagger: Offset alternate rows by half a step, for a hexagonal packing.</span>
+<span class="sd">            stagger: Offset alternate rows by half a step, for a hexagonal packing. ``True`` or</span>
+<span class="sd">                :attr:`StaggerMode.STANDARD`; :attr:`StaggerMode.ALT` staggers the other rows;</span>
+<span class="sd">                ``False`` or :attr:`StaggerMode.NONE` for a square grid.</span>
 <span class="sd">            inside: Keep only the copies whose centres fall inside this outline.</span>
 <span class="sd">            nonzero: Use the nonzero winding rule for *inside* rather than even-odd.</span>
 <span class="sd">            axes: Which plane the grid lies in, as two of ``"xyz"``.</span>
