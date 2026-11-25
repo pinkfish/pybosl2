@@ -1387,6 +1387,38 @@ there in the same commit as the code (§13 rule 4).
 
 **The obvious fix would have been wrong.** The package already has an `AnchorType` enum — `hull`/`box`/`intersect` — and a `norm_atype` that validates against it, and routing `rect` through that would have rejected `"perim"`: BOSL2 gives `rect()` a box/perimeter choice and the round shapes a hull/intersect one, under the same parameter name. One name, two vocabularies, ported faithfully, so `rect` validates against its own pair — as `NemaMountMask(atype=)` already did. Measured and left: `flat.rect`, the sanctioned façade, does not take `atype` at all, so the option is unreachable through the door the spec tells callers to use, and adding it is an API change rather than a fix.
 
+**T129 closed the last unenforced requirement, and the gap had a defect sitting in it.**
+`PLAN-X-3` asks that a new public callable arrive with three tests — that it builds and is
+*measurably* right, that it builds with the minimum arguments, and that its docstring example
+validates. All three were already enforced across the package, by X-8's
+no-existence-only-assertion gate, Q-4's argument-free-constructor walk and the docstring-example
+gates. What none of them answered is **"is *this* public name reached by any of them"**, and
+walking `pybosl2.__all__` for each callable's use in the suite found the answer was no for
+several.
+
+**One of them was broken, in the way an untested enum in this package tends to be.**
+`grid_copies(stagger=)` is annotated `bool | StaggerMode` and was validated against the literal
+list `(False, True, StaggerMode.ALT)` — so `StaggerMode.NONE` and `StaggerMode.STANDARD`, two of
+that enum's three values, **raised while the annotation promised them and mypy agreed**. `"alt"`
+worked only by accident, because a `StrEnum` member compares equal to its own string. This is the
+third enum defect the campaign has found (T106's two enums that changed nothing, T98's one enum
+with two vocabularies), and all three were enums no test touched. Widening the list would not
+have been enough: the function tests `stagger is False` in three places and an enum member is
+never `False`, so accepting `StaggerMode.NONE` without normalising would have made "none" lay out
+a staggered grid. It normalises once, at the top.
+
+**The gate took three attempts, and the first two failed in opposite directions** — worth
+recording because the shape of the scan *is* the requirement here. Searching the test files as
+text made the gate satisfy itself: its own docstring names the enums it found, so its prose
+counted as coverage and would have masked them permanently. Reading only the AST's identifiers was
+too strict, because this suite exercises real code through *source strings* — the render tests
+build scripts as text (`_render(tmp_path, "roof(s2.square([20, 10]))")`) and `test_facets.py`
+keeps a registry of `"isosurface.py::Metaball.sphere"` — and both were reported as uncovered when
+they are nothing of the kind. The scan that is right counts every identifier the AST knows plus
+the words inside string literals that are **not** docstrings; it took the count from 7 to 2, and
+those last two (`OSType`, `jittered_poly`) got tests rather than an exception. The list is empty,
+and removing any one of the new tests makes the gate name it.
+
 **T128 asked T126's question of the whole primitive family, and the answer is no.** Every
 cross-backend instrument before T126 asked about a *surface*: `bounds()` compares two analytic
 boxes, the part sweep evaluates the field at the CSG mesh's **vertices**, and the rim file

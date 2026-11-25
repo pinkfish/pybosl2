@@ -218,6 +218,44 @@ def zcopies(
     return _axis_copies(UP.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
 
 
+def _stagger_mode(stagger: "bool | StaggerMode | str | None") -> StaggerMode:
+    """Return *stagger* as a :class:`StaggerMode`, accepting the boolean spelling too.
+
+    `grid_copies(stagger=)` is annotated `bool | StaggerMode` and used to validate against the
+    literal list `(False, True, StaggerMode.ALT)`, so **two of the enum's three values were
+    refused by the only function that takes it**: `StaggerMode.NONE` and `StaggerMode.STANDARD`
+    both raised, while the type said they were fine and mypy agreed. `"alt"` happened to work
+    only because `StaggerMode` is a `StrEnum` and compares equal to its own value.
+
+    Normalising here rather than widening that list is what the rest of the function needs: it
+    tests `stagger is False` in three places, and an enum member is never `False`, so merely
+    accepting `StaggerMode.NONE` would have made "none" lay out a staggered grid.
+
+    Args:
+        stagger: ``False``/``None`` or :attr:`StaggerMode.NONE` for a square grid, ``True`` or
+            :attr:`StaggerMode.STANDARD` for a staggered one, :attr:`StaggerMode.ALT` to stagger
+            the other rows. The string spellings are accepted as the enum's values.
+
+    Returns:
+        The equivalent :class:`StaggerMode`.
+
+    Raises:
+        Bosl2ValueError: If *stagger* is not one of those.
+
+    """
+    if stagger is None or stagger is False:
+        return StaggerMode.NONE
+    if stagger is True:
+        return StaggerMode.STANDARD
+    try:
+        return StaggerMode(stagger)
+    except ValueError:
+        allowed = ", ".join(repr(mode.value) for mode in StaggerMode)
+        raise Bosl2ValueError(
+            f"grid_copies(): stagger must be True, False or one of {allowed}, got {stagger!r}."
+        ) from None
+
+
 def grid_copies(
     spacing: float | Sequence[float] | np.ndarray | None = None,
     size: float | Sequence[float] | np.ndarray | None = None,
@@ -232,15 +270,16 @@ def grid_copies(
     Args:
         spacing: Distance between adjacent copies.
         size: Extent to spread the copies over, one number or one per axis.
-        stagger: Offset alternate rows by half a step, for a hexagonal packing.
+        stagger: Offset alternate rows by half a step, for a hexagonal packing. ``True`` or
+            :attr:`StaggerMode.STANDARD`; :attr:`StaggerMode.ALT` staggers the other rows;
+            ``False`` or :attr:`StaggerMode.NONE` for a square grid.
         inside: Keep only the copies whose centres fall inside this outline.
         nonzero: Use the nonzero winding rule for *inside* rather than even-odd.
         axes: Which plane the grid lies in, as two of ``"xyz"``.
         num_copies: How many copies to make.
 
     """
-    if stagger not in (False, True, StaggerMode.ALT):
-        raise Bosl2ValueError("grid_copies(): stagger must be False, True or 'alt'.")
+    mode = _stagger_mode(stagger)
     if not (len(axes) == 2):
         raise Bosl2ValueError("grid_copies(): invalid axes.")
     if axes[0] not in "xyz":
@@ -270,7 +309,7 @@ def grid_copies(
     if is_num(spacing):
         from pybosl2.transforms import polar_to_xy
 
-        spacing = polar_to_xy(spacing, 60) if stagger is not False else [spacing, spacing]  # type: ignore[arg-type,list-item]
+        spacing = polar_to_xy(spacing, 60) if mode is not StaggerMode.NONE else [spacing, spacing]  # type: ignore[arg-type,list-item]
     elif isinstance(spacing, (list, tuple, np.ndarray)):
         spacing = [float(spacing[0]), float(spacing[1])]
     elif size is not None:
@@ -279,7 +318,7 @@ def grid_copies(
         elif isinstance(num_copies, (list, tuple, np.ndarray)):
             spacing = [size[0] / (num_copies[0] - 1), size[1] / (num_copies[1] - 1)]
         else:
-            div = [1, 1] if stagger is False else [2, 2]
+            div = [1, 1] if mode is StaggerMode.NONE else [2, 2]
             spacing = [size[0] / div[0], size[1] / div[1]]
 
     if is_num(num_copies):
@@ -313,14 +352,14 @@ def grid_copies(
         )
 
     mats: list[np.ndarray] = []
-    if stagger is False:
+    if mode is StaggerMode.NONE:
         for row in range(num_copies[1]):
             for col in range(num_copies[0]):
                 pos = np.array([col, row]) * spacing - offset
                 if keep(pos):
                     mats.append(translate4(permax(pos)))
     else:
-        staggermod: int = 1 if stagger == StaggerMode.ALT else 0
+        staggermod: int = 1 if mode is StaggerMode.ALT else 0
         cols1 = math.ceil(num_copies[0] / 2)
         cols2 = num_copies[0] - cols1
         for row in range(num_copies[1]):
@@ -871,7 +910,9 @@ class Distributable(ABC):
         Args:
             spacing: Distance between adjacent copies.
             size: Extent to spread the copies over, one number or one per axis.
-            stagger: Offset alternate rows by half a step, for a hexagonal packing.
+            stagger: Offset alternate rows by half a step, for a hexagonal packing. ``True`` or
+                :attr:`StaggerMode.STANDARD`; :attr:`StaggerMode.ALT` staggers the other rows;
+                ``False`` or :attr:`StaggerMode.NONE` for a square grid.
             inside: Keep only the copies whose centres fall inside this outline.
             nonzero: Use the nonzero winding rule for *inside* rather than even-odd.
             axes: Which plane the grid lies in, as two of ``"xyz"``.

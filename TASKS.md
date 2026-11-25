@@ -73,6 +73,7 @@ spec renumbers as items close, and all but S-46a have.
 | — | PAR-1 / PAR-5 | [T126](#t126--the-cone-that-was-two-stepped-cylinders) ✅ | M |
 | — | PAR-5 | [T127](#t127--the-wall-that-did-not-know-where-to-stop) ✅ | S |
 | — | PAR-1 / PAR-5 | [T128](#t128--ask-the-filled-question-of-the-whole-family) ✅ | S |
+| — | X-3 / E-5 / O-6b | [T129](#t129--the-enum-that-refused-its-own-values) ✅ | S |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -5476,6 +5477,69 @@ T126 recorded that the shallow 8-to-8.5 taper passed the rim file's area sweep f
 reason, its missing sliver being 0.25mm against a 0.354mm step. Thin cylinder cases are pinned
 sharply by `tests/test_sdf_rim.py`; this file is for catching a *whole missing region* in a shape
 nobody thought to look at.
+
+
+## T129 — The enum that refused its own values ✅
+
+**Requirement:** PLAN X-3 (a new public callable arrives with three tests), SPEC E-5, O-6b.
+
+X-3 was the **last `unenforced` requirement** in the registry — 234 enforced, 40 reviewed, 19
+unenforced at T39, and this was the one left. Its three tests were each already enforced
+package-wide:
+
+| the third | enforced by |
+|---|---|
+| builds and is measurably right (X-8) | `test_assertion_quality.py::test_no_test_asserts_only_that_a_result_exists` |
+| builds with the minimum arguments (Q-4) | `test_defaults.py::test_argument_free_constructors_either_build_or_explain` |
+| its docstring example validates (Q-6) | `test_docstring_examples.py`, `validate_examples.py` |
+
+None of them answers *"is this particular public name reached by any of them"*. So the gate
+walks `pybosl2.__all__`, keeps the callables, and requires each to be used somewhere in the
+suite. Paired with X-8 it means something: every public callable is reached **and** no test
+merely asserts that a result exists. Either half alone is worthless — "is named in a test" is
+exactly the existence-only coverage T13 spent a task deleting.
+
+### What it found
+
+**`StaggerMode` refused two of its own three values.** `grid_copies(stagger=)` is annotated
+`bool | StaggerMode` and validated against `(False, True, StaggerMode.ALT)`:
+
+| passed | before | after |
+|---|---|---|
+| `False` / `None` / `"none"` / `StaggerMode.NONE` | 9 copies / 9 / 9 / **raised** | 9 copies, all four |
+| `True` / `"standard"` / `StaggerMode.STANDARD` | 5 copies / **raised** / **raised** | 5 copies, all three |
+| `StaggerMode.ALT` / `"alt"` | 4 copies / 4 copies | unchanged |
+
+The annotation promised all three enum values and mypy agreed, so this failed only at runtime,
+and only for the two spellings a caller's editor suggests most readily. `"alt"` worked by
+accident: a `StrEnum` member compares equal to its own string, which is also why `"none"` and
+`"standard"` looked like they ought to.
+
+**Widening the validation would not have fixed it.** The function tests `stagger is False` in
+three separate places and an enum member is never `False`, so merely accepting
+`StaggerMode.NONE` would have made "none" lay out a *staggered* grid. `_stagger_mode()`
+normalises once at the top and the three sites read the normalised value.
+
+This is the third enum defect of the campaign — T106 found two enums that changed nothing when
+set, T98 found one carrying two vocabularies under one parameter name — and **all three were
+enums no test touched.** An exported enum is the most discoverable thing in an API: a caller
+sees `StaggerMode.STANDARD` in their completions and reasonably assumes it works.
+
+### The gate took three attempts, and that is the interesting part
+
+| scan | count reported | why it was wrong |
+|---|---|---|
+| the files as **text** | 5 | **It satisfied itself.** The gate's own docstring names the enums it found, so its prose counted as coverage — the test written to catch them would have masked them forever |
+| the **AST's identifiers** | 7 | Too strict: this suite exercises real code through *source strings* — `_render(tmp_path, "roof(s2.square([20, 10]))")`, and `test_facets.py`'s `"isosurface.py::Metaball.sphere"` registry — so `roof` and `Metaball` were reported uncovered when they are nothing of the kind |
+| identifiers **plus non-docstring string literals** | 2 | right: a docstring is a `Constant` that is the first statement of a module, class or function, which is exactly the line between prose and code here |
+
+The last two, `OSType` and `jittered_poly`, got real tests rather than an exception entry, so
+the allow-list is empty. Removing any one of the new tests makes the gate name the callable it
+covered.
+
+### The registry after this
+
+**235 enforced, 40 reviewed, 1 withdrawn, 0 unenforced.**
 
 
 ## Keeping this file honest

@@ -4868,10 +4868,14 @@ section = "9. Tests"
 statement = '''
 Every new public callable gets three tests: it builds *and is measurably right* (X-8), it builds **with the minimum arguments** (this is how SPEC P-1 is enforced mechanically), and its docstring example validates (`tests/validate_examples.py`).
 '''
-enforced_by = []
-status = "unenforced"
+enforced_by = [
+    "tests/test_public_enums_are_exercised.py::test_every_public_callable_is_named_somewhere_in_the_suite",
+]
+status = "enforced"
 note = '''
-The minimum-argument third is enforced (Q-4). Nothing requires a *new* callable to arrive with all three tests -- that is what a reviewer counts.
+Each of the three is enforced across the package -- X-8 forbids an existence-only assertion, Q-4 walks the argument-free constructors, the docstring-example gates read every example -- but none of them answered "is *this* public name reached by any of them". The gate above walks `pybosl2.__all__` and requires every callable to be used somewhere in the suite, which is the half that was missing; paired with X-8 it means every public callable is reached *and* no test merely asserts a result exists. Its exception list is empty.
+
+Closing it found a defect of exactly the kind the gap allows: `grid_copies(stagger=)` is annotated `bool | StaggerMode` and validated against `(False, True, StaggerMode.ALT)`, so two of that enum's three values raised while the annotation promised them (T129).
 '''
 
 [[requirement]]
