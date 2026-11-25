@@ -1243,3 +1243,123 @@ def refuse_text_labels(call: str) -> None:
                 '`with use_backend("csg")`.'
             ),
         )
+
+
+def rim_wall_angle(radius1: float, radius2: float, length: float) -> float:
+    """Degrees the cone wall leans in, going up -- BOSL2's ``vang``; zero for a straight wall.
+
+    Args:
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        length: Length of the cylinder along its axis.
+
+    Returns:
+        The lean in degrees, positive when the solid narrows towards the top.
+
+    """
+    return math.degrees(math.atan2(radius1 - radius2, length))
+
+
+def rim_fillet_centre(radius1: float, radius2: float, length: float, amount: float, *, top: bool) -> list[float]:
+    """Centre of a rim fillet: tangent to the end face *and* tangent to the cone wall.
+
+    BOSL2 fits the fillet as the corner arc of ``[inner, corner, far end]`` (``arc(r=, corner=)``
+    in ``_cyl_path``), so it touches both legs. Placing the centre at ``radius - amount`` instead
+    puts it on the vertical line through the *nominal* radius, which is the same point only when
+    the wall is vertical: on a 10-to-2 cone with a 3mm rounding the two are 1.32mm apart. This
+    reduces to ``radius - amount`` when ``radius1 == radius2``, so a straight wall -- the only
+    case any test of the rim used before -- is unchanged by construction.
+
+    Args:
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        length: Length of the cylinder along its axis.
+        amount: The fillet radius.
+        top: Place the fillet at the top rim rather than the bottom.
+
+    Returns:
+        The fillet centre as ``[radial, axial]`` in profile coordinates.
+
+    """
+    slant = math.hypot(radius2 - radius1, length)
+    if top:
+        return [radius2 - amount * ((radius2 - radius1) + slant) / length, length / 2 - amount]
+    return [radius1 + amount * ((radius2 - radius1) - slant) / length, -length / 2 + amount]
+
+
+def law_of_sines(side: float, opposite: float, other: float) -> float:
+    """BOSL2 ``law_of_sines(a=side, A=opposite, B=other)`` -- the side facing *other*.
+
+    Args:
+        side: The known side length.
+        opposite: The angle facing *side*, in degrees.
+        other: The angle facing the side to return, in degrees.
+
+    Returns:
+        The length of the side facing *other*.
+
+    """
+    return side * math.sin(math.radians(other)) / math.sin(math.radians(opposite))
+
+
+def rim_chamfer_legs(
+    amount: float, angle: float | None, from_end: bool, vang: float, *, top: bool
+) -> tuple[float, float, float]:
+    """Return a rim chamfer's three offsets from the corner: inward, then out along the cone wall.
+
+    Two things here are BOSL2's and used to be neither backend's. The cut's far end lies **on the
+    wall** -- BOSL2 writes it ``[r, +-l/2] + polar(leg, 90 + vang)`` -- and not on the vertical
+    line through the nominal radius, which is where both backends put it: 0.39mm out on an 8-to-4
+    cone at the default angle and 2.12mm at 60 degrees. And ``from_end`` measures the cut *along
+    the side face*, which is what the BOSL2 manual says it does; both backends read it as the
+    cut's own hypotenuse, so ``from_end=True`` was wrong even on a straight cylinder -- 0.59mm at
+    the default 45 degrees, 1.73mm at 30.
+
+    Each end sees the lean with its own sign, which is why BOSL2 writes the default angle as
+    ``45 + vang/2`` at the bottom and ``45 - vang/2`` at the top; the cut then runs from the
+    corner along the wall, at ``90 + vang`` from the bottom and ``270 + vang`` from the top.
+
+    Args:
+        amount: The chamfer size.
+        angle: The chamfer angle in degrees, or None for BOSL2's taper-aware default.
+        from_end: Measure *amount* along the side face rather than inward from the edge.
+        vang: The wall's lean in degrees, from :func:`rim_wall_angle`.
+        top: Describe the top rim rather than the bottom.
+
+    Returns:
+        ``(radial, wall_radial, wall_axial)`` -- how far the cut reaches inward from the nominal
+        radius, and the wall-side point's offset from the corner in profile coordinates.
+
+    """
+    lean = -vang if top else vang
+    ang = 45.0 + lean / 2 if angle is None else angle
+    other = 90.0 + lean - ang
+    radial = law_of_sines(amount, ang, other) if from_end else amount
+    leg = abs(amount) if from_end else abs(law_of_sines(amount, other, ang))
+    along = math.radians((270.0 if top else 90.0) + vang)
+    return radial, math.cos(along) * leg, math.sin(along) * leg
+
+
+def rim_chamfer_points(
+    radius: float, length: float, amount: float, angle: float | None, from_end: bool, vang: float, *, top: bool
+) -> list[list[float]]:
+    """Return the chamfer's two profile points, in the order a profile walks them.
+
+    Args:
+        radius: The nominal radius at this end.
+        length: Length of the cylinder along its axis.
+        amount: The chamfer size.
+        angle: The chamfer angle in degrees, or None for BOSL2's taper-aware default.
+        from_end: Measure *amount* along the side face rather than inward from the edge.
+        vang: The wall's lean in degrees, from :func:`rim_wall_angle`.
+        top: Describe the top rim rather than the bottom.
+
+    Returns:
+        The two points as ``[radial, axial]`` pairs.
+
+    """
+    radial, wall_r, wall_z = rim_chamfer_legs(amount, angle, from_end, vang, top=top)
+    end = length / 2 if top else -length / 2
+    inner = [radius - radial, end]
+    on_wall = [radius + wall_r, end + wall_z]
+    return [on_wall, inner] if top else [inner, on_wall]

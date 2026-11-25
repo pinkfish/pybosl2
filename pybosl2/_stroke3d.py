@@ -117,15 +117,15 @@ def _revolved_cap(polys: list[list[list[float]]], width: float) -> Any:
 
     """
     from pythonscad import polygon as _opolygon
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import square as _osquare
 
     from pybosl2.shapes3d import Bosl2Solid
+    from pybosl2.shapes3d.base import _orevolve
 
     profiles = [[[p[1], p[0]] for p in poly] for poly in polys]
     big = max(abs(v) for poly in profiles for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
-    solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in profiles]
+    solids = [_orevolve(_opolygon(poly) & right) for poly in profiles]
     return Bosl2Solid(reduce(operator.or_, solids))
 
 

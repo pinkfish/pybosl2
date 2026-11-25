@@ -38,6 +38,7 @@ from .base import (
     _anchor_offset_cyl,
     _finish3,
     _ocylinder,
+    _orevolve,
     _osphere,
 )
 
@@ -47,7 +48,6 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -56,7 +56,6 @@ else:
     _ohull = native("hull")
     _ominkowski = native("minkowski")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
@@ -531,7 +530,7 @@ def cyl(
 
         _opolygon = native("polygon")
 
-        shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
+        shape = _orevolve(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 
     if realign:
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
@@ -619,6 +618,7 @@ def cyl_profile(
     fs: float | None = None,
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
+    sides: int | None = None,
 ) -> list[list[float]]:
     """Generate a 2D cylinder profile with optional rounding and chamfering.
 
@@ -640,10 +640,13 @@ def cyl_profile(
         fs: Minimum fragment size in millimetres. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
         teardrop: Make the top a printable teardrop, optionally giving the angle.
         clip_angle: Angle at which a teardrop profile is clipped flat, for printability.
+        sides: Facet count of the prism this profile will be revolved into, when the rim is to be
+            measured against its *faces* rather than its corners. Omitted (the default), the rim is
+            stated at the nominal radius, which is what ``cyl()`` does.
 
     """
     from pybosl2._helpers import arc_points as _arc_points
-    from pybosl2._helpers import effective_clip
+    from pybosl2._helpers import effective_clip, rim_chamfer_points, rim_fillet_centre, rim_wall_angle
 
     # T45 said this rule was "written once and both backends read it". Only half of that was true:
     # `effective_clip` was written, the SDF backend read it, and this function kept its own copy of
@@ -651,50 +654,50 @@ def cyl_profile(
     # The duplicate is gone; there is one definition and this is a call to it.
     eff_clip = effective_clip(clip_angle, teardrop)
 
+    # `regular_prism` is the one caller that measures its rim against the prism's **faces**, which
+    # is BOSL2's documented difference from `cyl()`: "chamfers and roundings for this module are
+    # always evaluated relative to the faces of the prism and never at corners as is done by
+    # default in cyl()". `_cyl_path(..., n)` implements it by setting `scale = cos(180/n)`, fitting
+    # the treatment against `r*scale` -- the apothem -- and then `xscale(1/scale)`-ing the result
+    # back out. Scaling the radii on the way in and the radial coordinates on the way out is that
+    # same construction, so every treatment this function knows how to draw inherits it (B2-3).
+    scale = 1.0 if sides is None else math.cos(math.pi / sides)
+    radius1, radius2 = radius1 * scale, radius2 * scale
+
     _check_rim_treatments(radius1, radius2, rounding1, rounding2, chamfer1, chamfer2)
+
+    # The wall is only vertical when the two radii agree, and every piece of rim geometry below
+    # is stated against the wall rather than against the nominal radius -- so this angle is what
+    # makes a *tapered* rim the rim BOSL2 builds. It is zero for a straight wall, which is why
+    # that case comes out byte-for-byte unchanged.
+    vang = rim_wall_angle(radius1, radius2, length)
 
     path = [[0.0, -length / 2]]
     if rounding1:
-        sides = max(3, _frag_count(rounding1, fn, fa, fs) // 4)
-        center = [radius1 - rounding1, -length / 2 + rounding1]
-        pts = _arc_points(sides, rounding1, 360 - eff_clip, eff_clip, center)
+        sides_1 = max(3, _frag_count(rounding1, fn, fa, fs) // 4)
+        center = rim_fillet_centre(radius1, radius2, length, rounding1, top=False)
+        pts = _arc_points(sides_1, rounding1, 360 - eff_clip, eff_clip + vang, center)
         if eff_clip < 90.0:
             path.append([pts[0][0], -length / 2])
         path.extend(pts)
     elif chamfer1:
-        angle1 = chamfer_angle1 if chamfer_angle1 is not None else 45.0
-        if from_end1:
-            dx = chamfer1 * math.cos(math.radians(angle1))
-            dy = chamfer1 * math.sin(math.radians(angle1))
-        else:
-            dx = chamfer1
-            dy = chamfer1 * math.tan(math.radians(angle1))
-        path.append([radius1 - dx, -length / 2])
-        path.append([radius1, -length / 2 + dy])
+        path.extend(rim_chamfer_points(radius1, length, chamfer1, chamfer_angle1, from_end1, vang, top=False))
     else:
         path.append([radius1, -length / 2])
 
     if rounding2:
-        sides = max(3, _frag_count(rounding2, fn, fa, fs) // 4)
-        center = [radius2 - rounding2, length / 2 - rounding2]
-        pts = _arc_points(sides, rounding2, 0, eff_clip, center)
+        sides_2 = max(3, _frag_count(rounding2, fn, fa, fs) // 4)
+        center = rim_fillet_centre(radius1, radius2, length, rounding2, top=True)
+        pts = _arc_points(sides_2, rounding2, vang, eff_clip - vang, center)
         path.extend(pts)
         if eff_clip < 90.0:
             path.append([pts[-1][0], length / 2])
     elif chamfer2:
-        angle2 = chamfer_angle2 if chamfer_angle2 is not None else 45.0
-        if from_end2:
-            dx = chamfer2 * math.cos(math.radians(angle2))
-            dy = chamfer2 * math.sin(math.radians(angle2))
-        else:
-            dx = chamfer2
-            dy = chamfer2 * math.tan(math.radians(angle2))
-        path.append([radius2, length / 2 - dy])
-        path.append([radius2 - dx, length / 2])
+        path.extend(rim_chamfer_points(radius2, length, chamfer2, chamfer_angle2, from_end2, vang, top=True))
     else:
         path.append([radius2, length / 2])
     path.append([0.0, length / 2])
-    return path
+    return path if scale == 1.0 else [[r / scale, z] for r, z in path]
 
 
 @backend_only("csg", neutral="pybosl2.solid.xcyl")

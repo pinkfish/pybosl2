@@ -36,6 +36,7 @@ from pybosl2.shapes3d import (
     zcyl,
 )
 from pybosl2.shapes3d.base import _anchor_offset_hull3
+from pybosl2.shapes3d.cylinder import cyl_profile
 from pybosl2.textures import TextureType
 
 # unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
@@ -419,9 +420,24 @@ def test_the_axis_cylinders_lie_along_their_own_axis(name: str, call: object, ax
 
 
 def test_cyl_tapered_with_chamfer() -> None:
-    """A tapered cylinder chamfers on the wider end's radius, not a single shared one."""
+    """A tapered cylinder chamfers on each end's own radius, and the chamfer removes the corner.
+
+    This asserted a width of 24 -- the full radius-12 diameter -- which said the chamfer left the
+    widest ring where an unchamfered cone has it. A chamfer cuts the corner *off*: BOSL2 runs the
+    cut from the corner along the wall, at `90 + vang` from the end face, so on a cone that
+    narrows upward it moves inward and the widest ring lands at 11.735673 rather than 12. The old
+    figure came from this library placing that far end on the vertical line through the nominal
+    radius instead (T130, SPEC B2-1). The claim in the title is unchanged and is what the two
+    comparisons below now state: the bottom chamfer is sized from `radius1` and the top from
+    `radius2`, which is why they are not symmetric.
+    """
     tapered = cyl(height=30, radius1=12, radius2=8, chamfer=2, realign=True)
-    assert float(tapered.bounds().size[0]) == pytest.approx(24.0, abs=0.2)  # the radius-12 end
+    profile = cyl_profile(12.0, 8.0, 30.0, chamfer1=2.0, chamfer2=2.0)
+    assert profile[1] == pytest.approx([10.0, -15.0]), "the bottom cut insets 2 from radius1"
+    assert profile[-2] == pytest.approx([6.0, 15.0]), "the top cut insets 2 from radius2"
+    widest = max(r for r, _ in profile)
+    assert widest == pytest.approx(11.735673, abs=1e-6), "the widest ring is the bottom cut's far end"
+    assert float(tapered.bounds().size[1]) == pytest.approx(2 * widest, abs=0.01)
     assert float(tapered.bounds().size[2]) == pytest.approx(30.0)
 
 
@@ -587,13 +603,29 @@ def test_cone_truncated_returns_solid() -> None:
     assert size[1] >= 16
 
 
-@pytest.mark.parametrize("treatment", ["chamfer1", "rounding1"])
-def test_a_cone_can_be_treated_at_its_base(treatment: str) -> None:
-    """The base has a rim to work with, so it rounds or chamfers like any cylinder end."""
+@pytest.mark.parametrize(("treatment", "widest"), [("chamfer1", 14.552786), ("rounding1", 14.381966)])
+def test_a_cone_can_be_treated_at_its_base(treatment: str, widest: float) -> None:
+    """The base has a rim to work with, so it rounds or chamfers like any cylinder end.
+
+    It also gets **narrower**, which this used to deny: it asserted the treated cone's box matched
+    the plain one to 0.01, so a 1mm treatment on a 15mm base left the widest ring exactly where it
+    was. That holds only if the rim treatment keeps a point on the vertical line through the
+    nominal radius, which is what this library did and BOSL2 does not -- both the chamfer's far
+    end and the fillet's tangency lie on the cone's own wall, which on a 15-to-0 cone has already
+    leaned 26.565 degrees in by the time the treatment reaches it (T130, SPEC B2-1).
+
+    So the figures below are the point of the test rather than an incidental box: a 1mm chamfer
+    takes the widest ring to 14.552786 and a 1mm rounding to 14.381966, against 15 untreated.
+    """
     plain = cone(height=30, radius=15)
     treated = cone(height=30, radius=15, **{treatment: 1})
     assert isinstance(treated, Bosl2Solid)
-    assert [float(v) for v in treated.bounds().size] == pytest.approx([float(v) for v in plain.bounds().size], abs=0.01)
+    profile = cyl_profile(15.0, 0.0, 30.0, fn=512, **{treatment: 1.0})  # type: ignore[arg-type]
+    assert max(r for r, _ in profile) == pytest.approx(widest, abs=1e-6)
+    assert float(treated.bounds().size[2]) == pytest.approx(float(plain.bounds().size[2])), "the height is untouched"
+    assert float(treated.bounds().size[0]) < float(plain.bounds().size[0]) - 0.8, (
+        "a treatment on a leaning wall moves the widest ring inward"
+    )
     assert repr(treated.shape) != repr(plain.shape)
 
 

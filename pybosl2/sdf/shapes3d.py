@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable, NoReturn, Self, cast
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, Self, TypeAlias, cast
 
 import numpy as np
 
@@ -24,7 +24,7 @@ from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor, resolve_anchor
-from pybosl2._helpers import effective_clip
+from pybosl2._helpers import effective_clip, rim_chamfer_legs, rim_fillet_centre, rim_wall_angle
 from pybosl2._native import native
 from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
@@ -2862,23 +2862,23 @@ def _wall_line_sdf(
     radius1: float,
     radius2: float,
     hb: float,
-    inset1: float = 0.0,
-    inset2: float = 0.0,
 ) -> LVTree:
     """Return the signed distance to the infinite line for the slanted wall of a cylinder/cone.
 
-    Goes through `(radius1, -hb + inset1)` and `(radius2, hb - inset2)` in the `(rxy, z)`
-    half-plane -- exact for the wall itself; intersecting (max()) with the top/bottom slabs (see
-    _cylinder_sdf()) caps it off, with the same corner-region approximation already documented for
-    cuboid()'s per-axis composition.
+    Goes through `(radius1, -hb)` and `(radius2, hb)` in the `(rxy, z)` half-plane -- exact for
+    the wall itself; intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps it
+    off, with the same corner-region approximation already documented for cuboid()'s per-axis
+    composition.
 
-    **The insets are where a treated rim actually leaves the wall**, and they matter only on a
-    taper. BOSL2's profile puts a chamfer's or a rounding's inner endpoint at the *nominal* end
-    radius and runs the wall from there to the other end's endpoint, so a chamfered cone's wall is
-    not the line through its two nominal corners. This backend measured the rim against that
-    nominal line until T42 and so built a different cone from the same call -- 0.39mm out on an
-    8-to-4 taper with a 2mm chamfer, and the same for a rounding. On a plain cylinder the line is
-    vertical and an axial inset cannot move it, which is why nothing noticed (SPEC PAR-5).
+    **This took two per-end insets until T130, and they were a defect dressed as a rule.** T42
+    read this library's own CSG profile, found a treated rim's endpoints sitting on the vertical
+    line through the nominal radius, and recorded that as BOSL2's: "a chamfered cone's wall is not
+    the line through its two nominal corners". It is exactly that line. BOSL2 runs the cut from
+    the corner *along* the wall, so on an 8-to-4 cone with a 2mm chamfer its far endpoint is at
+    `(7.60777, -8.03884)`, which satisfies `r = 8 - 4 (z + 10) / 20` to the last digit. The insets
+    tilted this line to pass through points the rim had vacated, and both backends were then made
+    to agree on the tilted cone. A plain cylinder's wall is vertical and an axial inset cannot
+    move it, which is why every straight-walled test passed either way (SPEC PAR-5, B2-1).
 
     Args:
         rxy: The radial coordinate.
@@ -2886,16 +2886,14 @@ def _wall_line_sdf(
         radius1: Radius at the negative end.
         radius2: Radius at the positive end.
         hb: Half the length.
-        inset1: How far up from the negative end the wall starts.
-        inset2: How far down from the positive end it ends.
 
     Returns:
         The signed distance to the wall line.
 
     """
-    dr, dz = radius2 - radius1, 2 * hb - inset1 - inset2
+    dr, dz = radius2 - radius1, 2 * hb
     nlen = math.hypot(dr, dz)
-    return ((rxy - radius1) * dz - (z + hb - inset1) * dr) / nlen
+    return ((rxy - radius1) * dz - (z + hb) * dr) / nlen
 
 
 def _cylinder_sdf(
@@ -2920,42 +2918,48 @@ def _cylinder_sdf(
     return lv.max(wall, slab)
 
 
-def chamfer_legs(amount: float, angle: float | None, from_end: bool) -> "tuple[float, float]":
-    """Return a chamfer's ``(dx, dy)`` -- how far it cuts in radially and along the axis.
+#: A chamfer as the caller stated it, not as geometry: ``(amount, angle, from_end)``. It stays
+#: unresolved until the wall angle is known, which is why it is a type rather than a pair of legs.
+ChamferSpec: TypeAlias = "tuple[float, float | None, bool]"
 
-    BOSL2 states a chamfer two ways and both are in `cyl_profile`, which is where this comes from:
-    with ``from_end=False`` the *size* is the radial leg and the angle sets the axial one
-    (``dx = c``, ``dy = c * tan(angle)``); with ``from_end=True`` the size is the cut's own length
-    and the angle splits it (``dx = c * cos(angle)``, ``dy = c * sin(angle)``). At the default 45
-    degrees and ``from_end=False`` both legs are the size, which is the only case this backend
-    could express before.
+#: One rim's amount: a rounding radius, or a chamfer's unresolved spec.
+RimAmount: TypeAlias = "float | ChamferSpec"
+
+
+def chamfer_spec(amount: float, angle: float | None, from_end: bool) -> ChamferSpec:
+    """Carry a chamfer's three stated values to where the taper is known.
+
+    This used to resolve them here, into the ``(dx, dy)`` of a cut from ``(r - dx, hb)`` to
+    ``(r, hb - dy)``. Both of those points are on the vertical line through the *nominal* radius,
+    and only the first of them belongs there: BOSL2 runs the cut from the corner **along the
+    wall**, so on a taper the far end is somewhere else entirely. Resolving the legs before the
+    radii are in hand is what made that impossible to express, so the three values travel intact
+    and :func:`pybosl2._helpers.rim_chamfer_legs` turns them into geometry once the wall angle is
+    known -- the same function the CSG profile calls, so there is one definition of the rule.
 
     Args:
         amount: The chamfer size.
-        angle: The chamfer angle in degrees, or ``None`` for 45.
-        from_end: Measure along the end face rather than up the side.
+        angle: The chamfer angle in degrees, or ``None`` for BOSL2's taper-aware default.
+        from_end: Measure the size along the side face rather than inward from the edge.
 
     Returns:
-        The ``(dx, dy)`` pair.
+        The ``(amount, angle, from_end)`` triple, unresolved.
 
     """
-    degrees = 45.0 if angle is None else float(angle)
-    if from_end:
-        return amount * math.cos(math.radians(degrees)), amount * math.sin(math.radians(degrees))
-    return amount, amount * math.tan(math.radians(degrees))
+    return amount, angle, from_end
 
 
-def _rim_size(amount: "float | tuple[float, float]") -> float:
-    """Return how far a rim amount cuts, whether it is a radius or a chamfer's two legs.
+def _rim_size(amount: "RimAmount") -> float:
+    """Return how far a rim amount cuts, whether it is a radius or a chamfer spec.
 
     Args:
-        amount: A rounding radius, or a chamfer's ``(dx, dy)``.
+        amount: A rounding radius, or the triple :func:`chamfer_spec` returns.
 
     Returns:
-        The larger leg, or the radius. Zero means the rim is untreated.
+        The chamfer size or the rounding radius. Zero means the rim is untreated.
 
     """
-    return max(amount) if isinstance(amount, tuple) else amount
+    return amount[0] if isinstance(amount, tuple) else amount
 
 
 #: An overall/bottom/top triple as BOSL2 states one: `(chamfer, chamfer1, chamfer2)`. Passing the
@@ -2991,11 +2995,11 @@ def _rim_amounts(
     chamfer: _Triple,
     chamfer_angle: _Triple,
     from_end: _Triple,
-) -> "tuple[EdgeMode, float | tuple[float, float], float | tuple[float, float]]":
+) -> "tuple[EdgeMode, RimAmount, RimAmount]":
     """Resolve the rim triples into a mode and one amount per end.
 
     Rounding and chamfer are mutually exclusive (SPEC G-7), and a chamfer's amount comes back as
-    the ``(dx, dy)`` pair :func:`chamfer_legs` computes, which is what lets `chamfer_angle=` and
+    the unresolved triple :func:`chamfer_spec` carries, which is what lets `chamfer_angle=` and
     `from_end=` cross.
 
     Args:
@@ -3005,7 +3009,7 @@ def _rim_amounts(
         from_end: The from-end triple.
 
     Returns:
-        The mode and the two amounts, each a radius or a ``(dx, dy)`` chamfer pair.
+        The mode and the two amounts, each a rounding radius or a chamfer spec triple.
 
     Raises:
         Bosl2ValueError: if a rounding and a chamfer are both asked for.
@@ -3018,7 +3022,7 @@ def _rim_amounts(
     if c1v or c2v:
         a1, a2 = _per_end(chamfer_angle, None)
         e1, e2 = _per_end(from_end, False)
-        return EdgeMode.CHAMFER, chamfer_legs(c1v, a1, e1), chamfer_legs(c2v, a2, e2)
+        return EdgeMode.CHAMFER, chamfer_spec(c1v, a1, e1), chamfer_spec(c2v, a2, e2)
     return EdgeMode.ROUND, r1v, r2v
 
 
@@ -3103,7 +3107,9 @@ def _clip_fillet(u: LVTree, w: LVTree, a: float, clip: float) -> LVTree:
     return lv.max(u + inset, lv.max(w, -w - depth))
 
 
-def _rounded_rim_sdf(wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a: float, clip: float) -> LVTree:
+def _rounded_rim_sdf(
+    wall: LVTree, radial: LVTree, end: LVTree, centre: float, a: float, band: float, clip: float
+) -> LVTree:
     """Return the distance to one *rounded* rim, in the two frames a tapered wall needs.
 
     The two frames are the whole of this. ``end`` is the end face, negative inside, and ``wall``
@@ -3113,10 +3119,16 @@ def _rounded_rim_sdf(wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a:
     it clamped the whole half to that end's radius and a cone lost its flare -- the bottom half
     cut to `radius1`, the top to `radius2` (T126).
 
-    BOSL2's fillet is centred at ``(r_ref - a, +-(hb - a))``, measured from the nominal radius,
-    which `cyl_profile` confirms: an 8-to-4 cone with a 2mm rounding puts the centre at exactly
-    ``(6, -8)``, **1.94029 from the wall rather than 2**. So the arc is tangent to the end face
-    and merely *meets* the wall -- it is not a tangent fillet, and the nominal frame is right.
+    **The nominal frame was the wrong frame, and `cyl_profile` was the wrong authority for it.**
+    T126 read the centre off this library's CSG profile -- ``(r_ref - a, +-(hb - a))``, which on
+    an 8-to-4 cone of height 20 with a 2mm rounding is ``(6, -8)``, only 1.568929 from the wall --
+    and wrote down that BOSL2's fillet merely *meets* the wall. BOSL2 fits it with
+    ``arc(r=, corner=[inner, corner, far end])``, which is tangent to both legs, so its centre is
+    the corner's **incentre**: ``(5.560392, -8)`` on that same cone, 0.439608 from where this
+    backend and the CSG profile both put it. The caller passes that
+    centre in now, computed by :func:`pybosl2._helpers.rim_fillet_centre`, and it reduces to
+    ``r_ref - a`` exactly when the wall is vertical -- which is why every straight-walled case
+    this file has ever checked is unchanged (T130).
 
     What that frame cannot carry is how far the solid reaches *between* the rims, so the rounded
     rectangle is unioned with the body, which stops ``a`` short of the end face where the fillet
@@ -3126,8 +3138,15 @@ def _rounded_rim_sdf(wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a:
     from this end an infinite wall line falls inside the arc and shaves it -- 0.51 on an 8-to-20
     cone with a 3mm rounding, 0.88 on 4-to-20 (T127).
 
-    ``min(wall, -qv)`` is the wall relaxed inside that band and nowhere else: as a distance it is
-    the union of "inside the wall" and "within ``a`` of the end face". **Dropping the wall term
+    **That band is ``a`` only when the wall is vertical.** The fillet gives way to the wall at its
+    tangent point, which sits ``a (1 + sin vang)`` above the end face -- 1.4565 rather than 3 on an
+    8-to-20 cone with a 3mm rounding, because the centre slides down the lean. Using ``a`` there
+    told the field the fillet owned the first 3mm, so the 1.54mm above the tangent point was
+    governed by neither the fillet nor the wall and read **+0.125 at a point 0.077 inside the
+    wall** (T130). The caller measures it and passes it in.
+
+    ``min(wall, -qb)`` is the wall relaxed inside that band and nowhere else: as a distance it is
+    the union of "inside the wall" and "within the band of the end face". **Dropping the wall term
     instead also fixes the arc and passes every test**, because it changes no zero set -- and
     measured over a 441-point grid it makes the field underestimate depth *inside* a plain
     rounded cylinder by up to the rounding radius, for a shape that had nothing wrong with it.
@@ -3137,52 +3156,60 @@ def _rounded_rim_sdf(wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a:
         wall: Perpendicular distance to the wall line, negative inside.
         radial: The radial coordinate.
         end: Distance past this end face, negative inside.
-        r_ref: This end's nominal radius.
+        centre: Radial coordinate of the fillet centre, tangent to both the end face and the wall.
         a: The rounding radius; zero leaves the rim untreated.
+        band: How far the fillet reaches up the axis before the wall takes over.
         clip: The angle to clip the fillet at, 90 for none.
 
     Returns:
         The distance to this rim's treated corner.
 
     """
-    qu, qv = radial - r_ref + a, end + a
+    qu, qv = radial - centre, end + a
+    qb = end + band
     rounded = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
-    base = lv.max(lv.min(rounded, lv.max(wall, qv)), lv.min(wall, -qv))
+    base = lv.max(lv.min(rounded, lv.max(wall, qb)), lv.min(wall, -qb))
     if clip < 90.0 and a:
-        base = lv.min(base, _clip_fillet(radial - r_ref, end, a, clip))
+        # The clip wedge is stated against the fillet's own widest reach, `centre + a`, which is
+        # the nominal radius only on a straight wall -- the same correction as the centre itself.
+        base = lv.min(base, _clip_fillet(radial - centre - a, end, a, clip))
     return base
 
 
 def _chamfered_rim_sdf(
-    wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, a: "float | tuple[float, float]"
+    wall: LVTree, radial: LVTree, end: LVTree, r_ref: float, legs: tuple[float, float, float]
 ) -> LVTree:
-    """Return the distance to one *chamfered* rim.
+    """Return the distance to one *chamfered* rim: the half-plane through the cut's two endpoints.
 
-    The cut runs from ``(-dx, 0)`` to ``(0, -dy)`` in the corner's own frame, so the plane is
-    ``qu/dx + qv/dy + 1 = 0``; multiplying up and normalising gives the signed distance below.
-    With ``dx == dy == c`` it is ``(qu + qv + c) / sqrt(2)``, the 45-degree form this was written
-    as before `chamfer_angle=` and `from_end=` had to cross.
+    The cut runs from ``(-dx, 0)`` -- inward along the end face from the corner -- to the point
+    ``(wr, -wz)``, which is **on the cone wall**. The line through those two has normal
+    ``(wz, wr + dx)``, and offsetting so the first point reads zero gives the signed distance
+    below. When ``wr == 0`` it collapses to ``(qu * dy + qv * dx + dx * dy) / hypot(dx, dy)``, the
+    form this was written as, and with ``dx == dy`` to ``(qu + qv + c) / sqrt(2)``, the 45-degree
+    form it started as -- so a straight wall is unchanged at every angle.
 
-    That frame is the **nominal** one -- the plane's endpoints are ``(r_ref - dx, hb)`` and
-    ``(r_ref, hb - dy)`` on the profile, both stated against the end radius -- so the cut keeps
-    ``radial - r_ref`` while the body it cuts from uses the wall. Measuring the cut from the wall
-    instead was the first thing tried for T126 and it moved the plane, breaking all five of T42's
-    treated-taper cases.
+    **``wr == 0`` is exactly the assumption that was wrong.** It says the cut's far end sits on
+    the vertical line through this end's nominal radius, which is where `cyl_profile` put it and
+    therefore where T42 and T126 matched it; BOSL2 runs the cut from the corner *along the wall*,
+    so on an 8-to-4 cone with a 2mm chamfer the far end belongs 0.39mm inside that line, and at 60
+    degrees 1.03mm. Measuring the cut from the *wall distance* was tried for T126 and rightly
+    rejected -- that moves the whole plane; what moves is one of its two endpoints (T130).
 
     Args:
         wall: Perpendicular distance to the wall line, negative inside.
         radial: The radial coordinate.
-        end: Distance past this end face, negative inside.
         r_ref: This end's nominal radius.
-        a: The chamfer size, or the ``(dx, dy)`` pair :func:`chamfer_legs` returns.
+        end: Distance past this end face, negative inside.
+        legs: The ``(radial, wall_radial, wall_axial)`` triple
+            :func:`pybosl2._helpers.rim_chamfer_legs` returns for this end.
 
     Returns:
         The distance to this rim's treated corner.
 
     """
-    dx, dy = a if isinstance(a, tuple) else (a, a)
-    leg = math.hypot(dx, dy) or 1.0
-    cut = ((radial - r_ref) * dy + end * dx + dx * dy) / leg
+    dx, wr, wz = legs[0], legs[1], abs(legs[2])
+    norm = math.hypot(wz, wr + dx) or 1.0
+    cut = ((radial - r_ref) * wz + end * (wr + dx) + dx * wz) / norm
     return lv.max(lv.max(wall, end), cut)
 
 
@@ -3192,8 +3219,8 @@ def _cyl_edge_sdf(
     h: float,
     radius1: float,
     radius2: float,
-    amt1: "float | tuple[float, float]",
-    amt2: "float | tuple[float, float]",
+    amt1: "RimAmount",
+    amt2: "RimAmount",
     mode: EdgeMode,
     clip: float = 90.0,
 ) -> LVTree:
@@ -3207,19 +3234,34 @@ def _cyl_edge_sdf(
     :func:`_chamfered_rim_sdf`, which is where the reasoning about the two frames lives -- so
     there is no global `max(wall, rim)` here to clip a fillet the profile puts legitimately
     outside the wall line.
+
+    Both treatments are stated against the **wall**, which is why the taper reaches this far in
+    rather than being resolved by the caller: a fillet's centre and a chamfer's far endpoint both
+    depend on how the wall leans, and `radius1`, `radius2` and `h` are first all in scope here.
     """
     hb = h / 2
-    insets = tuple(a[1] if isinstance(a, tuple) else a for a in (amt1, amt2))
-    wall = _wall_line_sdf(radial, axial, radius1, radius2, hb, insets[0], insets[1])
+    vang = rim_wall_angle(radius1, radius2, h)
+    # A bare float is `tube`'s spelling of a chamfer -- the default angle, not from the end -- so
+    # it resolves through the same rule rather than keeping the straight-wall shortcut, which is
+    # what let a *tapered* tube's chamfer stay where `cyl`'s had just stopped being.
+    specs = tuple(a if isinstance(a, tuple) else (a, None, False) for a in (amt1, amt2))
+    legs = tuple(
+        rim_chamfer_legs(spec[0], spec[1], spec[2], vang, top=top) if mode == EdgeMode.CHAMFER else None
+        for spec, top in ((specs[0], False), (specs[1], True))
+    )
+    wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
     end = lv.abs(axial) - hb
     candidates = []
-    for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
+    for sz, r_ref, a, leg, top in ((-1, radius1, amt1, legs[0], False), (1, radius2, amt2, legs[1], True)):
         if mode == EdgeMode.ROUND:
-            assert not isinstance(a, tuple), "a rounding has one radius, not two legs"
-            base = _rounded_rim_sdf(wall, radial, end, r_ref, a, clip)
+            assert not isinstance(a, tuple), "a rounding has one radius, not a chamfer spec"
+            centre = rim_fillet_centre(radius1, radius2, h, a, top=top)[0]
+            lean = math.sin(math.radians(-vang if top else vang))
+            base = _rounded_rim_sdf(wall, radial, end, centre, a, a * (1.0 + lean), clip)
         else:
             assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
-            base = _chamfered_rim_sdf(wall, radial, end, r_ref, a)
+            assert leg is not None, "a chamfered rim resolves its legs above"
+            base = _chamfered_rim_sdf(wall, radial, end, r_ref, leg)
         candidates.append(base + _PENALTY * lv.max(0, -sz * axial))
     return lv.min(candidates[0], candidates[1])
 

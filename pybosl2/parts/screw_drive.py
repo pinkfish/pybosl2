@@ -42,12 +42,10 @@ from pybosl2.solid import cyl, prismoid, regular_prism
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
-    from pythonscad import rotate_extrude as _orotate_extrude
 
     from pybosl2._backend import Solid
 else:
     _opolygon = native("polygon")
-    _orotate_extrude = native("rotate_extrude")
 
 __all__ = [
     "HexDriveMask",

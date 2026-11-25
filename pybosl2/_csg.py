@@ -100,9 +100,23 @@ class CsgBackend:
         """
         from pybosl2._helpers import unwrap
         from pybosl2._native import native
+        from pybosl2.defaults import resolve_facets
         from pybosl2.shapes3d import Bosl2Solid
 
-        options = {name: value for name, value in arguments.items() if value is not None}
+        # Dropping the `None`s is necessary but not sufficient: it lets the renderer resolve the
+        # facet count instead of being overridden by a `None`, but the renderer cannot see an
+        # ambient `use_defaults(fn=...)` block -- and `given_arguments` has already removed the
+        # keys by the time this runs, so there is nothing here to notice is missing. A revolved
+        # profile came out at the renderer's own default, **19 facets under fn=16, fn=64 and
+        # fn=128 alike**, against 16, 64 and 128 when the same value was passed at the call, while
+        # `Path2D.rotate_extrude`'s own docstring promised that "omitted, the ambient
+        # use_defaults(fn=...) value applies". Resolved unconditionally, because the absence of a
+        # key is exactly the case that needs it (SPEC R-4, PLAN R-P3).
+        resolved = dict(arguments)
+        resolved["fn"], resolved["fa"], resolved["fs"] = resolve_facets(
+            resolved.get("fn"), resolved.get("fa"), resolved.get("fs")
+        )
+        options = {name: value for name, value in resolved.items() if value is not None}
         # `paths` is a sequence of outlines, and each outline is a sequence of points. Coercing
         # every point to a float pair up front is what makes that readable to the checker as well
         # as to a reader -- the shape of the data is the loop, not an isinstance test on the way in.

@@ -110,6 +110,31 @@ def _options(backend: object, shape: str) -> set[str] | None:
     return set(inspect.signature(constructor).parameters) - TESSELLATION - {"self"}
 
 
+def _reverse_gaps() -> dict[str, list[str]]:
+    """Return, per shape, the options *SDF* takes that CSG has no spelling for.
+
+    :func:`_gaps` asks whether the SDF constructor keeps every promise the CSG one makes, and that
+    has been the measure of parity since T39. PAR-4 is mutual, and this is its other half: a
+    backend can also be *ahead*, and then the gap is in the one the parity figure treats as the
+    reference, so the figure reads zero while a caller's call still refuses on one side.
+
+    It found two the moment it was written -- `regular_prism`'s `outer_radius=`/`outer_diameter=`,
+    BOSL2's `or=`/`od=`, built on the SDF backend and never on the CSG one -- and pulling that
+    thread is what found T130's rim geometry.
+    """
+    csg, sdf = CsgBackend(), SdfBackend()
+    reverse = {v: k for k, v in SdfBackend._OWN_NAMES.items()}
+    out: dict[str, list[str]] = {}
+    for shape in _facade_shapes():
+        c, s = _options(csg, shape), _options(sdf, shape)
+        if c is None or s is None:
+            continue
+        missing = sorted(name for name in s - c if reverse.get(name, name) not in c)
+        if missing:
+            out[shape] = missing
+    return out
+
+
 def _gaps() -> dict[str, list[str]]:
     """Return, per shape, the options CSG takes that SDF has no spelling for."""
     csg, sdf = CsgBackend(), SdfBackend()
@@ -126,6 +151,7 @@ def _gaps() -> dict[str, list[str]]:
 
 
 GAPS = _gaps()
+REVERSE_GAPS = _reverse_gaps()
 
 
 def test_both_backends_were_actually_compared() -> None:
@@ -162,6 +188,40 @@ def test_no_shape_grows_its_option_gap(shape: str) -> None:
         )
     if actual < budget:
         pytest.fail(f"{shape} is down to {actual} from {budget}; lower its entry in OPTION_GAPS.")
+
+
+def test_neither_backend_is_ahead_of_the_other() -> None:
+    """Parity is mutual: an option one backend takes, the other takes or translates (SPEC PAR-4).
+
+    There is no budget to go with this one, because a row here is not honest debt the way a row in
+    `OPTION_GAPS` is. There, the missing option refuses with its own name (B-9) and the parity
+    figure counts it. Here the figure reads zero and the call still refuses, which is the worse
+    failure of the two -- so the only way to add a shape to this list is to take an option off the
+    backend that has it.
+    """
+    assert not REVERSE_GAPS, (
+        "the sdf backend declares options the csg backend has no spelling for: "
+        + "; ".join(f"{shape}({', '.join(options)})" for shape, options in sorted(REVERSE_GAPS.items()))
+        + ". Build them on csg too, or take them off sdf -- a backend being *ahead* leaves the "
+        "parity figure reading zero while the call still refuses on one side (SPEC PAR-4)."
+    )
+
+
+def test_the_reverse_scan_can_actually_see_a_gap() -> None:
+    """An empty result has to be distinguishable from a scan that compares nothing.
+
+    `test_both_backends_were_actually_compared` does this for the forward direction; this does it
+    for the reverse, by the same means and for the same reason. The reverse scan reported nothing
+    for every shape in this library until it was written, because it did not exist.
+    """
+    csg, sdf = CsgBackend(), SdfBackend()
+    shared = [s for s in _facade_shapes() if _options(csg, s) and _options(sdf, s)]
+    assert len(shared) > 15, f"only {len(shared)} shapes are built by both backends"
+    # The translation table has to invert, or every renamed option would read as a reverse gap and
+    # the assertion above would be noise rather than a measure.
+    reverse = {v: k for k, v in SdfBackend._OWN_NAMES.items()}
+    assert len(reverse) == len(SdfBackend._OWN_NAMES), "two csg names map to one sdf name; the inverse is lossy"
+    assert reverse["num_sides"] == "sides", "the inverse table does not invert"
 
 
 def test_the_budget_names_no_shape_that_is_gone() -> None:

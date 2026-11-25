@@ -29,6 +29,8 @@ Anything BOSL2 can build, pybosl2 aims to build — the same shapes, masks, roun
 '''
 enforced_by = [
     "tests/test_bosl2_coverage.py::test_every_named_module_exists",
+    "tests/test_rim_matches_bosl2.py::test_the_profile_is_the_path_bosl2_builds",
+    "tests/test_rim_matches_bosl2.py::test_a_fillet_is_tangent_to_the_wall_it_rolls_against",
 ]
 candidates = [
     "tests/test_example_claims.py",
@@ -2333,6 +2335,7 @@ enforced_by = [
     "tests/test_option_parity.py::test_the_design_note_states_the_measured_gap",
     "tests/test_sdf_texture.py::test_the_field_is_zero_where_the_mesh_puts_a_vertex",
     "tests/test_sdf_rim.py::test_all_five_spellings_build_the_same_rim",
+    "tests/test_option_parity.py::test_neither_backend_is_ahead_of_the_other",
 ]
 candidates = [
     "tests/test_partitions.py::test_partition_returns_two_pieces",
@@ -2340,7 +2343,9 @@ candidates = [
 ]
 status = "enforced"
 note = '''
-The two backends' constructors are compared option by option. 176 options the SDF backend lacked were honest parity debt -- refused with the parameter named (B-9) -- and are ratcheted per shape; T40 took that to **113**. The other half has no budget: a *rename* is not a capability gap, and one left out of the translation table surfaces as "the sdf backend cannot do this" when it can. `tube(outer_radius1=8)` built on CSG and refused on SDF, whose `outer_r1` is the same option, and a test asserted that refusal as correct behaviour.
+The two backends' constructors are compared option by option. 176 options the SDF backend lacked were honest parity debt -- refused with the parameter named (B-9) -- and were ratcheted per shape; T40 took that to **113**, T41 through T48 and T63 took it to **nothing**. The other half has no budget: a *rename* is not a capability gap, and one left out of the translation table surfaces as "the sdf backend cannot do this" when it can. `tube(outer_radius1=8)` built on CSG and refused on SDF, whose `outer_r1` is the same option, and a test asserted that refusal as correct behaviour.
+
+**The measure was one-directional until T130, and that is where the next gap was.** It asked which options CSG declares that SDF lacks, so a figure of zero said only that SDF had caught up. Parity as stated here is mutual, and when a backend is *ahead* the gap is in the one the measure treats as the reference -- the figure still reads zero while the call refuses on one side, which is strictly worse than budgeted debt, since budgeted debt at least refuses with its own name. The reverse scan found `regular_prism`'s `outer_radius=`/`outer_diameter=` -- BOSL2's `or=`/`od=`, built on SDF and never on CSG -- and following them to BOSL2's source is what found three rim defects both backends shared (T130, B2-1).
 
 **T41 then built `texture=` on the SDF backend, and the interesting part is why it looked impossible.** This file, `docs/design/sdf-csg-compatibility.md` and the §12.2 row all said the same thing: a texture is a *mesh* feature, so B-5 rules out the cheap route. Every one of those was written by reading the CSG signature rather than the CSG code. `textured_cylinder_vnf` has no "texture" primitive either -- it reduces a texture (named height field, rasterised VNF tile, or a caller's own array) to a **grid of heights** and only then places a vertex per cell, pushed out radially. The displacement map exists before either backend sees it. Nothing is converted, nothing is crossed, and the field reads the same tile with the same repeat counts and the same radius formula, so it is **zero at every vertex the mesh is built from** (`tests/test_sdf_texture.py`). The reason a gap looks unclosable is worth checking against the code that supposedly proves it.
 
@@ -2806,8 +2811,12 @@ Resolution SHOULD be settable once for a block rather than threaded through ever
 '''
 enforced_by = [
     "tests/test_defaults.py::test_block_scoped_and_restored",
+    "tests/test_facets_resolve_once.py::test_an_ambient_default_reaches_a_revolved_surface",
 ]
 status = "enforced"
+note = '''
+**Settable is not the same as reaching the geometry**, and until T130 only the first half was measured. `test_block_scoped_and_restored` asks whether the block stores and restores the value; `test_ambient_fn_changes_generated_geometry` (R-6) asks whether *a* shape responds to it. Neither asks it of each shape, and three did not: `cyl` with a treated rim, `torus`, and `onion` forwarded their unresolved `fn`/`fa`/`fs` to the native `rotate_extrude`, which distinguishes "not given" from `None` -- so `None` *overrode* the renderer's resolution rather than deferring to it, and the mesh came back at the renderer's own default under every ambient value -- 30 facets, 30 and 26 respectively -- against 16/64/128 when `fn` was passed at the call. `_ocylinder` and `_osphere` had resolved first and dropped the `None`s since they were written; the revolve had no such wrapper and now does (`_orevolve`).
+'''
 
 [[requirement]]
 id = "SPEC-R-5"

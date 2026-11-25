@@ -34,6 +34,7 @@ from .base import (
     Bosl2Solid,
     _anchor_offset_cyl,
     _finish3,
+    _orevolve,
     _osphere,
 )
 
@@ -43,7 +44,6 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -52,7 +52,6 @@ else:
     _ohull = native("hull")
     _ominkowski = native("minkowski")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
@@ -357,7 +356,7 @@ def onion(
         cap_x = (maxheight - top_z) * math.tan(math.radians(angle))
         profile = arc + [[cap_x, top_z], [0.0, top_z]]
 
-    shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
+    shape = _orevolve(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 
     a = list(anchor)
     off_z = 0.0 if a[2] == 0 else (scaled if a[2] < 0 else -top_z)

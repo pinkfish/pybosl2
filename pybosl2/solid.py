@@ -1326,6 +1326,8 @@ def regular_prism(
     diameter: float | None = None,
     inner_radius: float | None = None,
     inner_diameter: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
     radius1: float | None = None,
@@ -1364,6 +1366,8 @@ def regular_prism(
         diameter: Overall size (see above)
         inner_radius: Overall size (see above)
         inner_diameter: Overall size (see above)
+        outer_radius: Overall size (see above); BOSL2's ``or=``, a synonym for radius.
+        outer_diameter: Overall size (see above); BOSL2's ``od=``, a synonym for diameter.
         side: Overall size (see above)
         length: Prism height (default 1)
         radius1: Bottom radius, for a tapered prism (CSG backend).
@@ -1428,6 +1432,8 @@ def regular_prism(
                     "diameter": diameter,
                     "inner_radius": inner_radius,
                     "inner_diameter": inner_diameter,
+                    "outer_radius": outer_radius,
+                    "outer_diameter": outer_diameter,
                     "side": side,
                     "length": length,
                     "radius1": radius1,

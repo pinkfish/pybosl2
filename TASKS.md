@@ -64,16 +64,17 @@ spec renumbers as items close, and all but S-46a have.
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) ✅ | M |
 | 6 | C-21 / PLAN S-2 | [T32](#t32--close-the-two-rules-that-only-half-closed) ✅ | S |
 | 8 | C-23 / C-20 | [T33](#t33--type-the-contract) ✅ | M |
-| 10 | PAR-4 / PAR-5 / S-2b | [T40](#t40--close-the-sdf-option-gaps) 🔶 | L |
+| 10 | PAR-4 / PAR-5 / S-2b | [T40](#t40--close-the-sdf-option-gaps) ✅ | L |
 | 11 | C-21 / B2-3 | [T40](#t40--close-the-sdf-option-gaps) ✅ | S |
 | 12 | PAR-4 / PAR-5 / S-34 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | M |
 | 13 | C-21 | [T41](#t41--build-texture-on-the-sdf-backend) ✅ | S |
-| 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) 🔶 | M |
+| 14 | PAR-4 / PAR-5 | [T42](#t42--close-the-cylinder-rim-options) ✅ | M |
 | — | Q-3 / E-4 | [T125](#t125--upgrade-the-pinned-tools-and-refuse-the-solid-that-cannot-be-used) ✅ | S |
 | — | PAR-1 / PAR-5 | [T126](#t126--the-cone-that-was-two-stepped-cylinders) ✅ | M |
 | — | PAR-5 | [T127](#t127--the-wall-that-did-not-know-where-to-stop) ✅ | S |
 | — | PAR-1 / PAR-5 | [T128](#t128--ask-the-filled-question-of-the-whole-family) ✅ | S |
 | — | X-3 / E-5 / O-6b | [T129](#t129--the-enum-that-refused-its-own-values) ✅ | S |
+| — | B2-1 / PAR-4 / PAR-5 | [T130](#t130--the-rim-that-was-measured-against-the-wrong-wall) ✅ | M |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -864,7 +865,7 @@ three tests, which is a count a reviewer makes and no scan can — the minimum-a
 enforced (Q-4). `UNENFORCED_BUDGET` is 1.
 
 
-## T40 — Close the SDF option gaps 🔶
+## T40 — Close the SDF option gaps ✅
 
 **§12.2 items 10 and 11. PAR-4, PAR-5, S-2b, C-21, B2-3.**
 
@@ -884,9 +885,13 @@ side, and every SDF constructor's tail now goes through it. Nine of them declare
 and ignored them in the first pass — caught by `ruff`'s ARG001, the same silent no-op T39 had just
 fixed in the bottle caps, which is the argument for keeping that rule on.
 
-**113 remain and they are the honest ones**: the cylinder family's `texture`/`tex_*` (a textured
-field is not a mesh with a texture applied to it, so B-5 forbids the cheap route), and the chamfer
-geometry variants `chamfer_angle`, `from_end`, `extra`, `clip_angle`, `teardrop`.
+**113 remained after this task**, and they were the honest ones: the cylinder family's
+`texture`/`tex_*` (a textured field is not a mesh with a texture applied to it, so B-5 forbids the
+cheap route), and the chamfer geometry variants `chamfer_angle`, `from_end`, `extra`, `clip_angle`,
+`teardrop`. T41 and T42–T48 closed every one and T63 the last two, so the measure
+`tests/test_option_parity.py` takes has read **zero** since. This section still said "113 remain"
+at T130, two tasks after the figure went to nothing: the design note's figure is kept true by a
+test and the task log's was not.
 
 ### What writing the tests found
 
@@ -1037,7 +1042,7 @@ a caller reads. Exactly one name in the package collided, which is why the guard
 assertion and not a budget.
 
 
-## T42 — Close the cylinder rim options 🔶
+## T42 — Close the cylinder rim options ✅
 
 **§12.2 item 14. PAR-4, PAR-5.**
 
@@ -1085,14 +1090,26 @@ that. **Neither was ever CSG-only** — both were unwritten, and naming one in t
 asserted otherwise. What B-9 governs is the refusal, not any particular gap, so the example is now
 picked from whatever the parity budget still counts and is expected to keep moving.
 
-### What remains
+### What remained
 
-41 gaps: `rect_tube`'s tapered form (15), `prismoid`'s edge treatments (6), `teardrop`'s cap and
-chamfer (5), `teardrop`/`clip_angle` on the cylinders (10), `trimcorners` (2), `regular_prism`'s
-`shift` (1), and `cuboid`/`cube`'s `teardrop` (2, which raises `Bosl2NotImplementedError` on CSG
-too). `teardrop`/`clip_angle` is the interesting one: a rounding clipped at an angle is a
-**non-convex** corner — the arc runs to the clip angle and then goes straight to the cap — so it is
-a union of two regions rather than one expression, unlike everything closed so far.
+41 gaps at the time: `rect_tube`'s tapered form (15), `prismoid`'s edge treatments (6),
+`teardrop`'s cap and chamfer (5), `teardrop`/`clip_angle` on the cylinders (10), `trimcorners` (2),
+`regular_prism`'s `shift` (1), and `cuboid`/`cube`'s `teardrop` (2, which raises
+`Bosl2NotImplementedError` on CSG too). `teardrop`/`clip_angle` was the interesting one: a rounding
+clipped at an angle is a **non-convex** corner — the arc runs to the clip angle and then goes
+straight to the cap — so it is a union of two regions rather than one expression, unlike everything
+closed before it. T43–T48 closed all 41 and T63 the last pair; the option-parity measure has read
+zero since, and this section still said "41 gaps" at T130.
+
+### And the rule this task wrote down was backwards
+
+The reading above — that BOSL2 puts a treated rim's inner endpoint at the nominal end radius and
+runs the wall from *there*, so "a chamfered cone's wall is not the line through its two nominal
+corners" — was taken from this library's own `cyl_profile`, not from BOSL2. It *is* that line, to
+the last digit. The 0.39mm this task measured was real and its sign was inverted: the SDF backend
+was moved onto the CSG construction, `_wall_line_sdf` grew two per-end insets to tilt the wall to
+match, and T126 and T127 then refined the agreement between two backends that were both wrong.
+See [T130](#t130--the-rim-that-was-measured-against-the-wrong-wall).
 
 
 ## T43 — Give `prismoid` its edge treatments ✅
@@ -5554,3 +5571,182 @@ stale, both cheap to prevent:
 
 When a review turns up something new, the order is: reproduce it as a user would, add the §12.2
 row citing the requirement it violates, then add the task here with its plan rules and its test.
+
+## T130 — The rim that was measured against the wrong wall ✅
+
+**Requirement:** SPEC B2-1 (feature compatible with BOSL2), PAR-4, PAR-5, B-9.
+
+**Four defects, both backends, and the instrument that could not see any of them.**
+`tests/test_sdf_rim.py` asks whether the SDF field is zero at every vertex of the profile
+the CSG backend revolves. That is the sharpest cross-backend statement available and it is sound —
+the profile is not an approximation of the CSG solid, it *is* the CSG solid. What it cannot ask is
+whether the profile is right, and **nothing in this repository had ever compared a rim against the
+`.scad` it was ported from.**
+
+T42 measured the fillet centre on a tapered cone, found it on the vertical line through the
+nominal radius, and recorded that as BOSL2's rule: *"BOSL2 puts a treated rim's inner endpoint at
+the nominal end radius and runs the wall from there to the other end's endpoint … so a chamfered
+cone's wall is not the line through its two nominal corners."* It read that off this library's own
+`cyl_profile`. `_wall_line_sdf` then grew two per-end insets to tilt the wall onto the points the
+rim had vacated, T126 matched the SDF fillet to the same centre, and T127 refined the agreement.
+**Two backends agreeing is not evidence about BOSL2.**
+
+### What BOSL2 actually does
+
+`_cyl_path()` fits the fillet with `arc(r=, corner=[inner, corner, far end])`, which is tangent to
+**both** legs, and runs a chamfer from the corner *along the wall*:
+
+```
+bottom = !approx(chamf1r,0) ? [[r1-chamf1r/scale, -l/2],
+                               [r1,-l/2] + xscale(1/scale, polar_to_xy(chamf1l, 90+vang))]
+       : !approx(round1,0)  ? xscale(1/scale, arc(r=abs(round1*unscale),
+                                corner=[[r1*scale-2*roundlen1,-l/2],[r1*scale,-l/2],[r2*scale,l/2]]))
+```
+
+So a chamfer's far end lies on the line through the two nominal corners, exactly: on an 8-to-4
+cone of height 20 with a 2mm chamfer it is `(7.607768, -8.038839)`, and `8 - 4 × 18.392233 / 20`
+is `7.607768` to the last digit. The wall **is** that line, and the insets were a defect dressed
+as a rule.
+
+| what was wrong | worst measured error |
+|---|---|
+| a tapered `rounding`'s centre was at `radius - amount`, not the corner's incentre | 0.618674 on 8→4 with 2mm; **1.324908** on 10→2 with 3mm |
+| a tapered `chamfer`'s far end was off the wall | 0.394150 at the default angle; **2.120046** on 4→8 at 60° |
+| `from_end=` read as the cut's own hypotenuse, not measured along the side face | **0.585786 on a plain cylinder** at the default 45°; 1.732051 at 30° |
+| `regular_prism`'s rim measured at the corners, not the faces | `rounding × (1/cos(π/n) − 1)`: 0.708 on a pentagon with 3mm, **2.000** on a triangle with 2mm |
+| an ambient `fn` never reached a revolved surface at all | 30 facets at every ambient value, against 16/64/128 when passed explicitly |
+
+The fillet centre has a closed form, and it reduces to `radius - amount` when `radius1 ==
+radius2`, which is why **every straight-walled case came out byte-for-byte unchanged** — the same
+property that made T42's chamfer-plane generalisation safe:
+
+```
+slant = hypot(radius2 - radius1, length)
+bottom: radial = radius1 + amount × ((radius2 - radius1) - slant) / length,  axial = -length/2 + amount
+top:    radial = radius2 - amount × ((radius2 - radius1) + slant) / length,  axial = +length/2 - amount
+```
+
+Checked against the transcription at 42 configurations, the worst disagreement is `1.8e-15`.
+
+And checked the other way, against the superseded code: over **44 straight-wall profiles** —
+every rounding, chamfer, chamfer angle, clip and teardrop combination this function draws — the
+worst point-to-point move is `1.986e-15`, which is the law-of-sines form standing in for `tan` on
+the same expression. `from_end=` is the one deliberate exception and moves by exactly the
+0.585786 and 1.732051 below.
+
+### `from_end=` was wrong on a plain cylinder, and that is the part worth keeping
+
+T42 recorded that *"BOSL2 states a chamfer either as its radial leg with an angle
+(`from_end=False`) or as the cut's own length split by that angle (`from_end=True`)"*. The second
+half is not what BOSL2 says. The manual says `from_end` measures the chamfer *"along the side face
+from the ends"*, and `_cyl_path` agrees: `chamf1l = abs(_chamf1)` when `from_end` is set — the leg
+**along the wall** is the size, and the radial leg comes from the law of sines. At 45° on a
+straight wall the two readings differ by `c × (1 - cos 45°)`, so `chamfer=2, from_end=True` cut
+1.414mm in where it should cut 2mm.
+
+**Nothing could have caught this but BOSL2.** It is not a taper case, so `bounds()` agrees, both
+backends agree, and the field is zero on the profile — the profile was simply the wrong profile.
+That is the argument for `tests/bosl2_cyl_path.py`: 160 lines transcribed from the `.scad`,
+deliberately keeping BOSL2's own names and formula order so that reading the two side by side is
+the check on the check.
+
+### `regular_prism` and the one documented difference from `cyl`
+
+BOSL2's own description says it: *"Chamfers and roundings for this module are **always** evaluated
+relative to the faces of the prism and never at corners as is done by default in `cyl()`."* This
+port's docstring claimed the opposite — *"Built the same way `cyl()` is … so it shares `cyl()`'s
+exact rim geometry"* — because it called `cyl_profile`, which had no way to express the difference.
+`_cyl_path` implements it by setting `scale = cos(180/n)`, fitting the treatment against `r·scale`
+and then `xscale(1/scale)`-ing it back out; `cyl_profile` takes a `sides=` argument and does the
+same, so every treatment it can draw inherits the frame.
+
+**The SDF backend already had this right**, because `polygon_prism` offsets the polygon and a
+distance field measures that perpendicular to the faces by construction. So this is the first
+defect of the campaign where **CSG was wrong and SDF was right** — and the probe in
+`test_the_backends_build_the_same_solid.py` would have reported it, since the CSG base ring sat
+0.71mm outside the SDF field. It never did, because its `regular_prism` row was
+`regular_prism(sides=7, height=10, radius=5)`: **plain**. Of the thirteen solids in that list
+taking a rounding or a chamfer, eleven were only ever built plain, and on a plain prism the wall is
+vertical and no rim frame can move it — T42's own blind spot, written down and then walked into
+again.
+
+### T127's band was right for the wrong reason
+
+Moving the centre broke `test_the_solid_fills_the_profile_csg_revolves` on an 8-to-20 cone: a point
+0.077 **inside** the wall read `+0.125`. T127 had the body give way to the fillet `a` short of the
+end face, which is where the tangent point sits when the wall is vertical. On a taper it sits at
+`a(1 + sin vang)` — 1.4565 rather than 3 here — so the 1.54mm above it was governed by neither the
+fillet nor the wall. The band is measured now and passed in.
+
+### A fourth defect, found by a test that should not have failed
+
+Moving the wall onto the nominal cone made `test_every_solid_is_filled.py` report the SDF holding
+material 0.043 outside the CSG mesh, where the band it allows is 0.012. The band is derived, not
+chosen — `(1 - cos(pi/SIDES)) * reach` with `SIDES = 64`, the facet count the test sets with
+`use_defaults(fn=64)` — and the points were on the **wall**, nowhere near a rim. The mesh it got
+had **30 facets**:
+
+| `cyl(radius1=10, radius2=4, height=20, rounding=2)` | facets |
+|---|---|
+| under `use_defaults(fn=16 / 64 / 128)` | **30 / 30 / 30** |
+| with `fn=16 / 64 / 128` passed explicitly | 16 / 64 / 128 |
+
+30 is `360/12`, the renderer's own `$fa` default. The native `rotate_extrude` distinguishes "not
+given" from `None`, so passing `fn=None` **overrides** instead of deferring — and `cyl`'s treated
+branch, `torus` and `onion` all forwarded their unresolved arguments straight through.
+`_ocylinder` and `_osphere` have resolved first and dropped the `None`s since they were written;
+`rotate_extrude` had no such wrapper. `_orevolve` is that wrapper (SPEC R-1, R-4).
+
+**Counting the call sites found two more, and one was worse.** `stroke_3d`'s revolved endcaps
+passed no facet arguments at all, so an ambient block never reached them. And
+`Path2D.rotate_extrude()` — the spelling the parts catalogue uses, and the one whose docstring
+says in as many words that *"omitted, the ambient `use_defaults(fn=...)` value applies"* — came
+out at **19 facets under `fn=16`, `fn=64` and `fn=128` alike**. There the `None`s were already
+dropped, correctly, so nothing overrode the renderer; what was missing is that `given_arguments`
+removes an unset key before the backend sees it, so there was no `None` left to notice. The
+resolution is unconditional now, because the absence of the key is exactly the case that needs it.
+`tests/test_ambient_docs.py` has asserted since T30 that all 498 facet parameters *carry* that
+sentence; nothing asked whether any of them was true.
+
+Eight sites bound the native revolve and five called it. Four of the five dropped the ambient
+block; `regular_prism` computed its own count and was right. The three that bound it without
+calling it were left behind when their callers moved to `Path2D.rotate_extrude`. A gate now holds
+the count at two doors — `_orevolve` and the CSG backend's own method — because each of these was
+a perfectly reasonable line to write in isolation.
+
+So an ambient `use_defaults(fn=128)` bought nothing on a rounded cylinder (30 facets), a torus
+(30) or an onion (26), and the only way to get a smooth one was to pass `fn` at the call. **It was invisible
+because the old wall sat 0.35mm further out** — the probe's grid points were comfortably inside the
+coarse mesh, so a band computed for 64 facets was never tested against a mesh that had 30. Fixing
+the wall is what brought the two into contact.
+
+The sharper reading is about the band: `test_every_solid_is_filled.py` derives it from the facet
+count it *asked for* rather than the one the mesh *has*, and its docstring says the band comes
+"from the mesh's own facet sagitta". With `_orevolve` in place those are the same number again, and
+the test needed no loosening — which is the only acceptable outcome, since widening a derived band
+to accommodate a defect is how a measure stops measuring.
+
+### How the thread was found
+
+`tests/test_option_parity.py` has measured parity per option since T39 and reads **zero**. It asks
+`c - s`: the options CSG takes that SDF lacks. PAR-4 is mutual, and the reverse direction was never
+scanned — so when a backend is *ahead*, the gap is in the one the figure treats as the reference
+and the figure still reads zero while the call refuses. Writing `_reverse_gaps()` found two:
+`regular_prism`'s `outer_radius=`/`outer_diameter=`, BOSL2's `or=`/`od=`, built on SDF and never on
+CSG. Reading BOSL2's `regular_prism` to confirm they were real is what turned up the face-frame
+sentence, and `_cyl_path` from there.
+
+**Two stale records closed with it.** T40's section said *"113 remain"* and T42's *"41 gaps"*; both
+were closed by T43–T48 and T63, and the measure has read zero since. The design note is kept true
+by `test_the_design_note_states_the_measured_gap`; the task log was not, so two `🔶` markers were
+false and the next task to be picked off the queue by rank would have been one of them.
+
+### What this leaves open
+
+`cyl()` passes `n=segs(max(r1,r2))` and `noscale=!circum` to `_cyl_path`, so BOSL2 states **every**
+cylinder's rim in the facet frame, not only a prism's. On a straight wall the two scalings cancel
+exactly and the only residue is the wall-tangent height: `rounding × (1 - cos(π/n))`, which is
+0.0076 at 36 facets and 0.0003 at 180, and converges away. That is the tessellation difference B-9
+already carves out, and this port does not reproduce it. On a taper it does **not** converge, which
+is the defect above, and that part is now closed. Recorded here rather than left implicit, because
+"it converges away" is a claim and the figures are the evidence for it.
