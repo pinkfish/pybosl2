@@ -76,6 +76,7 @@ spec renumbers as items close, and all but S-46a have.
 | — | X-3 / E-5 / O-6b | [T129](#t129--the-enum-that-refused-its-own-values) ✅ | S |
 | — | B2-1 / PAR-4 / PAR-5 | [T130](#t130--the-rim-that-was-measured-against-the-wrong-wall) ✅ | M |
 | 7 | G-1 / G-6 / G-7 | [T131](#t131--the-group-wiring-nothing-counted) ✅ | S |
+| — | S-2b / PAR-5 | [T132](#t132--the-bound-that-stopped-matching-the-solid) ✅ | S |
 | 15 | PAR-4 / PAR-5 / S-2b | [T43](#t43--give-prismoid-its-edge-treatments) ✅ | S |
 | 16 | PAR-4 / PAR-5 / S-2b / C-21 | [T44](#t44--build-rect_tube-from-the-two-prismoids-it-is) ✅ | M |
 | 17 | PAR-4 / PAR-5 / E-5 | [T45](#t45--clip-the-fillet) ✅ | S |
@@ -5840,3 +5841,65 @@ backlog, and three had already landed elsewhere: `Texturing` was blocked on `tex
 everywhere and T37/T41 built it (5 of 5 wired), the per-end variants and the façade's parameter
 duplication both went to T31. `EdgeSelection` is wired into the 2 façade constructors taking the
 pair. What was left was the measure, and this is it.
+
+## T132 — The bound that stopped matching the solid ✅
+
+**Requirement:** SPEC S-2b (every shape reports its bounds), PAR-5, B-9.
+
+**[T130](#t130--the-rim-that-was-measured-against-the-wrong-wall)'s own fault, found by its own
+reasoning.** Moving the fillet onto the corner's incentre was right, and it invalidated the bound
+sitting next to the field. Under the superseded rule the centre sat at `radius - amount`, so the
+arc's widest point **was** the nominal radius and `maxr = max(radius1, radius2)` was tight by
+construction. With the centre on the incentre the widest ring moves inside it, and the bound went
+on reporting the radius it was asked for:
+
+| call | true widest | declared | over |
+|---|---|---|---|
+| `cyl(radius1=10, radius2=4, rounding=2)` | 9.311939 | 10.0 | **+0.688** |
+| `cyl(radius1=10, radius2=4, rounding=3)` | 8.967908 | 10.0 | **+1.032** |
+| `cyl(radius1=10, radius2=4, chamfer=2)` | 9.425304 | 10.0 | +0.575 |
+| `cyl(radius1=20, radius2=2, rounding=1)` | 18.754638 | 20.0 | +1.245 |
+
+`tests/test_sdf_bounds_are_tight.py` allows **0.35**, so this was up to three times the project's
+own bar — and the two backends disagreed on `bounds()` by the same amount, because the CSG side
+measures its box from the mesh it built.
+
+### Three bounds lists would have caught it and none did
+
+| list | what it has |
+|---|---|
+| `test_sdf_bounds_are_tight.py` | `cyl tapered` (no treatment), `cyl clipped rim` (straight wall) |
+| `test_backend_matrix.py::SHARED_SHAPES` | no treated taper; keyed by constructor name, so it cannot hold two configurations of one shape |
+| `test_every_solid_is_filled.py` | treated tapers, but it probes the *field*, not the declared box |
+
+Every one pairs a taper with an untreated rim, or a treatment with a straight wall. **That is the
+blind spot T130's own record describes** — *"what a list like this misses is a configuration, not a
+shape"* — and T130 applied it to the field probe, where it added three treated `regular_prism`
+rows, and not to the bounds lists. The lesson was in hand and used in one place out of four.
+
+### The reach has a closed form, and the interesting part is which end it comes from
+
+A fillet runs from the end face round to its tangent point on the wall, so it reaches its own
+widest point **only at the wider end** — the end whose arc sweeps through the horizontal:
+
+```
+leans_away = vang < 0 if top else vang > 0
+reach      = centre + amount            if leans_away
+           = centre + amount·cos(vang)  otherwise
+```
+
+Dropping that distinction and always taking the tangent point makes the box **too small** on five
+of the ten cases, which is the worse failure of the two: a box that does not contain its solid.
+`rim_widest_radius` carries the rule, `_treated_maxr` applies it per end, and all three SDF bound
+sites — `cylinder`, the `cyl`/`xcyl`/`ycyl`/`zcyl` axis builder, and `tube`'s outer wall — read it.
+
+### Checked against the profile, not against a formula
+
+`test_the_box_is_the_widest_ring_the_profile_reaches` compares the declared box to the largest
+radial coordinate of the polygon the CSG backend revolves, over ten taper-and-treatment rows. The
+bound and the geometry cannot drift together that way, since the profile *is* the solid in that
+plane. All ten agree to **0.000000**, and the tolerance is one-sided because an arc's chords
+inscribe it, so the profile reads a hair small at any finite facet count. A second test asserts the
+premise separately — a 10-to-4 cone with a 2mm rounding reaches 9.311939, not 10 — so the pair
+cannot pass by both sides being wrong together. Six treated-taper rows joined
+`test_sdf_bounds_are_tight.py`, so the blind spot closes rather than this one case.

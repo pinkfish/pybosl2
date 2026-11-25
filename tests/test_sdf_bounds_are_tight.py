@@ -69,6 +69,19 @@ BUILDERS = {
         height=20, radius=8, texture="ribs", tex_reps=[8, 1], tex_depth=1.5, tex_inset=True, anchor=[0, 0, 0]
     ),
     "cyl clipped rim": lambda: sdf.cyl(height=20, radius=6, rounding=2, clip_angle=40, anchor=[0, 0, 0]),
+    # A taper *and* a treated rim. Every row above pairs one with the other: `cyl tapered` has no
+    # treatment and `cyl clipped rim` is straight, so the box stayed tight either way. Treated,
+    # the fillet is tangent to the leaning wall and its widest ring is inside the nominal radius,
+    # which the bound went on reporting -- 0.688 too wide here and 1.032 at `rounding=3`, against
+    # the 0.35 this file allows (T132).
+    "cyl tapered and rounded": lambda: sdf.cyl(height=20, radius1=10, radius2=4, rounding=2, anchor=[0, 0, 0]),
+    "cyl tapered and chamfered": lambda: sdf.cyl(height=20, radius1=10, radius2=4, chamfer=2, anchor=[0, 0, 0]),
+    "cyl widening and rounded": lambda: sdf.cyl(height=20, radius1=4, radius2=10, rounding=2, anchor=[0, 0, 0]),
+    "cyl steep taper rounded": lambda: sdf.cyl(height=20, radius1=20, radius2=2, rounding=1, anchor=[0, 0, 0]),
+    "cyl rounded at one end only": lambda: sdf.cyl(height=20, radius1=10, radius2=4, rounding1=3, anchor=[0, 0, 0]),
+    "tube tapered and chamfered": lambda: sdf.tube(
+        height=20, outer_r1=12, outer_r2=6, inner_radius=3, chamfer=1.5, anchor=[0, 0, 0]
+    ),
     "tube": lambda: sdf.tube(height=20, outer_radius=8, inner_radius=4, anchor=[0, 0, 0]),
     "prismoid": lambda: sdf.prismoid([20, 20], [10, 14], height=10, anchor=[0, 0, 0]),
     "prismoid sheared": lambda: sdf.prismoid([20, 20], [10, 10], height=10, shift=[4, -3], anchor=[0, 0, 0]),

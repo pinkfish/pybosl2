@@ -557,3 +557,73 @@ def test_a_chamfered_end_sets_its_own_section_in_by_the_chamfer() -> None:
     # towards when the other end *is* truncated.
     pointy = teardrop_stations(20.0, 8.0, 8.0, None, None, 0.0, 0.0, sin_a)
     assert all(cap == pytest.approx(8.0 / sin_a) for _, _, cap in pointy)
+
+
+#: Taper, treatment and amount, one row per box the bound has to get right. The figures in
+#: `test_the_box_is_the_widest_ring_the_profile_reaches` come from these.
+BOUND_CASES: list[tuple[str, float, float, dict[str, float]]] = [
+    ("a straight wall -- the case the old bound was written for", 10.0, 10.0, {"rounding1": 2.0, "rounding2": 2.0}),
+    ("a narrowing cone, rounded", 10.0, 4.0, {"rounding1": 2.0, "rounding2": 2.0}),
+    ("a narrowing cone, rounded harder", 10.0, 4.0, {"rounding1": 3.0, "rounding2": 3.0}),
+    ("a widening cone, rounded", 4.0, 10.0, {"rounding1": 2.0, "rounding2": 2.0}),
+    ("a steep taper, rounded", 20.0, 2.0, {"rounding1": 1.0, "rounding2": 1.0}),
+    ("rounded at the wide end only", 10.0, 4.0, {"rounding1": 3.0}),
+    ("rounded at the narrow end only", 10.0, 4.0, {"rounding2": 3.0}),
+    ("a narrowing cone, chamfered", 10.0, 4.0, {"chamfer1": 2.0, "chamfer2": 2.0}),
+    ("a widening cone, chamfered", 4.0, 10.0, {"chamfer1": 2.0, "chamfer2": 2.0}),
+    ("chamfered at one end only", 12.0, 5.0, {"chamfer1": 2.0}),
+]
+
+
+@pytest.mark.parametrize(("label", "radius1", "radius2", "rim"), BOUND_CASES, ids=[row[0] for row in BOUND_CASES])
+def test_the_box_is_the_widest_ring_the_profile_reaches(
+    label: str, radius1: float, radius2: float, rim: dict[str, float]
+) -> None:
+    """The declared box is the solid's own widest ring, not the radius it was asked for.
+
+    **T130 invalidated this bound and did not notice.** While the fillet centre sat at
+    ``radius - amount`` the arc's widest point *was* the nominal radius, so ``max(radius1,
+    radius2)`` was tight by construction; with the centre on the corner's incentre the widest ring
+    moves inside it, and the bound went on reporting the nominal radius -- 0.688 too wide on a
+    10-to-4 cone with a 2mm rounding and 1.032 with a 3mm one, against the 0.35
+    `tests/test_sdf_bounds_are_tight.py` allows.
+
+    Three bounds lists would have caught it and none did, because each pairs a taper with an
+    untreated rim or a treatment with a straight wall. That is the blind spot T130's own record
+    describes -- *"what a list like this misses is a configuration, not a shape"* -- in the one
+    place its author did not look.
+
+    Checked against the profile rather than against a formula, so the bound and the geometry cannot
+    drift together: the profile is what the CSG backend revolves, and its largest radial coordinate
+    is by definition how wide the solid is. The arc's chords inscribe it, so the profile reads a
+    hair *small* at any finite facet count -- hence the one-sided tolerance, which is the chord
+    sagitta and nothing more.
+    """
+    height = 20.0
+    profile = cyl_profile(radius1, radius2, height, fn=16384, **rim)  # type: ignore[arg-type]
+    widest = max(r for r, _ in profile)
+    shape = sdf.cyl(height=height, radius1=radius1, radius2=radius2, anchor=[0, 0, 0], **rim)  # type: ignore[arg-type]
+    declared = float(shape.bounds().max_x)
+    assert declared >= widest - 1e-6, (
+        f"{label}: the box declares {declared:.6f} and the profile reaches {widest:.6f} -- the box "
+        f"does not contain the solid (SPEC S-2b)."
+    )
+    assert declared - widest < 1e-4, (
+        f"{label}: the box declares {declared:.6f} where the solid reaches {widest:.6f}, "
+        f"{declared - widest:.6f} wider than it needs to be. A rim treatment cuts the corner off, "
+        f"so a treated cone's widest ring is inside its nominal radius (SPEC S-2b, PAR-5)."
+    )
+
+
+def test_a_treated_taper_is_narrower_than_the_radius_it_was_asked_for() -> None:
+    """The premise of the test above, stated so it cannot pass by both sides being wrong.
+
+    If a treated taper's widest ring were the nominal radius after all, every assertion above
+    would hold with the old `max(radius1, radius2)` bound restored, and the test would be measuring
+    nothing. It is not: a 10-to-4 cone with a 2mm rounding reaches 9.311939, and the gap is the
+    whole defect.
+    """
+    profile = cyl_profile(10.0, 4.0, 20.0, rounding1=2.0, rounding2=2.0, fn=16384)
+    widest = max(r for r, _ in profile)
+    assert widest == pytest.approx(9.311939, abs=1e-5), f"the profile's widest ring moved: {widest}"
+    assert 10.0 - widest == pytest.approx(0.688061, abs=1e-5), "the nominal radius is 0.688061 too wide here"
