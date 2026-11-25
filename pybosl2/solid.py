@@ -38,6 +38,7 @@ from pybosl2._backend import (
     use_backend,
 )
 from pybosl2._edges_lang import Anchor
+from pybosl2.enums import EdgeTreatmentKind
 from pybosl2.exceptions import Bosl2ValueError, CrossBackendError, UnsupportedByBackendError
 from pybosl2.groups import (
     EdgeSelection,
@@ -161,6 +162,7 @@ def _groups(
     selection: EdgeSelection | None = None,
     texturing: Texturing | None = None,
     per_corner: bool = True,
+    kinds: "Sequence[EdgeTreatmentKind] | None" = None,
 ) -> dict[str, Any]:
     """Resolve every argument group *in place* in the arguments a constructor is about to forward.
 
@@ -180,6 +182,7 @@ def _groups(
         selection: The edge-selection group, or ``None``.
         texturing: The texturing group, or ``None``.
         per_corner: Whether this constructor takes an edge size per corner.
+        kinds: Which edge treatments this constructor can apply, or ``None`` for both.
 
     Returns:
         *arguments*, with each group's members replaced by what the group resolves to.
@@ -195,7 +198,12 @@ def _groups(
         )
     if {"rounding", "chamfer"} & set(arguments):
         arguments["rounding"], arguments["chamfer"] = resolve_edge_treatment(
-            treatment, arguments.get("rounding"), arguments.get("chamfer"), function, per_corner=per_corner
+            treatment,
+            arguments.get("rounding"),
+            arguments.get("chamfer"),
+            function,
+            per_corner=per_corner,
+            kinds=kinds,
         )
     if {"edges", "except_edges"} & set(arguments):
         arguments["edges"], arguments["except_edges"] = resolve_edge_selection(
@@ -1628,6 +1636,7 @@ def teardrop(
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
     placement: Placement | None = None,
+    treatment: EdgeTreatment | None = None,
     cap_h1: float | None = None,
     cap_h2: float | None = None,
     chamfer: float | None = 0,
@@ -1662,6 +1671,9 @@ def teardrop(
         orient: Direction to rotate the top towards, after spin (default UP)
         placement: Anchor, spin and orient as one reusable value (SPEC G-1). Giving this and any
             of those three raises, since the call cannot mean both (SPEC G-3).
+        treatment: A chamfer as one value (SPEC G-1). A teardrop's rim has no rounded form, so a
+            rounding treatment is refused by name rather than chamfered instead (SPEC G-6);
+            giving it beside chamfer= raises (SPEC G-3).
         cap_h1: truncation height on the front side (CSG backend).
         cap_h2: truncation height on the back side (CSG backend).
         chamfer: chamfer size along the bottom/top faces (overall) (default 0) (CSG backend).
@@ -1722,7 +1734,9 @@ def teardrop(
                     "chamfer": chamfer,
                 },
                 placement=placement,
+                treatment=treatment,
                 per_corner=False,
+                kinds=(EdgeTreatmentKind.CHAMFER,),
             )
         ),
     )

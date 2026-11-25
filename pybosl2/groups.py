@@ -585,6 +585,7 @@ def resolve_edge_treatment(
     function: str,
     *,
     per_corner: bool = True,
+    kinds: "Sequence[EdgeTreatmentKind] | None" = None,
 ) -> tuple[_RoundingT, _ChamferT]:
     """Resolve an edge-treatment group against the loose ``rounding``/``chamfer``.
 
@@ -596,6 +597,12 @@ def resolve_edge_treatment(
         per_corner: Whether this constructor takes a size per corner. A 3-D primitive takes one
             size for the whole solid, so a per-corner group handed to it is refused here rather
             than left to fail as a ``TypeError`` from inside the backend (SPEC E-1, E-4).
+        kinds: Which treatments this constructor can apply, or ``None`` for both. Some shapes take
+            only one: a ``teardrop``'s rim is chamfered and has no rounded form, and a
+            ``regular_ngon``'s corners are rounded and not chamfered. Those two took the loose
+            member they support and no group at all, so a caller holding an ``EdgeTreatment`` had
+            to unpack it by hand -- which means asking "is this a rounding or a chamfer?", the one
+            question the group exists to answer for them (SPEC G-1, G-6).
 
     Returns:
         The ``rounding`` and ``chamfer`` to use, at most one of them set. Where a group decides
@@ -604,8 +611,9 @@ def resolve_edge_treatment(
 
     Raises:
         Bosl2ValueError: if the group is given beside either loose member (SPEC G-3), if both
-            loose members are given (the rule above), or if a per-corner group is given to a
-            constructor that takes one size.
+            loose members are given (the rule above), if a per-corner group is given to a
+            constructor that takes one size, or if the group's kind is one this constructor
+            cannot apply.
 
     """
     if treatment is None:
@@ -617,6 +625,18 @@ def resolve_edge_treatment(
             f"{function}(): given both treatment= and {', '.join(given)}=. An EdgeTreatment "
             f"already says which treatment and what size, so passing one beside it cannot mean "
             f"two things -- drop treatment=, or drop the loose argument."
+        )
+    if kinds is not None and treatment.kind is not EdgeTreatmentKind.NONE and treatment.kind not in kinds:
+        # G-6's rule, one level down: where a group means less to a *shape* than the group can
+        # express, the member it cannot honour is refused rather than dropped. Honouring a
+        # rounding by chamfering instead would be the silent wrong answer E-5 forbids.
+        offered = " or ".join(f"EdgeTreatment.{kind.value}(...)" for kind in kinds)
+        verb = {EdgeTreatmentKind.ROUNDING: "rounds", EdgeTreatmentKind.CHAMFER: "chamfers"}
+        raise Bosl2ValueError(
+            f"{function}(): the treatment is a {treatment.kind.value}, and {function}() applies "
+            f"only a {' or a '.join(kind.value for kind in kinds)} -- so there is no size it "
+            f"could use. Pass {offered}, or build the shape with a constructor that "
+            f"{verb[treatment.kind]}."
         )
     if not per_corner and isinstance(treatment.size, Sequence):
         raise Bosl2ValueError(
