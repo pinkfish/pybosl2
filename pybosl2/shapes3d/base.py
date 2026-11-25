@@ -55,7 +55,7 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import minkowski as _ominkowski
     from pythonscad import osimport as _oosimport
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
+    from pythonscad import rotate_extrude as _orotate_extrude_native
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -65,7 +65,7 @@ else:
     _ominkowski = native("minkowski")
     _oosimport = native("osimport")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
+    _orotate_extrude_native = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
@@ -126,6 +126,44 @@ def _osphere(
         if full is not None:
             kw[nat] = full
     return _osphere_native(**kw)
+
+
+def _orevolve(
+    profile: "PyOpenSCAD",
+    angle: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> "PyOpenSCAD":
+    """Return the native ``rotate_extrude`` with the ambient facet defaults applied.
+
+    The sibling of :func:`_ocylinder` and :func:`_osphere`, and it exists for the same reason they
+    do: **the native call distinguishes "not given" from ``None``**, and passing ``fn=None``
+    explicitly is not the same as leaving it out -- it defeats the renderer's own resolution
+    instead of deferring to it. Three callers passed their unresolved arguments straight through
+    (`cyl` with a treated rim, `torus`, and `onion`), so an ambient
+    ``use_defaults(fn=64)`` reached `rotate_extrude` as ``None`` and the mesh came back at the
+    renderer's default `$fa=12` -- **30 facets, at every ambient value**, while an explicit
+    ``fn=64`` gave 64. R-4 says an explicit value beats the ambient one; it does not say the
+    ambient one may be dropped (SPEC R-1, R-4, T130).
+
+    Args:
+        profile: The 2-D profile to revolve.
+        angle: Sweep angle in degrees; omitted, the native default (a full turn) applies.
+        fn: Fixed fragment count; omitted, the ambient ``use_defaults(fn=...)`` value applies.
+        fa: Minimum fragment angle in degrees; omitted, the ambient value applies.
+        fs: Minimum fragment size in millimetres; omitted, the ambient value applies.
+
+    Returns:
+        The revolved solid.
+
+    """
+    fn, fa, fs = _resolve_facets(fn, fa, fs)
+    kw: dict[str, Any] = {}
+    for value, nat in ((angle, "angle"), (fn, "fn"), (fa, "fa"), (fs, "fs")):
+        if value is not None:
+            kw[nat] = value
+    return _orotate_extrude_native(profile, **kw)
 
 
 @backend_only("csg")

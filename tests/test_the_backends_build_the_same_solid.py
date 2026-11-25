@@ -26,6 +26,12 @@ Across every solid both backends build, the furthest-outside figure is exactly `
 file asserts something sharp and free of tolerance, and the thing it would have caught is not
 hypothetical: the SDF `path_sweep` puts 22 of the façade sweep's 72 vertices outside its own field,
 by up to 0.3162 (see `test_the_two_sweeps_agree.py`).
+
+**What a list like this misses is a configuration, not a shape.** Every row below was a shape name,
+and only `cuboid` and `cyl` appeared more than once -- so of the thirteen solids here that accept a
+rounding or a chamfer, eleven were only ever built plain. `regular_prism` was one of them, and its
+treated form disagreed across the backends by up to 2mm (T130). Adding a shape here is cheap;
+adding the *options* it takes is what the figure is actually about.
 """
 
 from __future__ import annotations
@@ -53,6 +59,14 @@ SHAPES = {
     "prismoid": lambda: solid.prismoid(size1=[20, 20], size2=[10, 14], height=10),
     "rect_tube": lambda: solid.rect_tube(height=10, size=20, wall=2),
     "regular_prism": lambda: solid.regular_prism(sides=7, height=10, radius=5),
+    # A plain prism's wall is vertical, so the frame a rim is measured in cannot move it -- the
+    # same blind spot that hid `cyl`'s tapered rim, in a second shape. Treated, the CSG backend
+    # measured the rounding at the *corners* where BOSL2 and this backend measure it at the
+    # faces, and the base ring came out `rounding * (1/cos(pi/n) - 1)` too wide: 0.71 on a
+    # pentagon with a 3mm rounding and the entire 2mm on a triangle (T130).
+    "regular_prism rounded": lambda: solid.regular_prism(sides=7, height=10, radius=5, rounding=1),
+    "regular_prism rounded, few faces": lambda: solid.regular_prism(sides=3, height=20, radius=10, rounding=2),
+    "regular_prism chamfered": lambda: solid.regular_prism(sides=5, height=25, radius=10, chamfer=3),
     "wedge": lambda: solid.wedge(size=[20, 10, 8]),
     "teardrop": lambda: solid.teardrop(height=10, radius=6),
     "torus": lambda: solid.torus(outer_radius=10, inner_radius=4),

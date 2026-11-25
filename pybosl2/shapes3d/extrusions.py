@@ -46,7 +46,6 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -55,7 +54,6 @@ else:
     _ohull = native("hull")
     _ominkowski = native("minkowski")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 

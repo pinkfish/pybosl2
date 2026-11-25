@@ -36,6 +36,7 @@ from .base import (
     _anchor_offset_cyl,
     _finish3,
     _ocylinder,
+    _orevolve,
 )
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -44,7 +45,6 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -53,7 +53,6 @@ else:
     _ohull = native("hull")
     _ominkowski = native("minkowski")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
@@ -234,6 +233,6 @@ def torus(
 
     sides = _frag_count(min_rad, fn, fa, fs)
     profile = _arc_points(sides, min_rad, 0, 360, [maj_rad, 0.0], endpoint=False)
-    shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
+    shape = _orevolve(_opolygon(profile), fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_cyl(maj_rad + min_rad, maj_rad + min_rad, min_rad * 2, use_anchor)
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)

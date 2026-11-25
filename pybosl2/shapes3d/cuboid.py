@@ -41,6 +41,7 @@ from .base import (
     _anchor_offset_hull3,
     _finish3,
     _ocylinder,
+    _orevolve,
     _osphere,
 )
 
@@ -50,7 +51,6 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
     from pythonscad import polyhedron as _opolyhedron
-    from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
     from pythonscad import textmetrics as _otextmetrics
 else:
@@ -59,7 +59,6 @@ else:
     _ohull = native("hull")
     _ominkowski = native("minkowski")
     _opolyhedron = native("polyhedron")
-    _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
@@ -912,6 +911,8 @@ def regular_prism(
     radius2: float | None = None,
     inner_radius: float | None = None,
     inner_diameter: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
     chamfer: float | None = None,
@@ -938,9 +939,15 @@ def regular_prism(
     fn=sides for chamfered/rounded ends), so it shares cyl()'s exact rim geometry.
 
     Sizing gives the CIRCUMradius (vertex distance) unless noted -- exactly one of ``radius``/``diameter``
-    (radius/diameter to the vertices), ``inner_radius``/``inner_diameter`` (inradius/apothem to the face centers,
+    (radius/diameter to the vertices, also spelled ``outer_radius``/``outer_diameter`` after BOSL2's ``or=``/``od=``),
+    ``inner_radius``/``inner_diameter`` (inradius/apothem to the face centers,
     converted via ``/cos(180/sides)``), or ``side`` (edge length, converted via ``/(2 sin(180/sides))``).
     ``radius1``/``radius2`` (or the corresponding taper) set the bottom/top radius independently for a frustum.
+
+    Rim roundings and chamfers are measured against the prism's **faces**, never its corners --
+    BOSL2's one documented departure from cyl(), and the reason this passes ``sides=`` down to
+    cyl_profile(). Measuring at the corner instead put a triangular prism's base ring a full
+    rounding radius too wide (T130).
 
     Note: BOSL2 regular_prism()'s texture=/teardrop= options are not ported (they need the VNF
     texturing machinery this pure-Python port doesn't implement).
@@ -953,6 +960,8 @@ def regular_prism(
         diameter:    overall size (see above)
         inner_radius:    overall size (see above)
         inner_diameter:    overall size (see above)
+        outer_radius:    overall size (see above); BOSL2's ``or=``, a synonym for ``radius``
+        outer_diameter:    overall size (see above); BOSL2's ``od=``, a synonym for ``diameter``
         side:    overall size (see above)
         radius1:    bottom/top circumradius for a tapered prism
         radius2:    bottom/top circumradius for a tapered prism
@@ -1005,6 +1014,10 @@ def regular_prism(
             return (inner_diameter / 2) / cos_half
         if inner_radius is not None:
             return inner_radius / cos_half
+        if outer_diameter is not None:
+            return outer_diameter / 2
+        if outer_radius is not None:
+            return outer_radius
         if diameter is not None:
             return diameter / 2
         if radius is not None:
@@ -1034,12 +1047,12 @@ def regular_prism(
     if not (r1v or r2v or c1v or c2v):
         shape = _ocylinder(height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides)
     else:
-        profile = cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs)
+        profile = cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs, sides=sides)
         from pybosl2._native import native
 
         _opolygon = native("polygon")
 
-        shape = _orotate_extrude(_opolygon(profile), fn=sides)
+        shape = _orevolve(_opolygon(profile), fn=sides)
 
     # OpenSCAD's cylinder(fn=n) puts a vertex on +X; realign rotates half a facet so a face
     # centre faces +X instead (BOSL2's realign convention).
