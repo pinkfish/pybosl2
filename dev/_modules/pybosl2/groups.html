@@ -2792,6 +2792,7 @@
     <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">per_corner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">kinds</span><span class="p">:</span> <span class="s2">"Sequence[EdgeTreatmentKind] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_RoundingT</span><span class="p">,</span> <span class="n">_ChamferT</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Resolve an edge-treatment group against the loose ``rounding``/``chamfer``.</span>
 
@@ -2803,6 +2804,12 @@
 <span class="sd">        per_corner: Whether this constructor takes a size per corner. A 3-D primitive takes one</span>
 <span class="sd">            size for the whole solid, so a per-corner group handed to it is refused here rather</span>
 <span class="sd">            than left to fail as a ``TypeError`` from inside the backend (SPEC E-1, E-4).</span>
+<span class="sd">        kinds: Which treatments this constructor can apply, or ``None`` for both. Some shapes take</span>
+<span class="sd">            only one: a ``teardrop``'s rim is chamfered and has no rounded form, and a</span>
+<span class="sd">            ``regular_ngon``'s corners are rounded and not chamfered. Those two took the loose</span>
+<span class="sd">            member they support and no group at all, so a caller holding an ``EdgeTreatment`` had</span>
+<span class="sd">            to unpack it by hand -- which means asking "is this a rounding or a chamfer?", the one</span>
+<span class="sd">            question the group exists to answer for them (SPEC G-1, G-6).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The ``rounding`` and ``chamfer`` to use, at most one of them set. Where a group decides</span>
@@ -2811,8 +2818,9 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        Bosl2ValueError: if the group is given beside either loose member (SPEC G-3), if both</span>
-<span class="sd">            loose members are given (the rule above), or if a per-corner group is given to a</span>
-<span class="sd">            constructor that takes one size.</span>
+<span class="sd">            loose members are given (the rule above), if a per-corner group is given to a</span>
+<span class="sd">            constructor that takes one size, or if the group's kind is one this constructor</span>
+<span class="sd">            cannot apply.</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">treatment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2824,6 +2832,18 @@
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): given both treatment= and </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">given</span><span class="p">)</span><span class="si">}</span><span class="s2">=. An EdgeTreatment "</span>
             <span class="sa">f</span><span class="s2">"already says which treatment and what size, so passing one beside it cannot mean "</span>
             <span class="sa">f</span><span class="s2">"two things -- drop treatment=, or drop the loose argument."</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">kinds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">treatment</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">NONE</span> <span class="ow">and</span> <span class="n">treatment</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">:</span>
+        <span class="c1"># G-6's rule, one level down: where a group means less to a *shape* than the group can</span>
+        <span class="c1"># express, the member it cannot honour is refused rather than dropped. Honouring a</span>
+        <span class="c1"># rounding by chamfering instead would be the silent wrong answer E-5 forbids.</span>
+        <span class="n">offered</span> <span class="o">=</span> <span class="s2">" or "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"EdgeTreatment.</span><span class="si">{</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">(...)"</span> <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">)</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="p">{</span><span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">ROUNDING</span><span class="p">:</span> <span class="s2">"rounds"</span><span class="p">,</span> <span class="n">EdgeTreatmentKind</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">:</span> <span class="s2">"chamfers"</span><span class="p">}</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): the treatment is a </span><span class="si">{</span><span class="n">treatment</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, and </span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">() applies "</span>
+            <span class="sa">f</span><span class="s2">"only a </span><span class="si">{</span><span class="s1">' or a '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kind</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">kinds</span><span class="p">)</span><span class="si">}</span><span class="s2"> -- so there is no size it "</span>
+            <span class="sa">f</span><span class="s2">"could use. Pass </span><span class="si">{</span><span class="n">offered</span><span class="si">}</span><span class="s2">, or build the shape with a constructor that "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">verb</span><span class="p">[</span><span class="n">treatment</span><span class="o">.</span><span class="n">kind</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">per_corner</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">treatment</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
