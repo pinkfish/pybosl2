@@ -1799,16 +1799,39 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return self.to_csg().pull(direction, distance)  # type: ignore[no-any-return]
 
     def minkowski_difference(self, *diffs: PyShape, size: float = 1000) -> PyShape:
-        """Carve *diffs* out of this solid's surface via CSG conversion.
+        """Erode this solid by each of *diffs*, which is what carving them out of its surface is.
+
+        OpenSCAD builds this as ``box - minkowski(box - self, d)``: dilate the *outside* by *d* and
+        keep what is left. Dilating the complement is eroding the solid, so on a distance field it
+        is a negative offset: eroding by a ball of radius *r* is exactly ``f(p) + r``.
+
+        A single offset can only stand for a diff that is a ball, so the radius is read as half the
+        *smallest* bounding-box extent -- the inscribed ball, which is **exact** for the sphere
+        this is almost always called with, and erodes by less than the truth for anything else, so
+        the answer contains the real difference rather than cutting inside it. :meth:`minkowski`
+        takes half the bounding box's *diagonal* instead, which is the circumscribed ball and reads
+        1.73r for that same sphere; the two conventions disagree and this one is the one that is
+        right where it is checkable.
+
+        This read ``self.to_csg().minkowski_difference(*diffs, size=size)`` until T133, which
+        converted the receiver and left the diffs as SDF shapes -- so the CSG implementation got a
+        `PyShape` where it wanted a native solid and raised `TypeError: invalid argument left to
+        operator`, from inside, naming nothing the caller had written. A conversion applied to one
+        operand and not the other is the shape of defect T58 found in `debug_bezier_patches`.
 
         Args:
-            *diffs: Shapes to subtract from the Minkowski-eroded surface.
-            size: Bounding-box size for the CSG conversion.
+            *diffs: Shapes to erode this solid by.
+            size: Accepted for the CSG spelling's signature; a field needs no bounding box.
 
         Returns:
-            A new :class:`PyShape` with the difference carved out.
+            A new :class:`PyShape`, this solid eroded by each of *diffs*.
+
         """
-        return self.to_csg().minkowski_difference(*diffs, size=size)  # type: ignore[no-any-return]
+        _ = size
+        result = self
+        for diff in diffs:
+            result = result.offset3d(-min(diff.bounds().size) / 2)
+        return result
 
     def oversample(self, sides: int) -> PyShape:
         """Subdivide facets for a smoother mesh via CSG conversion.

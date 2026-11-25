@@ -496,11 +496,26 @@ def stl_metrics(path: Path) -> StlMetrics:
     v0, v1, v2 = tris[:, 0], tris[:, 1], tris[:, 2]
     volume = abs(float(np.sum(np.einsum("ij,ij->i", v0, np.cross(v1, v2))) / 6.0))
     area = float(np.sum(0.5 * np.linalg.norm(np.cross(v1 - v0, v2 - v0), axis=1)))
-    # watertight: every undirected edge shared by exactly two triangles (rounded to fuse vertices)
+    # watertight: every undirected edge shared by exactly two triangles (rounded to fuse vertices).
+    #
+    # A *degenerate* triangle -- two of its three vertices the same point -- is skipped, and that
+    # is not a convenience. It covers no area and bounds nothing, and its collapsed side appears
+    # twice in its own three edges, so counting it turns a closed mesh's edge from 2 incident
+    # faces into 4 and reports the solid open. The app's tessellator emits them: a plain `cone()`
+    # came back with 120 of them in 360 triangles, from the fan at its apex, and read **not
+    # watertight** on the spec pages for as long as this function has existed. `ball_bearing("r8")`
+    # had 12 and `pco1810_neck` 8, each turning 8 good edges into 4-face ones (T134).
+    #
+    # This is the half of the disagreement with `VNF.is_watertight()` that was a defect. The other
+    # half is not: that one reads `faces`, which are vertex *indices*, so it measures the mesh this
+    # library built, while this one measures what the renderer tessellated it into -- two meshes,
+    # not two rules, and the degenerate slivers exist only in the second.
     edges: dict[object, int] = {}
     keys = np.round(tris, 4)
     for tri in keys:
         vs = [tuple(v) for v in tri]
+        if len(set(vs)) < 3:
+            continue
         for a, b in ((0, 1), (1, 2), (2, 0)):
             e = tuple(sorted((vs[a], vs[b])))
             edges[e] = edges.get(e, 0) + 1

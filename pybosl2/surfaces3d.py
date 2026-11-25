@@ -767,7 +767,6 @@ def plot_revolution(
     return vnf.polyhedron()
 
 
-@backend_only("csg")
 def fillet(
     length: float | None = None,
     radius: float | None = None,
@@ -783,8 +782,14 @@ def fillet(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
-    """Return a concave edge-fillet mask of length *length* and radius *radius*.
+) -> "Solid":
+    """Return a concave edge-fillet mask of length *length* and radius *radius*, on the active backend.
+
+    **Not CSG-only any more.** It carried `@backend_only("csg")` because the cutter it forwards to
+    was built with `polygon().linear_extrude()`; T133 routed that through the façade, and this
+    function is nothing but the forward plus an angle check -- so the marker was gating the module
+    rather than anything the function does, which is the defect T50 found in `arc` (SPEC B-4,
+    PAR-1). A *tapered* fillet still refuses on a field backend, from the mask, under its own name.
 
     A cutter you subtract to round a 90-degree edge (the concave complement of a rounded corner).
     Positioned manually like ``rounding_edge_mask`` -- origin at the sharp edge, +X/+Y into the

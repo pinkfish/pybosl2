@@ -709,7 +709,10 @@ def test_the_strokes_take_the_path_they_stroke() -> None:
 
     for module, names in (
         (_stroke2d, ("stroke_2d", "dashed_stroke_2d")),
-        (_stroke3d, ("stroke_3d", "dashed_stroke_3d")),
+        # `dashed_stroke_3d` was the third: T133 made the dashed stroke neutral (the cutting is
+        # path arithmetic in `_helpers`, and each dash goes through the dispatched `stroke`), so
+        # the CSG-only duplicate it used to be is gone rather than typed.
+        (_stroke3d, ("stroke_3d",)),
     ):
         for name in names:
             annotation = inspect.signature(getattr(module, name)).parameters["path"].annotation

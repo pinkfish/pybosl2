@@ -1244,7 +1244,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d.stroke(width=2).show()
 
         """
-        from pybosl2._backend import current_backend
+        # Every backend declares `stroke` on the protocol -- the CSG one forwards to `stroke_3d`
+        # verbatim -- so this dispatches for both and reaches no backend module by name. It used to
+        # dispatch only when the backend was *not* csg and import `pybosl2._stroke3d` for the csg
+        # case, which is the whole of the `path3d -> _stroke3d` layering edge (T133, SPEC A-1).
+        from pybosl2._backend import get_backend
         from pybosl2.caps import CapSpec, normalize_one
 
         ec1_raw = endcap1 if endcap1 is not None else endcaps
@@ -1252,24 +1256,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else normalize_one(ec1_raw)
         ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else normalize_one(ec2_raw)
 
-        backend_name = current_backend()
-        if backend_name != "csg":
-            from pybosl2._backend import get_backend
-
-            result = get_backend().stroke(
-                self,
-                width=width,
-                closed=self.closed if closed is None else closed,
-                endcap1=ec1,
-                endcap2=ec2,
-            )
-            if self._color is not None and hasattr(result, "color"):
-                result = result.color(self._color)
-            return result  # type: ignore[return-value]
-
-        from pybosl2._stroke3d import stroke_3d
-
-        result = stroke_3d(
+        result = get_backend().stroke(
             self,
             width=width,
             closed=self.closed if closed is None else closed,
@@ -1278,7 +1265,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         )
         if self._color is not None and hasattr(result, "color"):
             result = result.color(self._color)
-        return result
+        return result  # type: ignore[return-value]
 
     def dashed_stroke(
         self,
@@ -1318,11 +1305,31 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d.dashed_stroke(dashpat=[5, 2]).show()
 
         """
-        from pybosl2._stroke3d import dashed_stroke_3d
+        # A dashed stroke is a dash table plus one ordinary stroke per dash, and only the stroke
+        # needs a backend. Until T133 this called `pybosl2._stroke3d.dashed_stroke_3d`, which is
+        # `@builds_with("csg")` -- so inside `use_backend("sdf")` it handed back a `CsgSolid`,
+        # silently, while its own sibling `stroke` above dispatched correctly. The cutting is
+        # neutral path arithmetic in `_helpers` now and each dash goes through `stroke`, so this
+        # follows the active backend (SPEC A-6, PAR-1).
+        import functools
+        import operator
 
-        result = dashed_stroke_3d(
-            self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
+        from pybosl2._helpers import dash_segments_3d
+        from pybosl2.caps import CapSpec, CapType
+
+        _ = mindash  # BOSL2 takes it; no dash this produces is ever shorter than the pattern asks
+        segments, is_closed = dash_segments_3d(
+            self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit
         )
+        if not segments:  # the pattern never cut the path, so it is drawn whole
+            return self.stroke(width=1, closed=is_closed)
+
+        butt = CapSpec(cap_type=CapType.BUTT)
+        dashes = [
+            self.__class__(segment, closed=False).stroke(width=1, closed=False, endcap1=butt, endcap2=butt)
+            for segment in segments
+        ]
+        result = functools.reduce(operator.or_, dashes)
         if self._color is not None and hasattr(result, "color"):
             result = result.color(self._color)
         return result

@@ -260,6 +260,8 @@ A lower layer MUST NOT import a higher one. The layers, their members and the ed
 '''
 enforced_by = [
     "tests/test_layering.py::test_every_runtime_upward_import_is_known_debt",
+    "tests/test_layering.py::test_the_known_violation_count_only_shrinks",
+    "tests/test_layering.py::test_a_capability_edge_is_live_and_pinned",
 ]
 candidates = [
     "tests/test_mask_contract.py::test_no_public_masking_signature_mentions_a_native_type",
@@ -362,6 +364,8 @@ Everything exported from the top level MUST honour the active backend. A constru
 '''
 enforced_by = [
     "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
+    "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_no_unmarked_native_builder_returns_a_backend_owned_solid",
+    "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_each_builder_follows_the_backend_or_refuses_by_name",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_path_2d_geometry_builds_on_either_backend",
@@ -931,6 +935,7 @@ Attachment is a CSG-backend feature; the SDF backend refuses it explicitly (§7.
 '''
 enforced_by = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+    "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_no_unmarked_native_builder_returns_a_backend_owned_solid",
 ]
 candidates = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
@@ -1885,6 +1890,8 @@ A mesh that is not watertight, or is wound inside-out, is a bug the caller wants
 '''
 enforced_by = [
     "tests/test_stl_render.py",
+    "tests/test_the_watertight_measurement_is_sound.py::test_a_degenerate_triangle_does_not_make_a_closed_mesh_read_open",
+    "tests/test_the_watertight_measurement_is_sound.py::test_an_open_mesh_still_reads_open",
 ]
 candidates = [
     "tests/test_export.py::test_an_inside_out_mesh_is_refused",
@@ -2261,6 +2268,7 @@ enforced_by = [
     "tests/test_neutral_geometry_is_not_gated.py::test_the_turtle_takes_its_arc_from_the_geometry_layer",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_refuse_rather_than_failing_from_inside",
     "tests/test_neutral_geometry_is_not_gated.py::test_convexity_is_accepted_by_every_extrude_on_both_backends",
+    "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_each_builder_follows_the_backend_or_refuses_by_name",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_vertex_labels_refuse_under_a_name_the_caller_can_act_on",
     "tests/test_neutral_geometry_is_not_gated.py::test_importing_regions_does_not_drag_in_a_backend_module",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot",

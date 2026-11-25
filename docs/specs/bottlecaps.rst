@@ -27,8 +27,8 @@ bottlecaps
         <div class="spec-taglabel">variants &middot; click to load</div>
         <div class="spec-tags"><button class="spec-tag" type="button">PCO 1810 neck</button> <button class="spec-tag" type="button">PCO 1810 cap</button> <button class="spec-tag" type="button">PCO 1881 neck</button></div>
         <div class="spec-stats">
-          <div><span class="spec-stat-v" id="s-tris">4,130</span><span class="spec-stat-l">triangles</span></div>
-          <div><span class="spec-stat-v" id="s-vol">4,358.5</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-tris">4,038</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">4,797.9</span><span class="spec-stat-l">mm&sup3; volume</span></div>
           <div><span class="spec-stat-v" id="s-bbox">33×33×26</span><span class="spec-stat-l">bbox mm</span></div>
         </div>
         <div class="spec-code-wrap">
@@ -42,7 +42,7 @@ bottlecaps
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.pco1810_neck(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4130, "vol": "4,358.5", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.pco1810_cap(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 932, "vol": "4,793.7", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.pco1881_neck(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3934, "vol": "3,465.0", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.pco1810_neck(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4038, "vol": "4,797.9", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.pco1810_cap(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 2014, "vol": "4,850.3", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.pco1881_neck(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3672, "vol": "3,640.3", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
     import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";

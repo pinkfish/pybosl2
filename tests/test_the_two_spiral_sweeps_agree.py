@@ -263,3 +263,70 @@ def test_the_comparison_is_sensitive_to_half_a_turn() -> None:
         f"them used to be a near match and the other half the rod; if they have converged, the "
         f"phase no longer matters and this test has nothing to warn about."
     )
+
+
+#: A probe grid through the helix: a lattice wide enough to straddle the coil, dense enough that a
+#: faceted copy of it could not agree with the exact one everywhere by luck.
+def _probe_grid() -> "Any":
+    import numpy as np
+
+    axis = np.linspace(-7.0, 7.0, 9)
+    vertical = np.linspace(-6.0, 6.0, 7)
+    return np.array([[x, y, z] for x in axis for y in axis for z in vertical], dtype=float)
+
+
+def test_the_skin_sweep_takes_the_exact_route_on_sdf() -> None:
+    """What the `skin -> sdf` import buys, which is why it is architecture and not debt.
+
+    `pybosl2.skin` is L2 and `pybosl2.sdf` is L3, so this is an upward import, and it sat in
+    `known_violations` until T133 with a reason that reads like a capability and was filed as
+    debt: a helical sweep has a closed-form distance field, and `skin`'s own route builds a `VNF`
+    and calls `.polyhedron()` on it, which is SPEC B-5's lossy conversion. It cannot go through the
+    façade either -- `pybosl2.solid` carries no `spiral_sweep`.
+
+    So this is the `masking -> solid` case with no façade equivalent to reach, and the thing to
+    check is not the import but the capability: under `use_backend("sdf")`, `Path2D.spiral_sweep`
+    must be the backend's **exact** field, not a mesh of it. Measured here as equality to the last
+    bit against the field built directly, with the meshed route as the control -- a lattice of 567
+    points where the two agree by 0.0 and the meshed copy does not.
+    """
+    import numpy as np
+
+    from tests.field_probe import distances
+
+    profile, kwargs = CASES["buttress, 3 turns"]
+    points = _probe_grid()
+
+    through_skin = distances(lambda: profile.spiral_sweep(**kwargs), points)
+    directly = distances(lambda: sdf_shapes.spiral_sweep(profile=profile, **kwargs), points)
+    gap = float(np.abs(through_skin - directly).max())
+    assert gap == 0.0, (
+        f"Path2D.spiral_sweep under use_backend('sdf') differs from the backend's own "
+        f"spiral_sweep by {gap:.6g} -- it is not taking the exact route, so the skin -> sdf edge "
+        f"is no longer buying the capability it is listed for (SPEC A-1, B-5)"
+    )
+
+    # Two controls, because "equal to 0.0" needs both a reason it could have failed and a reason
+    # it matters. First: the grid discriminates -- the same comparison against a helix half a turn
+    # longer is not zero, so the agreement above is not a lattice of identical numbers.
+    other = dict(kwargs)
+    other["turns"] = float(other["turns"]) + 0.5
+    apart = float(np.abs(distances(lambda: sdf_shapes.spiral_sweep(profile=profile, **other), points) - directly).max())
+    assert apart > 1e-6, (
+        f"the probe grid reads two different helices the same to {apart:.3g}, so it cannot tell "
+        f"the exact route from any other and the agreement above pins nothing"
+    )
+
+    # Second, and this is what makes the edge architecture: there is no way back. Meshing is a
+    # one-way door -- `to_sdf` refuses on a CSG solid outright, because a CSG tree has no field --
+    # so if `skin` built the sweep as a VNF and handed over the polyhedron, the exactness measured
+    # above would be gone with nothing able to recover it. The import is the only route to it.
+    from pybosl2 import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        profile.spiral_sweep(**kwargs).to_sdf()
+    assert "to_sdf" in str(excinfo.value), (
+        "the meshed route can be turned back into a field after all, which would make the "
+        "skin -> sdf import a convenience rather than the capability it is listed as"
+    )

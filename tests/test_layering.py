@@ -252,8 +252,19 @@ def test_a_facade_bridge_really_targets_the_facade(name: str) -> None:
 
 
 def test_the_known_violation_count_only_shrinks() -> None:
-    """The ratchet. Fixing an edge means deleting its row; nothing may add one."""
-    budget = 3
+    """The ratchet. Fixing an edge means deleting its row; nothing may add one.
+
+    It reads zero as of T133, from 16 when this was first measured. Four were never debt
+    (typing-only), two were fixed by moving code to the layer it belonged in (`arc`, and the 2-D
+    coercion pair), one closed by dispatching through a protocol door that already existed, one by
+    deleting a wrap that named a backend class by hand, three were counted twice, one was already
+    sanctioned by a check it had never been put to, and four buy a capability and are in
+    `capability_edges` with tests that hold them there.
+
+    Zero is a budget like any other: a new upward runtime import fails the parametrised check
+    above and there is no longer a list for it to be added to.
+    """
+    budget = 0
     count = len(MODEL["known_violations"])
     assert count <= budget, f"{count} known violations, budget {budget}"
     if count < budget:

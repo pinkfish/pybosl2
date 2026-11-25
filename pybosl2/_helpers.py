@@ -683,45 +683,6 @@ def rect_path(
     return path
 
 
-def as_native_2d(obj: Any) -> Any:
-    """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
-
-    a :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
-
-    Args:
-        obj: The object to inspect.
-
-    """
-    unwrapped = unwrap(obj)
-    if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
-        return unwrapped
-    geom = getattr(obj, "geometry", None)  # Path2D / Region
-    if callable(geom):
-        return unwrap(geom())
-    if isinstance(obj, (list, tuple)):  # a bare [[x, y], ...] point list
-        from pybosl2._native import native
-
-        opolygon = native("polygon")
-        return opolygon([[float(p[0]), float(p[1])] for p in obj])
-    return obj
-
-
-def is_child_2d(obj: Any) -> bool:
-    """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or.
-
-    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
-
-    Args:
-        obj: The object to inspect.
-
-    """
-    if not isinstance(obj, (list, tuple)):
-        return True  # a wrapper or a native handle
-    if callable(getattr(obj, "geometry", None)):
-        return True  # Path2D / Region
-    return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2
-
-
 def require_anchor(anchor: object, parameter: str) -> Anchor:
     """Return *anchor* as an :class:`~pybosl2._edges_lang.Anchor`, rejecting anything else clearly.
 
@@ -1418,3 +1379,133 @@ def rim_widest_radius(
     if leans_away:
         return centre + amount
     return centre + amount * math.cos(math.radians(vang))
+
+
+def dash_segments_3d(
+    path: "PathLike",
+    dashpat: "Sequence[float] | None" = None,
+    closed: bool | None = None,
+    fit: bool = True,
+) -> "tuple[list[list[list[float]]], bool]":
+    """Cut *path* into the dash segments a dashed stroke draws, and say whether it is closed.
+
+    This is the whole of a dashed stroke that is not a stroke: picking where the pattern falls and
+    interpolating the polyline at those distances. It is plane-and-space arithmetic with no backend
+    in it, which is why it lives here rather than in `pybosl2._stroke3d`, where it used to -- a
+    dashed stroke is a dash *table* plus one ordinary stroke per entry, and only the stroke needs a
+    backend. Keeping it here is what lets :meth:`pybosl2.path3d.Path3D.dashed_stroke` follow the
+    active backend the way :meth:`~pybosl2.path3d.Path3D.stroke` does (T133, SPEC A-6, PAR-1).
+
+    Args:
+        path: The path to cut.
+        dashpat: Alternating on and off lengths; ``[3, 3]`` when omitted.
+        closed: Join the last point back to the first; the path's own flag when omitted.
+        fit: Stretch the pattern so a whole number of dashes fits the path.
+
+    Returns:
+        A ``(segments, closed)`` pair. Each segment is a two-point ``[[x, y, z], [x, y, z]]`` dash.
+        **An empty segment list means the pattern never cut the path**, so the caller strokes it
+        whole rather than drawing nothing.
+
+    Raises:
+        Bosl2ValueError: If *path* has fewer than two points, or *dashpat* sums to no length --
+            `dashpat=[0, 0]` reaches the second of those.
+
+    """
+    dpat = list(dashpat) if dashpat else [3.0, 3.0]
+    if len(dpat) % 2 == 1:
+        dpat = dpat + [0.0]
+
+    pts = [list(map(float, p)) for p in path]
+    if len(pts) < 2:
+        raise Bosl2ValueError("dashed_stroke(): need at least 2 points.")
+    is_closed = closed if closed is not None else bool(getattr(path, "closed", False))
+    raw = pts + [pts[0]] if is_closed else pts
+
+    seg_lengths = [
+        math.hypot(math.hypot(b[0] - a[0], b[1] - a[1]), b[2] - a[2]) for a, b in zip(raw[:-1], raw[1:], strict=True)
+    ]
+    plen = math.fsum(seg_lengths)
+    dlen = math.fsum(float(x) for x in dpat)
+    if dlen < 1e-12:
+        # `Bosl2Solid(None)` was returned here once, and that is not an empty solid -- it is a
+        # solid that cannot be used: `bounds()` raises and `vnf()` raises `AttributeError` on
+        # NoneType. There is no usable empty solid to hand back, so a pattern with no length is
+        # refused where it is given, per SPEC E-4 (T124).
+        raise Bosl2ValueError(
+            f"dashed_stroke(): the dash pattern needs a positive total length, got "
+            f"dashpat={dpat} which sums to {dlen:g}. Give at least one positive on/off length, "
+            f"such as dashpat=[3, 3]."
+        )
+
+    cuts = _dash_cut_distances(dpat, dlen, plen, fit=fit, closed=is_closed)
+    if not cuts:
+        return [], is_closed
+
+    cut_starts = [0.0]
+    for seg in seg_lengths:
+        cut_starts.append(cut_starts[-1] + seg)
+
+    dashes: list[list[list[float]]] = []
+    for index in range(0, len(cuts) - 1, 2):
+        if cuts[index] >= plen - 1e-9:
+            break
+        start = cuts[index]
+        end = cuts[min(index + 1, len(cuts) - 1)]
+        dashes.append(
+            [
+                _point_along_3d(raw, seg_lengths, cut_starts, start),
+                _point_along_3d(raw, seg_lengths, cut_starts, end),
+            ]
+        )
+    return dashes, is_closed
+
+
+def _dash_cut_distances(
+    dpat: "list[float]",
+    dlen: float,
+    plen: float,
+    *,
+    fit: bool,
+    closed: bool,
+) -> list[float]:
+    """Return the distances along a path of length *plen* at which the pattern *dpat* turns on or off.
+
+    Args:
+        dpat: The dash pattern, an even number of alternating on and off lengths.
+        dlen: The pattern's total length (its sum), which the caller has already checked positive.
+        plen: The path's length.
+        fit: Stretch the pattern so a whole number of repeats fits the path.
+        closed: Whether the path joins back to its start, which costs it the leading dash.
+
+    Returns:
+        The cut distances, ascending and de-duplicated, excluding the two path ends. **Empty when
+        the pattern never cuts the path**, which the caller reads as "draw it whole".
+
+    """
+    offsets: list[float] = []
+    running = 0.0
+    for length in dpat:
+        running += float(length)
+        offsets.append(running)
+    repeats = plen / dlen
+    reps = max(1, round(repeats) if fit else math.floor(repeats))
+    total = plen if not fit else reps * dlen + (0 if closed else dpat[0])
+    scale = plen / total
+    return sorted({x for i in range(reps + 1) for off in offsets if 0 < (x := (i * dlen + off) * scale) < plen - 1e-9})
+
+
+def _point_along_3d(
+    pts: "list[list[float]]",
+    seg_lengths: "list[float]",
+    cut_starts: "list[float]",
+    dist: float,
+) -> list[float]:
+    """Return the point *dist* along the polyline *pts*, interpolating within the segment it lands in."""
+    for index, seg_len in enumerate(seg_lengths):
+        seg_start, seg_end = cut_starts[index], cut_starts[index + 1]
+        if seg_start <= dist <= seg_end:
+            t = (dist - seg_start) / seg_len if seg_len > 0 else 0.0
+            a, b = pts[index], pts[index + 1]
+            return [a[axis] + (b[axis] - a[axis]) * t for axis in range(3)]
+    return list(pts[-1])
