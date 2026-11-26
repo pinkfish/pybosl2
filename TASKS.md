@@ -6268,3 +6268,122 @@ Both backends, `cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail")` i
 
 Same box, same place, each backend's own representation — the triangle counts are what a polyhedral
 cut and a meshed field respectively produce, and both close.
+
+
+## T136 — A bound that over-claimed after a turn ✅
+
+**Requirement:** SPEC S-2b (every shape reports its bounds, and the bound is measured against the
+field), PAR-5 (the two backends agree about the same solid), S-46a/PAR-1 (T14's last recorded
+open item).
+
+T14 left one thing recorded and unclosed, and the record named the fix:
+
+> **Open: a rotated non-box shape reports a conservative SDF box.** `TrussFoot` and `TrussJoiner`
+> turn their octagonal plugs half a facet [...] The octagonal prism comes out 31.36 across where
+> CSG measures 22.17. [...] Closing it properly means carrying the profile outline on the shape,
+> the way `cuboid_size` is carried, so a rotation can recompute the box from the outline rather
+> than from the box.
+
+### What `rotate` had to work from
+
+One thing: the old box's eight corners, transformed. That is exact for a shape that fills its box
+and loose for one that does not, and it is the fifth time this file has recorded a bound written
+beside a field rather than measured from it (T40, T43, T44, T48, T49, T132).
+
+Measured on the SDF backend:
+
+| shape | reported | exact | over |
+|---|---|---|---|
+| octagonal prism, turned half a facet | 28.97 | 20.48 | 41% |
+| hexagonal prism, turned half a facet | 25.98 × 25.00 | 17.32 × 20.00 | 50% |
+| cylinder off its own axis, spun 30° | 16.39 | 12.00 | 37% |
+| sheared cylinder, spun 45° | 31.11 | 26.14 | 19% |
+| 2-D pentagon, turned off its step | 2.25 loose | — | — |
+| 2-D five-pointed star, turned off its step | 4.50 loose | — | — |
+
+The last two are from `tests/test_sdf_bounds_are_tight_2d.py`'s `CONSERVATIVE` table, whose stated
+reason was that such a box *"cannot be tightened from the box alone"*. True, and the wrong thing to
+reason from — **a constructor knows more than its box**.
+
+### The device
+
+`Hull`, and its 2-D twin `Hull2D`: a `(points, radius)` pair claiming the solid lies inside the
+convex hull of *points* grown by a ball of *radius*. `rotate` transforms the points, boxes them,
+and keeps whichever of that and the rotated corner box is tighter **on each axis** — both contain
+the solid, so their intersection does.
+
+Why the points are the right thing for a prism is one line of mathematics: **the maximum of a
+linear function over a polygon is attained at a vertex.** So the outline's own points are the exact
+extreme set in every direction, under any rotation, and whether the outline is convex or not — a
+reflex vertex only ever loses the maximum. `polygon_prism` and `tapered_polygon_prism` claim them,
+which covers `regular_prism` and so the truss plugs; `polygon2d` claims them, which covers
+`regular_ngon2d`, `star2d`, `trapezoid2d` and `supershape2d`.
+
+The radius is for the shapes with no finite extreme set. A circle **is** a point grown by a disc. A
+uniformly rounded rectangle is exactly the inset rectangle grown by the rounding. A cylinder is its
+axis segment grown by its widest radius — which over-reports the *height* by that radius and costs
+nothing, because the corner box is still computed and wins on that axis.
+
+### Two claims deliberately not made
+
+* **A rectangle rounded by different radii per corner.** Insetting by the largest and growing by it
+  again cuts inside a corner rounded by less, and a corner rounded by *nothing* is a vertex lying
+  outside that region altogether. There is no single `(points, radius)` that bounds it tightly, so
+  it falls back to the four plain corners — safe, and loose after a turn. It is the one entry left
+  in `CONSERVATIVE`, at 1.30, and it is a case this task **added** by looking: its reason is a
+  proof rather than an absence of one.
+* **A flared prism rim.** A flare adds material outside the outline, so the outline no longer bounds
+  the solid, and the ball is no use because the flare grows the walls and not the ends.
+
+### The claim is the dangerous half
+
+The asymmetry is the whole design. A claim that is too **generous** costs nothing: it never wins
+the per-axis comparison. A claim that is too **small** wins, and `mn`/`mx` is the SDF mesher's
+domain — so the solid is clipped, silently, in the shape rather than in a number.
+
+So `tests/test_the_hull_claim_is_sound.py` measures the claim and not only its consequences:
+
+* **The support function.** `conv(P) + ball(r)` contains a solid exactly when the solid reaches no
+  further than the hull in every direction, so directions are sampled directly — 17 of them in 3-D
+  over 12 constructors, 7 in 2-D over 9. The solid's own reach comes from a grid inside its box,
+  which makes it a lower bound and the check necessary rather than sufficient.
+* **The consequence, over eight turns each.** Build, turn, and look for field outside the box that
+  turn reports. This one errs the safe way: it samples *outside* the box, so a miss between
+  samples excuses nothing.
+* **A staleness guard**, because a constructor quietly dropping its claim would make all of the
+  above vacuous: every entry in `CLAIMANTS` must actually carry a hull.
+
+Controls: a prism's hull shrunk by 20% must fail both the support check and the turn check, and the
+honest one must pass the same probe — otherwise the planted failure is the probe and not the claim.
+**The control's first version shrank by 10% and read exactly equal rather than failing**: at 21
+samples the second-highest grid line on that prism's box sits at 0.9 of its half-width, so the
+sampled solid and the shrunken claim landed on the same number to the digit. A control that
+*just barely* fires is not evidence that a check works.
+
+Run against `main`: **60 failures** — 16 in the two bounds files (the six new 3-D turn fixtures,
+the two formerly-licensed cylinders, and eight 2-D cases) and 44 in the new file.
+
+### What closed
+
+| record | was | now |
+|---|---|---|
+| `test_sdf_bounds_are_tight.py::LOOSE_ON_PURPOSE` | 2 | **0** |
+| `test_sdf_bounds_are_tight_2d.py::CONSERVATIVE` | 5 | **1** (a new case, with a proof) |
+| `test_part_show.py::CONSERVATIVE_SDF_BOUNDS` | 2 | **0** |
+| `TrussFoot` | csg 33.2 × 24.0 × 6.99, sdf 31.36 across | **both 33.2 × 24.0 × 6.99** |
+| `TrussJoiner` | the same disagreement | **both 33.2 × 54.0 × 19.59** |
+
+The two truss parts are held to 0.01 now rather than to the 0.5 the general parity test allows,
+because a faceting tolerance would hide a 9mm disagreement — which is how this one survived.
+
+`cyl` crossed the 50-line budget on the way, so its box arithmetic and its hull claim came out as
+`_cyl_box` and `_cyl_hull` rather than the budget going up (PLAN S-2). The per-file count is back
+to 7 and the total to 87.
+
+### Still open on T14
+
+The 13 parts that need a **non-convex mesh** on the SDF backend — `BevelGear`, `Rail`,
+`ThinningWall`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates, and the four threaded
+fasteners that build their thread as a VNF grid. That one is bounded by mathematics rather than
+effort: an arbitrary non-convex mesh has no closed-form distance field, and answering it means a
+different engine (a BVH over triangles), not a different formula.

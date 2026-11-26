@@ -350,6 +350,79 @@ _MESH_OPERATIONS = frozenset(
 Symmetry = tuple[tuple[float, float, float], tuple[float, float, float]]
 
 
+#: A containment tighter than the box: `(points, radius)` claims the solid lies inside the convex
+#: hull of *points* grown by a ball of *radius*. Every shape has one trivially -- its box's eight
+#: corners, with radius 0 -- so what this field records is a *better* one, and only where it is
+#: provable. The invariant a constructor must keep is both halves at once: the hull contains the
+#: solid, **and** its axis-aligned box grown by the radius is the box the shape reports. Over-claim
+#: the hull and `rotate` under-reports, which clips geometry at mesh time -- the one direction that
+#: fails silently and in the shape rather than in a number.
+#:
+#: Only `rotate` reads it, and it exists because `rotate` had nothing better: it transformed the old
+#: box's eight corners, which is exact for a shape that fills its box and loose for one that does
+#: not. An octagonal prism 22.17 across came out 28.97 after the half-facet turn `TrussFoot` and
+#: `TrussJoiner` give their plugs -- 31% wide, on a backend whose selling point is exact bounds
+#: (SPEC S-2b, PAR-5). A prism knows better: the maximum of a linear function over a polygon is
+#: attained at a vertex, so the outline's own points *are* the extreme set, under any rotation and
+#: whether the outline is convex or not.
+#:
+#: The radius is for the shapes with no finite extreme set. A circle is one point and its radius; a
+#: rounded rectangle is the four corners of the box it insets to, grown by the rounding. A cylinder
+#: is its axis segment grown by its radius -- which over-reports the *height* by that radius, and
+#: costs nothing, because `rotate` keeps whichever of the two boxes is tighter on each axis.
+Hull = tuple[list[list[float]], float]
+
+
+def _claiming(shape: PyShape, points: "Sequence[Sequence[float]]", radius: float = 0.0) -> PyShape:
+    """Attach a `Hull` claim to a freshly built *shape* and hand it back.
+
+    The caller is asserting both halves of the `Hull` contract: the convex hull of *points* grown
+    by *radius* contains the solid, and its axis-aligned box is the box *shape* already reports.
+    `tests/test_the_hull_claim_is_sound.py` checks the second half of that for every constructor
+    that makes the claim, because getting it wrong under-reports the box and clips the mesh.
+
+    Args:
+        shape: The shape to annotate, modified in place.
+        points: The hull's points.
+        radius: The ball the hull is grown by; 0 for a finite extreme set.
+
+    Returns:
+        *shape*.
+
+    """
+    shape._hull = ([[float(c) for c in point] for point in points], float(radius))
+    return shape
+
+
+def _hull_box(
+    hull: "Hull | None", matrix: "Sequence[Sequence[float]] | None" = None
+) -> "tuple[list[float], list[float]] | None":
+    """The axis-aligned box of *hull*, optionally after the linear map *matrix*.
+
+    Args:
+        hull: The `(points, radius)` claim, or None.
+        matrix: A 3x3 row-major matrix to apply to each point first.
+
+    Returns:
+        A `(mn, mx)` pair, or None when there is no hull to read.
+
+    """
+    if hull is None:
+        return None
+    points, radius = hull
+    if not points:
+        return None
+    moved = (
+        points
+        if matrix is None
+        else [[sum(matrix[r][k] * point[k] for k in range(3)) for r in range(3)] for point in points]
+    )
+    return (
+        [min(point[i] for point in moved) - radius for i in range(3)],
+        [max(point[i] for point in moved) + radius for i in range(3)],
+    )
+
+
 def _turns_about_its_own_axis(
     symmetry: "Symmetry | None", a: "float | Sequence[float] | None", v: "Sequence[float] | None"
 ) -> bool:
@@ -462,6 +535,21 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         self._nominal_size: list[float] | None = None
         self._nominal_anchor: Any = None
         self._symmetry: "Symmetry | None" = None
+        self._hull: "Hull | None" = None
+
+    def _corner_hull(self) -> "Hull":
+        """This shape's box as a hull: the trivial claim every shape can make."""
+        return (
+            [
+                [
+                    self.mn[0] if i & 1 == 0 else self.mx[0],
+                    self.mn[1] if i & 2 == 0 else self.mx[1],
+                    self.mn[2] if i & 4 == 0 else self.mx[2],
+                ]
+                for i in range(8)
+            ],
+            0.0,
+        )
 
     def _wrap(
         self,
@@ -473,6 +561,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         cuboid_edge_amounts: Sequence[Sequence[float]] | None = None,
         cuboid_edge_modes: Sequence[Sequence[EdgeMode]] | None = None,
         symmetry: "Symmetry | None" = None,
+        hull: "Hull | None" = None,
     ) -> PyShape:
         out = PyShape(
             sdf_fn,
@@ -485,6 +574,9 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             cuboid_edge_modes,
         )
         out._symmetry = symmetry
+        # Not carried by default, for the reason `symmetry` is not: most operations here invalidate
+        # it, and the failure is silent. Every caller that keeps one says so.
+        out._hull = hull
         # colour is metadata, so it survives every exact transform rather than forcing a mesh
         out._colour = self._colour
         out._modifier = self._modifier
@@ -866,6 +958,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         if self._symmetry is not None:
             direction, point = self._symmetry
             moved = (direction, (point[0] + tx, point[1] + ty, point[2] + tz))
+        hull = None
+        if self._hull is not None:
+            points, radius = self._hull
+            hull = ([[p[0] + tx, p[1] + ty, p[2] + tz] for p in points], radius)
         return self._wrap(
             new_fn,
             new_mn,
@@ -875,6 +971,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             self.cuboid_edge_amounts,
             self.cuboid_edge_modes,
             moved,
+            hull,
         )
 
     def rotate(self, a: float | Sequence[float] | None = None, v: Sequence[float] | None = None) -> PyShape:
@@ -920,7 +1017,18 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         rotated = [[sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners]
         new_mn = [min(c[i] for c in rotated) for i in range(3)]
         new_mx = [max(c[i] for c in rotated) for i in range(3)]
-        return self._wrap(new_fn, new_mn, new_mx)
+        # A shape that knows a tighter containment than its own box says so in `_hull`, and this is
+        # the only thing that reads it. Both boxes contain the solid, so the tighter of the two on
+        # each axis contains it too -- which is why a cylinder may claim its axis segment grown by
+        # its radius without the ball's extra height ever reaching the answer (T136).
+        hull = None
+        if self._hull is not None:
+            hull_mn, hull_mx = _hull_box(self._hull, m)  # type: ignore[misc]
+            new_mn = [max(new_mn[i], hull_mn[i]) for i in range(3)]
+            new_mx = [min(new_mx[i], hull_mx[i]) for i in range(3)]
+            points, radius = self._hull
+            hull = ([[sum(m[r][k] * p[k] for k in range(3)) for r in range(3)] for p in points], radius)
+        return self._wrap(new_fn, new_mn, new_mx, hull=hull)
 
     # ---- directional moves: exact, and they keep the field (SPEC C-1, PLAN E-P6) ------------
 
@@ -1016,7 +1124,14 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         new_fn = lambda x, y, z: smin * fn(x / s[0], y / s[1], z / s[2])  # noqa: E731
         new_mn = [self.mn[i] * s[i] for i in range(3)]
         new_mx = [self.mx[i] * s[i] for i in range(3)]
-        return self._wrap(new_fn, new_mn, new_mx)
+        # The hull survives a scale when scaling it is still a hull: always for a point set, and
+        # for a ball only when the factors are equal, since an unevenly scaled ball is an ellipsoid.
+        hull = None
+        if self._hull is not None:
+            points, radius = self._hull
+            if radius == 0.0 or len(set(s)) == 1:
+                hull = ([[p[i] * s[i] for i in range(3)] for p in points], radius * s[0])
+        return self._wrap(new_fn, new_mn, new_mx, hull=hull)
 
     def mirror(self, v: Sequence[float]) -> PyShape:
         """Reflect across the plane through the origin with normal `v`, exact and free.
@@ -2645,12 +2760,21 @@ def tapered_polygon_prism(
         return lv.max(profile, lv.max(z - height, -z))
 
     widest = max(scale_bottom, scale_top)
-    corners = np.vstack([np.asarray(outline, dtype=float) for outline in path_list]) * widest
-    return PyShape(
+    outline_points = np.vstack([np.asarray(outline, dtype=float) for outline in path_list])
+    corners = outline_points * widest
+    prism = PyShape(
         sdf_fn,
         [float(corners[:, 0].min()), float(corners[:, 1].min()), 0.0],
         [float(corners[:, 0].max()), float(corners[:, 1].max()), height],
         res,
+    )
+    # As `polygon_prism`, with each end's outline at its own scale: the taper is linear, so every
+    # cross-section lies in the hull of the two end outlines. The box above is read off the wider
+    # end alone, which is the box this hull implies.
+    return _claiming(
+        prism,
+        [[float(p[0]) * scale_bottom, float(p[1]) * scale_bottom, 0.0] for p in outline_points]
+        + [[float(p[0]) * scale_top, float(p[1]) * scale_top, height] for p in outline_points],
     )
 
 
@@ -3730,6 +3854,42 @@ def cyl(
     else:
         clip = effective_clip(clip_angle, teardrop)
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode, clip)  # noqa: E731
+    maxr, mn, mx = _cyl_box(length, rad1, rad2, amt1, amt2, mode, shift, (texture, tex_depth, tex_inset))
+    field, mn, mx = _with_extra(sdf_fn, 2, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
+    upright = not (shift and (shift[0] or shift[1])) and texture is None
+    shape = _symmetric(PyShape(field, mn, mx, res), (0.0, 0.0, 1.0), upright)
+    shape = _cyl_hull(shape, shift, maxr, mn[2], mx[2])
+    offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
+    return _place(shape, offset, spin, orient)
+
+
+def _cyl_box(
+    length: float,
+    rad1: float,
+    rad2: float,
+    amt1: "RimAmount",
+    amt2: "RimAmount",
+    mode: EdgeMode,
+    shift: "Sequence[float] | None",
+    texture_spec: "tuple[Any, float, bool | float]",
+) -> "tuple[float, list[float], list[float]]":
+    """The widest radius a cyl reaches, and the box that follows from it.
+
+    Args:
+        length: The cylinder's height along its own axis.
+        rad1: Bottom radius.
+        rad2: Top radius.
+        amt1: Bottom rim treatment, resolved.
+        amt2: Top rim treatment, resolved.
+        mode: Whether the treatments are roundings or chamfers.
+        shift: The top section's centre relative to the bottom's, or None.
+        texture_spec: ``(texture, tex_depth, tex_inset)`` as the caller gave them.
+
+    Returns:
+        ``(maxr, mn, mx)`` -- the widest radius, and the box before `extra=` extends it.
+
+    """
+    texture, tex_depth, tex_inset = texture_spec
     maxr = _treated_maxr(length, rad1, rad2, amt1, amt2, mode)
     if texture is not None and texture != "none":
         # The texture pushes the surface out by at most `tex_depth` past the plain radius (and an
@@ -3746,11 +3906,35 @@ def cyl(
         for i in (0, 1):
             mn[i] = min(-shift[i] / 2 - rad1, shift[i] / 2 - rad2)
             mx[i] = max(-shift[i] / 2 + rad1, shift[i] / 2 + rad2)
-    field, mn, mx = _with_extra(sdf_fn, 2, length, rad1, rad2, (extra, extra1, extra2), mn, mx)
-    upright = not (shift and (shift[0] or shift[1])) and texture is None
-    shape = _symmetric(PyShape(field, mn, mx, res), (0.0, 0.0, 1.0), upright)
-    offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    return _place(shape, offset, spin, orient)
+    return maxr, mn, mx
+
+
+def _cyl_hull(shape: PyShape, shift: "Sequence[float] | None", maxr: float, z_low: float, z_high: float) -> PyShape:
+    """Claim the cylinder's axis segment, grown by its widest radius, as the shape's `Hull`.
+
+    A round cross-section has no finite extreme set, so the claim needs the ball: every point of
+    the solid is within *maxr* of the axis in XY and inside the box in Z, hence within *maxr* of
+    the segment. *maxr* already carries the rim treatment and a texture's depth, and the Z range is
+    the one `extra=` has already extended, so nothing escapes it.
+
+    The ball over-reports the *height* by *maxr*, which never reaches the answer -- `rotate` keeps
+    whichever of this box and the rotated corner box is tighter on each axis. For a spin it is
+    exact, which is the case the corner box was 37% wide on: a cylinder off its own axis turned 30
+    degrees reported 16.39 across for a solid 12.00 wide (T136).
+
+    Args:
+        shape: The cylinder, modified in place.
+        shift: The top section's centre relative to the bottom's, or None.
+        maxr: The widest radius the solid reaches.
+        z_low: The box's low Z.
+        z_high: The box's high Z.
+
+    Returns:
+        *shape*.
+
+    """
+    lean = [0.0, 0.0] if not shift else [float(shift[0]) / 2, float(shift[1]) / 2]
+    return _claiming(shape, [[-lean[0], -lean[1], z_low], [lean[0], lean[1], z_high]], maxr)
 
 
 #: How `shift=` maps onto the two non-axial coordinates, per axis. `shift` is stated in the
@@ -5129,12 +5313,23 @@ def polygon_prism(
     xs = [p[0] for path in path_list for p in path]
     ys = [p[1] for path in path_list for p in path]
     flare = max(0.0, -rounding_top, -rounding_bottom)
-    return PyShape(
+    prism = PyShape(
         sdf_fn,
         [min(xs) - flare, min(ys) - flare, 0],
         [max(xs) + flare, max(ys) + flare, height],
         res,
     )
+    if flare:
+        # A flare adds material *outside* the outline, so the outline's points no longer bound the
+        # solid and claiming them would under-report the box. The ball the `Hull` carries is no use
+        # either: the flare grows the walls and not the ends, and a ball grows both.
+        return prism
+    # The outline's own points, at both ends. The maximum of a linear function over a polygon is
+    # attained at a vertex -- concave outlines included, since a reflex vertex only ever loses --
+    # so this is the exact extreme set in every direction, and `rotate` can read a tight box off it
+    # instead of transforming the corners of this one. A roundover or chamfer only removes material,
+    # so the claim stays true and the box above stays the one it implies.
+    return _claiming(prism, [[p[0], p[1], z] for path in path_list for p in path for z in (0.0, height)])
 
 
 def _piecewise(t: LVTree, stations: "list[tuple[float, float]]") -> LVTree:

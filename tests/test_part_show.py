@@ -156,12 +156,17 @@ BACKEND_NEUTRAL_PARTS = frozenset(
 
 
 #: Parts that build on both backends but whose SDF `bounds()` is conservative rather than exact.
-#: Both are octagonal prisms turned half a facet: the SDF box after a rotation is the old box's
-#: corners transformed, which is exact only for a shape that fills its box (a cuboid does, an
-#: octagon does not). The geometry is right; only the reported envelope is loose, and it is a
-#: superset, so nothing is clipped. Fixing it means carrying the profile outline on the shape so a
-#: rotation can recompute the box -- see TASKS T14.
-CONSERVATIVE_SDF_BOUNDS = frozenset({"TrussFoot", "TrussJoiner"})
+#:
+#: **Empty, as of T136.** It held `TrussFoot` and `TrussJoiner`, which turn their octagonal plugs
+#: half a facet: the SDF box after a rotation was the old box's corners transformed, which is exact
+#: only for a shape that fills its box, and an octagon does not -- 31.36 across where CSG measured
+#: 22.17. The geometry was right and the envelope was a superset, so nothing was ever clipped; it
+#: was a number disagreeing with the other backend on a backend whose selling point is exact
+#: bounds. The fix is the one recorded here: the prism carries its outline (`Hull`), so a rotation
+#: recomputes the box from the points instead of from the box. Both parts now agree with CSG to the
+#: digit -- 33.2 x 24.0 x 6.99 and 33.2 x 54.0 x 19.59 -- and they are held to the same parity test
+#: as every other converted part.
+CONSERVATIVE_SDF_BOUNDS: frozenset[str] = frozenset()
 
 
 @pytest.mark.parametrize("name", sorted(BACKEND_NEUTRAL_PARTS - CONSERVATIVE_SDF_BOUNDS))
@@ -276,9 +281,26 @@ def test_a_dispatched_operation_refuses_before_the_part_guard() -> None:
     assert ".to_csg()" in str(excinfo.value)
 
 
-@pytest.mark.parametrize("name", sorted(CONSERVATIVE_SDF_BOUNDS))
-def test_a_conservative_bounds_part_still_builds_the_right_solid(name: str) -> None:
-    """Loose bounds must stay a *superset*: under-reporting would clip the meshed geometry."""
+#: The two parts `CONSERVATIVE_SDF_BOUNDS` held, with the size both backends now report. They turn
+#: an octagonal plug half a facet, which is the worst angle there is for an n-gon, so they are the
+#: fixture for the thing T136 fixed -- and they are pinned to the digit rather than to the 0.5 the
+#: general parity test allows, because a faceting tolerance would hide a 9mm disagreement.
+TURNED_PLUGS = {
+    "TrussFoot": [33.2, 24.0, 6.99],
+    "TrussJoiner": [33.2, 54.0, 19.59],
+}
+
+
+@pytest.mark.parametrize("name", sorted(TURNED_PLUGS))
+def test_a_turned_plug_reports_the_same_box_on_both_backends(name: str) -> None:
+    """The SDF box after a turn is exact, not a superset -- which it was until T136.
+
+    `bounds()` is a claim about the solid, and on the SDF backend it is also the meshing domain, so
+    the two errors are not symmetric: too large wastes the mesher's time and disagrees with the
+    other backend, too small clips the geometry silently. These read 31.36 across for a solid
+    22.17 wide while the box after a rotation came from the old box's rotated corners. The prism
+    carries its outline now, so the turn recomputes the box from the points.
+    """
     import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
     from pybosl2._backend import use_backend
 
@@ -289,12 +311,10 @@ def test_a_conservative_bounds_part_still_builds_the_right_solid(name: str) -> N
         assert shape.backend == backend
         built[backend] = shape.bounds()
 
-    csg_centre, csg_size = list(built["csg"].center), list(built["csg"].size)
-    sdf_centre, sdf_size = list(built["sdf"].center), list(built["sdf"].size)
-    for axis in range(3):
-        assert float(sdf_size[axis]) >= float(csg_size[axis]) - 0.01, (
-            f"{name}: the SDF box is SMALLER than the real solid on axis {axis}, which would clip it"
-        )
-    # ... and only in the plane the rotation is in; the extruded axis is still exact.
-    assert float(sdf_size[2]) == pytest.approx(float(csg_size[2]), abs=0.01)
-    assert float(sdf_centre[2]) == pytest.approx(float(csg_centre[2]), abs=0.01)
+    csg_size = [float(v) for v in built["csg"].size]
+    sdf_size = [float(v) for v in built["sdf"].size]
+    assert csg_size == pytest.approx(TURNED_PLUGS[name], abs=0.01), f"{name}: the CSG fixture moved"
+    assert sdf_size == pytest.approx(csg_size, abs=0.01), (
+        f"{name}: csg={csg_size} sdf={sdf_size} -- the backends disagree about the box of the same "
+        f"solid (SPEC S-2b, PAR-5)"
+    )
