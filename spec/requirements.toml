@@ -366,6 +366,8 @@ enforced_by = [
     "tests/test_exports.py::test_no_top_level_name_builds_on_the_wrong_backend",
     "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_no_unmarked_native_builder_returns_a_backend_owned_solid",
     "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_each_builder_follows_the_backend_or_refuses_by_name",
+    "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_no_sdf_method_hands_back_a_solid_the_csg_backend_owns",
+    "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_only_the_declared_crossings_mesh_inside_the_sdf_backend",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_path_2d_geometry_builds_on_either_backend",
@@ -2159,6 +2161,7 @@ Conversion is one-directional and honest: SDF → CSG is an exact mesh; CSG → 
 '''
 enforced_by = []
 candidates = [
+    "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_only_the_declared_crossings_mesh_inside_the_sdf_backend",
     "tests/test_backend_parity.py::test_sdf_shapes_keep_their_backend_through_moves_and_colour",
     "tests/test_parts_backend_coverage.py::test_each_refusal_names_non_convexity",
     "tests/test_sdf_flat_parity.py::test_a_colour_operation_keeps_the_shape_a_field",
@@ -2167,6 +2170,8 @@ candidates = [
 status = "reviewed"
 note = '''
 Spot-checked where it bites: the parts' SDF refusals cite non-convexity (test_parts_backend_coverage.py) and PyShape2D.fill no longer meshes across (T34). Whether a *new* conversion is honest is a review question.
+
+One clause of the implicit half is now ratcheted, which is why the test above is a candidate and the status stays `reviewed`: it holds the *hidden* conversion to a declared list, and says nothing about the other two clauses -- whether a mesh is exact, and the CSG -> SDF direction. T135 found six methods of `SdfSolid` meshing the field and handing the mesh back -- `repair`, `oversample`, `separate`, `wrap`, `pull`, `partition` -- each saying *"via CSG conversion"* in its docstring, which declares the conversion to a reader and not to a caller. Every `to_csg()` inside `pybosl2/sdf/` must now be listed with the reason its result comes back as a field; one entry survives, the 2-D hull, which goes out through `projection` and returns a polygon. Four of the six turned out not to need a mesh at all, which is the useful part: *is this conversion honest?* is a weaker question than *why is there a conversion here?*
 '''
 
 [[requirement]]
@@ -2233,6 +2238,7 @@ enforced_by = [
     "tests/test_backend_matrix.py::test_an_explicit_zero_treatment_is_not_a_request",
     "tests/test_backend_matrix.py::test_turning_something_off_is_a_request_the_backend_has_to_honour",
     "tests/test_backend_matrix.py::test_no_option_is_left_that_one_backend_builds_and_the_other_refuses",
+    "tests/test_sdf_shapes3d.py::TestPassthroughMethods::test_oversample_is_itself_because_a_field_has_no_facets",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",

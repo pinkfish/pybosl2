@@ -1556,7 +1556,7 @@ It fired, and all three went. The round shapes are compared on `spin` as well as
 which is what the exclusion existed to wait for.
 
 
-## T50 — Audit the layering debt 🔶
+## T50 — Audit the layering debt ✅
 
 **§12.2 item 22. A-1, PAR-1, B-4. 16 → 12 known violations.**
 
@@ -6052,12 +6052,12 @@ one was already sanctioned by a check it had never been put to, and **four are c
 with tests holding them in place. The ratchet reads 0, and a new upward runtime import now fails
 the parametrised check with no list left to be added to.
 
-Still open and recorded rather than guessed: `SdfShape`'s `to_csg()`-based methods — `repair`,
-`oversample`, `separate`, `wrap`, `pull`, `partition` — all return a `CsgSolid` from inside
-`use_backend("sdf")`. Each says *"via CSG conversion"* in its docstring, which is a declaration of
-sorts, and each is typed `-> PyShape`, which is not. That is a seventh instance of this class and a
-task of its own; the new scan does not see them because they are in `pybosl2/sdf/`, which it skips.
-`minkowski`'s half-of-the-bounding-diagonal radius is a second: it reads 1.73r for a sphere of
+Recorded here rather than guessed, and **closed by [T135](#t135--the-six-the-scan-was-told-to-skip)**:
+`SdfSolid`'s `to_csg()`-based methods — `repair`, `oversample`, `separate`, `wrap`, `pull`,
+`partition` — all returned a `CsgSolid` from inside `use_backend("sdf")`. Each said *"via CSG
+conversion"* in its docstring, which is a declaration of sorts, and each was typed `-> PyShape`,
+which is not. The new scan could not see them because they are in `pybosl2/sdf/`, which it skips.
+`minkowski`'s half-of-the-bounding-diagonal radius was a second item: it read 1.73r for a sphere of
 radius r, where the inscribed ball this task used for `minkowski_difference` reads exactly r.
 
 
@@ -6130,3 +6130,141 @@ cache must really carry the 120 slivers the table claims.
 part was always watertight — but they were the only reason anybody looked, and 63 miscounted edges
 on a cone were sitting behind them. A check whose two spellings agree is not evidence that either
 is right; one that disagrees is evidence that something is worth reading.
+
+
+## T135 — The six the scan was told to skip ✅
+
+**Requirement:** SPEC A-6 (a call must not hand back a solid the other backend owns), B-5 (no
+silent lossy conversion), B-9 (a render hint may be ignored; a geometry argument may not), A-10
+(reach the façade, not a backend), E-1/E-6 (refuse under the caller's own name), PAR-1.
+
+T133 closed `known_violations` to zero, added a scan for the defect class behind it, and recorded
+what the scan could not see: `SdfSolid`'s six `to_csg()`-based methods. The scan skips
+`pybosl2/sdf/` on the reasoning that reaching a native handle *inside* a backend module is that
+module's job. True of a native handle; not true of the return value.
+
+Measured in the real PythonSCAD app, inside `use_backend("sdf")`:
+
+| call | returned |
+|---|---|
+| `block.repair()` | `CsgSolid` |
+| `block.oversample(2)` | `CsgSolid` |
+| `block.separate()` | `[CsgSolid]` |
+| `block.wrap(20)` | `CsgSolid` |
+| `block.pull([0,0,1], 2)` | `CsgSolid` |
+| `block.partition()` | `(CsgSolid, CsgSolid)` |
+
+Six for six. Each said *"via CSG conversion"* in its docstring, which tells a reader and not a
+caller: what came back would not combine with the fields around it, and the failure surfaced as
+`TypeError: invalid argument left to operator` from inside PythonSCAD, naming nothing the caller
+had written.
+
+### Four of the six never needed a mesh
+
+The reason given for meshing was *"this operation needs mesh topology"*. Asked of each method
+separately, it held twice.
+
+- **`repair()`** heals mesh topology — gaps, non-manifold edges, flipped winding. A field has none
+  to heal: the surface is wherever `f(p) == 0` and every query point is unambiguously in or out. It
+  returns `self`, which is the answer `render()` three methods away had been giving all along, with
+  the same sentence as its reason.
+- **`oversample(sides)`** splits every triangle *sides*-fold. A field has no triangles until it is
+  meshed and how finely is set then, so the count is a render hint and B-9 is explicit that a hint
+  may be accepted and ignored. It returns `self`. Meshing made this the one call where asking for a
+  **smoother** result silently coarsened everything after it.
+- **`partition()`** is the interesting one. A split is two intersections with a cut mask and a
+  translate — all of it on the shared contract. The only CSG-only part was the mask, and that was
+  not even a capability: `_partition_mask_shape` imported `pythonscad.polygon` and
+  `pythonscad.square` directly, while the cut path it fills is neutral arithmetic that already
+  returns a `Path2D`. Built through the 2-D façade instead, every step is declared on both
+  backends, so the mask for a field is a field. The split itself moved to
+  `partitions.partition_solid`, which both `Partitionable.partition` and `SdfSolid.partition` now
+  call: one implementation, not two.
+- **`minkowski()`** was the second item T133 recorded. Dilating by a ball of radius *r* on a
+  distance field is exactly `f(p) - r`, and it read the radius as half the bounding box's
+  **diagonal** — the circumscribed ball, 1.73r for a sphere of radius r. So a 4 mm cube dilated by
+  a 2 mm ball came out 10.93 across where the answer is 8, and the two directions disagreed with
+  each other, because `minkowski_difference` has used the inscribed ball since T133. Eroding and
+  re-dilating one solid by one sphere did not return the solid. Both read the inscribed ball now,
+  and in the app a 60×60×20 block dilated by a radius-2 sphere measures exactly 64×64×24.
+
+`separate()`, `wrap()` and `pull()` are the ones where the reason holds. Connectivity is a question
+about shared edges; the native bend and stretch move vertices. All three refuse by name now, with
+the `.to_csg()` route in the message — the door `__getattr__` has offered for every other mesh
+operation all along, and which these six were quietly taking on the caller's behalf.
+
+`wrap` and `pull` both *have* closed forms in principle — a cylindrical domain warp and an axis
+clamp. Neither is written, because neither convention has been measured against the app, and
+implementing one from the name would be a different solid wearing it. Recorded, not guessed.
+
+### The mask was on the wrong backend, in both directions
+
+Building the mask through the façade surfaced a second thing: the façade follows the *ambient*
+backend, and `partition` is a method on a solid. `sdf.shapes3d.cuboid([20,20,10]).partition()` —
+a solid built straight from a backend module, so the ambient backend is still `csg` — put an SDF
+receiver against a CSG mask and `&` refused it. The same hazard had been latent on the CSG side,
+where a `CsgSolid` held across a `use_backend("sdf")` boundary would have got an SDF mask. The mask
+is built inside `use_backend(solid.backend)` now: a method asked about a solid builds on *that*
+solid's backend.
+
+### The tests were holding the defect in place
+
+`tests/test_sdf_shapes3d.py::TestPassthroughMethods` had four lines reading `assert
+repaired.backend == "csg"` — and the same for `wrap`, `pull` and `oversample`. The defect was not
+unmeasured. It was **asserted**, from inside the SDF backend, under names like
+`test_repair_delegates_to_csg`. A test holds a bug as firmly as it holds a feature, and the way to
+tell which is to ask what the line claims about the contract: `backend == "csg"` inside
+`use_backend("sdf")` claims that handing a caller the other backend's solid is this method's job.
+
+Two more stale records went with them. `test_partition_returns_two_parts` and
+`test_minkowski_difference_delegates` each carried a `needs_csg_operable_mesh` skip —
+*"no libfive: a meshed SDF solid cannot enter the CSG operators"* — which
+`tests/test_delegating_backends_accept_what_they_forward.py` was built around, because that
+sentence is what would have prevented T79's wrong conclusion about `cutsize` and `cutpath`. The
+marker was right about the environment and nobody asked the next question: **why was a field being
+meshed to split it?** T133 removed the meshing from `minkowski_difference`; this removes it from
+`partition`; nothing in that file meshes now, so the marker is gone. The lesson stays where it is
+acted on, and the test that recorded the skip now holds the pair together instead — a `to_csg()`
+back in the method would make the skip necessary again, and a skip without one would be recording
+something that is not happening.
+
+### The check, and what it costs
+
+`tests/test_the_sdf_backend_does_not_hand_back_csg.py`, two halves like T133's and for the same
+reason:
+
+* **A dynamic sweep with no list of suspects.** It enumerates `SdfSolid`'s own methods — 53 of
+  them — calls each inside `use_backend("sdf")`, and requires every returned shape, including each
+  element of a returned list or tuple, to report `backend == "sdf"`, or a refusal naming the call.
+  `UNSWEPT` holds the nine that return something other than geometry, each with its reason, and
+  `ARGUMENTS` fills in the signatures that need a value. It depends on nobody having guessed which
+  method is suspect, which is the whole point: five instances of this class were found one per
+  task, each by accident.
+* **A static ratchet on who crosses at all.** Any function in `pybosl2/sdf/` that calls `to_csg()`
+  must be listed in `CROSSES_AND_RETURNS` with the reason its result comes back as a field. One
+  entry survives: `SdfShape2D.hull`, which goes out through the 3-D hull's `projection` and returns
+  a `polygon2d`. It catches what the sweep cannot reach — a module-level function, or a method
+  whose arguments nobody filled in.
+
+Run against `main`: **7 failures** — all six methods through the sweep, plus the static ratchet.
+Three controls: the sweep must see a planted CSG solid and must not cry wolf on an SDF one, and the
+static scan must see a planted crossing while leaving a function that never meshes alone. The
+static scan strips docstrings before reading a body, which is the overmatch T133's first scan made
+(82 hits, because `ast.unparse` carries the prose along with the code).
+
+The `partitions -> flat` edge this adds is a `facade_bridges` row, not debt: the section's own
+check — is the target a façade module? — passes, and a cutter built by whichever backend is active
+is what A-10 asks for. It is the fourth row there, beside the two `masking` ones that say the same
+thing about mask cutters.
+
+### Measured
+
+Both backends, `cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail")` in the real app:
+
+| | pieces | piece bounds | piece centre | triangles | watertight |
+|---|---|---|---|---|---|
+| csg | `CsgSolid` ×2 | 60 × 35 × 20 | (0, 20, 0) | 60 | True |
+| sdf | `SdfSolid` ×2 | 60 × 35 × 20 | (0, 20, 0) | 75264 | True |
+
+Same box, same place, each backend's own representation — the triangle counts are what a polyhedral
+cut and a meshed field respectively produce, and both close.
