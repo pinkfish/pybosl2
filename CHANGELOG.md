@@ -64,6 +64,26 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
   diffs as fields, so the CSG implementation got the wrong type and raised from inside. It is a
   negative offset now — which is what eroding a solid by a ball is — and exact for the sphere it
   is almost always called with.
+- **`partition()` works on the SDF backend, as a field.** It used to mesh the solid and hand back
+  two CSG pieces; a split is two intersections with a cut mask and a translate, and the mask is
+  built through the 2-D façade now, so both backends run one implementation. The two agree on the
+  piece's bounding box to the digit.
+- **`repair()` and `oversample()` on an SDF solid return the solid.** A field has no mesh to repair
+  and no facets to subdivide — the facet count is a render hint, which SPEC B-9 lets a backend
+  ignore. Both used to mesh and return a CSG solid, which made `oversample` the one call where
+  asking for a smoother result silently coarsened everything after it.
+- **`separate()`, `wrap()` and `pull()` on an SDF solid refuse by name** instead of meshing. All
+  three need mesh topology a distance field does not carry, and the refusal names the explicit
+  route: `shape.to_csg().wrap(20)`. This is a behaviour change — the calls used to return a
+  working CSG solid, silently, from inside `use_backend("sdf")`, which would not combine with the
+  fields around it.
+- **`minkowski()` on the SDF backend grew shapes by 73% too much.** It read each argument's radius
+  as half its bounding-box *diagonal* rather than half its smallest extent, so a 4mm cube dilated
+  by a 2mm ball came out 10.93 across where the answer is 8 — and it disagreed with
+  `minkowski_difference`, so eroding and re-dilating one solid by one sphere did not return it.
+- A `partition()` call now builds its cut mask on the backend of the solid being cut rather than
+  the ambient one, so a solid built straight from a backend module, or held across a
+  `use_backend` boundary, no longer meets a mask from the other backend.
 
 ### Internals
 
@@ -73,6 +93,13 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
   the capability in place.
 - A new check asks, statically and dynamically, whether a call that looks backend-neutral is one.
   The same defect had been found five times before, once per task, always by accident.
+- **A second check does the same for the SDF backend's own methods**, which the first one skips: it
+  calls each of `SdfSolid`'s 53 public methods and requires what comes back to be a field or a
+  refusal naming the call. Six were not, and four of those had a test asserting it — the defect was
+  not unmeasured, it was pinned.
+- Two skip markers reading "no libfive: a meshed SDF solid cannot enter the CSG operators" are
+  gone, because nothing in the SDF shape tests meshes any more. The marker was right about the
+  environment; what nobody asked was why a field was being meshed to split it.
 
 ### Documentation
 

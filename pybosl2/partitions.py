@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from pybosl2._backend import backend_only
+from pybosl2._backend import backend_only, use_backend
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.enums import PartitionCutType
@@ -615,15 +615,28 @@ def _partition_mask_shape(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Any:
-    """Native geometry for a partition mask (removes half, leaving an interlocking edge)."""
-    from pythonscad import polygon as _polygon
-    from pythonscad import square as _square
+    """Build the partition mask -- half removed, an interlocking edge left -- on the active backend.
+
+    Built through the 2-D facade rather than from `pythonscad.polygon`/`square` directly, which is
+    what it reached until T135. Every step is declared on both backends -- the cut path is neutral
+    arithmetic (`_partition_cutpath` hands back a `Path2D`), and `polygon`, `offset`, `&` and
+    `linear_extrude` are all on the shared contract -- so a mask for a field *is* a field, and the
+    mask is built by whichever backend is active. That is the door SPEC A-10 asks for, and the same
+    one `masking` goes through for its cutters.
+
+    The hard-wired natives are why `SdfSolid.partition` had to mesh its receiver first and so handed
+    back a `CsgSolid` from inside `use_backend("sdf")` (SPEC A-6). Nothing about the cut needed a
+    mesh; the mask did.
+    """
+    from pybosl2.flat import polygon as _polygon
+    from pybosl2.flat import square as _square
+    from pybosl2.path2d import Path2D as _Path2D
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
-    poly = _polygon([[float(x), float(y)] for x, y in fullpath])
+    poly = _polygon(_Path2D([[float(x), float(y)] for x, y in fullpath]))
     if slop:
         poly = poly.offset(delta=-slop)
     poly = poly & _square([length, w * 2], center=True)
@@ -677,9 +690,11 @@ def partition_mask(
             (cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
 
     """
-    from pybosl2.shapes3d import Bosl2Solid
-
-    return Bosl2Solid(
+    # `_partition_mask_shape` builds through the facade now (T135), so on this backend -- and
+    # `@backend_only("csg")` above guarantees which one that is -- it already hands back a
+    # `Bosl2Solid`. Re-wrapping it was right while the mask was a raw native handle.
+    return cast(
+        "Bosl2Solid",
         _partition_mask_shape(
             length,
             w,
@@ -693,7 +708,7 @@ def partition_mask(
             fn,
             fa,
             fs,
-        )
+        ),
     )
 
 
@@ -748,6 +763,82 @@ def partition_cut_mask(
     # how the function satisfied its own `-> Bosl2Solid` annotation, so removing it needs the cast
     # the decorator already justifies (T107).
     return cast("Bosl2Solid", ribbon.linear_extrude(height=height, center=True))
+
+
+# ---------------------------------------------------------------------------
+# Section: the split itself, shared by both backends
+# ---------------------------------------------------------------------------
+
+
+def partition_solid(
+    solid: Any,
+    spread: float = 10,
+    cutsize: float | Sequence[float] = 10,
+    cutpath: str | Path2D = "jigsaw",
+    gap: float = 0,
+    cutpath_centered: bool = True,
+    *,
+    spin: float = 0,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> tuple[Any, Any]:
+    """Cut *solid* into the two interlocking pieces :meth:`Partitionable.partition` documents.
+
+    Backend-neutral, and only because nothing here needs a backend: the two cut masks come from
+    `_partition_mask_shape`, which builds on whichever one is active, and what is done with them --
+    `_center_size()`, `rotate`, `translate`, `&` -- is on the shared contract. So the CSG mixin and
+    :meth:`~pybosl2.sdf.shapes3d.SdfSolid.partition` are the same code, and a field is partitioned
+    as a field.
+
+    It was written twice before T135, and the second copy was `self.to_csg().partition(...)` --
+    which is not a second implementation of a split so much as a way of not having one: it meshed
+    the receiver (SPEC B-5) and handed back a `CsgSolid` from inside `use_backend("sdf")` (A-6).
+
+    Args:
+        solid: The solid to split. Anything on the shared contract with `_center_size()`.
+        spread: Distance between the two halves after splitting.
+        cutsize: Size of the mask beyond the part.
+        cutpath: Cut pattern; ``"jigsaw"``, ``"dovetail"``, etc.
+        gap: Clearance gap between the two halves.
+        cutpath_centered: Whether the cut-path is centered on the split plane.
+        spin: Spin angle for the cut-path.
+        slop: Extra slop for 3-D printed fits.
+        fn: Smoothness override for the cut pattern's curves. Omitted, the ambient
+            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.
+        fa: Minimum angle for the cut pattern's curves. Omitted, the ambient
+            ``use_defaults(fa=...)`` value applies.
+        fs: Minimum segment length for the cut pattern's curves. Omitted, the ambient
+            ``use_defaults(fs=...)`` value applies.
+
+    Returns:
+        The ``(back_piece, front_piece)`` pair, moved *spread* apart.
+
+    """
+    center_pt, size = solid._center_size()
+    cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+    sp = math.radians(spin)
+    c, sn = math.cos(sp), math.sin(sp)
+    rsx = abs(size[0] * c - size[1] * sn)
+    rsy = abs(size[0] * sn + size[1] * c)
+    rsz = abs(size[2])
+    vec = np.array([-sn, c, 0.0]) * (spread / 2)
+    pieces = []
+    for idx, inverse in ((0, False), (1, True)):
+        # The mask is built on the backend of the solid being cut, not the ambient one. A method on
+        # a solid is asked about *that* solid, and `cuboid(...)` from a backend module, or one held
+        # across a `use_backend` boundary, parts company with the ambient setting -- after which the
+        # mask and the receiver are on different backends and `&` refuses them (SPEC A-6, C-19).
+        with use_backend(solid.backend):
+            mask = _partition_mask_shape(rsx, rsy, rsz, cs, cutpath, gap, cutpath_centered, inverse, slop, fn, fa, fs)
+            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
+        move = vec if idx == 0 else -vec
+        pieces.append((solid & mask).translate([float(m) for m in move]))
+    # A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.
+    # The backends used to disagree on the container, which is what forced the shared contract to
+    # type this `Any` (SPEC PAR-4). They cannot disagree now: there is one return statement.
+    return (pieces[0], pieces[1])
 
 
 # ---------------------------------------------------------------------------
@@ -1081,37 +1172,22 @@ class Partitionable:
                 halves[0].show()
 
         """
-        center_pt, size = self._center_size()  # type: ignore[attr-defined]
-        cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
-        sp = math.radians(spin)
-        c, sn = math.cos(sp), math.sin(sp)
-        rsx = abs(size[0] * c - size[1] * sn)
-        rsy = abs(size[0] * sn + size[1] * c)
-        rsz = abs(size[2])
-        vec = np.array([-sn, c, 0.0]) * (spread / 2)
-        pieces = []
-        for idx, inverse in ((0, False), (1, True)):
-            mask = _partition_mask_shape(
-                rsx,
-                rsy,
-                rsz,
-                cs,
-                cutpath,
-                gap,
-                cutpath_centered,
-                inverse,
-                slop,
-                fn,
-                fa,
-                fs,
-            )
-            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
-            move = vec if idx == 0 else -vec
-            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))  # type: ignore[attr-defined]
-        # A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.
-        # The SDF backend already returned a pair; the two disagreeing on the container is what
-        # forced the shared contract to type this `Any` (SPEC PAR-4).
-        return (pieces[0], pieces[1])
+        return cast(
+            "tuple[Self, Self]",
+            partition_solid(
+                self,
+                spread=spread,
+                cutsize=cutsize,
+                cutpath=cutpath,
+                gap=gap,
+                cutpath_centered=cutpath_centered,
+                spin=spin,
+                slop=slop,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            ),
+        )
 
 
 # (imported from pybosl2._helpers as zrot4)

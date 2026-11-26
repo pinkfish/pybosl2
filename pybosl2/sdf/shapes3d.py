@@ -36,7 +36,7 @@ from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
-from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError
+from pybosl2.exceptions import Bosl2NotImplementedError, Bosl2ValueError, UnsupportedByBackendError
 from pybosl2.groups import resolve_center_anchor
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
@@ -284,6 +284,35 @@ def _cuboid_edge_sdf(
         corner = (lv.abs(x) + lv.abs(y) + lv.abs(z) - (sum(b) - 2 * cut)) / math.sqrt(3.0)
         box = lv.max(box, corner)
     return box
+
+
+def _one_way_trip(call: str, *, because: str) -> UnsupportedByBackendError:
+    """The refusal for a call that wants mesh topology a distance field does not have.
+
+    SPEC A-6 says a call must not hand back a solid the other backend owns, and B-5 says a lossy
+    conversion must not happen silently. Together they rule out the obvious implementation of a
+    mesh operation on a field -- mesh it, do the thing, return the mesh -- so what is left is to
+    say so, under the name the caller wrote (E-1, E-6) and with the explicit route in the message.
+
+    Six methods did it the other way until T135: `repair`, `oversample`, `separate`, `wrap`, `pull`
+    and `partition` each returned a `CsgSolid` from inside `use_backend("sdf")`. Four needed no
+    mesh at all and now answer in the field; these are the two that do, plus `separate`.
+
+    Args:
+        call: The call as the caller wrote it, e.g. ``"wrap()"``.
+        because: One sentence on what the field cannot supply. Ends with a full stop.
+
+    Returns:
+        The error to raise.
+
+    """
+    return UnsupportedByBackendError(
+        call,
+        "sdf",
+        hint=f"{because} If you want it on the meshed solid, convert explicitly with "
+        f".to_csg().{call.rstrip('()')}(...) -- that is a one-way trip out of the field, which is "
+        f"why it is not taken for you (SPEC B-5).",
+    )
 
 
 #: Native operations that genuinely need a mesh: they consume or produce mesh topology, so
@@ -818,14 +847,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         # silent, lossy conversion SPEC B-5 forbids -- so say so instead (PLAN E-P6).
         if name in _MESH_OPERATIONS:
             return getattr(self.mesh(), name)
-        from pybosl2.exceptions import UnsupportedByBackendError
-
-        raise UnsupportedByBackendError(
-            name,
-            "sdf",
-            hint=f"the sdf backend has no {name!r}. If you want it on the meshed solid, convert "
-            f"explicitly with .to_csg().{name}(...) -- that is a one-way trip out of the field.",
-        )
+        raise _one_way_trip(name, because=f"the sdf backend has no {name!r}.")
 
     # ---- SDF-level composition ----
 
@@ -1703,8 +1725,16 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def minkowski(self, *others: PyShape) -> PyShape:
         """Minkowski sum with *others*.
 
-        On the SDF backend this approximates the Minkowski sum as expanding
-        this solid by half the diagonal of each other shape via :meth:`offset3d`.
+        Dilating by a ball of radius *r* is exactly ``f(p) - r`` on a distance field, so each of
+        *others* is read as the ball its bounding box inscribes -- half the **smallest** extent --
+        and applied with :meth:`offset3d`.
+
+        It took half the bounding box's *diagonal* until T135: the circumscribed ball, which reads
+        1.73r for the sphere this is almost always called with and dilates by 73% too much. The two
+        directions then disagreed with each other, since :meth:`minkowski_difference` has used the
+        inscribed ball since T133 -- one solid eroded and re-dilated by the same sphere did not come
+        back to itself. The inscribed ball is exact for a sphere, and smaller than the truth for
+        anything else, which errs the same way in both directions.
 
         Args:
             *others: Additional shapes to compute the Minkowski sum with.
@@ -1714,18 +1744,29 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         result = self
         for o in others:
-            box = o.bounds()
-            diag = math.sqrt(sum(extent**2 for extent in box.size))
-            result = result.offset3d(diag / 2)
+            result = result.offset3d(min(o.bounds().size) / 2)
         return result
 
     def repair(self) -> PyShape:
-        """Re-mesh this SDF solid (rebuilds the polyhedron from a fresh mesh).
+        """Return self -- there is no mesh here to repair (SPEC A-6, B-5).
+
+        `repair()` heals *mesh* topology: gaps, non-manifold edges, flipped winding. A distance
+        field has no topology to heal. Its surface is wherever ``f(p) == 0``, every query point is
+        unambiguously inside or outside, and the triangles only exist once something meshes it --
+        after which they are the field's own zero set. So the honest answer is the one
+        :meth:`render` already gives three methods down, and for the same reason.
+
+        This read ``self.to_csg().repair()`` until T135: it meshed the field (B-5's lossy
+        conversion) to repair a mesh that had just been generated from an exact surface, and handed
+        back a `CsgSolid` from inside ``use_backend("sdf")`` -- so the next SDF boolean on the
+        result raised `TypeError: invalid argument left to operator` from inside PythonSCAD, naming
+        nothing the caller had written. Repairing the *meshed* solid is still available, said out
+        loud: ``shape.to_csg().repair()``.
 
         Returns:
-            A new :class:`PyShape` built from a remeshed polyhedron.
+            This :class:`PyShape` unchanged.
         """
-        return self.to_csg().repair()  # type: ignore[no-any-return]
+        return self
 
     def render(self) -> PyShape:
         """Return self — the SDF representation is already exact (no mesh simplification needed).
@@ -1766,37 +1807,72 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return self.scale(scale_factors)
 
     def separate(self) -> list[PyShape]:
-        """Split disconnected lumps into individual solids via CSG conversion.
+        """Refuse: finding the connected lumps is a question about mesh topology (SPEC A-6, B-5).
 
-        Returns:
-            A list of :class:`PyShape` solids, one per connected component.
+        A field answers "is this point inside?" and nothing else. Which lumps the inside falls into
+        is a question about *connectivity*, which a closed-form distance function does not carry --
+        answering it means meshing, walking the shared edges, and grouping. Meshing is a one-way
+        door (``to_sdf`` refuses on a CSG solid outright), so the pieces could not come back as
+        fields even in principle.
+
+        It meshed and returned `CsgSolid` pieces until T135, from inside ``use_backend("sdf")``.
+
+        Raises:
+            UnsupportedByBackendError: always, naming the explicit route.
         """
-        return self.to_csg().separate()  # type: ignore[no-any-return]
+        raise _one_way_trip(
+            "separate()",
+            because="a distance field carries no connectivity, so which lumps the inside falls "
+            "into is not a question it can answer.",
+        )
 
     def wrap(self, radius: float, *, fn: int | None = None) -> PyShape:
-        """Bend this solid around a cylinder of *radius* via CSG conversion.
+        """Refuse: the native bend moves mesh vertices, which a field does not have (A-6, B-5).
+
+        Returned a `CsgSolid` from inside ``use_backend("sdf")`` until T135. ``fn`` is the giveaway:
+        it sets how many facets the bend is approximated with, and a field has no facets to set
+        (SPEC B-9). Bending the *meshed* solid is still available, said out loud --
+        ``shape.oversample(4).to_csg().wrap(20)``.
 
         Args:
-            radius: Radius of the cylinder to wrap around.
-            fn: Smoothness override for the mesh. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
-                ``fn=0`` opts back out to fa/fs.
+            radius: Radius of the cylinder to wrap around. Named for the signature it shares.
+            fn: Facet count for the bend, as above. Omitted, the ambient ``use_defaults(fn=...)``
+                value applies; ``fn=0`` opts back out to fa/fs.
 
-        Returns:
-            A new :class:`PyShape` wrapped around the cylinder.
+        Raises:
+            UnsupportedByBackendError: always, naming the explicit route.
         """
-        return self.to_csg().wrap(radius, fn=fn)  # type: ignore[no-any-return]
+        _ = (radius, fn)
+        raise _one_way_trip(
+            "wrap()",
+            because="the native wrap bends mesh vertices, and a field has none; the bend has a "
+            "closed form as a domain warp, but nobody has measured which convention PythonSCAD's "
+            "wrap uses, so writing one here would be a guess rather than the same geometry.",
+        )
 
     def pull(self, direction: Sequence[float], distance: float) -> PyShape:
-        """Stretch material in *direction* by *distance* via CSG conversion.
+        """Refuse: the native stretch moves mesh vertices (SPEC A-6, B-5).
+
+        Returned a `CsgSolid` from inside ``use_backend("sdf")`` until T135. A field *does* have a
+        closed form for this -- elongating along an axis is a clamp applied to the query point
+        before evaluating -- but which plane the native call splits the solid at, and how it treats
+        the material it stretches, has not been measured against the app; implementing it from the
+        name would be a different solid wearing the same one.
 
         Args:
             direction: Direction vector ``[dx, dy, dz]`` to pull towards.
             distance: Amount to pull by.
 
-        Returns:
-            A new :class:`PyShape` with pulled geometry.
+        Raises:
+            UnsupportedByBackendError: always, naming the explicit route.
         """
-        return self.to_csg().pull(direction, distance)  # type: ignore[no-any-return]
+        _ = (direction, distance)
+        raise _one_way_trip(
+            "pull()",
+            because="the native pull moves mesh vertices, and a field has none; its closed form "
+            "is an axis clamp, but the native call's split plane has not been measured, so one "
+            "written here would not be the same solid.",
+        )
 
     def minkowski_difference(self, *diffs: PyShape, size: float = 1000) -> PyShape:
         """Erode this solid by each of *diffs*, which is what carving them out of its surface is.
@@ -1834,15 +1910,26 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return result
 
     def oversample(self, sides: int) -> PyShape:
-        """Subdivide facets for a smoother mesh via CSG conversion.
+        """Return self -- a field has no facets to subdivide, so this is a render hint (SPEC B-9).
+
+        `oversample()` splits every triangle *sides*-fold, which is how the CSG backend gets a
+        smooth :meth:`wrap` out of a coarse mesh. A field has no triangles until it is meshed, and
+        how finely it is meshed is set then, by ``res``/``fn`` -- so the count is a statement about
+        rendering and not about the surface. B-9 is explicit that such an argument may be accepted
+        and ignored; what may not be ignored is one that changes the geometry, and this does not.
+
+        It meshed and returned a `CsgSolid` from inside ``use_backend("sdf")`` until T135 -- which
+        made it the one call where asking for a *smoother* result silently coarsened everything
+        after it, by swapping an exact surface for a fixed set of triangles.
 
         Args:
-            sides: Number of sides to subdivide each facet to.
+            sides: Facets per facet. Accepted for the signature both backends share, and ignored.
 
         Returns:
-            A new :class:`PyShape` with subdivided facets.
+            This :class:`PyShape` unchanged.
         """
-        return self.to_csg().oversample(sides)  # type: ignore[no-any-return]
+        _ = sides
+        return self
 
     def partition(
         self,
@@ -1858,7 +1945,20 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> tuple[Self, Self]:
-        """Split this solid into two interlocking halves via CSG conversion.
+        """Split this solid into two interlocking halves -- in the field, exactly (SPEC A-6).
+
+        The same code the CSG backend runs: `pybosl2.partitions.partition_solid`, which needs no
+        backend of its own because a split is two intersections with a mask, and the mask is built
+        through the 2-D facade by whichever backend is active (A-10). So the pieces that come back
+        are fields, composable with everything else here.
+
+        This read ``self.to_csg().partition(...)`` until T135, which meshed the receiver (B-5) and
+        handed back two `CsgSolid` pieces from inside ``use_backend("sdf")``. It accepts exactly
+        what the CSG spelling accepts, including a per-axis *cutsize* and a `Path2D` *cutpath*:
+        T79 declared the narrower `float`/`str` on the evidence that the wider forms raised, and
+        T81 recorded that the evidence could not tell "unsupported" from "unmeasurable here"
+        because ``to_csg()`` cannot mesh under the numeric test mock. Measured in the app, every
+        form worked; what the mock had been reporting was the mock.
 
         Args:
             spread: Distance between the two halves after splitting.
@@ -1876,12 +1976,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A ``(left, right)`` tuple of :class:`PyShape` solids.
         """
-        # Everything is forwarded to the CSG implementation unchanged, so this accepts exactly what
-        # that accepts -- including a per-axis `cutsize` and a `Path2D` cutpath. T79 declared the
-        # narrower `float`/`str` on the evidence that the wider forms raised; they do, and so does
-        # the scalar form, because `to_csg()` cannot mesh without libfive. The measurement could
-        # not distinguish "unsupported" from "unmeasurable here", and read as the former (T81).
-        parts = self.to_csg().partition(
+        from pybosl2.partitions import partition_solid
+
+        parts = partition_solid(
+            self,
             spread=spread,
             cutsize=cutsize,
             cutpath=cutpath,
@@ -1893,7 +1991,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             fa=fa,
             fs=fs,
         )
-        return parts[0], parts[1]
+        return cast("tuple[Self, Self]", (parts[0], parts[1]))
 
 
 # ---------------------------------------------------------------------------

@@ -5,14 +5,19 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import math
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from pybosl2._edges_lang import Anchor
+from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.sdf import shapes3d as sdf_s3d
 from pybosl2.sdf._constants import BACK, CENTER, FRONT, LEFT, RIGHT, TOP
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 SQRT2 = math.sqrt(2)
 
@@ -23,25 +28,13 @@ def round_offset(r: float) -> float:
     return r * (SQRT2 - 1)
 
 
-def _csg_operable_mesh() -> bool:
-    """True if a meshed SDF solid can go into the CSG boolean operators.
-
-    Without libfive the suite falls back to the numeric mock, whose ``to_csg()`` yields a stand-in
-    the native operators reject -- so anything that meshes *and then* cuts is unverifiable here.
-    These used to `except (AttributeError, ValueError, TypeError): pass`, which is a test that
-    cannot fail; skipping says the same thing out loud.
-    """
-    try:
-        meshed = sdf_s3d.cuboid([2, 2, 2]).to_csg()
-        _ = meshed.shape & meshed.shape
-    except Exception:
-        return False
-    return True
-
-
-needs_csg_operable_mesh = pytest.mark.skipif(
-    not _csg_operable_mesh(), reason="no libfive: a meshed SDF solid cannot enter the CSG operators"
-)
+# `needs_csg_operable_mesh` lived here: a skipif reading "no libfive: a meshed SDF solid cannot
+# enter the CSG operators", which `minkowski_difference` and `partition` carried because both
+# meshed the field and then cut the mesh. Neither needed to -- T133 made the erosion a negative
+# `offset3d` and T135 made the split two intersections with a facade-built mask -- so there is
+# nothing left in this file that meshes, and nothing left to skip. The lesson the marker records
+# (a runtime probe against an absent dependency measures the environment, not the backend) is kept
+# where it is acted on, in tests/test_delegating_backends_accept_what_they_forward.py.
 
 
 def chamfer_offset(c: float) -> float:
@@ -1125,20 +1118,43 @@ class TestDistributeOnPath:
 
 
 class TestPassthroughMethods:
-    """Native CSG passthrough methods on SDF solids."""
+    """What the mesh operations do on a field: answer it, or refuse by name (SPEC A-6).
 
-    def test_minkowski_sphere_on_cube(self) -> None:
-        a = sdf_s3d.cuboid([4, 4, 4])
-        b = sdf_s3d.sphere(radius=2)
-        result = a.minkowski(b)
-        assert result is not None
-        assert result.backend == "sdf"
+    These were the six T135 found, and this class is where four of them had been **asserted**:
+    `assert repaired.backend == "csg"`, and the same line for `wrap`, `pull` and `oversample`. The
+    defect was not unmeasured, it was pinned -- a test can hold a bug in place as firmly as it
+    holds a feature, and the way to tell them apart is to ask what the line claims about the
+    contract. `backend == "csg"` inside the SDF backend claims that handing a caller the other
+    backend's solid is this method's job.
+    """
 
-    def test_repair_delegates_to_csg(self) -> None:
-        """repair() has no field form, so it meshes and hands back a CSG solid of the same size."""
-        repaired = sdf_s3d.cuboid([4, 4, 4]).repair()
-        assert repaired.backend == "csg"
-        assert [float(v) for v in repaired.bounds().size] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
+    def test_minkowski_grows_by_exactly_the_balls_radius(self) -> None:
+        """Dilating by a ball of radius r is `f(p) - r`, so each side moves out by exactly r.
+
+        It used half the bounding box's *diagonal* until T135 -- the circumscribed ball, 1.73r for
+        a sphere of radius r -- which grew a 4mm cube to 10.93 where the answer is 8, and disagreed
+        with `minkowski_difference`'s inscribed ball, so eroding and re-dilating by one sphere did
+        not come back to the same solid.
+        """
+        grown = sdf_s3d.cuboid([4, 4, 4]).minkowski(sdf_s3d.sphere(radius=2))
+        assert grown.backend == "sdf"
+        assert [float(v) for v in grown.bounds().size] == pytest.approx([8.0, 8.0, 8.0], abs=1e-9)
+
+    def test_erode_then_dilate_by_one_sphere_returns_the_same_box(self) -> None:
+        """The two directions have to read the same ball out of the same shape, or they disagree."""
+        block = sdf_s3d.cuboid([10, 10, 10])
+        ball = sdf_s3d.sphere(radius=1.5)
+        roundtrip = block.minkowski_difference(ball).minkowski(ball)
+        assert [float(v) for v in roundtrip.bounds().size] == pytest.approx([10.0, 10.0, 10.0], abs=1e-9)
+
+    def test_repair_is_itself_because_a_field_has_no_mesh_to_repair(self) -> None:
+        """`repair()` heals mesh topology, and a field has none -- so it is `render`'s answer.
+
+        It read `self.to_csg().repair()` until T135 and this test asserted the result's backend was
+        `"csg"`, from inside the SDF backend.
+        """
+        block = sdf_s3d.cuboid([4, 4, 4])
+        assert block.repair() is block
 
     def test_render_is_noop(self) -> None:
         s = sdf_s3d.sphere(radius=5)
@@ -1159,41 +1175,58 @@ class TestPassthroughMethods:
         assert size[0] == pytest.approx(10, abs=0.1)
         assert size[1] == pytest.approx(20, abs=0.1)
 
-    def test_separate_returns_list(self) -> None:
-        s = sdf_s3d.cuboid([4, 4, 4])
-        parts = s.separate()
-        assert isinstance(parts, list)
-        assert len(parts) >= 1
+    @pytest.mark.parametrize(
+        ("call", "name"),
+        [
+            (lambda s: s.separate(), "separate"),
+            (lambda s: s.wrap(radius=10), "wrap"),
+            (lambda s: s.pull([1, 0, 0], distance=2), "pull"),
+        ],
+        ids=["separate", "wrap", "pull"],
+    )
+    def test_the_three_that_genuinely_need_a_mesh_refuse_by_name(self, call: "Callable[[Any], Any]", name: str) -> None:
+        """Connectivity and vertex deformation are mesh questions, so these say so (SPEC E-1, E-6).
 
-    def test_wrap_delegates_to_csg(self) -> None:
-        """wrap() bends the meshed solid round a cylinder, so the wrapped axis changes length."""
-        flat = sdf_s3d.cuboid([4, 20, 4])
-        wrapped = flat.wrap(radius=10)
-        assert wrapped.backend == "csg"
-        assert float(wrapped.bounds().size[1]) != pytest.approx(float(flat.bounds().size[1]), abs=0.2)
+        Each returned a `CsgSolid` from inside the SDF backend until T135, and this class asserted
+        it. The refusal has to name the call the caller wrote, because a caller who cannot see
+        which of their lines refused cannot act on it -- the defect T51 and T53 both found.
+        """
+        with pytest.raises(UnsupportedByBackendError) as refused:
+            call(sdf_s3d.cuboid([4, 20, 4]))
+        assert name in str(refused.value)
+        assert ".to_csg()" in str(refused.value), "the refusal does not name the explicit route"
 
-    def test_pull_delegates_to_csg(self) -> None:
-        """pull() is a mesh deformation, so it comes back as CSG, still the same order of size."""
-        pulled = sdf_s3d.cuboid([4, 4, 4]).pull([1, 0, 0], distance=2)
-        assert pulled.backend == "csg"
-        assert float(pulled.bounds().size[0]) >= 4.0 - 0.1
+    def test_minkowski_difference_insets_by_the_balls_radius(self) -> None:
+        """Carving with a radius-2 sphere insets the cube by 2 on every side -- exactly.
 
-    @needs_csg_operable_mesh
-    def test_minkowski_difference_delegates(self) -> None:
-        """Carving with a radius-2 sphere insets the meshed cube by 2 on every side."""
+        It carried a `needs_csg_operable_mesh` skip until T133 made it a negative `offset3d`; the
+        marker went when the meshing did, and the tolerance went from 0.5 to exact with it.
+        """
         carved = sdf_s3d.cuboid([10, 10, 10]).minkowski_difference(sdf_s3d.sphere(radius=2))
-        assert [float(v) for v in carved.bounds().size] == pytest.approx([6.0, 6.0, 6.0], abs=0.5)
+        assert [float(v) for v in carved.bounds().size] == pytest.approx([6.0, 6.0, 6.0], abs=1e-9)
 
-    def test_oversample_delegates_to_csg(self) -> None:
-        """oversample() subdivides the meshed solid: same shape, more triangles."""
-        dense = sdf_s3d.cuboid([4, 4, 4]).oversample(8)
-        assert dense.backend == "csg"
-        assert [float(v) for v in dense.bounds().size] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
+    def test_oversample_is_itself_because_a_field_has_no_facets(self) -> None:
+        """A facet count is a render hint on a field, and B-9 lets a hint be accepted and ignored.
 
-    @needs_csg_operable_mesh
-    def test_partition_returns_two_parts(self) -> None:
-        """The two interlocking halves come back separated by the spread."""
+        It meshed and returned a `CsgSolid` until T135 -- which made this the one call where asking
+        for a *smoother* result silently coarsened everything after it.
+        """
+        block = sdf_s3d.cuboid([4, 4, 4])
+        assert block.oversample(8) is block
+
+    def test_partition_splits_the_field_and_hands_back_fields(self) -> None:
+        """The two interlocking halves come back separated by the spread, and still fields.
+
+        It read `self.to_csg().partition(...)` until T135, which meshed the receiver and returned
+        two `CsgSolid` pieces -- and could not run here at all, because `to_csg()` cannot mesh
+        under the numeric mock, so the test carried a `needs_csg_operable_mesh` skip. A split needs
+        no mesh: it is two intersections with a cut mask and a translate, and the mask is built
+        through the facade by whichever backend is active. The same code runs on both now, so this
+        exercises it with nothing skipped.
+        """
         first, second = sdf_s3d.cuboid([20, 20, 10]).partition(spread=10, cutsize=10)
+        assert first.backend == "sdf"
+        assert second.backend == "sdf"
         gap = abs(float(first.bounds().center[1]) - float(second.bounds().center[1]))
         assert gap > 10.0  # each half's own depth, plus the 10mm spread
 
