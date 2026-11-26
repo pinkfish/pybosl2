@@ -52,16 +52,29 @@ def test_every_csg_only_feature_refuses_on_the_sdf_shape(label: str) -> None:
     shape, cls = next((s, c) for name, s, c in _sdf_shapes() if name == label)
     silent: list[str] = []
     for feature in sorted(CSG_ONLY_FEATURES):
-        member = inspect.getattr_static(cls, feature, None)
-        if member is None:
-            continue  # reached through __getattr__, which refuses for anything unlisted
+        # A name not declared on the class used to be skipped here, with the comment "reached
+        # through __getattr__, which refuses for anything unlisted". That was true of `SdfSolid`
+        # and false of `PyShape2D`, whose fallback meshed a thin extrusion and forwarded the
+        # attribute to it -- so `projection`, undeclared on both, refused on the solid and
+        # *worked* on the 2-D shape, and this walk stepped over it every time it ran. An exemption
+        # carried across to a class that does not satisfy its justification is worth less than
+        # none, so the probe goes through whatever answers (T137). Where it lands is recorded
+        # because C-13 prefers a declared refusal to a bare miss, not because a miss is a defect.
+        declared = inspect.getattr_static(cls, feature, None) is not None
         try:
-            getattr(shape, feature)()
+            member = getattr(shape, feature)
         except UnsupportedByBackendError:
             continue
-        except Exception:
+        except AttributeError:
+            continue  # the fallback misses, which a caller can act on
+        try:
+            if callable(member):
+                member()
+        except UnsupportedByBackendError:
             continue
-        silent.append(feature)
+        except Exception:  # a different error is a different contract (SPEC E-1)
+            continue
+        silent.append(feature if declared else f"{feature} (reached through __getattr__)")
     assert not silent, f"listed as CSG-only but succeeds on {label}, so the refusal never fires: " + ", ".join(silent)
 
 
@@ -259,6 +272,25 @@ def test_a_private_name_is_answered_without_meshing() -> None:
         shape = cuboid([10, 10, 10])
         assert not hasattr(shape, "_not_a_real_attribute")
         assert shape._mesh_cache is None  # nothing was meshed to answer that
+
+
+def test_a_private_name_is_answered_without_meshing_on_the_2d_shape_too() -> None:
+    """The same of the 2-D field, where the guard was missing until T137.
+
+    `copy.copy(circle2d(5))` raised `RecursionError`: `copy` asks for `__copy__`, the fallback
+    extruded and meshed to answer it, and the lookup re-entered. The test above is one of five
+    guards on the attribute fallback across the suite, and the fourth of them to ask the solid
+    and not this class.
+    """
+    import copy
+
+    from pybosl2._backend import use_backend
+    from pybosl2.sdf.shapes2d import circle2d
+
+    with use_backend("sdf"):
+        shape = circle2d(radius=5)
+        assert not hasattr(shape, "_not_a_real_attribute")
+        assert copy.copy(shape) is not shape
 
 
 #: Shapes whose SDF bounds() is not the shape's own box. Empty, and meant to stay that way: the

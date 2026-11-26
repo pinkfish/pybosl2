@@ -72,6 +72,11 @@ def test_hasattr_on_an_unknown_name_answers_rather_than_raising() -> None:
     lists refuses from there, and a capability probe must get an answer rather than a traceback.
     (The *listed* CSG-only features are real refusing methods -- see PAR-3 -- so `hasattr` finds
     them and the refusal fires on the call.)
+
+    This asks the **solid**, which is one of four shape classes with a fallback. Asking only this
+    one is how the 2-D fallback went on meshing until T137;
+    `tests/test_an_attribute_miss_is_not_a_conversion.py` asks all four, from a list derived from
+    the source.
     """
     with use_backend("sdf"):
         shape = cuboid([10, 10, 10])

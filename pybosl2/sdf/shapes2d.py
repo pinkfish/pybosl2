@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.bounds import Bounds2D
@@ -121,9 +122,10 @@ class SdfShape2D(Colorable, Distributable):
 
     A 2-D SDF can't be meshed directly (frep() is 3-D only), so a PyShape2D turns into real
     geometry by extruding: extrude(height) / linear_extrude(height=...) return a PyShape (with
-    the same optional rim roundover/flare treatments as polygon_prism()); anything else a
-    PyShape2D doesn't define falls through __getattr__ to a thin (0.01) extrusion's mesh --
-    which is almost never what you want, so extrude explicitly.
+    the same optional rim roundover/flare treatments as polygon_prism()). Anything else a
+    PyShape2D doesn't define **refuses** under its own name: the fallback used to mesh a thin
+    (0.01) extrusion and forward the attribute to that, which the docstring called "almost never
+    what you want" and left in place anyway (T137).
     """
 
     backend = "sdf"
@@ -356,11 +358,6 @@ class SdfShape2D(Colorable, Distributable):
             ),
         )
 
-    # These take `*_args` deliberately. A refusal must fire however it is called, and
-    # copying the CSG signature verbatim made `sdf_shape.attach()` raise TypeError about
-    # missing arguments instead of the error that teaches (SPEC E-2). The loose form costs
-    # the contract nothing: `(*args: Any, **kwargs: Any)` satisfies any protocol signature,
-    # so `Shape` declares the real one and callers are checked against that (SPEC C-23).
     # These take `*_args` deliberately. A refusal must fire however it is called, and copying
     # the CSG signature verbatim made `sdf_shape.attach()` raise TypeError about missing
     # arguments instead of the error that teaches (SPEC E-2). The loose form costs the contract
@@ -1145,9 +1142,30 @@ class SdfShape2D(Colorable, Distributable):
     linear_sweep = linear_sweep_sdf
 
     def __getattr__(self, name: str) -> Any:
-        # Fall through to a thin extrusion's meshed solid -- an escape hatch for native-only
-        # attributes (color/show/...); extrude explicitly whenever the height matters.
-        return getattr(self.extrude(0.01).mesh(), name)
+        # A private name is this class's own bookkeeping, probed by copy/pickle/hasattr: answer
+        # the miss here rather than meshing the field. Without this, `copy.copy` asked for
+        # `__copy__`, the fallback extruded and meshed to answer it, and the lookup recursed until
+        # Python gave up -- a `RecursionError` from `copy.copy(circle2d(5))`, measured in the real
+        # app, where the solid's own `__getattr__` has had this guard since T3.
+        if name.startswith("_"):
+            raise AttributeError(name)
+        # A feature the other backend owns refuses under its own name, as it does on the solid.
+        # `projection` is in `CSG_ONLY_FEATURES` and used to arrive here and *work*, returning a
+        # raw `PyOpenSCAD` from inside `use_backend("sdf")` -- the third case PLAN B-P4 names.
+        unsupported = _unsupported_feature("sdf", name)
+        if unsupported is not None:
+            raise unsupported
+        # Nothing is left that a *2-D* field can honestly answer by meshing. The solid's fallback
+        # forwards the names in `_MESH_OPERATIONS`, because meshing is what they are for; this one
+        # had to extrude first, and `extrude(0.01)` is a slab 0.01 thick -- so every answer it
+        # gave was about that slab and not about the shape the caller was holding (SPEC B-5).
+        raise UnsupportedByBackendError(
+            name,
+            "sdf",
+            hint=f"a 2-D distance field has no {name!r}. Extrude it to the height you mean and "
+            f"convert explicitly -- `.extrude(h).to_csg().{name}(...)` -- which is a one-way trip "
+            f"out of the field, and why it is not taken for you (SPEC B-5).",
+        )
 
 
 def circle2d(radius: float | None = None, diameter: float | None = None, res: int = 10) -> PyShape2D:

@@ -37,6 +37,7 @@ from typing import Any, NoReturn
 import pytest
 
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
+import pybosl2.sdf.shapes2d as sdf_shapes2d
 import pybosl2.sdf.shapes3d as sdf_shapes
 from pybosl2 import Anchor, cuboid, sphere, use_backend
 from pybosl2._backend import Shape, Solid
@@ -56,6 +57,11 @@ def no_mesher(monkeypatch: pytest.MonkeyPatch) -> None:
 def _sdf_solid() -> Any:
     with use_backend("sdf"):
         return cuboid([10, 10, 10])
+
+
+def _sdf_flat() -> Any:
+    with use_backend("sdf"):
+        return sdf_shapes2d.circle2d(radius=5)
 
 
 # --- the check that broke -----------------------------------------------------------------
@@ -88,6 +94,25 @@ def test_capability_probes_answer_without_meshing() -> None:
     shape = _sdf_solid()
     assert hasattr(shape, "vnf")
     assert hasattr(shape, "bounds")
+    assert hasattr(shape, "no_such_operation") is False
+    assert getattr(shape, "no_such_operation", "fallback") == "fallback"
+
+
+@pytest.mark.usefixtures("no_mesher")
+def test_capability_probes_answer_on_the_2d_shape_too() -> None:
+    """The same of `SdfShape2D`, which is where the probe above was *not* being asked (T137).
+
+    This file, `tests/test_error_contract.py`, `tests/test_backend_parity.py` and
+    `tests/test_the_sdf_backend_does_not_hand_back_csg.py` each had a guard on the attribute
+    fallback -- five between them, and the only one that asked this class skipped the failing name
+    because it was not *declared* on it. The 2-D fallback answered every miss with
+    `getattr(self.extrude(0.01).mesh(), name)`, so on a machine with no mesher a capability probe
+    raised out of `getattr(shape, name, default)` -- the exact failure this file was written for,
+    one class over, with the fixture that shows it already sitting at the top.
+    """
+    shape = _sdf_flat()
+    assert hasattr(shape, "bounds")
+    assert hasattr(shape, "offset")
     assert hasattr(shape, "no_such_operation") is False
     assert getattr(shape, "no_such_operation", "fallback") == "fallback"
 
