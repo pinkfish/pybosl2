@@ -70,25 +70,54 @@ BUILDERS = {
     "ngon 5 spun onto itself": lambda: sdf2.regular_ngon2d(num_sides=5, radius=5, res=10).rotate(72),
     "ngon 12 spun onto itself": lambda: sdf2.regular_ngon2d(num_sides=12, radius=5, res=10).rotate(30),
     "star spun onto itself": lambda: sdf2.star2d(num_sides=5, radius=10, inner_radius=4, res=10).rotate(72),
-}
-
-#: The shapes whose box is conservative on purpose, with what each measures today. A rotation that
-#: is not a symmetry step cannot be tightened from the box alone, and a circle moved off the origin
-#: and then turned really does sweep a wider box. Figures may fall, never rise.
-CONSERVATIVE = {
-    "ngon 5 spun off step": 2.25,
-    "star spun off step": 4.50,
-    "trapezoid spun": 4.20,
-    "rect rounded spun": 0.85,
-    "circle moved then spun": 1.85,
-}
-
-CONSERVATIVE_BUILDERS = {
+    # The five that were `CONSERVATIVE` until T136 -- a turn off the symmetry step, which the
+    # outline's own points answer exactly. See the note on that table below.
     "ngon 5 spun off step": lambda: sdf2.regular_ngon2d(num_sides=5, radius=5, res=10).rotate(45),
     "star spun off step": lambda: sdf2.star2d(num_sides=5, radius=10, inner_radius=4, res=10).rotate(45),
     "trapezoid spun": lambda: sdf2.trapezoid2d(height=10, width1=20, width2=10, res=10).rotate(30),
     "rect rounded spun": lambda: sdf2.rect2d(size=[20, 10], rounding=2, res=10).rotate(45),
+    "rect chamfered spun": lambda: sdf2.rect2d(size=[20, 10], chamfer=2, res=10).rotate(45),
     "circle moved then spun": lambda: sdf2.circle2d(radius=5, res=10).translate([7, 0]).rotate(30),
+    "ngon moved then spun": lambda: sdf2.regular_ngon2d(num_sides=5, radius=5, res=10).translate([7, 0]).rotate(30),
+    "ngon spun twice": lambda: sdf2.regular_ngon2d(num_sides=5, radius=5, res=10).rotate(20).rotate(25),
+    "ngon scaled then spun": lambda: sdf2.regular_ngon2d(num_sides=5, radius=5, res=10).scale([2, 1]).rotate(30),
+}
+
+#: The shapes whose box is conservative on purpose, with what each measures today. Figures may
+#: fall, never rise.
+#:
+#: **Five down to one, in T136.** Every entry was a turn at an angle that is not a symmetry step,
+#: and the reason given was that such a box "cannot be tightened from the box alone" -- which is
+#: true, and was the wrong thing to be reasoning from. A constructor knows more than its box: a
+#: polygon's own points are its exact extreme set in every direction, because the maximum of a
+#: linear function over a polygon is attained at a vertex, and a circle is a point grown by a
+#: radius. Carrying that (`Hull2D`) and letting `rotate` read it closed all five:
+#:
+#: | case | was | now |
+#: |---|---|---|
+#: | `ngon 5 spun off step` | 2.25 | 0.006 |
+#: | `star spun off step` | 4.50 | 0.012 |
+#: | `trapezoid spun` | 4.20 | 0.040 |
+#: | `rect rounded spun` | 0.85 | 0.001 |
+#: | `circle moved then spun` | 1.85 | 0.000 |
+#:
+#: The five builders moved into `BUILDERS` above, so they are now held to the same bar as
+#: everything else rather than to a figure of their own.
+#:
+#: The one entry here is a case this task *added* by looking, and its reason is a proof rather than
+#: an absence of one. A rectangle rounded by one radius is exactly the inset rectangle grown by
+#: that radius, which is a `Hull2D`; rounded by **different** radii it is not, and there is no
+#: single `(points, radius)` that bounds it tightly -- insetting by the largest and growing by it
+#: again cuts inside a corner rounded by less, and a corner rounded by nothing is a vertex lying
+#: outside that region altogether. So it falls back to the four plain corners, which contain the
+#: shape and give the rotated corner box. Under-claiming clips geometry at mesh time; over-claiming
+#: costs a wide number. This is the trade taken deliberately.
+CONSERVATIVE = {
+    "rect rounded unevenly spun": 1.30,
+}
+
+CONSERVATIVE_BUILDERS = {
+    "rect rounded unevenly spun": lambda: sdf2.rect2d(size=[20, 10], rounding=[3, 0, 1, 2], res=10).rotate(45),
 }
 
 

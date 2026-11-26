@@ -1033,6 +1033,9 @@ candidates = [
     "tests/test_bounds_contract.py::test_unpacking_a_box_fails_loudly",
     "tests/test_sdf_bounds_are_tight.py::test_the_solid_reaches_every_face_of_the_box_it_declares",
     "tests/test_sdf_bounds_are_tight.py::test_no_part_of_the_solid_escapes_the_box",
+    "tests/test_the_hull_claim_is_sound.py::test_the_solid_reaches_no_further_than_its_hull_claims",
+    "tests/test_the_hull_claim_is_sound.py::test_no_turn_leaves_the_solid_outside_the_box_it_reports",
+    "tests/test_the_hull_claim_is_sound.py::test_every_claimant_actually_claims",
 ]
 status = "enforced"
 note = '''
@@ -1043,6 +1046,10 @@ The defect it fixed, as it stood: a shape that is round about Z reported a **loo
 T43 then found the *same* bound defect in a second shape: `prismoid` added the whole `shift` to its bottom half-size, reporting a 28-wide box for a solid 20 wide, exactly as `cyl` did until T40. **And T43's fix was itself wrong**, in a new way: it corrected the magnitude and left the box *symmetric*, which holds only when one end dominates in both directions -- which is what T43's own tests happened to use. Three attempts, two of them wrong, at a formula that is four lines. The cause is structural: every SDF constructor writes its bound beside its field by hand rather than measuring one from the other, so a bound is only as good as whoever last read the formula next to it. `prismoid` and `rect_tube` take theirs from the eight corners now, and their anchor with it.
 
 The general point is worth more than the case: an SDF shape's `bounds()` is the box it **declares**, not a measurement of its field. A cross-backend bounds comparison therefore cannot see a defect that moves the geometry and leaves the declaration alone -- T40 found one (the `shift` shear plane, PAR-5) that a bounds test passes with the defect put back.
+
+T136 took the last of these, and it is the one case where the stated reason was not wrong so much as reasoning from the wrong thing. `rotate` had the old box's eight corners to work from and nothing else, which is exact for a shape that fills its box and 41% wide for an octagonal prism turned half a facet -- the turn `TrussFoot` and `TrussJoiner` give their plugs, where the SDF backend read 31.36 across for a solid CSG measures at 22.17. The 2-D licence table said such a box "cannot be tightened from the box alone", which is true: **a constructor knows more than its box.** A shape may now carry a `Hull` -- a `(points, radius)` pair claiming it lies inside the convex hull of *points* grown by a ball -- and `rotate` keeps whichever of that and the corner box is tighter on each axis, both being containers. An outline's own points are its exact extreme set in every direction, because the maximum of a linear function over a polygon is attained at a vertex, concave outlines included; the radius covers a circle (a point and its radius), a uniformly rounded rectangle (the inset box and the rounding) and a cylinder (its axis segment and its widest radius).
+
+The claim is the dangerous half and the asymmetry is the design: too generous never wins the comparison, while too small wins and `mn`/`mx` is the mesher's domain, so the solid is clipped silently. `tests/test_the_hull_claim_is_sound.py` therefore measures the claim itself -- the support function in 17 directions over 12 constructors, since `conv(P) + ball(r)` contains a solid exactly when the solid reaches no further than the hull in every direction -- as well as the consequence over eight turns each, with the probe outside the box so a missed sample excuses nothing.
 '''
 
 [[requirement]]
@@ -2400,6 +2407,7 @@ enforced_by = [
     "tests/test_sdf_corners.py::test_a_rounded_box_ignores_the_flag_because_the_csg_backend_does",
     "tests/test_sdf_corners.py::test_a_sheared_prism_matches_the_csg_mesh",
     "tests/test_sdf_corners.py::test_a_sheared_prism_reports_the_box_it_fills",
+    "tests/test_part_show.py::test_a_turned_plug_reports_the_same_box_on_both_backends",
 ]
 candidates = [
     "tests/test_backend_matrix.py",

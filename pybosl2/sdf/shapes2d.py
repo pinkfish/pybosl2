@@ -70,6 +70,25 @@ from pybosl2.sdf.shapes3d import PyShape
 Symmetry2D = tuple[tuple[float, float], float]
 
 
+#: A containment tighter than the box: `(points, radius)` claims the shape lies inside the convex
+#: hull of *points* grown by a disc of *radius*. The 2-D twin of `pybosl2.sdf.shapes3d.Hull`, and
+#: only `rotate` reads it, for the same reason: at an angle that is not a symmetry step the rotated
+#: corner box was the only answer available, and it is exact only for a shape that fills its box.
+#:
+#: The one thing a constructor must get right is that the hull really does contain the shape. Claim
+#: too little and `rotate` reports a box the shape does not fit in, which clips it at mesh time --
+#: silently, and in the shape rather than in a number. Claiming too much is merely useless: the
+#: rotated corner box is always computed as well and the tighter of the two is kept per axis, so a
+#: loose claim never reaches the answer.
+#:
+#: A polygon's own points are the exact extreme set, because the maximum of a linear function over
+#: a polygon is attained at a vertex -- which holds for a concave outline and a star as much as for
+#: a convex one. The radius is for the shapes that have no finite extreme set: a circle is its
+#: centre and its radius, and a rounded rectangle is the four corners of the box it insets to, grown
+#: by the rounding.
+Hull2D = tuple[list[list[float]], float]
+
+
 def _turns_onto_itself(symmetry: "Symmetry2D | None", turn: float) -> bool:
     """Report whether this rotation leaves the shape, and so its bounding box, exactly as it is.
 
@@ -126,6 +145,8 @@ class SdfShape2D(Colorable, Distributable):
         self._size: list[float] | None = None
         #: The rotational symmetry, when the constructor knows one. See `Symmetry2D`.
         self._symmetry: "Symmetry2D | None" = None
+        #: A containment tighter than the box, when the constructor knows one. See `Hull2D`.
+        self._hull: "Hull2D | None" = None
 
     @property
     def size(self) -> "list[float] | None":
@@ -458,6 +479,9 @@ class SdfShape2D(Colorable, Distributable):
         if self._symmetry is not None:
             (px, py), step = self._symmetry
             out._symmetry = ((px + tx, py + ty), step)
+        if self._hull is not None:
+            points, radius = self._hull
+            out._hull = ([[p[0] + tx, p[1] + ty] for p in points], radius)
         return out
 
     def rotate(self, a: float | Sequence[float]) -> PyShape2D:
@@ -487,6 +511,7 @@ class SdfShape2D(Colorable, Distributable):
         if _turns_onto_itself(self._symmetry, turn):
             out = self._wrap(new_fn, self.mn, self.mx)
             out._symmetry = self._symmetry
+            out._hull = self._hull
             return out
         corners = [
             [self.mn[0], self.mn[1]],
@@ -495,11 +520,23 @@ class SdfShape2D(Colorable, Distributable):
             [self.mx[0], self.mx[1]],
         ]
         rot = [[c * p[0] - s * p[1], s * p[0] + c * p[1]] for p in corners]
-        return self._wrap(
-            new_fn,
-            [min(p[0] for p in rot), min(p[1] for p in rot)],
-            [max(p[0] for p in rot), max(p[1] for p in rot)],
-        )
+        new_mn = [min(p[0] for p in rot), min(p[1] for p in rot)]
+        new_mx = [max(p[0] for p in rot), max(p[1] for p in rot)]
+        # At an angle that is not a symmetry step the rotated corner box was the only answer
+        # available, and it is exact only for a shape that fills its box. A shape that knows a
+        # tighter containment records it in `_hull`, and this is the only place that reads one:
+        # both boxes contain the shape, so the tighter of the two on each axis does too (T136).
+        turned = None
+        if self._hull is not None:
+            points, radius = self._hull
+            moved = [[c * p[0] - s * p[1], s * p[0] + c * p[1]] for p in points]
+            for axis in (0, 1):
+                new_mn[axis] = max(new_mn[axis], min(p[axis] for p in moved) - radius)
+                new_mx[axis] = min(new_mx[axis], max(p[axis] for p in moved) + radius)
+            turned = (moved, radius)
+        out = self._wrap(new_fn, new_mn, new_mx)
+        out._hull = turned
+        return out
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
         s = [float(v), float(v)] if isinstance(v, (int, float)) else [float(a) for a in v]
@@ -508,11 +545,18 @@ class SdfShape2D(Colorable, Distributable):
         fn = self._sdf_fn
         smin = min(s)
         new_fn = lambda x, y: smin * fn(x / s[0], y / s[1])  # noqa: E731
-        return self._wrap(
+        out = self._wrap(
             new_fn,
             [self.mn[0] * s[0], self.mn[1] * s[1]],
             [self.mx[0] * s[0], self.mx[1] * s[1]],
         )
+        # As in 3-D: scaling a point set is still a point set, while an unevenly scaled disc is an
+        # ellipse and no longer a `Hull2D`.
+        if self._hull is not None:
+            points, radius = self._hull
+            if radius == 0.0 or s[0] == s[1]:
+                out._hull = ([[p[0] * s[0], p[1] * s[1]] for p in points], radius * s[0])
+        return out
 
     def mirror(self, v: Sequence[float]) -> PyShape2D:
         """Mirror across the line through the origin whose NORMAL is `v` (native convention).
@@ -1117,7 +1161,53 @@ def circle2d(radius: float | None = None, diameter: float | None = None, res: in
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     out = PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
     out._symmetry = ((0.0, 0.0), 0.0)
+    # A circle *is* a point grown by a disc, which is the `Hull2D` claim exactly. The symmetry
+    # above already keeps the box through a turn about the origin; the hull is what keeps it once
+    # the circle has been moved off it, where the rotated corner box was 1.85 wide (T136).
+    out._hull = ([[0.0, 0.0]], float(rad))
     return out
+
+
+def _rect_hull(hx: float, hy: float, per_corner: "Sequence[float]", mode: EdgeMode) -> "Hull2D":
+    """The `Hull2D` claim for a rectangle whose corners are treated by *per_corner*.
+
+    Three cases, and the plain corners are the fallback because they are always safe: the treated
+    rectangle is a subset of the untreated one, so `conv(corners)` contains it whatever was done to
+    them. What the two special cases buy is tightness after a turn.
+
+    * **Chamfered** -- the chamfer's own endpoints are the shape's vertices, so they are the exact
+      extreme set, per-corner amounts and all.
+    * **Rounded by one radius** -- a uniformly rounded rectangle is exactly the inset rectangle
+      grown by that radius, which is the claim this type is for.
+    * **Rounded by different radii** -- insetting by the largest and growing by it again would cut
+      inside a corner rounded by less, and a corner rounded by *nothing* is a vertex sitting
+      outside that region. Under-claiming is the direction that clips geometry, so this falls back.
+
+    Args:
+        hx: Half the width.
+        hy: Half the height.
+        per_corner: The four amounts, in `_rect2d` corner order.
+        mode: Whether the amounts are roundings or chamfers.
+
+    Returns:
+        The claim.
+
+    """
+    corners = [[sx * hx, sy * hy] for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)]
+    if not any(per_corner):
+        return (corners, 0.0)
+    if mode is EdgeMode.CHAMFER:
+        # _rect2d corner order is [(-,-), (+,-), (-,+), (+,+)].
+        signs = [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)]
+        points: list[list[float]] = []
+        for (sx, sy), cut in zip(signs, per_corner, strict=True):
+            points.append([sx * (hx - cut), sy * hy])
+            points.append([sx * hx, sy * (hy - cut)])
+        return (points, 0.0)
+    radius = float(per_corner[0])
+    if any(abs(float(a) - radius) > 1e-12 for a in per_corner):
+        return (corners, 0.0)
+    return ([[sx * (hx - radius), sy * (hy - radius)] for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)], radius)
 
 
 def rect2d(  # type: ignore[no-untyped-def]
@@ -1162,6 +1252,7 @@ def rect2d(  # type: ignore[no-untyped-def]
 
     shape = PyShape2D(sdf_fn, [-hx, -hy], [hx, hy], res)
     shape._symmetry = ((0.0, 0.0), 90.0 if abs(hx - hy) < 1e-12 else 180.0)
+    shape._hull = _rect_hull(hx, hy, per_corner, mode)
     ax, ay = (list(anchor) + [0, 0])[:2]
     if ax or ay:
         shape = shape.translate([-ax * hx, -ay * hy])
@@ -1244,7 +1335,13 @@ def polygon2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
 
     xs = [p[0] for path in path_list for p in path]
     ys = [p[1] for path in path_list for p in path]
-    return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
+    out = PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
+    # The outline's own points are the exact extreme set in every direction, so a turn can read a
+    # tight box off them instead of transforming the corners of this one. `regular_ngon2d`,
+    # `star2d`, `trapezoid2d` and `supershape2d` all build through here, which is why a star turned
+    # off its symmetry step stops reporting a box 4.5 too wide (T136).
+    out._hull = ([[float(p[0]), float(p[1])] for path in path_list for p in path], 0.0)
+    return out
 
 
 def region2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:

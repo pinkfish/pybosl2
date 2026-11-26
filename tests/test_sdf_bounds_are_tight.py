@@ -44,6 +44,7 @@ from __future__ import annotations
 import pytest
 
 import pybosl2.sdf.shapes3d as sdf
+from pybosl2.path2d import Path2D
 from pybosl2.sdf._libfive import lv
 
 #: How far the field may be from a face of its own box before the box is called loose. Sampling a
@@ -113,6 +114,36 @@ BUILDERS = {
     # short version of this case (shift=[5, 0]) fits inside its own unspun box either way, so a
     # wrong symmetry claim was unobservable in it -- which is why the fixture says 20.
     "sheared cyl spun": lambda: sdf.cyl(height=20, radius=6, shift=[20, 0], anchor=[0, 0, 0]).rotate(45, [0, 0, 1]),
+    # A prism turned off its own symmetry step. This is the case T14 recorded as open and T136
+    # closed: `TrussFoot` and `TrussJoiner` turn their octagonal plugs half a facet, and the box
+    # came from the old box's rotated corners -- 28.97 across for a solid 20.48 wide. Half a facet
+    # is the worst angle there is for an n-gon, which is why the fixtures use it.
+    "octagonal prism turned half a facet": lambda: sdf.regular_prism(
+        num_sides=8, height=10, radius=11.085, anchor=[0, 0, 0]
+    ).rotate(22.5, [0, 0, 1]),
+    "hexagonal prism turned half a facet": lambda: sdf.regular_prism(
+        num_sides=6, height=10, radius=10, anchor=[0, 0, 0]
+    ).rotate(30, [0, 0, 1]),
+    # Concave, which is the case the proof has to cover: the extreme point of a polygon in any
+    # direction is a vertex whether the outline is convex or not, so an L reports exactly.
+    "L-shaped prism turned": lambda: sdf.polygon_prism(
+        Path2D([[0, 0], [20, 0], [20, 6], [6, 6], [6, 20], [0, 20]]), height=8
+    ).rotate(35, [0, 0, 1]),
+    "tapered prism turned": lambda: sdf.regular_prism(
+        num_sides=7, height=12, radius1=10, radius2=4, anchor=[0, 0, 0]
+    ).rotate(25, [0, 0, 1]),
+    # Turned, moved, turned again: the hull has to survive the first turn to tighten the second.
+    "prism turned twice": lambda: (
+        sdf.regular_prism(num_sides=8, height=10, radius=8, anchor=[0, 0, 0])
+        .rotate(10, [0, 0, 1])
+        .translate([4, -3, 0])
+        .rotate(12.5, [0, 0, 1])
+    ),
+    # About X, so the extrusion axis is the one that moves. The claim is a point set, so it holds
+    # for any rotation and not only a spin about Z.
+    "prism tipped about X": lambda: sdf.regular_prism(num_sides=6, height=20, radius=7, anchor=[0, 0, 0]).rotate(
+        35, [1, 0, 0]
+    ),
 }
 
 
@@ -143,7 +174,18 @@ def _worst_gap(shape: object, samples: int = 41) -> tuple[float, str]:
     return worst, where
 
 
-LOOSE_ON_PURPOSE = {"cyl moved then spun", "sheared cyl spun"}
+#: Shapes whose box is loose on purpose, excluded from the reach-every-face check.
+#:
+#: **Empty, as of T136.** Both entries were a cylinder turned about Z after being moved off its own
+#: axis -- the one at 16.39 across for a solid 12.00 wide, the other 31.11 for 26.14 -- and the
+#: reason was that a rotated corner box is all a `rotate` has to work from. It is not: a shape can
+#: carry a containment tighter than its box, and `rotate` keeps whichever of the two is tighter on
+#: each axis. A cylinder's is its axis segment grown by its radius, which is exact under a spin
+#: and merely unhelpful otherwise. Both now measure within `SLACK`, so there is nothing to excuse.
+#:
+#: `test_no_part_of_the_solid_escapes_the_box` always ran over these as well -- loose or not, a box
+#: has to contain its solid -- which is what made tightening them safe to attempt.
+LOOSE_ON_PURPOSE: set[str] = set()
 
 
 @pytest.mark.parametrize("label", sorted(set(BUILDERS) - LOOSE_ON_PURPOSE) or ["(none)"])

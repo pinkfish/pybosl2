@@ -84,6 +84,14 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 - A `partition()` call now builds its cut mask on the backend of the solid being cut rather than
   the ambient one, so a solid built straight from a backend module, or held across a
   `use_backend` boundary, no longer meets a mask from the other backend.
+- **`bounds()` on a turned SDF shape is exact where it used to over-claim.** A rotation recomputed
+  the box from the old box's eight corners, which is right only for a shape that fills its box: an
+  octagonal prism 20.48 across reported 28.97, a hexagonal one 50% over, a cylinder off its own
+  axis spun 30° 37% over, and a 2-D star turned off its symmetry step 4.5mm over. A prism now
+  carries its outline and a round shape its axis and radius, so the turn reads a tight box off
+  those instead. `TrussFoot` and `TrussJoiner` agree with the CSG backend to the digit; the
+  geometry is unchanged in every case, and nothing was ever clipped, because the old box was always
+  a superset.
 
 ### Internals
 
@@ -100,6 +108,12 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 - Two skip markers reading "no libfive: a meshed SDF solid cannot enter the CSG operators" are
   gone, because nothing in the SDF shape tests meshes any more. The marker was right about the
   environment; what nobody asked was why a field was being meshed to split it.
+- **Three lists of "this box is loose on purpose" went from nine entries to one.** The one that
+  remains is a case added by looking rather than one left over: a rectangle rounded by a different
+  radius per corner has no tight containment of the form the mechanism carries, and the reason is a
+  proof instead of an absence of one. A new check measures the containment a shape claims rather
+  than only the box one turn of it reports, since claiming too little is the direction that clips
+  geometry silently.
 
 ### Documentation
 
