@@ -2189,7 +2189,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span><span class="p">,</span> <span class="n">use_backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_num</span><span class="p">,</span> <span class="n">zrot4</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">DOWN</span><span class="p">,</span> <span class="n">FRONT</span><span class="p">,</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PartitionCutType</span>
@@ -2769,15 +2769,28 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Native geometry for a partition mask (removes half, leaving an interlocking edge)."""</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_polygon</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
+<span class="w">    </span><span class="sd">"""Build the partition mask -- half removed, an interlocking edge left -- on the active backend.</span>
+
+<span class="sd">    Built through the 2-D facade rather than from `pythonscad.polygon`/`square` directly, which is</span>
+<span class="sd">    what it reached until T135. Every step is declared on both backends -- the cut path is neutral</span>
+<span class="sd">    arithmetic (`_partition_cutpath` hands back a `Path2D`), and `polygon`, `offset`, `&amp;` and</span>
+<span class="sd">    `linear_extrude` are all on the shared contract -- so a mask for a field *is* a field, and the</span>
+<span class="sd">    mask is built by whichever backend is active. That is the door SPEC A-10 asks for, and the same</span>
+<span class="sd">    one `masking` goes through for its cutters.</span>
+
+<span class="sd">    The hard-wired natives are why `SdfSolid.partition` had to mesh its receiver first and so handed</span>
+<span class="sd">    back a `CsgSolid` from inside `use_backend("sdf")` (SPEC A-6). Nothing about the cut needed a</span>
+<span class="sd">    mesh; the mask did.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.flat</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_polygon</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.flat</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path2D</span>
 
     <span class="n">cs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">ww</span> <span class="o">=</span> <span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">inverse</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">fullpath</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="p">[[</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ww</span><span class="p">],</span> <span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ww</span><span class="p">]]</span>
-    <span class="n">poly</span> <span class="o">=</span> <span class="n">_polygon</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">fullpath</span><span class="p">])</span>
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">_polygon</span><span class="p">(</span><span class="n">_Path2D</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">fullpath</span><span class="p">]))</span>
     <span class="k">if</span> <span class="n">slop</span><span class="p">:</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="n">slop</span><span class="p">)</span>
     <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span> <span class="o">&amp;</span> <span class="n">_square</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">w</span> <span class="o">*</span> <span class="mi">2</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2833,9 +2846,11 @@
 <span class="sd">            (cuboid([100, 100, 10]) &amp; partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
-
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
+    <span class="c1"># `_partition_mask_shape` builds through the facade now (T135), so on this backend -- and</span>
+    <span class="c1"># `@backend_only("csg")` above guarantees which one that is -- it already hands back a</span>
+    <span class="c1"># `Bosl2Solid`. Re-wrapping it was right while the mask was a raw native handle.</span>
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">"Bosl2Solid"</span><span class="p">,</span>
         <span class="n">_partition_mask_shape</span><span class="p">(</span>
             <span class="n">length</span><span class="p">,</span>
             <span class="n">w</span><span class="p">,</span>
@@ -2849,7 +2864,7 @@
             <span class="n">fn</span><span class="p">,</span>
             <span class="n">fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">),</span>
     <span class="p">)</span></div>
 
 
@@ -2908,6 +2923,82 @@
     <span class="c1"># the decorator already justifies (T107).</span>
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Bosl2Solid"</span><span class="p">,</span> <span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
 
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Section: the split itself, shared by both backends</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">partition_solid</span><span class="p">(</span>
+    <span class="n">solid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">spread</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">cutsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">cutpath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">=</span> <span class="s2">"jigsaw"</span><span class="p">,</span>
+    <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">cutpath_centered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Cut *solid* into the two interlocking pieces :meth:`Partitionable.partition` documents.</span>
+
+<span class="sd">    Backend-neutral, and only because nothing here needs a backend: the two cut masks come from</span>
+<span class="sd">    `_partition_mask_shape`, which builds on whichever one is active, and what is done with them --</span>
+<span class="sd">    `_center_size()`, `rotate`, `translate`, `&amp;` -- is on the shared contract. So the CSG mixin and</span>
+<span class="sd">    :meth:`~pybosl2.sdf.shapes3d.SdfSolid.partition` are the same code, and a field is partitioned</span>
+<span class="sd">    as a field.</span>
+
+<span class="sd">    It was written twice before T135, and the second copy was `self.to_csg().partition(...)` --</span>
+<span class="sd">    which is not a second implementation of a split so much as a way of not having one: it meshed</span>
+<span class="sd">    the receiver (SPEC B-5) and handed back a `CsgSolid` from inside `use_backend("sdf")` (A-6).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        solid: The solid to split. Anything on the shared contract with `_center_size()`.</span>
+<span class="sd">        spread: Distance between the two halves after splitting.</span>
+<span class="sd">        cutsize: Size of the mask beyond the part.</span>
+<span class="sd">        cutpath: Cut pattern; ``"jigsaw"``, ``"dovetail"``, etc.</span>
+<span class="sd">        gap: Clearance gap between the two halves.</span>
+<span class="sd">        cutpath_centered: Whether the cut-path is centered on the split plane.</span>
+<span class="sd">        spin: Spin angle for the cut-path.</span>
+<span class="sd">        slop: Extra slop for 3-D printed fits.</span>
+<span class="sd">        fn: Smoothness override for the cut pattern's curves. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fn=...)`` value applies; ``fn=0`` opts back out to fa/fs.</span>
+<span class="sd">        fa: Minimum angle for the cut pattern's curves. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fa=...)`` value applies.</span>
+<span class="sd">        fs: Minimum segment length for the cut pattern's curves. Omitted, the ambient</span>
+<span class="sd">            ``use_defaults(fs=...)`` value applies.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(back_piece, front_piece)`` pair, moved *spread* apart.</span>
+
+<span class="sd">    """</span>
+    <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span>
+    <span class="n">cs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator, list-item]</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+    <span class="n">rsx</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sn</span><span class="p">)</span>
+    <span class="n">rsy</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sn</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">rsz</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">sn</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">spread</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">inverse</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
+        <span class="c1"># The mask is built on the backend of the solid being cut, not the ambient one. A method on</span>
+        <span class="c1"># a solid is asked about *that* solid, and `cuboid(...)` from a backend module, or one held</span>
+        <span class="c1"># across a `use_backend` boundary, parts company with the ambient setting -- after which the</span>
+        <span class="c1"># mask and the receiver are on different backends and `&amp;` refuses them (SPEC A-6, C-19).</span>
+        <span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="n">solid</span><span class="o">.</span><span class="n">backend</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">_partition_mask_shape</span><span class="p">(</span><span class="n">rsx</span><span class="p">,</span> <span class="n">rsy</span><span class="p">,</span> <span class="n">rsz</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spin</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span> <span class="k">for</span> <span class="n">c2</span> <span class="ow">in</span> <span class="n">center_pt</span><span class="p">])</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="n">vec</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="n">vec</span>
+        <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">solid</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">move</span><span class="p">]))</span>
+    <span class="c1"># A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.</span>
+    <span class="c1"># The backends used to disagree on the container, which is what forced the shared contract to</span>
+    <span class="c1"># type this `Any` (SPEC PAR-4). They cannot disagree now: there is one return statement.</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -3266,37 +3357,22 @@
 <span class="sd">                halves[0].show()</span>
 
 <span class="sd">        """</span>
-        <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
-        <span class="n">cs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator, list-item]</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
-        <span class="n">c</span><span class="p">,</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
-        <span class="n">rsx</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sn</span><span class="p">)</span>
-        <span class="n">rsy</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sn</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span><span class="p">)</span>
-        <span class="n">rsz</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">sn</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">spread</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">inverse</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">_partition_mask_shape</span><span class="p">(</span>
-                <span class="n">rsx</span><span class="p">,</span>
-                <span class="n">rsy</span><span class="p">,</span>
-                <span class="n">rsz</span><span class="p">,</span>
-                <span class="n">cs</span><span class="p">,</span>
-                <span class="n">cutpath</span><span class="p">,</span>
-                <span class="n">gap</span><span class="p">,</span>
-                <span class="n">cutpath_centered</span><span class="p">,</span>
-                <span class="n">inverse</span><span class="p">,</span>
-                <span class="n">slop</span><span class="p">,</span>
-                <span class="n">fn</span><span class="p">,</span>
-                <span class="n">fa</span><span class="p">,</span>
-                <span class="n">fs</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spin</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span> <span class="k">for</span> <span class="n">c2</span> <span class="ow">in</span> <span class="n">center_pt</span><span class="p">])</span>
-            <span class="n">move</span> <span class="o">=</span> <span class="n">vec</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="n">vec</span>
-            <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">move</span><span class="p">]))</span>  <span class="c1"># type: ignore[attr-defined]</span>
-        <span class="c1"># A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.</span>
-        <span class="c1"># The SDF backend already returned a pair; the two disagreeing on the container is what</span>
-        <span class="c1"># forced the shared contract to type this `Any` (SPEC PAR-4).</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="s2">"tuple[Self, Self]"</span><span class="p">,</span>
+            <span class="n">partition_solid</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">spread</span><span class="o">=</span><span class="n">spread</span><span class="p">,</span>
+                <span class="n">cutsize</span><span class="o">=</span><span class="n">cutsize</span><span class="p">,</span>
+                <span class="n">cutpath</span><span class="o">=</span><span class="n">cutpath</span><span class="p">,</span>
+                <span class="n">gap</span><span class="o">=</span><span class="n">gap</span><span class="p">,</span>
+                <span class="n">cutpath_centered</span><span class="o">=</span><span class="n">cutpath_centered</span><span class="p">,</span>
+                <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+                <span class="n">slop</span><span class="o">=</span><span class="n">slop</span><span class="p">,</span>
+                <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
 </div>
 
 
