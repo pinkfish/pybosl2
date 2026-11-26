@@ -359,8 +359,9 @@ SPEC B-3 makes the façade the owner of every default both backends understand.
   The test is that calling it raises and that the message names the way forward — not that the
   attribute is missing, which would break `isinstance` against the shape protocols (T-6b) and make
   the refusal less explicit than C-13 asks for. What must never happen is the third case: a name
-  that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection` once
-  did).
+  that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection` did
+  until T4 on the solid, and until T137 on the 2-D shape, where it was reached through the attribute
+  fallback and so stepped over by a walk that only asked for *declared* members).
 
 ### 4.3 Resolution plumbing (`fn` / `fa` / `fs` / `res`)
 

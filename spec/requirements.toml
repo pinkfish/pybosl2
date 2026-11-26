@@ -368,6 +368,7 @@ enforced_by = [
     "tests/test_a_neutral_call_does_not_hand_back_csg.py::test_each_builder_follows_the_backend_or_refuses_by_name",
     "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_no_sdf_method_hands_back_a_solid_the_csg_backend_owns",
     "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_only_the_declared_crossings_mesh_inside_the_sdf_backend",
+    "tests/test_an_attribute_miss_is_not_a_conversion.py::test_a_miss_does_not_reach_for_geometry",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_path_2d_geometry_builds_on_either_backend",
@@ -375,6 +376,8 @@ candidates = [
 status = "enforced"
 note = '''
 The top-level export table was always checked; the geometry bridges were not, so Path2D.polygon() returned a CSG shape inside an sdf block whatever the caller had selected. Fixed in T29 by A-10 (build through the façade), and covered by the candidate test above as well as the export walk.
+
+The quietest road to an A-6 defect is not a constructor at all: it is an *attribute miss*. `SdfShape2D.__getattr__` answered every name a 2-D field does not define with `getattr(self.extrude(0.01).mesh(), name)`, so `circle2d(5).projection()` returned a raw `PyOpenSCAD` from inside `use_backend("sdf")` and `.repair`/`.render` returned its builtins -- measured in the real app (T137). The sweep that found the six methods T135 fixed could not see it: a fallback is not a method, so nothing enumerated it, and `mesh()` is a door across the boundary the static ratchet was not watching. Four shape classes have a fallback and the test above asks all four the same question.
 '''
 
 [[requirement]]
@@ -2179,6 +2182,8 @@ note = '''
 Spot-checked where it bites: the parts' SDF refusals cite non-convexity (test_parts_backend_coverage.py) and PyShape2D.fill no longer meshes across (T34). Whether a *new* conversion is honest is a review question.
 
 One clause of the implicit half is now ratcheted, which is why the test above is a candidate and the status stays `reviewed`: it holds the *hidden* conversion to a declared list, and says nothing about the other two clauses -- whether a mesh is exact, and the CSG -> SDF direction. T135 found six methods of `SdfSolid` meshing the field and handing the mesh back -- `repair`, `oversample`, `separate`, `wrap`, `pull`, `partition` -- each saying *"via CSG conversion"* in its docstring, which declares the conversion to a reader and not to a caller. Every `to_csg()` inside `pybosl2/sdf/` must now be listed with the reason its result comes back as a field; one entry survives, the 2-D hull, which goes out through `projection` and returns a polygon. Four of the six turned out not to need a mesh at all, which is the useful part: *is this conversion honest?* is a weaker question than *why is there a conversion here?*
+
+That ratchet then said in its own docstring that `to_csg()` was "the one declared door across the boundary", which it was not: `mesh()` returns the `frep()` handle, a CSG solid in all but name, and that is the door `SdfShape2D.__getattr__` used for every attribute miss. The scan watches both now (T137). Five crossings through `mesh()` were already honest and say so -- the viewer hook, the render-time bake, the solid's whitelist fallback, the hull's plane-fitting helper, and `mesh_to_vnf`, which returns a neutral pair. A declared list is only as good as the list of things it is kept over.
 '''
 
 [[requirement]]
@@ -2330,6 +2335,7 @@ statement = '''
 '''
 enforced_by = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+    "tests/test_an_attribute_miss_is_not_a_conversion.py::test_the_other_backends_features_refuse_by_name",
 ]
 candidates = [
     "tests/test_backend_capabilities.py::test_csg_attachment_features_unsupported_on_sdf",
@@ -2340,6 +2346,9 @@ candidates = [
     "tests/test_shape_contract.py",
 ]
 status = "enforced"
+note = '''
+The third case is the one worth testing for, and the test that covers it had an exemption that outlived its justification. T34 taught the parity walk to ask `PyShape2D` as well as `SdfSolid`, because `fill` is a 2-D operation and asking only the solid is how it stayed broken; the walk then skipped a feature that is not statically declared, on the comment "reached through `__getattr__`, which refuses for anything unlisted". True of the solid. False of the class just added, whose fallback meshed a thin extrusion and forwarded the attribute to it -- so `projection`, declared on neither and named in this very statement as the original, refused on one and answered on the other (T137). The walk probes through the fallback now and records where the answer came from, because C-13 prefers a declared refusal to a bare miss. An exemption carried across to a class that does not satisfy its justification is worth less than no exemption, since it reads as checked.
+'''
 
 [[requirement]]
 id = "SPEC-PAR-4"
@@ -3048,6 +3057,9 @@ An error raised from `__getattr__` because the backend cannot offer that name MU
 '''
 enforced_by = [
     "tests/test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising",
+    "tests/test_an_attribute_miss_is_not_a_conversion.py::test_a_private_name_is_a_plain_attribute_error",
+    "tests/test_an_attribute_miss_is_not_a_conversion.py::test_a_shape_survives_being_copied",
+    "tests/test_no_mesher.py::test_capability_probes_answer_on_the_2d_shape_too",
 ]
 candidates = [
     "tests/test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising",
@@ -3055,6 +3067,9 @@ candidates = [
     "tests/test_no_mesher.py::test_capability_probes_answer_without_meshing",
 ]
 status = "enforced"
+note = '''
+This names `copy` and `pickle` explicitly, and the reason is that a fallback which answers a *private* probe does work nobody asked for: `copy.copy` looks for `__copy__`, and `SdfShape2D.__getattr__` extruded and meshed to answer it, which re-entered the lookup -- `RecursionError` from `copy.copy(circle2d(5))`, measured in the real app (T137). `SdfSolid.__getattr__` has had the leading-underscore guard since T3, and `BaseShape.__getattr__` carries a comment on why it must: asking a `frep()` handle for an unknown attribute segfaults PythonSCAD. Four shape classes, one guard missing, and five separate tests of the fallback across the suite that between them asked the solid four times and the 2-D shape once, for the one question it could not answer.
+'''
 
 [[requirement]]
 id = "SPEC-E-7"
@@ -4209,10 +4224,11 @@ layer = "mechanics"
 section = "4.2 Backend implementations"
 title = "An exclusive-feature list is checked, not just written."
 statement = '''
-Every name in `CSG_ONLY_FEATURES` must be implemented on the SDF shape **as a refusal**, and vice versa (SPEC PAR-3): a real method whose whole body raises `UnsupportedByBackendError` with a hint. The test is that calling it raises and that the message names the way forward — not that the attribute is missing, which would break `isinstance` against the shape protocols (T-6b) and make the refusal less explicit than C-13 asks for. What must never happen is the third case: a name that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection` once did).
+Every name in `CSG_ONLY_FEATURES` must be implemented on the SDF shape **as a refusal**, and vice versa (SPEC PAR-3): a real method whose whole body raises `UnsupportedByBackendError` with a hint. The test is that calling it raises and that the message names the way forward — not that the attribute is missing, which would break `isinstance` against the shape protocols (T-6b) and make the refusal less explicit than C-13 asks for. What must never happen is the third case: a name that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection` did until T4 on the solid, and until T137 on the 2-D shape, where it was reached through the attribute fallback and so stepped over by a walk that only asked for *declared* members).
 '''
 enforced_by = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",
+    "tests/test_an_attribute_miss_is_not_a_conversion.py::test_the_other_backends_features_refuse_by_name",
 ]
 candidates = [
     "tests/test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape",

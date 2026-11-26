@@ -928,11 +928,13 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         if name.startswith("_"):
             raise AttributeError(name)
         # A CSG-only feature (attachment/anchoring) on the SDF backend raises a clear error rather
-        # than meshing (libfive) just to fail with a confusing AttributeError.
-        if not (name.startswith("__") and name.endswith("__")):
-            _unsupported = _unsupported_feature("sdf", name)
-            if _unsupported is not None:
-                raise _unsupported
+        # than meshing (libfive) just to fail with a confusing AttributeError. The dunder guard
+        # that used to stand here could not fire: the line above returns for every name starting
+        # with an underscore, which every dunder does, so it read as a condition doing work and
+        # did none (T137).
+        _unsupported = _unsupported_feature("sdf", name)
+        if _unsupported is not None:
+            raise _unsupported
         # Everything a caller can do to a *field* is implemented on this class, so anything left
         # is either an operation that genuinely needs a mesh (it consumes or produces mesh
         # topology) or a mistake. Meshing for the first is honest; meshing for the second is the

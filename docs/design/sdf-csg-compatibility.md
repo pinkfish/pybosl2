@@ -70,6 +70,12 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
   only for names in `_MESH_OPERATIONS` — operations that genuinely consume or produce mesh
   topology (`linear_extrude`, `rotate_extrude`, `offset`, `roof`, `size`, `background`,
   `textmetrics`). Everything else raises `UnsupportedByBackendError` naming `.to_csg()` (T3).
+  *This entry named `SdfSolid`, which was the whole of what T3 fixed, and read as the whole
+  fallback. `SdfShape2D.__getattr__` went on answering every miss with
+  `getattr(self.extrude(0.01).mesh(), name)` — so `circle2d(5).projection()` returned a raw
+  `PyOpenSCAD` and `copy.copy` of a 2-D field raised `RecursionError`, both measured in the real
+  app. It refuses now, and nothing wanted the thin extrusion: the suite passed unchanged
+  (T137).*
 * **Colour rides the field.** SDF shapes carry colour as metadata, so `Shape` declares it for both
   backends (SPEC C-19).
 * **The directional moves are native**, not meshed: `up`/`down`/`left`/`right`/`back`/`fwd`/`move`

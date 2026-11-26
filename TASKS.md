@@ -6387,3 +6387,134 @@ The 13 parts that need a **non-convex mesh** on the SDF backend — `BevelGear`,
 fasteners that build their thread as a VNF grid. That one is bounded by mathematics rather than
 effort: an arbitrary non-convex mesh has no closed-form distance field, and answering it means a
 different engine (a BVH over triangles), not a different formula.
+
+
+## T137 — The second door nobody watched ✅
+
+**§12.2 item 9, reopened and closed. A-6, B-5, PAR-3, E-6, PLAN B-P4.** Four shape classes answer
+an attribute miss. Three answered it the same way. The fourth meshed.
+
+```python
+# pybosl2/sdf/shapes2d.py, SdfShape2D.__getattr__ -- the whole body
+return getattr(self.extrude(0.01).mesh(), name)
+```
+
+Measured in the real PythonSCAD app, from inside `use_backend("sdf")`:
+
+| asked | before | after |
+|---|---|---|
+| `circle2d(5).projection()` | `openscad.PyOpenSCAD` | refuses, naming `projection` |
+| `circle2d(5).repair` | `builtin_function_or_method` | refuses, naming `repair` |
+| `circle2d(5).render` | `builtin_function_or_method` | refuses, naming `render` |
+| `circle2d(5).geometry` | `AttributeError: 'openscad.PyOpenSCAD' object has no attribute 'geometry'` | refuses, naming `geometry` |
+| `copy.copy(circle2d(5))` | `RecursionError` | a copy |
+
+`projection` is in `CSG_ONLY_FEATURES`. So the first line is PLAN B-P4's third case — *listed as
+exclusive and works anyway, so the refusal never fires* — which is what SPEC §12.2 item 9 says
+`projection` itself did until T4 and `fill` did until T34. It was still true of the 2-D class, of
+`projection`, in the place the row had already been twice.
+
+The `RecursionError` is the same guard, from the other end: `copy.copy` asks for `__copy__`, the
+fallback extruded and meshed to answer, and the lookup re-entered. `SdfSolid.__getattr__` has
+returned `AttributeError` for a leading underscore since T3, and `BaseShape.__getattr__` says in
+a comment why it must — asking a frep handle for an unknown attribute *segfaults* PythonSCAD.
+
+### Why nothing caught it
+
+Five tests in the suite guard this fallback — the table at the end lists them. Two of them could
+have caught *this*, and each held half the answer, both halves about a *list*.
+
+* **`tests/test_backend_parity.py`** already walks both SDF classes: T34 extended it for exactly
+  this reason, because `fill` is a 2-D operation and walking only the solid is how it stayed
+  broken. But the walk skips a feature that is not statically declared, with the comment
+  *"reached through `__getattr__`, which refuses for anything unlisted"* — true of `SdfSolid`,
+  false of the class the walk had just been extended to. **An exemption carried across to a class
+  that does not satisfy its justification is worth less than no exemption**, because it reads as
+  checked. It probes through the fallback now, and records whether the answer came from a
+  declaration or from there.
+* **`tests/test_the_sdf_backend_does_not_hand_back_csg.py`** (T135) says in its own docstring that
+  "`to_csg()` is the one declared door across the boundary". It is not. `mesh()` returns the
+  `frep()` handle, which is a CSG solid in all but name, and that is the door the fallback used.
+  The static half watches both now — five crossings were already honest and say so — and the
+  dynamic half walks `SdfShape2D` as well, which is the T34 gap appearing a second time in a
+  newer file.
+
+### The fallback has a contract now, and it is the same for all four
+
+`tests/test_an_attribute_miss_is_not_a_conversion.py` asks the four classes the same four
+questions — a private name misses plainly, an unknown public name refuses or misses *naming
+itself*, `getattr(shape, name, default)` reaches the default, `copy.copy` survives, and a feature
+the other backend owns refuses however it is reached. The class list is derived from the source,
+not maintained: a new `__getattr__` anywhere in `pybosl2` either joins the table or fails the
+staleness test. That is the part worth keeping — the defect survived three tasks that circled it
+because the class that had it was never on anybody's list.
+
+The control is the real method with its real body put back by `monkeypatch`, not a stand-in.
+
+### What it cost
+
+**Nothing.** The whole suite passes with the fallback refusing every miss: 9099 passed, 46
+skipped, 10 xfailed — identical to T136's figures, measured before a single new test was written.
+In 9099 tests nothing had ever wanted the thin extrusion, which is the measurement and not a
+footnote. With the new checks the suite stands at 9154. `docs/design/sdf-csg-compatibility.md` had already recorded
+"the attribute fallback no longer meshes silently" under *Closed since this note was written*,
+naming `SdfSolid`; the sentence was true of the thing it named and read as the whole fallback.
+
+Run against `main`: **6 failures** across four files — the `RecursionError` twice (once as
+`copy.copy`, once as the private-name probe), `projection` answering, the undeclared `mesh()`
+crossing, the parity walk's `projection (reached through __getattr__)`, and the capability probe
+raising `RuntimeError` with no mesher.
+
+**The dynamic 2-D sweep is not among them, and that is worth saying.** Adding `SdfShape2D` to
+T135's sweep closes a real gap — the T34 gap, in a newer file — but it could not have found *this*
+defect: a fallback is not a method, so a walk over `vars(cls)` never reaches it, and `projection`
+is not a member of either SDF class to be walked. What finds it is the static scan, once it
+watches the second door, and the parity walk, once its exemption is checked rather than asserted.
+A check added in the same change as a fix is not automatically the check that would have caught it.
+
+### The worst form of it, and the fixture that was already there
+
+`getattr(shape, "nope", default)` happened to work before the fix, because the mesh's own
+`AttributeError` propagated and carried the name. On a machine with **no mesher** it did not: the
+probe raised out of the `getattr` itself. That is the exact failure `tests/test_no_mesher.py` was
+written for — *"nothing routine may depend on a mesher being available"* — and it has a
+`no_mesher` fixture at the top that makes meshing fail the way a machine without libfive does.
+Its probe asked the solid. One class over, with the fixture already in the file:
+
+```
+FAILED test_no_mesher.py::test_capability_probes_answer_on_the_2d_shape_too
+  RuntimeError: no mesher on this machine (simulated: libfive is absent)
+```
+
+### Five guards
+
+The fallback was not unguarded. It was guarded five times, and the guards had agreed among
+themselves which class to look at:
+
+| guard | asks |
+|---|---|
+| `test_backend_parity.py::test_every_csg_only_feature_refuses_on_the_sdf_shape` | both classes, skipping any name not declared |
+| `test_backend_parity.py::test_a_private_name_is_answered_without_meshing` | the solid |
+| `test_error_contract.py::test_hasattr_on_an_unknown_name_answers_rather_than_raising` | the solid |
+| `test_no_mesher.py::test_capability_probes_answer_without_meshing` | the solid |
+| `test_the_sdf_backend_does_not_hand_back_csg.py` (all of it) | the solid, through one of two doors |
+
+The first one had already been taught to walk both and stepped over the name anyway. Three of the
+others have a 2-D twin beside them now, and T135's scan walks both classes through both doors; the
+fourth, in `test_error_contract.py`, says in its docstring which of the four classes it asks and
+points at the general check rather than growing a twin. That general question — *do the four
+fallbacks answer a miss the same way?* — has a file of its own, with the class list read out of
+the source.
+
+Also removed: the dunder guard in `SdfSolid.__getattr__`, which could not fire. The line above it
+returns for every name starting with an underscore, which every dunder does.
+
+### Found and not fixed
+
+Handing a 2-D **SDF** shape to the **CSG** `hull()` fails with `TypeError: Error during parsing
+hull. arguments must be solids or arrays.` from inside PythonSCAD — naming neither operand nor the
+conversion that would resolve it (SPEC E-3). Measured identical before and after this change, so
+it is pre-existing and not a consequence: `as_native_2d` already returned the SDF shape unchanged
+on `main`, because the mesh's own `AttributeError` propagated and `getattr(obj, "geometry", None)`
+swallowed it. `check_operand_backend` guards the operators and the coercion helpers do not consult
+it. Recorded rather than chased, because it is a different requirement from the ones above.

@@ -52,6 +52,17 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Backend parity
 
+- **An unknown attribute on a 2-D SDF shape no longer silently meshes it.** `SdfShape2D` answered
+  every name a 2-D distance field does not define by extruding a 0.01mm slab, meshing it and
+  forwarding the attribute to the result — so from inside `use_backend("sdf")`,
+  `circle2d(5).projection()` returned a raw PythonSCAD solid although `projection` is listed as
+  CSG-only, `.repair`/`.render` returned its builtins, `copy.copy` of a 2-D field raised
+  `RecursionError`, and on a machine with no mesher a plain `hasattr` probe raised instead of
+  answering. All of those refuse now, naming the attribute and the explicit route
+  (`.extrude(h).to_csg().<name>(...)`). The three other shape classes have behaved this way for
+  some time; this one was the odd one out, and nothing in 9099 tests had wanted the old
+  behaviour.
+
 - **Six calls that built CSG geometry whatever backend was selected now follow the active one, or
   refuse under their own name.** `Path3D.dashed_stroke`, `chain_hull`, `minkowski_difference` and
   `masking.rounding_edge_mask` work on both backends; `extrude_from_to` and `cylindrical_extrude`
@@ -94,6 +105,15 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
   a superset.
 
 ### Internals
+
+- **The four shape classes' attribute fallbacks are now checked against each other** rather than
+  one at a time. Five separate tests guarded that fallback and four of them asked the 3-D SDF
+  solid; the fifth had been taught to ask the 2-D shape as well and skipped the failing name
+  because it was not *declared* on the class. The new check derives its class list from the
+  source, so a new `__getattr__` anywhere in the package joins it or fails.
+- **The SDF backend's boundary ratchet watches both doors.** It held every `to_csg()` inside
+  `pybosl2/sdf/` to a declared list and called that "the one declared door"; `mesh()` returns the
+  `frep()` handle, which is a CSG solid in all but name, and is the one the 2-D fallback used.
 
 - **The layering debt list is empty**, from 16 violations when it was first measured. The last
   three rows each claimed the edge could not close and each reason was wrong in a different way.
