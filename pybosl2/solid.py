@@ -34,6 +34,8 @@ from pybosl2._backend import (
     Solid,
     current_backend,
     get_backend,
+    reference_backend,
+    require_same_backend,
     set_default_backend,
     use_backend,
 )
@@ -2674,10 +2676,17 @@ def _require_operands(operation: str, solids: tuple[Solid, ...]) -> None:
 
     Raises:
         ValueError: If *solids* is empty.
+        CrossBackendError: If the solids do not all share one backend (SPEC C-1, E-3).
 
     """
     if not solids:
         raise Bosl2ValueError(f"{operation}(): needs at least one solid to combine.")
+    # These three docstrings have said "all must share a backend (SPEC C-1)" since they were
+    # written, and nothing checked it: the mix reached the backend implementation, where the CSG
+    # one happened to refuse through an operator and the SDF one reported "every argument must be
+    # a PyShape, got ['SdfSolid', 'CsgSolid']" -- naming an internal class and listing an operand
+    # that was fine. The first solid sets the backend, as it does for `chain_hull` (T138).
+    require_same_backend(operation, reference_backend(solids), *solids)
 
 
 def union(*solids: Solid) -> Solid:

@@ -541,6 +541,72 @@ def check_operand_backend(self_backend: str, other: Any, self_dimensions: int | 
         )
 
 
+def reference_backend(operands: "Sequence[Any]") -> str:
+    """Return the backend the operands of an n-ary call must share.
+
+    The first operand carrying a ``backend`` tag sets it, so such a call follows the shapes it was
+    handed rather than the ambient context: `chain_hull(sdf_a, sdf_b)` is legitimate outside
+    `use_backend("sdf")`, and T133 made it work that way deliberately. With no tagged operand --
+    raw native handles, point lists -- the active backend is the only answer available.
+
+    Args:
+        operands: The operands as given.
+
+    """
+    for operand in operands:
+        tag = getattr(operand, "backend", None)
+        if isinstance(tag, str):
+            return tag
+    return current_backend()
+
+
+def require_same_backend(call: str, backend: str, *operands: Any) -> None:
+    """Raise if any of *operands* was built by a backend other than *backend* (SPEC A-6, E-3).
+
+    :func:`check_operand_backend` is the operator form: it guards `a | b`, `a - b` and
+    `minkowski`, where "the other operand" is one object and the message can speak of operands.
+    This is the **argument** form, for a shape handed to a call -- `hull(a, b)`,
+    `path_extrude(profile)`, `edge_mask(mask=...)`, `union([a, b])`. T138 measured 38 ways to hand
+    a call a shape from the other backend and **29 of them did not report honestly**: 16 raised a
+    raw ``TypeError``/``AttributeError`` from the native parser that no ``except Bosl2Error`` could
+    catch, 8 raised a catchable error naming an internal class (``PyShape``, ``PyOpenSCAD``) or an
+    inner call (``bounds()``) instead of the one the caller made, 3 built a wrong answer in
+    silence, and 2 returned successfully and failed later in ``_realize_node``.
+
+    An operand with no ``backend`` attribute passes, exactly as it does in the operator form: raw
+    native handles, point lists, VNFs and `Path2D`/`Region` are not backend-tagged and crossing
+    with them is ordinary interop, not a mix.
+
+    Args:
+        call: the call the caller made, named in the message (SPEC E-1).
+        backend: the backend this call is building on -- a shape's own ``backend``, not
+            :func:`current_backend`, so a CSG shape's method called inside ``use_backend("sdf")``
+            still measures against the shape doing the work.
+        *operands: the shape arguments to check, in the order given. A ``list``/``tuple`` is
+            looked into one level, because every n-ary call here takes either form.
+
+    Raises:
+        CrossBackendError: If an operand was built by a different backend.
+
+    """
+    from pybosl2.exceptions import CrossBackendError
+
+    for operand in operands:
+        other = getattr(operand, "backend", None)
+        if other is not None:
+            if other != backend:
+                raise CrossBackendError(backend, other, call=call)
+            continue
+        # Neutral geometry carries no backend tag and is not a mix: a VNF realises itself on
+        # whichever backend asks, and `Path2D`/`Region` are point containers. They are checked
+        # before the list branch because both are `list` subclasses, which would otherwise send
+        # this walking a path's coordinates.
+        if callable(getattr(operand, "geometry", None)):
+            continue
+        if isinstance(operand, (list, tuple)):
+            require_same_backend(call, backend, *operand)
+
+
 BackendName = str  # "csg" | "sdf" (kept a plain str so third-party backends can register too)
 
 _KNOWN: set[str] = {"csg", "sdf"}

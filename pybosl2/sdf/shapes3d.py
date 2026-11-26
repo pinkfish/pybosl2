@@ -22,6 +22,7 @@ import numpy as np
 
 from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._backend import require_same_backend as _require_same_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._helpers import (
@@ -1384,6 +1385,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape` that is the union of the consecutive-pair hulls.
         """
+        _require_same_backend("chain_hull", "sdf", *others)
         parts = [self] + list(others)
         if len(parts) < 2:
             return self
@@ -1499,7 +1501,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         Accepts either varargs or a single list.
         """
-        shs = _as_shape_list(shapes)
+        shs = _as_shape_list(shapes, call="union")
         if len(shs) == 1:
             return shs[0]
         fns = [s._sdf_fn for s in shs]
@@ -1517,7 +1519,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         Accepts either varargs or a single list.
         """
-        shs = _as_shape_list(shapes)
+        shs = _as_shape_list(shapes, call="intersection")
         if len(shs) == 1:
             return shs[0]
         fns = [s._sdf_fn for s in shs]
@@ -1538,11 +1540,15 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Args:
             shape: The shape to operate on.
         """
+        # The base is checked before the type test, so a `CsgSolid` is told it came from the
+        # other backend rather than that it "must be a PyShape" -- an internal class name, and a
+        # different complaint from the one the caller needs (T138, SPEC E-1, E-3).
+        _require_same_backend("difference", "sdf", shape)
         if not (isinstance(shape, PyShape)):
             raise Bosl2ValueError(f"difference() base must be a PyShape, got {type(shape).__name__}")
         if not tools:
             return shape
-        tls = _as_shape_list(tools)
+        tls = _as_shape_list(tools, call="difference")
         fa = shape._sdf_fn
         fns = [t._sdf_fn for t in tls]
 
@@ -1631,6 +1637,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 applies.
 
         """
+        # A `CsgSolid` is not a `PyShape`, so it fell to the point-set branch below and died in
+        # `np.asarray(a, dtype=float)` -- "float() argument must be a string or a real number, not
+        # 'CsgSolid'", which names neither the call nor the conversion. Point sets are still
+        # welcome here; only a shape built by the other backend is not (T138, SPEC E-3).
+        _require_same_backend("hull", "sdf", *others)
         args = list(self) + list(others) if isinstance(self, (list, tuple)) else [self] + list(others)
 
         if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
@@ -1859,6 +1870,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         Returns:
             A new :class:`PyShape`.
         """
+        # `o.bounds()` is all this reads, and a `CsgSolid` answers it -- so a foreign solid was
+        # silently accepted and this dilated by *its* inscribed ball, returning an `SdfSolid` that
+        # looked right. The base class's `_check_operand` never ran, because this overrides it
+        # (T138, SPEC A-6, E-3).
+        _require_same_backend("minkowski", "sdf", *others)
         result = self
         for o in others:
             result = result.offset3d(min(o.bounds().size) / 2)
@@ -2021,6 +2037,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         """
         _ = size
+        # As in :meth:`minkowski`, all this reads is `diff.bounds()` -- which a `CsgSolid` answers
+        # -- so a foreign solid was accepted and eroded this field by *its* inscribed ball,
+        # returning an `SdfSolid` that looked right (T138, SPEC A-6, E-3).
+        _require_same_backend("minkowski_difference", "sdf", *diffs)
         result = self
         for diff in diffs:
             result = result.offset3d(-min(diff.bounds().size) / 2)
@@ -2116,17 +2136,26 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 # ---------------------------------------------------------------------------
 
 
-def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
+def _as_shape_list(shapes: tuple[Any, ...], call: str = "union") -> list[PyShape]:
     """Return a list of PyShapes from varargs-or-single-iterable input.
 
     `union(a, b)` and `union([a, b])` both work, matching the two calling conventions the
     box libraries already mix (OpenSCAD-style children vs. pybosl2-style list arguments).
+
+    Args:
+        shapes: The varargs tuple as given.
+        call: The caller's name, named in a cross-backend refusal (T138).
+
     """
     if len(shapes) == 1 and isinstance(shapes[0], (list, tuple)):
         shapes = tuple(shapes[0])
     out = list(shapes)
     if not (out):
         raise Bosl2ValueError("need at least one shape")
+    # A shape from the other backend is a different complaint from "not a shape at all", and it
+    # was reported as the latter: "every argument must be a PyShape, got ['CsgSolid']" named an
+    # internal class, listed operands that were fine, and pointed at no conversion (SPEC E-1).
+    _require_same_backend(call, "sdf", *out)
     if not all(isinstance(s, PyShape) for s in out):
         raise Bosl2ValueError(f"every argument must be a PyShape, got {[type(s).__name__ for s in out]}")
     return out

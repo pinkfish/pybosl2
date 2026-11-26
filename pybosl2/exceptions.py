@@ -139,22 +139,51 @@ class BackendRuntimeMissingError(Bosl2Error, ModuleNotFoundError):
 class CrossBackendError(Bosl2Error):
     """A boolean/transform combined solids from two different backends.
 
-    Solids must share a backend to be combined. Convert one first: meshing an SDF solid into a CSG
+    Shapes must share a backend to be combined. Convert one first: meshing an SDF solid into a CSG
     polyhedron is exact (``sdf_solid.to_csg()``); voxel-sampling a CSG solid into an SDF is lossy and
     opt-in (``csg_solid.to_sdf(voxel_size=...)``).
+
+    *call* names the call the caller made, so a shape handed to a **function or method** as an
+    argument -- `hull(a, b)`, `path_extrude(profile)`, `edge_mask(mask=...)` -- reports under that
+    name rather than under whatever inner frame first choked on it (SPEC E-1). T138 added it: until
+    then only the boolean operators and `minkowski` consulted
+    :func:`~pybosl2._backend.check_operand_backend`, and 29 of 38 measured ways of mixing backends
+    through an argument reported something else -- 16 a raw `TypeError`/`AttributeError` from the
+    native parser, 8 a catchable error naming an internal class or an inner call instead of the
+    caller's, 3 a silently wrong answer, and 2 a failure deferred to render time.
+
+    Omitting *call* keeps the original operand wording verbatim, which `pybosl2.beziers` and two
+    records quote as history.
 
     Args:
         left:  backend of the left operand.
         right: backend of the right operand.
+        call:  the call the caller made, if an argument rather than an operator crossed.
 
     """
 
-    def __init__(self, left: str, right: str) -> None:
+    def __init__(self, left: str, right: str, call: str | None = None) -> None:
         """Initialize the instance."""
         self.left = left
         self.right = right
+        self.call = call
+        if call is None:
+            super().__init__(
+                f"cannot combine a {left!r}-backend solid with a {right!r}-backend solid -- operands "
+                f"must share a backend. Bring the SDF solid into the CSG world with `.to_csg()` (an "
+                f"exact mesh->polyhedron) and combine there. (Direct CSG->SDF conversion is not supported.)"
+            )
+            return
+        # The conversion that applies depends on which way the mix goes, and only one direction is
+        # offered: SDF->CSG is an exact mesh, CSG->SDF is lossy and deliberately absent (SPEC B-5),
+        # so pointing at a `to_sdf()` that raises would be worse than saying to rebuild.
+        fix = (
+            f"mesh it into the CSG world first -- `shape.to_csg()` is exact -- and call {call}() there."
+            if right == "sdf"
+            else 'rebuild it inside `use_backend("sdf")`; there is no CSG->SDF conversion to '
+            "take for you, because sampling a CSG solid into a field is lossy."
+        )
         super().__init__(
-            f"cannot combine a {left!r}-backend solid with a {right!r}-backend solid -- operands "
-            f"must share a backend. Bring the SDF solid into the CSG world with `.to_csg()` (an "
-            f"exact mesh->polyhedron) and combine there. (Direct CSG->SDF conversion is not supported.)"
+            f"{call}(): cannot take a {right!r}-backend shape here -- every shape {call}() is given "
+            f"must share the {left!r} backend it is building on. {fix}"
         )

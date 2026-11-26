@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias, cast
 import numpy as np
 
 from pybosl2._backend import backend_only
+from pybosl2._backend import require_same_backend as _require_same_backend
 from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
@@ -71,7 +72,27 @@ else:
     _otext = native("text")
 
 
-def as_native_2d(obj: Any) -> Any:
+def _as_attached_child_2d(parent: Any, child: Any, call: str) -> "CsgShape2D":
+    """Return *child* as a CSG 2-D shape ready to be carried in *parent*'s attachments.
+
+    The 2-D twin of :func:`pybosl2.shapes3d.base._as_attached_child`, and it mattered for the same
+    reason: the child is stashed rather than unioned, so a cross-backend one was accepted here and
+    failed later in `_realize_node` (T138, SPEC E-1, E-3).
+
+    Args:
+        parent: The shape being attached to, which sets the backend.
+        child: The child as given.
+        call: The attachment call's name, for the message.
+
+    Raises:
+        CrossBackendError: If *child* was built by a different backend from *parent*.
+
+    """
+    _require_same_backend(call, getattr(parent, "backend", "csg"), child)
+    return child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
+
+
+def as_native_2d(obj: Any, call: str | None = None) -> Any:
     """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
     a :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
@@ -83,10 +104,24 @@ def as_native_2d(obj: Any) -> Any:
     coercion simply moved to the layer that owns `native("polygon")`. The edge closed with no
     rewrite (SPEC A-1).
 
+    *call* names the caller, and giving it is what turns a shape from the **other** backend into a
+    `CrossBackendError` under that name instead of a raw native `TypeError` five frames down
+    (T138). The last branch here hands back whatever it was given, so an `SdfShape2D` used to go
+    straight into `pythonscad.hull`/`fill`/`offset` and fail there -- "Error during parsing hull.
+    arguments must be solids or arrays", which no `except Bosl2Error` catches and which names
+    neither operand nor the conversion (SPEC A-6, E-1, E-3).
+
     Args:
         obj: The object to inspect.
+        call: The caller's name, for a cross-backend refusal. The backend checked against is
+            ``"csg"``, which is not a choice: this returns a *native* handle and every caller
+            wraps it in a CSG class, so every call site is either ``@backend_only("csg")`` or a
+            method on a CSG class. ``None`` skips the check, for an internal caller that has
+            already established the backend.
 
     """
+    if call is not None:
+        _require_same_backend(call, "csg", obj)
     unwrapped = _unwrap_shape(obj)
     if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
         return unwrapped
@@ -447,7 +482,7 @@ class CsgShape2D(BaseShape):
         # `child` is `object` because the Flat protocol says so -- an implementation may
         # widen a parameter, never narrow it -- and a wrapper is the only thing we can
         # recognise. Anything else is a native handle on the caller's word (T124).
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
+        cshape = _as_attached_child_2d(self, child, "position")
         placed = cshape.translate(p)
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
@@ -484,7 +519,7 @@ class CsgShape2D(BaseShape):
         face = list(require_anchor(anchor, "anchor").vector_2d)
         edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
         factor = -1.0 if inside else 1.0
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
+        cshape = _as_attached_child_2d(self, child, "align")
         child_anchor = Point([edge[0] - factor * face[0], edge[1] - factor * face[1]])
         cpt = cshape.anchor_point(child_anchor)
         dest = self.anchor_point(Point([face[0] + edge[0], face[1] + edge[1]]), bbox=bbox)
@@ -531,7 +566,7 @@ class CsgShape2D(BaseShape):
         parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = list(parent_anchor.vector_2d)
         ca = [-pa[0], -pa[1]] if child_anchor is None else list(require_anchor(child_anchor, "child_anchor").vector_2d)
-        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(cast("PyOpenSCAD", child))
+        cshape = _as_attached_child_2d(self, child, "attach")
         cpt = cshape.anchor_point(ca)
         placed = cshape.translate([-cpt[0], -cpt[1]])
         angle_rad = math.atan2(-pa[1], -pa[0]) - math.atan2(ca[1], ca[0])
@@ -644,7 +679,7 @@ class CsgShape2D(BaseShape):
                 slot.linear_extrude(height=3).show()
 
         """
-        return Bosl2Shape2D(_ohull(self.shape, *[as_native_2d(o) for o in others]))
+        return Bosl2Shape2D(_ohull(self.shape, *[as_native_2d(o, call="hull") for o in others]))
 
     # ---- 2-D -> 3-D (returns a Bosl2Solid) ----
 
