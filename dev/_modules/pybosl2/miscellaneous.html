@@ -2205,7 +2205,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span><span class="p">,</span> <span class="n">require_same_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">reference_backend</span> <span class="k">as</span> <span class="n">_reference_backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frame_map4_yz</span><span class="p">,</span> <span class="n">rot_from_to4</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">vec3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
@@ -2231,7 +2232,7 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.</span>
 
 <span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d.base.as_native_2d`, which this defers to.</span>
@@ -2239,23 +2240,34 @@
 <span class="sd">    The docstring said `pybosl2.shapes2d` for as long as the function it named lived in</span>
 <span class="sd">    `pybosl2._helpers`, one layer down. T133 moved the coercion to the layer the docstring had been</span>
 <span class="sd">    pointing at all along, which is where `native("polygon")` already is.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        profile: The object to coerce.</span>
+<span class="sd">        call: The caller's name, forwarded so a shape from the other backend is refused under it</span>
+<span class="sd">            rather than inside the native function it would otherwise have reached (T138).</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_native_2d</span> <span class="k">as</span> <span class="n">_coerce</span>
 
-    <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="n">call</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Callable[[], Any]"</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="s2">"ProfileLike"</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Callable[[], Any]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.</span>
 
 <span class="sd">    (the "children" form, safe for frep handles); anything else is meshed once and reused.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        profile: The profile as given.</span>
+<span class="sd">        call: The caller's name, for a cross-backend refusal (T138).</span>
+
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">Bosl2Shape2D</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">())</span>
-    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">(),</span> <span class="n">call</span><span class="o">=</span><span class="n">call</span><span class="p">)</span>
+    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="n">call</span><span class="p">)</span>
     <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">native</span>
 
 
@@ -2330,7 +2342,7 @@
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"extrude_from_to(): the two points must differ."</span><span class="p">)</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="s2">"extrude_from_to"</span><span class="p">)</span>
     <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
         <span class="s2">"center"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -2426,7 +2438,7 @@
     <span class="n">step</span> <span class="o">=</span> <span class="n">circumf</span> <span class="o">/</span> <span class="n">sides</span>
     <span class="n">steps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span>
     <span class="n">scalefactor</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="n">sides</span><span class="p">))</span>
-    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+    <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="s2">"cylindrical_extrude"</span><span class="p">)</span>
     <span class="n">facets</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="n">steps</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span>
@@ -2485,6 +2497,12 @@
     <span class="n">objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">objs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"chain_hull(): needs at least one shape to hull."</span><span class="p">)</span>
+    <span class="c1"># Every solid must share one backend, and the first one given sets which -- not</span>
+    <span class="c1"># `current_backend()`, because T133 made this follow the solids rather than the context, so</span>
+    <span class="c1"># `chain_hull(sdf_a, sdf_b)` outside `use_backend("sdf")` is legitimate and must keep working.</span>
+    <span class="c1"># Mixing used to die in `SdfSolid.hull`'s `np.asarray(..., dtype=float)` with "float() argument</span>
+    <span class="c1"># must be a string or a real number, not 'CsgSolid'" (T138, SPEC E-3).</span>
+    <span class="n">require_same_backend</span><span class="p">(</span><span class="s2">"chain_hull"</span><span class="p">,</span> <span class="n">_reference_backend</span><span class="p">(</span><span class="n">objs</span><span class="p">),</span> <span class="o">*</span><span class="n">objs</span><span class="p">)</span>
     <span class="n">solids</span> <span class="o">=</span> <span class="p">[</span><span class="n">_as_solid</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">"chain_hull"</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">solids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2514,6 +2532,9 @@
     <span class="n">raw</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"minkowski_difference(): needs at least one diff shape."</span><span class="p">)</span>
+    <span class="c1"># *base* sets the backend the diffs must share. The native `minkowski` below answered a</span>
+    <span class="c1"># foreign diff with "Invalid type for second object in minkowski" (T138, SPEC E-3).</span>
+    <span class="n">require_same_backend</span><span class="p">(</span><span class="s2">"minkowski_difference"</span><span class="p">,</span> <span class="n">_reference_backend</span><span class="p">([</span><span class="n">base</span><span class="p">]),</span> <span class="n">base</span><span class="p">,</span> <span class="o">*</span><span class="n">raw</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"csg"</span><span class="p">:</span>
         <span class="c1"># The body below is the CSG implementation -- `pythonscad.cube` for the bounding shells and</span>
         <span class="c1"># the native `minkowski` for the erosion -- and `Bosl2Solid.minkowski_difference` forwards</span>
@@ -2635,7 +2656,7 @@
             <span class="n">max_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
             <span class="n">max_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">max_x</span> <span class="o">-</span> <span class="n">min_x</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">-</span> <span class="n">min_y</span><span class="p">)</span>
-        <span class="n">factory</span> <span class="o">=</span> <span class="n">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="n">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="s2">"path_extrude2d"</span><span class="p">)</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># straight segments</span>
         <span class="n">last</span> <span class="o">=</span> <span class="n">sides</span> <span class="k">if</span> <span class="n">is_closed</span> <span class="k">else</span> <span class="n">sides</span> <span class="o">-</span> <span class="mi">1</span>
@@ -2724,7 +2745,7 @@
             <span class="n">rotmats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
         <span class="n">interp</span> <span class="o">=</span> <span class="n">rot_resample</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">rotmats</span><span class="p">],</span> <span class="n">num_copies</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">ResampleMethod</span><span class="o">.</span><span class="n">COUNT</span><span class="p">)</span>
         <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-4</span>
-        <span class="n">factory</span> <span class="o">=</span> <span class="n">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="n">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="s2">"path_extrude"</span><span class="p">)</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">pt1</span><span class="p">,</span> <span class="n">pt2</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>

@@ -10980,18 +10980,30 @@ and, where no mesher was available, raised out of the check.</p>
 
 <dl class="py exception objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.solid.CrossBackendError">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">CrossBackendError</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.CrossBackendError.__init__.left" title="pybosl2.solid.CrossBackendError.__init__.left (Python parameter) — backend of the left operand."><span class="n"><span class="pre">left</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.CrossBackendError.__init__.right" title="pybosl2.solid.CrossBackendError.__init__.right (Python parameter) — backend of the right operand."><span class="n"><span class="pre">right</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/exceptions.html#CrossBackendError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.solid.CrossBackendError" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">CrossBackendError</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.CrossBackendError.__init__.left" title="pybosl2.solid.CrossBackendError.__init__.left (Python parameter) — backend of the left operand."><span class="n"><span class="pre">left</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.CrossBackendError.__init__.right" title="pybosl2.solid.CrossBackendError.__init__.right (Python parameter) — backend of the right operand."><span class="n"><span class="pre">right</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.CrossBackendError.__init__.call" title="pybosl2.solid.CrossBackendError.__init__.call (Python parameter) — the call the caller made, if an argument rather than an operator crossed."><span class="n"><span class="pre">call</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/exceptions.html#CrossBackendError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.solid.CrossBackendError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Error</span></code></p>
 <p>A boolean/transform combined solids from two different backends.</p>
-<p>Solids must share a backend to be combined. Convert one first: meshing an SDF solid into a CSG
+<p>Shapes must share a backend to be combined. Convert one first: meshing an SDF solid into a CSG
 polyhedron is exact (<code class="docutils literal notranslate"><span class="pre">sdf_solid.to_csg()</span></code>); voxel-sampling a CSG solid into an SDF is lossy and
 opt-in (<code class="docutils literal notranslate"><span class="pre">csg_solid.to_sdf(voxel_size=...)</span></code>).</p>
+<p><em>call</em> names the call the caller made, so a shape handed to a <strong>function or method</strong> as an
+argument – <cite>hull(a, b)</cite>, <cite>path_extrude(profile)</cite>, <cite>edge_mask(mask=…)</cite> – reports under that
+name rather than under whatever inner frame first choked on it (SPEC E-1). T138 added it: until
+then only the boolean operators and <cite>minkowski</cite> consulted
+<code class="xref py py-func docutils literal notranslate"><span class="pre">check_operand_backend()</span></code>, and 29 of 38 measured ways of mixing backends
+through an argument reported something else – 16 a raw <cite>TypeError</cite>/<cite>AttributeError</cite> from the
+native parser, 8 a catchable error naming an internal class or an inner call instead of the
+caller’s, 3 a silently wrong answer, and 2 a failure deferred to render time.</p>
+<p>Omitting <em>call</em> keeps the original operand wording verbatim, which <cite>pybosl2.beziers</cite> and two
+records quote as history.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.solid.CrossBackendError-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.CrossBackendError-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt id="pybosl2.solid.CrossBackendError.__init__.left"><span class="sig-name descname">left</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.solid.CrossBackendError.__init__.left" title="Permalink to this definition">¶</a></dt><dd><p>backend of the left operand.</p>
 </dd>
 <dt id="pybosl2.solid.CrossBackendError.__init__.right"><span class="sig-name descname">right</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.solid.CrossBackendError.__init__.right" title="Permalink to this definition">¶</a></dt><dd><p>backend of the right operand.</p>
+</dd>
+<dt id="pybosl2.solid.CrossBackendError.__init__.call"><span class="sig-name descname">call</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | None</span></span><a class="headerlink" href="#pybosl2.solid.CrossBackendError.__init__.call" title="Permalink to this definition">¶</a></dt><dd><p>the call the caller made, if an argument rather than an operator crossed.</p>
 </dd>
 </dl>
 </dd>

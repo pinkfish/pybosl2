@@ -2185,6 +2185,8 @@
     <span class="n">Solid</span><span class="p">,</span>
     <span class="n">current_backend</span><span class="p">,</span>
     <span class="n">get_backend</span><span class="p">,</span>
+    <span class="n">reference_backend</span><span class="p">,</span>
+    <span class="n">require_same_backend</span><span class="p">,</span>
     <span class="n">set_default_backend</span><span class="p">,</span>
     <span class="n">use_backend</span><span class="p">,</span>
 <span class="p">)</span>
@@ -4888,10 +4890,17 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If *solids* is empty.</span>
+<span class="sd">        CrossBackendError: If the solids do not all share one backend (SPEC C-1, E-3).</span>
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">solids</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">(): needs at least one solid to combine."</span><span class="p">)</span>
+    <span class="c1"># These three docstrings have said "all must share a backend (SPEC C-1)" since they were</span>
+    <span class="c1"># written, and nothing checked it: the mix reached the backend implementation, where the CSG</span>
+    <span class="c1"># one happened to refuse through an operator and the SDF one reported "every argument must be</span>
+    <span class="c1"># a PyShape, got ['SdfSolid', 'CsgSolid']" -- naming an internal class and listing an operand</span>
+    <span class="c1"># that was fine. The first solid sets the backend, as it does for `chain_hull` (T138).</span>
+    <span class="n">require_same_backend</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">reference_backend</span><span class="p">(</span><span class="n">solids</span><span class="p">),</span> <span class="o">*</span><span class="n">solids</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="union">

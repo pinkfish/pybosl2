@@ -2692,6 +2692,72 @@
         <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">reference_backend</span><span class="p">(</span><span class="n">operands</span><span class="p">:</span> <span class="s2">"Sequence[Any]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the backend the operands of an n-ary call must share.</span>
+
+<span class="sd">    The first operand carrying a ``backend`` tag sets it, so such a call follows the shapes it was</span>
+<span class="sd">    handed rather than the ambient context: `chain_hull(sdf_a, sdf_b)` is legitimate outside</span>
+<span class="sd">    `use_backend("sdf")`, and T133 made it work that way deliberately. With no tagged operand --</span>
+<span class="sd">    raw native handles, point lists -- the active backend is the only answer available.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        operands: The operands as given.</span>
+
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">operand</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="s2">"backend"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">tag</span>
+    <span class="k">return</span> <span class="n">current_backend</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">require_same_backend</span><span class="p">(</span><span class="n">call</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">operands</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise if any of *operands* was built by a backend other than *backend* (SPEC A-6, E-3).</span>
+
+<span class="sd">    :func:`check_operand_backend` is the operator form: it guards `a | b`, `a - b` and</span>
+<span class="sd">    `minkowski`, where "the other operand" is one object and the message can speak of operands.</span>
+<span class="sd">    This is the **argument** form, for a shape handed to a call -- `hull(a, b)`,</span>
+<span class="sd">    `path_extrude(profile)`, `edge_mask(mask=...)`, `union([a, b])`. T138 measured 38 ways to hand</span>
+<span class="sd">    a call a shape from the other backend and **29 of them did not report honestly**: 16 raised a</span>
+<span class="sd">    raw ``TypeError``/``AttributeError`` from the native parser that no ``except Bosl2Error`` could</span>
+<span class="sd">    catch, 8 raised a catchable error naming an internal class (``PyShape``, ``PyOpenSCAD``) or an</span>
+<span class="sd">    inner call (``bounds()``) instead of the one the caller made, 3 built a wrong answer in</span>
+<span class="sd">    silence, and 2 returned successfully and failed later in ``_realize_node``.</span>
+
+<span class="sd">    An operand with no ``backend`` attribute passes, exactly as it does in the operator form: raw</span>
+<span class="sd">    native handles, point lists, VNFs and `Path2D`/`Region` are not backend-tagged and crossing</span>
+<span class="sd">    with them is ordinary interop, not a mix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        call: the call the caller made, named in the message (SPEC E-1).</span>
+<span class="sd">        backend: the backend this call is building on -- a shape's own ``backend``, not</span>
+<span class="sd">            :func:`current_backend`, so a CSG shape's method called inside ``use_backend("sdf")``</span>
+<span class="sd">            still measures against the shape doing the work.</span>
+<span class="sd">        *operands: the shape arguments to check, in the order given. A ``list``/``tuple`` is</span>
+<span class="sd">            looked into one level, because every n-ary call here takes either form.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        CrossBackendError: If an operand was built by a different backend.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossBackendError</span>
+
+    <span class="k">for</span> <span class="n">operand</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">:</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="s2">"backend"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span> <span class="o">!=</span> <span class="n">backend</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CrossBackendError</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">call</span><span class="o">=</span><span class="n">call</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="c1"># Neutral geometry carries no backend tag and is not a mix: a VNF realises itself on</span>
+        <span class="c1"># whichever backend asks, and `Path2D`/`Region` are point containers. They are checked</span>
+        <span class="c1"># before the list branch because both are `list` subclasses, which would otherwise send</span>
+        <span class="c1"># this walking a path's coordinates.</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="s2">"geometry"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">require_same_backend</span><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="o">*</span><span class="n">operand</span><span class="p">)</span>
+
+
 <span class="n">BackendName</span> <span class="o">=</span> <span class="nb">str</span>  <span class="c1"># "csg" | "sdf" (kept a plain str so third-party backends can register too)</span>
 
 <span class="n">_KNOWN</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"csg"</span><span class="p">,</span> <span class="s2">"sdf"</span><span class="p">}</span>
