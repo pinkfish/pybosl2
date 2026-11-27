@@ -131,11 +131,13 @@ DOORS = ("to_csg", "mesh")
 #: Calls inside the SDF backend that cross the boundary and come back, with the reason.
 #: The list only shrinks. An entry is a declaration that the method returns a *field* despite
 #: meshing on the way, which the dynamic sweep below then holds it to.
+#: `pybosl2/sdf/shapes2d.py::hull` was the first entry here, declared as "goes out through the
+#: 3-D hull's `projection` and comes back as a `polygon2d` -- lossy (B-5) and recorded as such".
+#: T139 deleted it by removing the crossing: the hull is computed from each shape's own
+#: extreme-point claim now, with no mesh and no conversion. **The crossing this list was
+#: accepting had never produced a hull** -- `projection()` returns a `CsgShape2D`, which has no
+#: `.paths`, so the method fell through to `return self`. An exemption is a claim like any other.
 CROSSES_AND_RETURNS: dict[str, str] = {
-    "pybosl2/sdf/shapes2d.py::hull": (
-        "the 2-D hull goes out through the 3-D hull's `projection` and comes back as a "
-        "`polygon2d` -- an SDF shape. Lossy (B-5) and recorded as such in the method."
-    ),
     "pybosl2/sdf/shapes3d.py::show": "hands the mesh to the viewer; its return value is not geometry",
     "pybosl2/sdf/shapes3d.py::_baked": (
         "the render-time hook. Meshing is what it is for, and what it returns goes to the "

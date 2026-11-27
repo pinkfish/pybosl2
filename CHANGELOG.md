@@ -15,6 +15,21 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Output changes
 
+- **`flat`/2-D `hull()` on the SDF backend never returned a hull.** `circle2d(5).hull(other)`
+  handed back **the receiver**, with every other operand silently discarded, or raised
+  `hull(): a child shape meshed to nothing` — depending on how far the old chain got. It extruded
+  each operand to a 0.01mm slab (which meshes to nothing at `res=10`), hulled the slabs in 3-D,
+  meshed that, crossed to CSG, projected back and read `.paths` off the projection — an attribute
+  a `CsgShape2D` does not have, so the success branch was unreachable at any thickness. It is
+  computed from each shape's own extreme-point claim now: exact when every operand grows by the
+  same radius (so `hull(circle().translate(), circle().translate())` has genuine arcs), and
+  faceted over `directions=64` when the radii differ, matching what the CSG backend builds. By
+  area it agrees with the CSG hull to within 2.7%, always on the larger side because CSG facets
+  its circles, and exactly for polygons. It needs no mesher at all, where the old route needed one
+  twice. A shape with no usable claim — a boolean, an `outline`, a shrunk shape, a rectangle
+  rounded by unequal radii — is refused by name with the `.to_csg()` route rather than
+  approximated, because a libfive field cannot be asked for its own boundary points.
+
 - **A rim fillet or chamfer on a tapered cylinder was in the wrong place, on both backends.** The
   fillet's centre sat at `radius - amount` from the axis, which is only the corner's incentre when
   the wall is vertical; BOSL2 fits it tangent to *both* legs of the corner. On a 10-to-4 cone with
@@ -130,6 +145,14 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Internals
 
+- **The 2-D hull's `to_csg()` crossing is gone, and so is its entry in the boundary ratchet.**
+  `CROSSES_AND_RETURNS` listed `sdf/shapes2d.py::hull` with a reason describing a code path that
+  had never run — a justified exemption for dead code reads as checked. `mirror` and a positive
+  `offset` now propagate the `Hull2D` extreme-point claim (a reflection is an isometry; growing by
+  *a* adds *a* to the radius), so more shapes can be hulled rather than refused. The claim also
+  carries a tightness flag: `bounds` only needs a claim that *contains* the shape and is happy
+  with a loose one, while `hull` needs the *extreme set*, and the two requirements had been
+  conflated since the claim was added.
 - **Cross-backend mixing is checked for arguments, not only operands.**
   `pybosl2._backend.require_same_backend` is the argument form of `check_operand_backend`: it
   takes the caller's name, so the refusal reads `hull(): cannot take a 'sdf'-backend shape here`

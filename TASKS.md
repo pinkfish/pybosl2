@@ -6740,3 +6740,152 @@ here.
 rather than naming `minkowski()`. That is `BaseShape.minkowski`'s existing `_check_operand` call
 and it is correct and catchable; naming the call there is a message improvement with no defect
 behind it.
+
+
+## T139 — The 2-D hull that was never a hull ✅
+
+**SPEC A-6 / A-2 / B-5 / E-1 / PAR-1. `SdfShape2D.hull` had never returned a hull.**
+
+T138's record closed with `SdfShape2D.hull` failing in the real app for *any* operand, measured
+identical on `main`, and filed as a geometry defect. It is one, and the thickness it blamed was
+the least of three things wrong at once.
+
+### What the chain actually did
+
+```
+extrude each operand to a 0.01mm slab   ->  hull the slabs in 3-D
+  ->  mesh that                         ->  to_csg()
+  ->  projection(cut=True)              ->  read .paths  ->  polygon2d(...)
+```
+
+| step | what is wrong |
+|---|---|
+| `extrude(0.01)` | measured at `res=10`: **0 vertices**. 0.1 gives 8, 0.5 gives 264, 1.0 gives 1072. The 3-D hull meshes each child for its support points, so it raised `hull(): a child shape meshed to nothing` — the symptom T138 saw |
+| `extrude(h)` stands the slab on `z=0`; `projection(cut=True)` slices at `z=0` | the cut plane was the slab's own bottom face |
+| `projection()` returns a `CsgShape2D` | which has **no `.paths`**. So `hasattr(shapes[0], "paths")` was always false, `pts` stayed empty, and the method fell out of its **third `return self`** |
+
+That last row is the defect. Whatever the thickness, the success branch was unreachable, and
+`a.hull(b)` handed back **`a`** with every other operand silently discarded — a call that cannot
+do its job returning the receiver unchanged (SPEC A-6). Fixing the thickness alone would have
+moved the failure from an exception to a silent wrong answer.
+
+### The mock was more capable than the thing it stands in for
+
+**This is why no test caught it, and it is the finding worth keeping.** Under
+`tests/mock_libfive.py` a `CsgShape2D` *does* answer `.paths`, and a 0.01 slab *does* mesh. So
+under the mock the old body ran to completion and returned a hull measuring **30.6 × 10.2** where
+the answer is **30 × 10** — wrong, but wrong by 2%, and nothing asserted the number. In the real
+app the same code returns the receiver.
+
+A stand-in may be less capable than the real thing; a test then skips, and T135's lesson is to ask
+why. A stand-in that is *more* capable is worse, because the test passes and says nothing. The
+control in the new file therefore asserts the old body **does not give the right answer**, by
+whichever symptom the environment produces, rather than pinning one of them.
+
+### T135's own ratchet was accepting it
+
+`CROSSES_AND_RETURNS` in `tests/test_the_sdf_backend_does_not_hand_back_csg.py` listed
+`shapes2d.py::hull` with a reason: *"goes out through the 3-D hull's `projection` and comes back
+as a `polygon2d` — an SDF shape. Lossy (B-5) and recorded as such in the method."* Every word of
+that describes a code path that **had never run**. A justified exemption for dead code reads as
+checked, which is the same shape of error as T137's parity exemption carried to a class that did
+not satisfy it. The entry is deleted, which is the direction that list moves.
+
+### The fix: the claim was already there
+
+T136 added `Hull2D` for `bounds` — `(points, radius)`, claiming the shape lies inside the convex
+hull of *points* grown by a ball of *radius*. **That is exactly what a hull needs.** So the hull is
+arithmetic on the operands' own claims now: no meshing, no `to_csg()`, no projection, and it runs
+on a machine with no libfive at all (SPEC A-2, PLAN T-6e) — where the old route could not have run
+at all, for an operation that never needed a mesher.
+
+Read each claim point as a disc of its claim's radius and it splits in two:
+
+* **every radius equal** (including all-zero, i.e. all polygons) — `hull(P + ball(r))` *is*
+  `hull(P) + ball(r)`, so `hull2d_discs` gives it **exactly**, with genuine arcs at the corners;
+* **radii differ** — no single growth exists, and the exact hull of unequal discs is tangent lines
+  joined by arcs of two radii. The support point along a direction is still exact and cheap: the
+  disc maximising `<c, d> + r`, at `c + r*d`. The hull of those over `directions` directions is an
+  inscribed polygon — which is what the CSG backend builds too, since it hulls a *faceted* circle.
+
+### Measured against the other backend
+
+Area, via the extruded volume, because a bounding box cannot see the shape inside it (T47):
+
+| case | CSG | SDF | diff |
+|---|---|---|---|
+| two equal circles | 276.537 | 278.562 | +0.73% |
+| two unequal circles | 210.547 | 213.862 | +1.57% |
+| **two squares** | 252.000 | 252.000 | **0.00%** |
+| circle and square | 192.420 | 193.365 | +0.49% |
+| two evenly rounded rects | 156.314 | 160.474 | +2.66% |
+| three equal circles | 393.447 | 397.246 | +0.97% |
+
+Every SDF figure is **≥** its CSG counterpart, which is the correct direction: CSG hulls faceted
+circles and roundings, inscribed, while the equal-radius path here keeps true arcs. The all-polygon
+case has nothing to facet and agrees to **0.000**, which is what pins the construction rather than
+its tolerance.
+
+### Two corrections to my own work
+
+**`res` is not a facet count.** The first mixed-radius version set the direction count from
+`_frag_count(span, res)`, and `res` is a *meshing* resolution — `res=10` gave **twelve** directions
+for a hull spanning 22 units, so the circle's exposed arc became a handful of chords and the area
+came out **10.19% small** against CSG. It mirrors `SdfSolid.hull`'s own explicit `directions=64`
+now, and a test pins that the parameter is live so a future default that is too low fails rather
+than quietly shrinking geometry.
+
+**Containment is not tightness.** `Hull2D`'s contract is that the claim *contains* the shape, which
+is all `bounds` needs. A hull needs the *extreme set*. `_rect_hull` returns the **plain corners**
+for a rectangle rounded by *unequal* radii — containing, not tight, and T136 recorded exactly why
+(no finite point set is that shape's extreme set). Building a hull from it would have added
+material at the corners rounded by less than the largest: a silent wrong answer, the thing being
+fixed. The claim carries a `_hull_tight` flag now, `bounds` keeps the loose claim and the
+tightening T136 added it for, and `hull` refuses on it.
+
+### What it refuses, and why that is the honest answer
+
+A libfive tree **cannot be evaluated at a point from Python** in the real app — `PyData` is not
+callable, and only the numeric mock makes it so, which is why
+`tests/test_sdf_bounds_are_tight_2d.py` can sample a field and no shipping code can. So a shape
+with no usable claim cannot be asked for its own boundary points and there is genuinely nothing to
+hull. Those refuse under `hull`, naming the `.to_csg()` route: a boolean, an `outline`, a *shrunk*
+shape (a negative offset can pull the boundary inside the claim's own points), and the unevenly
+rounded rectangle. Replacing a silent `return self` with a refusal that names the conversion is the
+improvement for those cases.
+
+**And the claim now reaches further than it did.** `mirror` is an isometry, so it carries the claim
+exactly — reflect the points, keep the radius — and a *positive* `offset` adds exactly its own
+amount to the radius, because `conv(P) + ball(r) + ball(a)` is `conv(P) + ball(r + a)`. Both were
+reachable before and refused for no reason but that nothing propagated the claim.
+
+### The control
+
+`tests/test_the_2d_hull_is_a_hull.py`, 35 tests. The first asserts the thing the old code failed:
+`a.hull(b) is not a`, and that the result reaches the far operand. Then cross-backend agreement
+one-sided in the direction faceting explains; polygons exactly; `directions` shown to be doing
+work by **area**, because the *box* is the wrong instrument — direction `k=0` is always `(1, 0)`,
+so even eight directions include the four axes and capture a circle's extremes exactly, and both
+boxes read −5. Convexity of the result, the degenerate collinear and coincident cases, and the
+whole thing again under a `no_mesher` fixture.
+
+### The negative control
+
+The file against a `git worktree` of `main`: **30 of 35 fail.** The five that pass are each
+explicable, which is what makes the other thirty mean something:
+
+| passes on `main` | why |
+|---|---|
+| `test_no_operands_returns_self` | the one `return self` that was always right |
+| `test_the_probes_can_fail` | it is a control: on `main` the "old" body *is* the current one, so restoring it changes nothing and the assertion that it gives the wrong answer still holds |
+| `test_the_hull_is_convex` | the mock's route happened to yield a convex polygon |
+| 2 of the 5 agreement cases | the mock's over-sized answer fell inside the one-sided tolerance |
+
+### Found and not fixed
+
+The exact hull of discs with **unequal** radii — tangent lines joined by arcs of two radii — is not
+built; the mixed-radius path facets it at `directions` instead, which matches CSG and is bounded by
+the direction spacing. Writing it exactly would make the mixed case as exact as the equal one.
+Recorded rather than chased, because faceting a curve under a resolution argument is the library's
+own model (SPEC R-1) and the equal-radius case — the common `hull(circle().translate(), ...)`
+idiom — is already exact.
