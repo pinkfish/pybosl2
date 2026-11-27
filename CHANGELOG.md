@@ -52,6 +52,30 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Backend parity
 
+- **A shape from the other backend is refused wherever a call takes one, not just by the boolean
+  operators.** Handing a CSG shape to an SDF call, or the reverse, raised `CrossBackendError` for
+  `a | b`, `a - b`, `a & b` and `minkowski`, and for nothing else. Measured across 38 ways to pass
+  a shape as an *argument*, 29 reported something else: most raised a raw `TypeError` or
+  `AttributeError` from the native layer that `except Bosl2Error` could not catch (`hull`, `fill`,
+  `round2d`, `shell2d`, `chain_hull`, `minkowski_difference`, `extrude_from_to`,
+  `cylindrical_extrude`, `path_extrude`, `path_extrude2d`, and the n-ary calls on both backends);
+  `sdf_solid.minkowski(csg_solid)` and `.minkowski_difference(csg_solid)` built a **wrong answer
+  in silence**, dilating or eroding by the foreign solid's bounding ball; `sdf_2d.union([csg_2d])`
+  returned the **CSG** shape; and `position`/`align`/`attach`/`edge_mask` accepted the foreign
+  child or cutter and failed at *render* time with `TypeError: invalid argument left to operator`.
+  All of them now raise `CrossBackendError` naming the call you made and the conversion that
+  applies in that direction — `.to_csg()` for a field, or rebuilding inside `use_backend("sdf")`
+  for a CSG shape, since there is no CSG→SDF conversion to take for you.
+
+- **`CsgSolid.union()`, `.intersection()` and `.difference()` now work.** None of them ever did,
+  with any argument: all three fall through to the native passthrough, which wrapped the result on
+  the way out and never unwrapped the arguments on the way in, so
+  `sphere(radius=5).union(cuboid([6, 6, 6]))` raised `TypeError: Error during parsing union.
+  arguments must be solids or arrays`. The SDF backend has had working
+  `union`/`intersection`/`difference` methods throughout, so this was a parity gap as well as a
+  break. Both the varargs and the `union([a, b])` list form work now. Use `a | b`, `a & b`, `a - b`
+  or `pybosl2.solid.union(a, b)` if you worked around it.
+
 - **An unknown attribute on a 2-D SDF shape no longer silently meshes it.** `SdfShape2D` answered
   every name a 2-D distance field does not define by extruding a 0.01mm slab, meshing it and
   forwarding the attribute to the result — so from inside `use_backend("sdf")`,
@@ -106,6 +130,17 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Internals
 
+- **Cross-backend mixing is checked for arguments, not only operands.**
+  `pybosl2._backend.require_same_backend` is the argument form of `check_operand_backend`: it
+  takes the caller's name, so the refusal reads `hull(): cannot take a 'sdf'-backend shape here`
+  rather than naming an inner frame. `tests/test_a_shape_argument_cannot_cross_backends.py` runs
+  34 cases **twice** — mixed, which must refuse under the call's own name, and same-backend, which
+  must still build — and that second half is what found the three broken `CsgSolid` n-ary methods.
+  Against unfixed `main` the file reports 40 failures. Its control
+  neutralises the guard in every module that binds it, including `pybosl2._backend`'s own
+  attribute, and a companion check asserts no module imports it inside a function, where patching
+  could not reach it; a static scan requires
+  every call to a shape coercer to pass `call=`, so a new coercion site cannot arrive unnamed.
 - **The four shape classes' attribute fallbacks are now checked against each other** rather than
   one at a time. Five separate tests guarded that fallback and four of them asked the 3-D SDF
   solid; the fifth had been taught to ask the 2-D shape as well and skipped the failing name

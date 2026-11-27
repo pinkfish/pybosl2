@@ -54,7 +54,8 @@ from functools import reduce
 
 import numpy as np
 
-from pybosl2._backend import backend_only
+from pybosl2._backend import backend_only, require_same_backend
+from pybosl2._backend import reference_backend as _reference_backend
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2._helpers import pick_radius as _pick_radius
@@ -80,7 +81,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _as_native_2d(profile: "ProfileLike") -> Any:
+def _as_native_2d(profile: "ProfileLike", call: str | None = None) -> Any:
     """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
 
     a Path2D, or a Region) -- see :func:`pybosl2.shapes2d.base.as_native_2d`, which this defers to.
@@ -88,23 +89,34 @@ def _as_native_2d(profile: "ProfileLike") -> Any:
     The docstring said `pybosl2.shapes2d` for as long as the function it named lived in
     `pybosl2._helpers`, one layer down. T133 moved the coercion to the layer the docstring had been
     pointing at all along, which is where `native("polygon")` already is.
+
+    Args:
+        profile: The object to coerce.
+        call: The caller's name, forwarded so a shape from the other backend is refused under it
+            rather than inside the native function it would otherwise have reached (T138).
+
     """
     from pybosl2.shapes2d.base import as_native_2d as _coerce
 
-    return _coerce(profile)
+    return _coerce(profile, call=call)
 
 
-def _profile_factory(profile: "ProfileLike") -> "Callable[[], Any]":
+def _profile_factory(profile: "ProfileLike", call: str) -> "Callable[[], Any]":
     """Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.
 
     (the "children" form, safe for frep handles); anything else is meshed once and reused.
+
+    Args:
+        profile: The profile as given.
+        call: The caller's name, for a cross-backend refusal (T138).
+
     """
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
     if callable(profile) and not isinstance(profile, (list, tuple, Bosl2Solid, Bosl2Shape2D)):
-        return lambda: _as_native_2d(profile())
-    native = _as_native_2d(profile)
+        return lambda: _as_native_2d(profile(), call=call)
+    native = _as_native_2d(profile, call=call)
     return lambda: native
 
 
@@ -177,7 +189,7 @@ def extrude_from_to(
         raise Bosl2ValueError("extrude_from_to(): the two points must differ.")
     theta = math.degrees(math.atan2(diameter[1], diameter[0]))
     phi = math.degrees(math.atan2(math.hypot(diameter[0], diameter[1]), diameter[2]))
-    native = _as_native_2d(profile)
+    native = _as_native_2d(profile, call="extrude_from_to")
     kw = {
         "height": height,
         "center": False,
@@ -270,7 +282,7 @@ def cylindrical_extrude(
     step = circumf / sides
     steps = math.ceil(size[0] / step)
     scalefactor = sides / math.pi * math.sin(math.radians(180 / sides))
-    native = _as_native_2d(profile)
+    native = _as_native_2d(profile, call="cylindrical_extrude")
     facets = []
     for i in range(steps):
         x = (i + 0.5 - steps / 2) * step
@@ -326,6 +338,12 @@ def chain_hull(*objects: object) -> Bosl2Solid:
     objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
     if not objs:
         raise Bosl2ValueError("chain_hull(): needs at least one shape to hull.")
+    # Every solid must share one backend, and the first one given sets which -- not
+    # `current_backend()`, because T133 made this follow the solids rather than the context, so
+    # `chain_hull(sdf_a, sdf_b)` outside `use_backend("sdf")` is legitimate and must keep working.
+    # Mixing used to die in `SdfSolid.hull`'s `np.asarray(..., dtype=float)` with "float() argument
+    # must be a string or a real number, not 'CsgSolid'" (T138, SPEC E-3).
+    require_same_backend("chain_hull", _reference_backend(objs), *objs)
     solids = [_as_solid(o, "chain_hull") for o in objs]
     if len(solids) == 1:
         return solids[0]
@@ -352,6 +370,9 @@ def minkowski_difference(base: object, *diffs: object, size: float = 1000, conve
     raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
     if not raw:
         raise Bosl2ValueError("minkowski_difference(): needs at least one diff shape.")
+    # *base* sets the backend the diffs must share. The native `minkowski` below answered a
+    # foreign diff with "Invalid type for second object in minkowski" (T138, SPEC E-3).
+    require_same_backend("minkowski_difference", _reference_backend([base]), base, *raw)
     if current_backend() != "csg":
         # The body below is the CSG implementation -- `pythonscad.cube` for the bounding shells and
         # the native `minkowski` for the erosion -- and `Bosl2Solid.minkowski_difference` forwards
@@ -468,7 +489,7 @@ class Extrudable:
             max_x = max(p[0] for p in pts)
             max_y = max(p[1] for p in pts)
             s = math.hypot(max_x - min_x, max_y - min_y)
-        factory = _profile_factory(profile)
+        factory = _profile_factory(profile, call="path_extrude2d")
         parts = []
         # straight segments
         last = sides if is_closed else sides - 1
@@ -554,7 +575,7 @@ class Extrudable:
             rotmats.append(acc)
         interp = rot_resample([list(m) for m in rotmats], num_copies=2, method=ResampleMethod.COUNT)
         eps = 1e-4
-        factory = _profile_factory(profile)
+        factory = _profile_factory(profile, call="path_extrude")
         parts = []
         for i in range(sides - 1):
             pt1, pt2 = parr[i], parr[i + 1]

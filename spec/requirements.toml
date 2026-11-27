@@ -655,6 +655,7 @@ Every shape carries a `backend` tag naming the backend that **produced** it. It 
 '''
 enforced_by = [
     "tests/test_backend_matrix.py::test_a_csg_shape_built_inside_an_sdf_block_still_says_csg",
+    "tests/test_a_shape_argument_cannot_cross_backends.py::test_a_foreign_shape_is_refused_under_the_calls_own_name",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_2d_shape_constructors_refuse_on_another_backend",
@@ -663,6 +664,13 @@ candidates = [
     "tests/test_backend_parity.py::test_sdf_shapes_keep_their_backend_through_moves_and_colour",
 ]
 status = "enforced"
+note = '''
+"Mixing raises `CrossBackendError`" was checked for booleans and transforms only. T138 added the
+argument form: the `backend` tag is now read by every call that takes a shape, which is what makes
+the tag worth carrying -- `pybosl2.solid`'s `union`/`difference`/`intersection` docstrings had cited
+this rule since they were written and nothing consulted the tag, so the mix reached the backend
+implementation and was reported by whatever broke first.
+'''
 
 [[requirement]]
 id = "SPEC-C-2"
@@ -2299,7 +2307,15 @@ candidates = [
 ]
 status = "enforced"
 note = '''
-The shared surface is built on both backends and required to agree.
+The shared surface is built on both backends and required to agree. **One pair did not, and no
+parity check could see it:** `SdfSolid` has real `union`/`intersection` methods, while on
+`CsgSolid` those names fall through `BaseShape.__getattr__` to the native passthrough -- which
+wrapped the *result* on the way out and never unwrapped the *arguments* on the way in, so
+`csg_solid.union(other)` raised `TypeError: Error during parsing union. arguments must be solids
+or arrays` for **any** argument, same backend or not. A parity walk over `vars(cls)` cannot reach
+a name the class does not define, and a walk that only calls the no-argument form never passes
+one. Both halves are symmetric now (T138), and the same-backend half of T138's table is what
+holds it: it calls each n-ary method with a real shape, which is the thing nothing did.
 '''
 
 [[requirement]]
@@ -2980,14 +2996,17 @@ aliases = ["E-3"]
 layer = "contract"
 section = "9. Error contract"
 statement = '''
-Cross-backend mixing names both operands and the conversion that resolves it.
+Cross-backend mixing names both operands and the conversion that resolves it — whether the shapes meet as **operands** of a boolean or as **arguments** to a call. A shape handed to `hull(a, b)`, `path_extrude(profile)` or `edge_mask(mask=...)` is mixed just as surely as one handed to `a | b`, and the refusal names the call the caller made rather than whatever inner frame first choked on it.
 '''
 enforced_by = [
     "tests/test_backend_crossbackend.py",
+    "tests/test_a_shape_argument_cannot_cross_backends.py::test_a_foreign_shape_is_refused_under_the_calls_own_name",
+    "tests/test_a_shape_argument_cannot_cross_backends.py::test_the_probes_can_fail",
+    "tests/test_a_shape_argument_cannot_cross_backends.py::test_every_coercion_site_names_the_call_it_serves",
 ]
 status = "enforced"
 note = '''
-The message names both operands and the conversion.
+The message names both operands and the conversion. **The argument half was unchecked until T138**: the one test behind this rule walked the three boolean operators, and every one of `check_operand_backend`'s 19 call sites is an operator (the six booleans on each of the three shape classes, plus `minkowski`) -- nothing taking a shape as an *argument* consulted it. T138 measured 38 ways to hand a call a shape from the other backend, in the real app with libfive present, and **29 did not report honestly** — 16 raised a raw `TypeError`/`AttributeError` from the native parser that no `except Bosl2Error` could catch, 8 named an internal class (`PyShape`, `PyOpenSCAD`) or an inner call (`bounds()`) instead of the one the caller made, 3 built a wrong answer in silence, and 2 returned successfully and failed later inside `_realize_node`. `require_same_backend` is the argument form of the operator guard, and 0 of the 38 report a raw exception now. The ratchet runs every case twice — mixed, which must refuse under the call's own name, and same-backend, which must still build — because a guard that refused everything would have passed the first half.
 '''
 
 [[requirement]]

@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._backend import require_same_backend as _require_same_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import pick_radius as _pick_radius
@@ -693,6 +694,13 @@ class SdfShape2D(Colorable, Distributable):
         shapes = list(shapes)
         if not (shapes):
             raise Bosl2ValueError("union() needs at least one shape")
+        # A `staticmethod`, so there is no receiver to read the backend from -- but this one lives
+        # on `SdfShape2D` and is typed `list[PyShape2D]`, so the backend is the class's own and
+        # not "whichever the first shape happens to be". That distinction is the whole defect:
+        # with one element the pairwise fold below has nothing to fold and returns its argument,
+        # so `sdf_2d.union([csg_2d])` handed back the *CSG* shape -- a result on a backend the
+        # receiver did not own, from a call that raised nothing (T138, SPEC A-6, E-3).
+        _require_same_backend("union", "sdf", *shapes)
         while len(shapes) > 1:
             shapes = [shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i] for i in range(0, len(shapes), 2)]
         return shapes[0]
@@ -801,6 +809,10 @@ class SdfShape2D(Colorable, Distributable):
         """
         if not others:
             return self
+        # `s.extrude(...)` is called on every operand, and a `CsgShape2D` has no `extrude`, so a
+        # foreign 2-D shape raised `AttributeError: 'openscad.PyOpenSCAD' object has no attribute
+        # 'extrude'` from inside this comprehension (T138, SPEC E-3).
+        _require_same_backend("hull", "sdf", *others)
         extruded = [s.extrude(0.01, res=s.res) for s in [self] + list(others)]
         hull3d = extruded[0].hull(*extruded[1:])
         csg = hull3d.to_csg()

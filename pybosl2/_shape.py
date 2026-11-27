@@ -20,6 +20,7 @@ from collections.abc import Sequence
 from typing import Any, Self
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._backend import require_same_backend as _require_same_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
@@ -93,6 +94,40 @@ _NATIVE_PASSTHROUGH = frozenset(
         "roof",
     }
 )
+
+
+def _unwrap_deep(value: object) -> object:
+    """Native handles out of a wrapper, looking one level into a list or tuple.
+
+    Used by the native-method passthrough in :meth:`BaseShape.__getattr__`, which forwards
+    arguments to a method this wrapper does not model. It **wrapped the result** on the way out
+    and never unwrapped the arguments on the way in, so a wrapper handed to a passthrough reached
+    the native layer as a Python object it does not know: `csg_solid.union(other)` raised
+    ``TypeError: Error during parsing union. arguments must be solids or arrays`` for *any*
+    argument, same backend or not, and `.intersection` and `.difference` with it -- all three of
+    the names `_NATIVE_PASSTHROUGH` carries for them. `SdfSolid` has real
+    `union`/`intersection`/`difference` methods, so those three were a parity gap as well as a
+    break (T138, SPEC PAR-1).
+
+    `union([a, b])` is as valid as `union(a, b)` -- the native layer takes "solids or arrays" and
+    `SdfSolid.union` accepts both -- so the list form needs its elements unwrapped too. A point
+    list survives unchanged, because `unwrap` passes anything that is not a wrapper through.
+
+    Args:
+        value: One forwarded argument.
+
+    """
+    from pybosl2._helpers import unwrap
+
+    # Only a plain list or tuple is looked into. `Path2D` and `Region` are `list` subclasses, so
+    # `isinstance` would have rebuilt one from its own elements -- lossless but pointless, and it
+    # would put a geometry type through its constructor's validation on every forwarded call.
+    if type(value) in (list, tuple):
+        unwrapped = [unwrap(v) for v in value]
+        if all(new is old for new, old in zip(unwrapped, value, strict=True)):
+            return value  # a point list or a matrix row: nothing was a wrapper, so allocate nothing
+        return type(value)(unwrapped)
+    return unwrap(value)
 
 
 class BaseShape(Colorable, Distributable):
@@ -452,7 +487,13 @@ class BaseShape(Colorable, Distributable):
         # a passthrough to a native method this wrapper does not model, so it takes whatever the
         # native one does; anything pybosl2 gives a signature to is a real method, not this path
         def _forward(*args: object, **kwargs: object) -> object:
-            result = attr(*args, **kwargs)
+            # Guarding here covers every passthrough that takes a shape rather than one name at a
+            # time: the native layer cannot refuse a foreign one intelligibly (T138, SPEC E-3).
+            _require_same_backend(name, getattr(self, "backend", "csg"), *args, *kwargs.values())
+            result = attr(
+                *(_unwrap_deep(a) for a in args),
+                **{k: _unwrap_deep(v) for k, v in kwargs.items()},
+            )
             if isinstance(result, native_cls):
                 return self._wrap(result)
             if isinstance(result, (list, tuple)) and result and all(isinstance(r, native_cls) for r in result):

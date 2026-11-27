@@ -115,7 +115,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
                   :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)
 
     """
-    return Bosl2Shape2D(_ofill(_as_native_2d(children)))
+    return Bosl2Shape2D(_ofill(_as_native_2d(children, call="fill")))
 
 
 @backend_only("csg")
@@ -135,7 +135,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
         items = list(items[0])  # type: ignore[arg-type]  # a single list *of* shapes
     if not items:
         raise Bosl2ValueError("hull(): needs at least one shape to hull.")
-    return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
+    return Bosl2Shape2D(_ohull(*[_as_native_2d(c, call="hull") for c in items]))
 
 
 # ---------------------------------------------------------------------------
@@ -177,7 +177,7 @@ def round2d(
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
     if children is None:
         raise Bosl2ValueError("round2d(): needs the shape(s) to round -- pass children=.")
-    shape = Bosl2Shape2D(_as_native_2d(children))
+    shape = Bosl2Shape2D(_as_native_2d(children, call="round2d"))
     shape = shape.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
     return shape.offset(radius=orad, fn=fn, fa=fa, fs=fs)
@@ -231,7 +231,7 @@ def shell2d(
         if isinstance(inner_radius, (int, float))
         else [float(v) for v in inner_radius]
     )
-    base = Bosl2Shape2D(_as_native_2d(children))
+    base = Bosl2Shape2D(_as_native_2d(children, call="shell2d"))
     outer_shape = round2d(
         outer_radius=orad[0],
         inner_radius=orad[1],

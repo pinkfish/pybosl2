@@ -6518,3 +6518,225 @@ it is pre-existing and not a consequence: `as_native_2d` already returned the SD
 on `main`, because the mesh's own `AttributeError` propagated and `getattr(obj, "geometry", None)`
 swallowed it. `check_operand_backend` guards the operators and the coercion helpers do not consult
 it. Recorded rather than chased, because it is a different requirement from the ones above.
+
+
+## T138 — The other way to mix ✅
+
+**SPEC C-1 / E-1 / E-3 / A-6 / PAR-1. Not a §12.2 item — a correction to an `enforced` claim.
+29 of 38 measured cases reporting dishonestly → 0.**
+
+Two of the 38 still build, and are meant to (`VNF.from_solid` either way); two refuse through the
+operand form rather than by name, which satisfies E-3 and is noted under *Found and not fixed*.
+
+T137's record ended with one line under *Found and not fixed*: handing a 2-D SDF shape to the CSG
+`hull()` failed with `TypeError: Error during parsing hull. arguments must be solids or arrays`,
+naming neither operand nor the conversion. That turned out to be one of **29**.
+
+SPEC E-3 says *"cross-backend mixing names both operands and the conversion that resolves it"*, and
+it was marked `enforced`. The test behind it, `tests/test_backend_crossbackend.py`, walks the three
+boolean operators — and `check_operand_backend`, the guard it exercises, was called by exactly
+those and `minkowski`. **An argument is the other way to mix, and nothing walked it.**
+
+### What 38 cases measured, in the real app
+
+Every operand built under an explicit backend *outside* the probed call, with libfive present:
+
+| what happened | how many | example |
+|---|---|---|
+| raw `TypeError`/`AttributeError` | **16** | `Error during parsing hull. arguments must be solids or arrays`; `float() argument must be a string or a real number, not 'CsgSolid'`; `'openscad.PyOpenSCAD' object has no attribute '_sdf_fn'` |
+| catchable, but named the wrong thing | **8** | `every argument must be a PyShape, got ['CsgSolid']` — an internal class; `bounds(): object has no native bounding box` — an inner call, three frames from `attach` |
+| built a wrong answer in silence | **3** | `sdf.minkowski(csg)`, `sdf.minkowski_difference(csg)`, `sdf_2d.union([csg_2d])` |
+| returned, then failed at **render** time | **2** | `position`, `edge_mask` → `TypeError: invalid argument left to operator` inside `_realize_node` |
+| refused correctly | 7 | the three free-function booleans, `csg.minkowski`, `sdf.attach`, `masking.edge_mask`, `roof` |
+| a legitimate crossing | 2 | `VNF.from_solid` either way — a VNF is neutral geometry and meshing a field is the sanctioned direction (B-5) |
+
+None of the first 16 is a `Bosl2Error`, so the documented `except Bosl2Error` could not catch one
+of them (SPEC E-6).
+
+### The three that were worse than an error
+
+**`SdfSolid.minkowski` reads only `other.bounds()`** — which a `CsgSolid` answers perfectly well.
+So it dilated the field by the *foreign* solid's inscribed ball and returned an `SdfSolid` that
+measured correctly and was wrong. `BaseShape.minkowski` calls `_check_operand`; this overrides it,
+and **overriding a method quietly drops the guard inside it.**
+
+**`SdfSolid.minkowski_difference` is the same method with the sign flipped**, reading
+`diff.bounds()` and nothing else, so it eroded by the foreign solid's ball just as silently. Two
+instances of one mistake, three methods apart, and the second was only found by asking whether the
+first had a sibling — the sort of thing a table of measured cases finds and a list of suspects
+does not.
+
+**`SdfShape2D.union` is a `staticmethod`**, so there is no receiver to read a backend from. With
+one element the pairwise fold has nothing to fold and returns its argument, so
+`sdf_2d.union([csg_2d])` handed back **the CSG shape** — a result on a backend the receiver did not
+own (SPEC A-6), from a call that raised nothing. The fix is not "take the first shape's backend":
+the method lives on `SdfShape2D` and is typed `list[PyShape2D]`, so the backend is the class's own.
+
+### The two that deferred the failure past the call
+
+`position`/`align`/`attach` and `edge_mask` do not combine the child or cutter — they stash it in
+`attachments` and let `realize()` do it later. So a foreign one was **accepted**, the call returned
+a solid that answered `bounds()` correctly, and the error surfaced in `show()`:
+
+```
+File "pybosl2/_shape.py", line 597, in _realize_node
+    final_geom = keep_geom - remove_geom
+TypeError: invalid argument left to operator
+```
+
+A frame the caller never wrote, after the build had apparently succeeded. Measured by rendering:
+
+| the same 20×20×10 box | triangles |
+|---|---|
+| alone | 12 |
+| `edge_mask(mask=csg_cyl)` | 92 |
+| `edge_mask(mask=sdf_cyl)` | **nothing exported at all** |
+
+### The fix: the argument form of the guard
+
+`require_same_backend(call, backend, *operands)` sits beside `check_operand_backend` in
+`_backend.py` and differs from it in two ways that matter. It takes **the call's own name**, so the
+refusal reads `hull(): cannot take a 'sdf'-backend shape here …` rather than naming an inner frame
+(SPEC E-1). And it names **the conversion that exists in that direction**: SDF→CSG is an exact
+mesh, CSG→SDF is lossy and deliberately absent (B-5), so pointing at a `to_sdf()` that raises would
+be worse than saying to rebuild inside `use_backend("sdf")`. The test asserts `to_sdf` is *not* in
+the message.
+
+`CrossBackendError` keeps its original wording byte-for-byte when no call is given, because
+`pybosl2/beziers.py`, `tests/test_neutral_geometry_is_not_gated.py` and `spec/spec.md.in` all quote
+that sentence as history.
+
+**The structural choke point is the native-passthrough door.** `BaseShape.__getattr__` hands
+unknown-but-whitelisted names to the native handle, forwarding arguments untouched — so every
+passthrough that takes a shape was a route out, not just the ones in the table. Checking there
+covers the class rather than one name at a time, which is the same lesson T137 learned about the
+attribute fallback: a door needs a contract, not a list of the people who have walked through it.
+
+### A second defect, found by the control rather than the fix
+
+The same-backend half of the ratchet — *does this call still build when both shapes share a
+backend?* — failed on `csg-union-method`. On `main`, with no mixing involved:
+
+```
+a.union(b)           -> !! TypeError: Error during parsing union. arguments must be solids or arrays.
+a.intersection(b)    -> !! TypeError: Error during parsing intersection. arguments must be solids or arrays.
+a.difference(b)      -> !! TypeError: Error during parsing difference. arguments must be solids or arrays.
+solid.union(a, b)    -> CsgSolid
+a | b                -> CsgSolid
+```
+
+**All three of `CsgSolid.union`, `.intersection` and `.difference` never worked, with any
+argument** — the three names `_NATIVE_PASSTHROUGH` carries for them. The passthrough wrapped the
+result on the way out and never unwrapped the arguments on the way in, so the native layer got a
+Python wrapper it does not know. `SdfSolid` has real `union`/`intersection`/`difference` methods,
+so this was a parity gap too (SPEC PAR-1) — and no parity walk could see it: a walk over
+`vars(cls)` cannot reach a name the class does not define, and a walk that calls the no-argument
+form never passes one. Both halves are symmetric now, including the `union([a, b])` list form the
+native layer documents and the SDF side already accepted.
+
+The third one is worth noting on its own: I wrote the first version of this paragraph saying
+*"union and intersection"*, because those are the two the table happened to exercise, and then
+checked `difference` on `main` rather than leaving it inferred. It was broken too.
+
+**This is the control earning its place.** The fix and the first half of the table would have
+passed without it; the question "and does the honest case still work?" is what found a broken
+method that had been broken the whole time.
+
+### Why nothing caught any of it
+
+| guard | why it was blind |
+|---|---|
+| `tests/test_backend_crossbackend.py` | walks `__or__`/`__and__`/`__sub__`. Its own docstring says "Boolean ops require operands to share a backend" — true, and the whole of what it checks |
+| `check_operand_backend` | 19 call sites, and every one an operator: the six booleans on `BaseShape`, on `SdfSolid` and on `SdfShape2D`, plus `BaseShape.minkowski`. Nothing that takes a shape as an *argument* consulted it |
+| `tests/test_backend_parity.py` | asks whether a feature *exists* on both backends, not whether it rejects a foreign argument |
+| `tests/test_backend_matrix.py` | it *does* mix, in `test_a_csg_shape_built_inside_an_sdf_block_still_says_csg` — with `field - csg`, an operator, which is the half that already worked. It has a whole section for `hull()` per backend and never hands one backend's shape to the other's `hull` |
+| `as_native_2d` / `_as_native_3d` | each ends by handing back whatever it was given, which is exactly the route in |
+| `_as_shape_list` | it *did* reject a foreign shape — as "not a `PyShape`", which is a different complaint from the one the caller needs, and it listed operands that were fine |
+| `pybosl2.solid`'s own docstrings | `union`/`difference`/`intersection` have said *"all must share a backend (SPEC C-1)"* since they were written, and `_require_operands` only rejected an empty list |
+
+That last row is the one worth keeping: **a rule written in the docstring of the function it
+governs still needs something to check it.**
+
+### What the ratchet does
+
+`tests/test_a_shape_argument_cannot_cross_backends.py`, 34 cases over 18 distinct calls on both
+backends and both dimensions, each run **twice**:
+
+* mixed → must raise `CrossBackendError`, with `exc.call` equal to the call the caller made, both
+  backend names in the message, the right conversion for the direction, and no `to_sdf`;
+* same-backend → **must still build**, on the backend it was given. A guard that refused
+  everything would pass the first half and fail the second, and this is the half that found the
+  `union` defect.
+
+Plus four checks that keep the table from going stale:
+
+* `test_the_probes_can_fail` neutralises the guard **everywhere** — `pybosl2._backend`'s own
+  attribute and every module-level alias, found by reading the source rather than from a list. It
+  then asserts the cases stop refusing. Four are recorded as `refused_before=True`: the three free-function
+  booleans reach the backend implementation, which combines through an operator, and a
+  multi-element `SdfShape2D.union` folds pairwise through `__or__`. For those, T138's contribution
+  is the **name**, not the refusal, and the control asserts exactly that — they still refuse with
+  the guard gone, and they refuse *without* naming the call.
+* `test_every_guard_binding_is_patchable` asserts **no** module imports the guard inside a
+  function, because one that does is invisible to a control that patches the module — the case it
+  protects would pass by never having been disabled. I had written three of them that way in
+  `shapes3d/base.py`, following the local-import style the file uses to break cycles, and that
+  file already imports `pybosl2._backend` at the top: there was no cycle to break. Asserting the
+  set is *empty* is worth more than listing the three as exceptions.
+* `test_every_coercion_site_names_the_call_it_serves` scans the package: every call to a coercer
+  must pass `call=`. A new coercion site cannot arrive unnamed.
+* `test_neutral_geometry_is_not_a_cross_backend_mix` and `test_a_point_list_is_still_a_point_list`
+  hold the other side, and both assert **bounds** rather than that a result came back — a hull
+  that quietly dropped its point set would still return a shape, so the box has to reach the
+  points to show they were used. `tests/test_assertion_quality.py` caught the first version of the
+  second one asserting only `is not None` (PLAN X-8), which is the ratchet doing its job on this
+  task's own test. The guard looks one level into a `list`/`tuple`, and `Path2D`/`Region` are
+  both `list` subclasses — without the `geometry()` test it would walk a path's coordinates instead
+  of recognising it. `SdfSolid.hull` takes point sets as well as shapes, and refusing a list would
+  have been an easy way to make the mixed cases pass.
+
+### The negative control
+
+The whole file against a `git worktree` of `main`: **40 failures.**
+
+| test | failures | why |
+|---|---|---|
+| `test_a_foreign_shape_is_refused_under_the_calls_own_name` | **34 of 34** | every case, the four that already refused included — on `main` those refuse through the operand form, so `exc.call` is `None` and the assertion that the refusal names the call fails |
+| `test_the_same_call_builds_when_the_shapes_share_a_backend` | **3 of 34** | `union`, `intersection` and `difference` on `CsgSolid` — the three that never worked |
+| `test_the_probes_can_fail` | 1 | there is no guard to neutralise |
+| `test_every_guard_binding_is_patchable` | 1 | no module binds it |
+| `test_every_coercion_site_names_the_call_it_serves` | 1 | no coercion site passes `call=` |
+
+The 3 in the second row are the whole argument for running each case twice. They are *not*
+cross-backend failures — they are the honest, same-backend call failing, and the mixed half of the
+table says nothing about them.
+
+### What it cost
+
+Measured in the real app: **0 of 38 raw exceptions**, 36 refusing properly, 2 still building — the
+two `VNF.from_solid` crossings, which are meant to. A geometry pass over 26 same-backend calls
+across both backends builds 24, and both exceptions are accounted for: `SdfShape2D.hull`, which is
+broken on `main` too (below), and one probe of mine that handed 3-D points to `Path2D`.
+
+### My first probe measured nothing, in three cases
+
+The "CSG" operands were built *inside* `with use_backend(be)`, so for the three `under sdf` cases
+they came out **SDF** and the comparison was between two shapes on the same backend. One of them
+reported `BUILT SdfSolid` and I nearly wrote it up as a silent cross-backend success. Every operand
+is built under an explicit backend outside the probed call now, in the probe and in the test, and
+`_shape()`'s docstring says why.
+
+### Found and not fixed
+
+**`SdfShape2D.hull` does not work at all in the real app**, for any operand: it extrudes each shape
+to 0.01, hulls in 3-D, calls `to_csg()` and projects back, and the mesh comes back empty —
+`Bosl2ValueError: hull(): a child shape meshed to nothing (empty geometry)`. Measured **identical
+on `main` and on this branch**, so it is pre-existing and not a consequence; the cross-backend case
+is refused before reaching it now. It is a geometry defect (a 0.01 slab against the default
+meshing resolution), not an error-contract one, which is why it is recorded rather than chased
+here.
+
+**`csg.minkowski(sdf)` still refuses through the operand form**, so its message says "operands"
+rather than naming `minkowski()`. That is `BaseShape.minkowski`'s existing `_check_operand` call
+and it is correct and catchable; naming the call there is a message improvement with no defect
+behind it.

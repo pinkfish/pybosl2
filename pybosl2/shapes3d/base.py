@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 
 from pybosl2._backend import backend_only
+from pybosl2._backend import require_same_backend as _require_same_backend
 from pybosl2._edges_lang import Anchor, EdgeAtom, resolve_anchor
 from pybosl2._native import native
 
@@ -219,7 +220,30 @@ def osimport(
     return Bosl2Solid(_oosimport(file, **kwargs))
 
 
-def _as_native_3d(obj: object) -> "PyOpenSCAD":
+def _as_attached_child(parent: object, child: object, call: str) -> "Bosl2Solid":
+    """Return *child* as a CSG solid ready to be carried in *parent*'s attachments.
+
+    `position`/`align`/`attach` do not union the child -- they stash it and let :meth:`realize`
+    combine it later. That deferral is what made a cross-backend child so unpleasant: an
+    `SdfSolid` was wrapped in `Bosl2Solid(...)` here and accepted, the call returned a solid that
+    measured correctly, and the failure surfaced at render time as ``TypeError: invalid argument
+    left to operator`` raised inside `_realize_node` -- a frame the caller never wrote, after the
+    build had apparently succeeded. Refusing at the call is the whole point (T138, SPEC E-1, E-3).
+
+    Args:
+        parent: The shape the child is being attached to, which sets the backend.
+        child: The child as given -- a `Bosl2Solid` or a raw native handle.
+        call: The attachment call's name, for the message.
+
+    Raises:
+        CrossBackendError: If *child* was built by a different backend from *parent*.
+
+    """
+    _require_same_backend(call, getattr(parent, "backend", "csg"), child)
+    return child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
+
+
+def _as_native_3d(obj: object, call: str | None = None) -> "PyOpenSCAD":
     """Return a raw native handle from *obj*.
 
     Accepts a :class:`Bosl2Solid` / ``Bosl2Shape2D`` wrapper, a native shape, or anything exposing
@@ -227,6 +251,11 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
     a :class:`~pybosl2.regions.Region`).
     """
     from pybosl2._helpers import unwrap
+
+    # *call*, when given, refuses a shape from the other backend under the caller's own name
+    # rather than letting the last branch below hand it to a native function (T138).
+    if call is not None:
+        _require_same_backend(call, "csg", obj)
 
     # Three casts, and they are the honest spelling: this function's whole job is to *be* the
     # boundary between `object` and a native handle, and nothing here can check which it has.
@@ -521,7 +550,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
                 capsule.show()
 
         """
-        return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
+        return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o, call="hull") for o in others]))
 
     def projection(self, cut: bool = False) -> "Bosl2Shape2D":
         """Return the 2-D shadow of this solid on the XY plane (OpenSCAD ``projection()``).
@@ -852,7 +881,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """
         p = self.anchor_point(anchor, bbox=bbox)
         # `child` is `object` because the Solid protocol says so; see the 2-D twin (T124).
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
+        csolid = _as_attached_child(self, child, "position")
         placed = csolid.translate(p)
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
@@ -905,7 +934,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         face = require_anchor(anchor, "anchor").vector
         edge = Anchor.CENTER.vector if align is None else align.vector
         factor = -1.0 if inside else 1.0
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
+        csolid = _as_attached_child(self, child, "align")
         child_anchor = Point([edge[i] - factor * face[i] for i in range(3)])
         cpt = csolid.anchor_point(child_anchor)
         dest = self.anchor_point(Point([face[i] + edge[i] for i in range(3)]), bbox=bbox)
@@ -963,7 +992,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = parent_anchor.vector
         ca = -pa if child_anchor is None else require_anchor(child_anchor, "child_anchor").vector
-        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(cast("PyOpenSCAD", child))
+        csolid = _as_attached_child(self, child, "attach")
         cpt = csolid.anchor_point(ca)
         placed = csolid.translate([-cpt[0], -cpt[1], -cpt[2]])
         # CENTER has no direction, so there is no pair of faces to bring together and nothing to
@@ -1015,6 +1044,11 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """
         from pybosl2 import masking
 
+        # The cutter is stashed in `attachments` and applied at realize time, so a cutter from the
+        # other backend was taken here and failed much later as ``TypeError: invalid argument left
+        # to operator`` inside `_realize_node`. Measured: the same box with a CSG cutter rendered
+        # 92 triangles, with an SDF cutter it rendered nothing at all (T138, SPEC E-1, E-3).
+        _require_same_backend("edge_mask", getattr(self, "backend", "csg"), mask)
         center, size = self._resolve_bounds(bbox)
         cutter_shape = masking.edge_mask(
             self.shape,
