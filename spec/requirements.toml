@@ -297,12 +297,20 @@ L0 MUST remain usable and tested with no CAD runtime installed.
 '''
 enforced_by = [
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
+    "tests/test_the_2d_hull_is_a_hull.py::test_the_hull_needs_no_mesher",
+    "tests/test_the_2d_hull_is_a_hull.py::test_the_mixed_radius_hull_needs_no_mesher_either",
 ]
 candidates = [
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
     "tests/test_no_mesher.py",
 ]
 status = "enforced"
+note = '''
+The rule is about L0, and the SDF backend kept finding ways to need a mesher for operations that
+do not. T139 took the 2-D hull, which extruded each operand to a slab, meshed it inside the 3-D
+hull for support points, meshed again in `to_csg()`, and projected -- for an answer that is
+arithmetic on the shapes' own extreme-point claims. It needed a mesher twice and needs none now.
+'''
 
 [[requirement]]
 id = "SPEC-A-3"
@@ -369,6 +377,8 @@ enforced_by = [
     "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_no_sdf_method_hands_back_a_solid_the_csg_backend_owns",
     "tests/test_the_sdf_backend_does_not_hand_back_csg.py::test_only_the_declared_crossings_mesh_inside_the_sdf_backend",
     "tests/test_an_attribute_miss_is_not_a_conversion.py::test_a_miss_does_not_reach_for_geometry",
+    "tests/test_the_2d_hull_is_a_hull.py::test_the_hull_of_two_shapes_is_not_the_receiver",
+    "tests/test_the_2d_hull_is_a_hull.py::test_every_operand_is_covered_not_just_the_first_two",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_path_2d_geometry_builds_on_either_backend",

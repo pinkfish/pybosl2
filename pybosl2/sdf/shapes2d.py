@@ -150,6 +150,13 @@ class SdfShape2D(Colorable, Distributable):
         self._symmetry: "Symmetry2D | None" = None
         #: A containment tighter than the box, when the constructor knows one. See `Hull2D`.
         self._hull: "Hull2D | None" = None
+        #: Whether `_hull` is the shape's *extreme set* and not merely something containing it.
+        #: `bounds` only needs containment, and is happy with a loose claim; `hull` needs
+        #: tightness, because an over-claiming hull adds material the caller can see. Exactly one
+        #: producer is loose -- `_rect_hull`'s fallback for a rectangle rounded by *unequal* radii,
+        #: which returns the plain corners because no finite point set is that shape's extreme set
+        #: (T139). The two requirements were conflated until `hull` started reading the claim.
+        self._hull_tight: bool = True
 
     @property
     def size(self) -> "list[float] | None":
@@ -480,6 +487,7 @@ class SdfShape2D(Colorable, Distributable):
         if self._hull is not None:
             points, radius = self._hull
             out._hull = ([[p[0] + tx, p[1] + ty] for p in points], radius)
+            out._hull_tight = self._hull_tight
         return out
 
     def rotate(self, a: float | Sequence[float]) -> PyShape2D:
@@ -534,6 +542,7 @@ class SdfShape2D(Colorable, Distributable):
             turned = (moved, radius)
         out = self._wrap(new_fn, new_mn, new_mx)
         out._hull = turned
+        out._hull_tight = self._hull_tight
         return out
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
@@ -554,6 +563,7 @@ class SdfShape2D(Colorable, Distributable):
             points, radius = self._hull
             if radius == 0.0 or s[0] == s[1]:
                 out._hull = ([[p[0] * s[0], p[1] * s[1]] for p in points], radius * s[0])
+                out._hull_tight = self._hull_tight
         return out
 
     def mirror(self, v: Sequence[float]) -> PyShape2D:
@@ -581,11 +591,22 @@ class SdfShape2D(Colorable, Distributable):
             ]
             for p in corners
         ]
-        return self._wrap(
+        out = self._wrap(
             new_fn,
             [min(p[0] for p in ref), min(p[1] for p in ref)],
             [max(p[0] for p in ref), max(p[1] for p in ref)],
         )
+        # A reflection is an isometry, so it carries the extreme-point claim exactly: reflect the
+        # points and the radius is unchanged. Worth propagating because `hull` reads this claim and
+        # refuses without one (T139), and `xflip`/`yflip` are spelled through here.
+        if self._hull is not None:
+            points, radius = self._hull
+            out._hull = (
+                [[p[0] - 2 * (p[0] * nx + p[1] * ny) * nx, p[1] - 2 * (p[0] * nx + p[1] * ny) * ny] for p in points],
+                radius,
+            )
+            out._hull_tight = self._hull_tight
+        return out
 
     # ---- booleans ----
 
@@ -724,7 +745,16 @@ class SdfShape2D(Colorable, Distributable):
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x, y) - amount  # noqa: E731
         g = max(amount, 0.0)
-        return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
+        out = self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
+        # Growing by `amount` grows the claim's radius by exactly as much: `f - amount` is the set
+        # of points within `amount` of the shape, and `conv(P) + ball(r) + ball(a)` is
+        # `conv(P) + ball(r + a)`. Only for growth -- shrinking can pull the boundary inside the
+        # claim's own points, and then they are no longer a containment (T139).
+        if self._hull is not None and amount >= 0:
+            points, radius_claim = self._hull
+            out._hull = ([list(p) for p in points], radius_claim + amount)
+            out._hull_tight = self._hull_tight
+        return out
 
     def outline(self, width: float) -> PyShape2D:
         """Return the centered outline strip of this shape's boundary: |d| - width/2.
@@ -795,38 +825,59 @@ class SdfShape2D(Colorable, Distributable):
         mirrored = translated.mirror([0.0, 1.0])
         return translated & mirrored
 
-    def hull(self, *others: PyShape2D) -> PyShape2D:
+    def hull(self, *others: PyShape2D, directions: int = 64) -> PyShape2D:
         """Return the convex hull of this shape and *others* in 2-D.
 
-        Uses the SDF-based hull via the 3-D hull projection: extrudes each shape
-        to a thin solid, hulls the 3-D solids, then projects back to 2-D.
+        Each 2-D shape that a constructor built carries an extreme-point claim (`Hull2D`): the
+        points whose convex hull, grown by a radius, contains it. That claim is exactly what a
+        hull needs, so this is computed in the field with no meshing and no conversion.
+
+        **Until T139 this never returned a hull.** It extruded each shape to a 0.01mm slab, hulled
+        the slabs in 3-D, meshed that, crossed to CSG and projected back, then read `.paths` off
+        the projection -- an attribute a `CsgShape2D` does not have, so the point list stayed empty
+        and the method fell out of its third `return self`, handing back **the receiver** with every
+        other operand silently discarded. At 0.01 it never got that far: a slab that thin meshes to
+        nothing at `res=10`, so the 3-D hull raised from inside instead (T138 measured that one).
 
         Args:
             *others: Additional shapes to hull with.
+            directions: How many directions the mixed-radius hull samples; more is rounder and
+                slower. Ignored when every operand grows by the same radius, which is exact.
 
         Returns:
             A new :class:`PyShape2D` representing the 2-D convex hull.
+
+        Raises:
+            UnsupportedByBackendError: If an operand carries no extreme-point claim -- a boolean
+                or an `outline` -- because a libfive tree cannot be evaluated from Python, so
+                there is no way to ask such a field for its own boundary points.
         """
         if not others:
             return self
         # `s.extrude(...)` is called on every operand, and a `CsgShape2D` has no `extrude`, so a
         # foreign 2-D shape raised `AttributeError: 'openscad.PyOpenSCAD' object has no attribute
-        # 'extrude'` from inside this comprehension (T138, SPEC E-3).
+        # 'extrude'` from inside the old comprehension (T138, SPEC E-3).
         _require_same_backend("hull", "sdf", *others)
-        extruded = [s.extrude(0.01, res=s.res) for s in [self] + list(others)]
-        hull3d = extruded[0].hull(*extruded[1:])
-        csg = hull3d.to_csg()
-        projection = csg.projection(cut=True)
-        shapes = [projection] if not hasattr(projection, "__iter__") else list(projection)
-        if not shapes:
-            return self
-        pts: list[list[float]] = []
-        if hasattr(shapes[0], "paths"):
-            for p in shapes[0].paths:
-                pts.extend([[float(c[0]), float(c[1])] for c in p])
-        if not pts:
-            return self
-        return polygon2d(Path2D(pts), res=self.res)
+        operands = [self, *others]
+        # A *loose* claim is no more usable here than none at all: `bounds` only needs something
+        # containing the shape, and a hull built from that adds material at the boundary the claim
+        # does not touch (T139).
+        claims = [getattr(s, "_hull", None) if getattr(s, "_hull_tight", True) else None for s in operands]
+        usable: list[Hull2D] = [c for c in claims if c is not None]
+        if len(usable) != len(claims):
+            missing = [type(s).__name__ for s, c in zip(operands, claims, strict=True) if c is None]
+            raise UnsupportedByBackendError(
+                "hull",
+                "sdf",
+                hint=f"one of the shapes ({', '.join(missing)}) carries no extreme-point claim, and a "
+                f"2-D field cannot be asked for its own boundary points -- a libfive tree is not "
+                f"evaluable from Python, so there is nothing to take a hull of. A constructor "
+                f"(`circle2d`, `rect2d`, `polygon2d`) and anything moved, turned, scaled, mirrored "
+                f"or grown from one does carry a claim; a boolean or an `outline` does not. Convert "
+                f"explicitly and hull there -- `.to_csg()` then `pybosl2.shapes2d.hull(...)` -- which "
+                f"is a one-way trip out of the field, and why it is not taken for you (SPEC B-5).",
+            )
+        return _hull_from_claims(usable, res=self.res, directions=directions)
 
     def bounds(self) -> Bounds2D:
         """Return this shape's axis-aligned bounding box (SPEC S-2b).
@@ -1198,7 +1249,7 @@ def circle2d(radius: float | None = None, diameter: float | None = None, res: in
     return out
 
 
-def _rect_hull(hx: float, hy: float, per_corner: "Sequence[float]", mode: EdgeMode) -> "Hull2D":
+def _rect_hull(hx: float, hy: float, per_corner: "Sequence[float]", mode: EdgeMode) -> "tuple[Hull2D, bool]":
     """The `Hull2D` claim for a rectangle whose corners are treated by *per_corner*.
 
     Three cases, and the plain corners are the fallback because they are always safe: the treated
@@ -1220,12 +1271,14 @@ def _rect_hull(hx: float, hy: float, per_corner: "Sequence[float]", mode: EdgeMo
         mode: Whether the amounts are roundings or chamfers.
 
     Returns:
-        The claim.
+        The claim, and whether it is the shape's *extreme set* rather than merely containing it.
+        Only the last case is loose, and `hull` refuses on a loose claim rather than over-claiming
+        the corners rounded by less than the largest (T139).
 
     """
     corners = [[sx * hx, sy * hy] for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)]
     if not any(per_corner):
-        return (corners, 0.0)
+        return (corners, 0.0), True
     if mode is EdgeMode.CHAMFER:
         # _rect2d corner order is [(-,-), (+,-), (-,+), (+,+)].
         signs = [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)]
@@ -1233,11 +1286,11 @@ def _rect_hull(hx: float, hy: float, per_corner: "Sequence[float]", mode: EdgeMo
         for (sx, sy), cut in zip(signs, per_corner, strict=True):
             points.append([sx * (hx - cut), sy * hy])
             points.append([sx * hx, sy * (hy - cut)])
-        return (points, 0.0)
+        return (points, 0.0), True
     radius = float(per_corner[0])
     if any(abs(float(a) - radius) > 1e-12 for a in per_corner):
-        return (corners, 0.0)
-    return ([[sx * (hx - radius), sy * (hy - radius)] for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)], radius)
+        return (corners, 0.0), False
+    return ([[sx * (hx - radius), sy * (hy - radius)] for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)], radius), True
 
 
 def rect2d(  # type: ignore[no-untyped-def]
@@ -1282,7 +1335,7 @@ def rect2d(  # type: ignore[no-untyped-def]
 
     shape = PyShape2D(sdf_fn, [-hx, -hy], [hx, hy], res)
     shape._symmetry = ((0.0, 0.0), 90.0 if abs(hx - hy) < 1e-12 else 180.0)
-    shape._hull = _rect_hull(hx, hy, per_corner, mode)
+    shape._hull, shape._hull_tight = _rect_hull(hx, hy, per_corner, mode)
     ax, ay = (list(anchor) + [0, 0])[:2]
     if ax or ay:
         shape = shape.translate([-ax * hx, -ay * hy])
@@ -1475,6 +1528,51 @@ def stroke2d(
     ys = [p[1] for p in pts]
     g = width / 2
     return PyShape2D(sdf_fn, [min(xs) - g, min(ys) - g], [max(xs) + g, max(ys) + g], res)
+
+
+def _hull_from_claims(claims: "Sequence[Hull2D]", res: int, directions: int) -> PyShape2D:
+    """The 2-D convex hull of shapes described by their extreme-point claims.
+
+    Each claim is `(points, radius)`: the shape lies inside the convex hull of its points grown by
+    a ball of that radius. Read every claim point as a disc of its claim's radius and the union's
+    hull is the hull of those discs, which splits in two:
+
+    * **Every radius the same** -- including the all-polygon case, where they are all zero. Then
+      `hull(P + ball(r))` *is* `hull(P) + ball(r)`, so :func:`hull2d_discs` gives it exactly and
+      the corners come out as genuine arcs rather than facets.
+    * **Radii differ** -- there is no single growth, and the exact hull of unequal discs is
+      tangent lines joined by arcs of two radii. The *support point* along a direction is still
+      exact and cheap: the disc maximising ``<c, d> + r``, at ``c + r*d``. The hull of those points
+      over `directions` directions is an inscribed polygon -- which is what the CSG backend builds
+      too, since it hulls a faceted circle. Faceting a curve is the library's model (SPEC R-1).
+
+    Args:
+        claims: one claim per operand, each already known to be the operand's extreme set.
+        res: the SDF sampling resolution for the shape this returns.
+        directions: how many directions the mixed-radius path samples. It is a facet count and
+            `res` is a *meshing* resolution; conflating them is how the first version of this came
+            out 10% small in area on `circle(5).hull(square(6))`, because `res=10` gave twelve
+            directions for a hull spanning 22 units and cut the circle's arc into a few chords.
+
+    Returns:
+        The hull, as a 2-D SDF shape.
+
+    """
+    discs = [(float(p[0]), float(p[1]), float(r)) for pts, r in claims for p in pts]
+    if len({round(d[2], 12) for d in discs}) == 1:
+        return hull2d_discs(discs, res=res)
+    support: list[list[float]] = []
+    for k in range(directions):
+        angle = 2.0 * math.pi * k / directions
+        dx, dy = math.cos(angle), math.sin(angle)
+        cx, cy, r = max(discs, key=lambda c: c[0] * dx + c[1] * dy + c[2])
+        support.append([cx + r * dx, cy + r * dy])
+    hull_pts = _hull2d_points(support)
+    if len(hull_pts) < 3:
+        # Coincident or collinear claims: a segment or a point, which `hull2d_discs` handles
+        # exactly through its own degenerate branch.
+        return hull2d_discs(discs, res=res)
+    return polygon2d(Path2D([[float(p[0]), float(p[1])] for p in hull_pts]), res=res)
 
 
 def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
