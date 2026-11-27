@@ -6889,3 +6889,121 @@ the direction spacing. Writing it exactly would make the mixed case as exact as 
 Recorded rather than chased, because faceting a curve under a resolution argument is the library's
 own model (SPEC R-1) and the equal-radius case — the common `hull(circle().translate(), ...)`
 idiom — is already exact.
+
+
+## T140 — The exact hull of unequal discs ✅
+
+**SPEC R-1 / PAR-5. T139's one recorded approximation, closed. No facet count remains.**
+
+T139 made `SdfShape2D.hull` return a hull and left one branch approximate, recorded under *Found
+and not fixed*: when every operand grows by the same radius the hull is `conv(centres) + ball(r)`,
+so offsetting the centres' polygon is exact — but with **unequal** radii no single offset exists,
+and T139 sampled the support point over 64 directions instead. An inscribed polygon, bounded by
+the direction spacing and matching what CSG builds, but not the shape.
+
+### The mathematics, which is the whole of the fix
+
+The signed distance to a convex set `K` is
+
+```
+f(x) = sup over unit d of ( <d, x> - h(d) ),      h = K's support function
+```
+
+and for a hull of discs `h(d) = max_i(<d, c_i> + r_i)`. Checked on one disc: `h(d) = <d,c> + r`,
+so `sup_d (<d, x-c> - r) = |x-c| - r`, the disc's own field.
+
+That supremum is attained at a **finite** set of directions: the outward normal of one of the
+discs' common outer tangent segments, or the direction from a disc's centre to `x` when that
+direction lies inside the arc that disc contributes. So the exact distance is a `max` over those
+features — half-planes for the segments, `|x-c| - r` for each arc, gated to its own wedge.
+
+`pybosl2.sdf.paths` grew `disc_hull_features`, `drop_contained_discs` and `disc_hull_sdf_xy` for
+it. **There is no `directions` argument any more**, on either branch; it existed only because the
+construction approximated, and T139's test that pinned it as live is replaced by one that pins
+exactness.
+
+### Two rules were wrong, and measuring is what said so
+
+**The arc between two supporting lines belongs to the disc furthest along the first line's
+direction** — walking counter-clockwise along a line means moving along `perp(n)`, and the
+boundary leaves it at the far end. The rule it looks like it should be, *"the disc both lines
+touch"*, is wrong: with two discs **both** lines touch **both** discs, so that rule hands the same
+disc to both wedges and one disc contributes no arc at all. On a capsule the field then read
+`|x - c| - r` for the wrong centre: **17mm** of error at `(25, 0)` on a 26-long capsule.
+
+**A wedge wider than 180 degrees is a union of half-planes, not an intersection.** An intersection
+of two half-planes cannot express a reflex wedge, and with two discs one of the two arcs always is
+reflex — so an `and` silently dropped that term. All the remaining errors were *negative*, which
+is what pointed at a missing feature rather than a wrong one. `n_first x n_second < 0` is exactly
+the reflex case, decided once at construction time.
+
+### Verified against something that shares no code
+
+| instrument | what it says |
+|---|---|
+| support-function reference, 40000 directions | 8 configurations × 16 probes, inside and out: worst disagreement **7e-4**, and it *shrinks as the reference refines* (5.6e-3 at 5k directions, 8.5e-4 at 20k, 9.0e-5 at 200k, 1.3e-5 at 2M) — so the residual is the **reference's** discretisation and the implementation is exact |
+| sign over a grid | 17×17 per configuration, every point on the correct side |
+| **a hand derivation** | discs r=5 at the origin and r=3 at distance 20: `n_x = (r1−r2)/d = 0.1`, trapezoid between the tangent chords **157.6060**, segment of D1 (central angle `2π − 2·acos(n_x)`) **44.2616**, segment of D2 **12.3402** → **214.2077**, against **214.224** measured in the real app by extruded volume. 0.008% |
+| the two branches against each other | `hull2d_discs` and `_hull_of_unequal_discs` on an equal-radius input agree to **1e-6** over a grid — two independent constructions, so it checks both |
+
+**The 1/n scaling is the point.** A reference that agrees to a fixed tolerance leaves open which
+side the error is on; one whose disagreement shrinks with its own refinement says the other side
+has none.
+
+And CSG reports **210.547** for that same hull — **1.7% low**, from hulling faceted circles. This
+is a case where the SDF side is the accurate one and cross-backend agreement would have been the
+wrong instrument to trust; the hand derivation is what settles it.
+
+### A hull can be hulled
+
+A hull's extreme set is **discs of differing radii**, which `Hull2D`'s single radius cannot
+express. Left there, `a.hull(b).hull(c)` would have refused — and in T139 it worked for the mixed
+case only because the faceted result was a `polygon2d` carrying its facet vertices as a claim.
+
+So `PyShape2D` carries `_hull_discs` now: the extreme set as `(x, y, radius)` triples, preferred
+by `hull` and derived from a tight `Hull2D` when absent. `bounds` does not read it — `_hull`
+already answers that question, and the split keeps the two claims honest about what each is for.
+`translate`, `rotate`, `scale`, `mirror` and a positive `offset` propagate it beside the
+single-radius claim.
+
+### The control
+
+`tests/test_the_hull_of_unequal_discs_is_exact.py`, 23 tests. Both wrong rules are **restored one
+at a time** inside `test_the_probes_can_fail`: the `and`-for-every-wedge version is required to
+disagree with the reference by more than the tolerance, and the discarded arc rule is required to
+pick fewer than two distinct discs on a two-disc input. A reference agreement proves little unless
+getting it wrong disagrees.
+
+The reference is vectorised over its direction set because the first version was a Python loop and
+the grid sweep made 17 million iterations per case out of it — 23 tests in 14s now.
+
+### The negative control
+
+The new file cannot even *import* against `main` — `disc_hull_features` and friends are new — so a
+whole-file run there proves only that. The behavioural question is whether T139's faceted hull
+fails the exactness tolerance, and that is measured through the public API alone, with the same
+reference, in a `git worktree`:
+
+| case | `main` (faceted) | this branch (exact) |
+|---|---|---|
+| `circle(5).hull(circle(3)@20)` | 9.6e-3 | **5.8e-4** |
+| `circle(5).hull(square(6)@[14,6])` | **4.03** | **3.3e-4** |
+
+Both exceed the 5e-3 tolerance on `main` and sit under it here. The 4.03 is the sharper number: 64
+support directions put the boundary within a few hundredths, but the *field* inside an inscribed
+polygon is a long way from the field inside the true hull, and an SDF is used for more than its
+zero set — `offset()` reads exactly those interior values.
+
+A whole-file control is the habit; it was the wrong one here, because a test file that imports new
+helpers cannot be run against a tree without them. What transfers is the *behaviour*, through the
+public call.
+
+### What moved
+
+| case | CSG | T139 (faceted) | T140 (exact) |
+|---|---|---|---|
+| circle(5) + circle(3)@20 | 210.547 | 213.862 | **214.224** |
+| circle(5) + square(6)@[14,6] | 192.420 | 193.365 | **193.625** |
+
+Both moved **up**, which is the direction an inscribed approximation must move when it becomes
+exact. The equal-radius cases are untouched, because that branch was already exact.

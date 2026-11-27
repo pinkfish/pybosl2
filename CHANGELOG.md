@@ -15,6 +15,17 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
 
 ### Output changes
 
+- **The 2-D `hull()` of shapes growing by *different* radii is now exact.** The last release note
+  below describes the hull being computed from each shape's extreme-point claim; where the radii
+  differed it sampled 64 support directions and returned an inscribed polygon. It is now the true
+  hull — the discs' common outer tangent segments joined by arcs of each radius — so
+  `circle(5).hull(square(6))` and `circle(5).hull(circle(3).translate([20, 0]))` gain the material
+  the faceting was losing (areas 193.365 → 193.625 and 213.862 → 214.224, both against a hand
+  derivation of 214.2077 for the second). **`hull()` no longer takes `directions=`**: there is
+  nothing left to approximate, and a resolution argument on an exact construction is a promise it
+  cannot keep. Equal-radius hulls are unchanged — that branch was already exact. A hull can also
+  now be hulled again, because it records its own extreme discs.
+
 - **`flat`/2-D `hull()` on the SDF backend never returned a hull.** `circle2d(5).hull(other)`
   handed back **the receiver**, with every other operand silently discarded, or raised
   `hull(): a child shape meshed to nothing` — depending on how far the old chain got. It extruded

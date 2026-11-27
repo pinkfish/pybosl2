@@ -1148,3 +1148,184 @@ def round_corners(  # type: ignore[no-untyped-def]
     if closed and len(cleaned) > 1 and math.dist(cleaned[0], cleaned[-1]) < 1e-9:
         cleaned.pop()
     return np.asarray(cleaned, dtype=float)
+
+
+# ---------------------------------------------------------------------------
+# Section: the convex hull of discs (T140)
+# ---------------------------------------------------------------------------
+#
+# The convex hull of a finite set of discs is bounded by arcs of some of the discs joined by their
+# common outer tangent segments. For *equal* radii it is `conv(centres) + ball(r)`, which is why
+# `hull2d_discs` can offset a polygon and be done; for unequal radii no single offset exists, and
+# T139 faceted it over a fixed number of support directions instead. This is the exact form.
+#
+# The signed distance to a convex set K is `sup over unit d of (<d, x> - h_K(d))`, where `h_K` is
+# K's support function -- and for a hull of discs `h_K(d) = max_i (<d, c_i> + r_i)`. That sup is
+# attained at a *finite* set of directions: either the outward normal of a tangent segment, or the
+# direction from a disc's centre to `x` when that direction lies within the arc the disc
+# contributes. So the exact distance is a `max` over those features, which is what these build.
+
+
+def disc_hull_features(
+    discs: "Sequence[Sequence[float]]",
+    eps: float = 1e-7,
+) -> "tuple[list[tuple[float, float, float]], list[tuple[int, int, int]]]":
+    """Return the hull's supporting lines and arcs for a set of ``(x, y, radius)`` discs.
+
+    The lines come back as ``(nx, ny, offset)`` with unit outward normals, ordered
+    counter-clockwise by normal angle. The arcs come back as ``(line_index, next_line_index,
+    disc_index)``: the arc that carries the boundary from one line to the next, and which disc it
+    lies on.
+
+    Args:
+        discs: the discs, each ``(x, y, radius)``, with contained ones already removed.
+        eps: tolerance for "this line supports every disc" and "this disc touches this line".
+
+    Returns:
+        The supporting lines and the arcs between them.
+
+    """
+    lines: dict[float, tuple[float, float, float]] = {}
+    for i in range(len(discs)):
+        for j in range(i + 1, len(discs)):
+            for normal in _outer_tangents(discs[i], discs[j]):
+                nx, ny, offset = normal
+                if all(nx * c[0] + ny * c[1] + c[2] <= offset + eps for c in discs):
+                    lines.setdefault(round(math.atan2(ny, nx), 9), normal)
+    ordered = [lines[k] for k in sorted(lines)]
+
+    arcs: list[tuple[int, int, int]] = []
+    for k, (nx, ny, offset) in enumerate(ordered):
+        # Walking counter-clockwise along this line means moving along `perp(n)`, and the boundary
+        # leaves it at the far end -- the tangent point on whichever disc it touches is furthest
+        # that way. The arc there carries the boundary round to the next line.
+        #
+        # "the disc both lines touch" is the rule this looks like it should be, and it is wrong:
+        # with two discs *both* lines touch *both* discs, so that rule hands the same disc to both
+        # wedges and one disc never contributes an arc at all (measured, T140).
+        tx, ty = -ny, nx
+        touching = [t for t in enumerate(discs) if abs(nx * t[1][0] + ny * t[1][1] + t[1][2] - offset) <= 1e-6]
+        if not touching:  # pragma: no cover - a supporting line touches two discs by construction
+            continue
+        best = max(touching, key=lambda t: t[1][0] * tx + t[1][1] * ty)
+        arcs.append((k, (k + 1) % len(ordered), best[0]))
+    return ordered, arcs
+
+
+def _outer_tangents(
+    first: "Sequence[float]",
+    second: "Sequence[float]",
+) -> "list[tuple[float, float, float]]":
+    """The two common outer tangent lines of two discs, as ``(nx, ny, offset)``.
+
+    A line with unit normal ``n`` supports both discs when ``<n, c_i> + r_i`` is the same for each,
+    so ``<n, c_2 - c_1> = -(r_2 - r_1)``: the normal's component along the centre line is fixed and
+    its perpendicular component has two signs. Neither exists when one disc contains the other,
+    which the caller has already removed.
+
+    Args:
+        first: the first disc, ``(x, y, radius)``.
+        second: the second disc.
+
+    Returns:
+        Zero or two tangent lines.
+
+    """
+    vx, vy = float(second[0]) - float(first[0]), float(second[1]) - float(first[1])
+    length = math.hypot(vx, vy)
+    gap = float(second[2]) - float(first[2])
+    if length < 1e-12 or abs(gap) > length:
+        return []
+    ux, uy = vx / length, vy / length
+    along = -gap / length
+    across = math.sqrt(max(0.0, 1.0 - along * along))
+    out = []
+    for sign in (1.0, -1.0):
+        nx = along * ux + sign * across * -uy
+        ny = along * uy + sign * across * ux
+        out.append((nx, ny, nx * float(first[0]) + ny * float(first[1]) + float(first[2])))
+    return out
+
+
+def drop_contained_discs(discs: "Sequence[Sequence[float]]") -> "list[tuple[float, float, float]]":
+    """Return the discs that are not inside another one, which contribute nothing to the hull.
+
+    Identical discs are broken by index so exactly one of them survives, and a disc inside another
+    is dropped -- both because it cannot reach the boundary and because a contained disc has no
+    outer tangent with its container, so leaving it in would lose that pair's lines.
+
+    Args:
+        discs: the discs, each ``(x, y, radius)``.
+
+    """
+    kept: list[tuple[float, float, float]] = []
+    for i, disc in enumerate(discs):
+        cx, cy, radius = float(disc[0]), float(disc[1]), float(disc[2])
+        covered = False
+        for j, other in enumerate(discs):
+            if i == j:
+                continue
+            gap = math.dist((cx, cy), (float(other[0]), float(other[1]))) + radius - float(other[2])
+            if gap < -1e-12 or (abs(gap) <= 1e-12 and j < i):
+                covered = True
+                break
+        if not covered:
+            kept.append((cx, cy, radius))
+    return kept
+
+
+def disc_hull_sdf_xy(
+    x: LVTree,
+    y: LVTree,
+    discs: "Sequence[Sequence[float]]",
+    lines: "Sequence[tuple[float, float, float]]",
+    arcs: "Sequence[tuple[int, int, int]]",
+) -> LVTree:
+    """The exact signed distance to the convex hull of *discs*, as a `max` over its features.
+
+    Each supporting line contributes its half-plane distance, which is a genuine constraint of the
+    hull everywhere. Each arc contributes its disc's distance, but only within the wedge of
+    directions that arc actually spans -- outside it the disc is not on the boundary and its term
+    would cut into the hull. The wedge is gated by the two adjacent normals, with `_PENALTY`
+    removing the term where it does not apply.
+
+    Args:
+        x: the x coordinate.
+        y: the y coordinate.
+        discs: the discs, each ``(x, y, radius)``.
+        lines: supporting lines from :func:`disc_hull_features`.
+        arcs: arcs from :func:`disc_hull_features`.
+
+    Returns:
+        The signed distance expression.
+
+    """
+    terms = [nx * x + ny * y - offset for nx, ny, offset in lines]
+    for first, second, disc in arcs:
+        nx0, ny0, _ = lines[first]
+        nx1, ny1, _ = lines[second]
+        centre = discs[disc]
+        px, py = x - float(centre[0]), y - float(centre[1])
+        entering = nx0 * py - ny0 * px  # non-negative once past the arc's first normal
+        leaving = px * ny1 - py * nx1  # non-negative while short of its last
+        # An intersection of two half-planes can only express a wedge up to 180 degrees wide, and
+        # an arc is routinely wider -- with two discs one of the two always is, which is where the
+        # first version of this lost 17mm of distance. There the wedge is the *union* instead, and
+        # `n_first x n_second < 0` is exactly that case.
+        reflex = (nx0 * ny1 - ny0 * nx1) < 0.0
+        gate = lv.max(entering, leaving) if reflex else lv.min(entering, leaving)
+        terms.append(_lv_hypot(px, py) - float(centre[2]) + _PENALTY * lv.min(gate, 0))
+    return _balanced_max(terms)
+
+
+def _balanced_max(terms: "list[LVTree]") -> LVTree:
+    """`max` of *terms* as a balanced tree, keeping evaluation depth at log2(n).
+
+    The same reason `SdfShape2D.union` folds pairwise: libfive re-evaluates the whole expression
+    per sample point, and a linear fold nests one call per term.
+    """
+    if not terms:  # pragma: no cover - a hull always has at least one feature
+        raise Bosl2ValueError("disc hull has no features")
+    while len(terms) > 1:
+        terms = [lv.max(terms[i], terms[i + 1]) if i + 1 < len(terms) else terms[i] for i in range(0, len(terms), 2)]
+    return terms[0]

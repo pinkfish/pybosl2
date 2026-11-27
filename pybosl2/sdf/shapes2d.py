@@ -49,6 +49,15 @@ from pybosl2.sdf.paths import (
     as_points,
 )
 from pybosl2.sdf.paths import (
+    disc_hull_features as _disc_hull_features,
+)
+from pybosl2.sdf.paths import (
+    disc_hull_sdf_xy as _disc_hull_sdf_xy,
+)
+from pybosl2.sdf.paths import (
+    drop_contained_discs as _drop_contained_discs,
+)
+from pybosl2.sdf.paths import (
     supershape_path as _supershape_path,
 )
 from pybosl2.sdf.shapes3d import PyShape
@@ -150,6 +159,13 @@ class SdfShape2D(Colorable, Distributable):
         self._symmetry: "Symmetry2D | None" = None
         #: A containment tighter than the box, when the constructor knows one. See `Hull2D`.
         self._hull: "Hull2D | None" = None
+        #: The shape's extreme set as discs, ``[(x, y, radius), ...]``, when one radius will not
+        #: do. `Hull2D` carries a *single* radius, which is all a constructor needs -- a circle is
+        #: a point and a radius, a rounded rectangle four points and a rounding -- but the hull of
+        #: unequal discs is extreme in several radii at once, so it records them here and stays
+        #: hullable itself (T140). `hull` prefers this when set and derives it from `_hull`
+        #: otherwise; `bounds` does not read it, because `_hull` already answers that question.
+        self._hull_discs: "list[tuple[float, float, float]] | None" = None
         #: Whether `_hull` is the shape's *extreme set* and not merely something containing it.
         #: `bounds` only needs containment, and is happy with a loose claim; `hull` needs
         #: tightness, because an over-claiming hull adds material the caller can see. Exactly one
@@ -488,6 +504,8 @@ class SdfShape2D(Colorable, Distributable):
             points, radius = self._hull
             out._hull = ([[p[0] + tx, p[1] + ty] for p in points], radius)
             out._hull_tight = self._hull_tight
+        if self._hull_discs is not None:
+            out._hull_discs = [(c[0] + tx, c[1] + ty, c[2]) for c in self._hull_discs]
         return out
 
     def rotate(self, a: float | Sequence[float]) -> PyShape2D:
@@ -543,6 +561,8 @@ class SdfShape2D(Colorable, Distributable):
         out = self._wrap(new_fn, new_mn, new_mx)
         out._hull = turned
         out._hull_tight = self._hull_tight
+        if self._hull_discs is not None:
+            out._hull_discs = [(c * d[0] - s * d[1], s * d[0] + c * d[1], d[2]) for d in self._hull_discs]
         return out
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
@@ -564,6 +584,8 @@ class SdfShape2D(Colorable, Distributable):
             if radius == 0.0 or s[0] == s[1]:
                 out._hull = ([[p[0] * s[0], p[1] * s[1]] for p in points], radius * s[0])
                 out._hull_tight = self._hull_tight
+                if self._hull_discs is not None:
+                    out._hull_discs = [(c[0] * s[0], c[1] * s[1], c[2] * s[0]) for c in self._hull_discs]
         return out
 
     def mirror(self, v: Sequence[float]) -> PyShape2D:
@@ -606,6 +628,15 @@ class SdfShape2D(Colorable, Distributable):
                 radius,
             )
             out._hull_tight = self._hull_tight
+        if self._hull_discs is not None:
+            out._hull_discs = [
+                (
+                    c[0] - 2 * (c[0] * nx + c[1] * ny) * nx,
+                    c[1] - 2 * (c[0] * nx + c[1] * ny) * ny,
+                    c[2],
+                )
+                for c in self._hull_discs
+            ]
         return out
 
     # ---- booleans ----
@@ -754,6 +785,8 @@ class SdfShape2D(Colorable, Distributable):
             points, radius_claim = self._hull
             out._hull = ([list(p) for p in points], radius_claim + amount)
             out._hull_tight = self._hull_tight
+        if self._hull_discs is not None and amount >= 0:
+            out._hull_discs = [(c[0], c[1], c[2] + amount) for c in self._hull_discs]
         return out
 
     def outline(self, width: float) -> PyShape2D:
@@ -825,7 +858,7 @@ class SdfShape2D(Colorable, Distributable):
         mirrored = translated.mirror([0.0, 1.0])
         return translated & mirrored
 
-    def hull(self, *others: PyShape2D, directions: int = 64) -> PyShape2D:
+    def hull(self, *others: PyShape2D) -> PyShape2D:
         """Return the convex hull of this shape and *others* in 2-D.
 
         Each 2-D shape that a constructor built carries an extreme-point claim (`Hull2D`): the
@@ -841,8 +874,6 @@ class SdfShape2D(Colorable, Distributable):
 
         Args:
             *others: Additional shapes to hull with.
-            directions: How many directions the mixed-radius hull samples; more is rounder and
-                slower. Ignored when every operand grows by the same radius, which is exact.
 
         Returns:
             A new :class:`PyShape2D` representing the 2-D convex hull.
@@ -862,8 +893,8 @@ class SdfShape2D(Colorable, Distributable):
         # A *loose* claim is no more usable here than none at all: `bounds` only needs something
         # containing the shape, and a hull built from that adds material at the boundary the claim
         # does not touch (T139).
-        claims = [getattr(s, "_hull", None) if getattr(s, "_hull_tight", True) else None for s in operands]
-        usable: list[Hull2D] = [c for c in claims if c is not None]
+        claims = [_claim_discs(s) for s in operands]
+        usable: list[list[tuple[float, float, float]]] = [c for c in claims if c is not None]
         if len(usable) != len(claims):
             missing = [type(s).__name__ for s, c in zip(operands, claims, strict=True) if c is None]
             raise UnsupportedByBackendError(
@@ -877,7 +908,7 @@ class SdfShape2D(Colorable, Distributable):
                 f"explicitly and hull there -- `.to_csg()` then `pybosl2.shapes2d.hull(...)` -- which "
                 f"is a one-way trip out of the field, and why it is not taken for you (SPEC B-5).",
             )
-        return _hull_from_claims(usable, res=self.res, directions=directions)
+        return _hull_from_claims([d for discs in usable for d in discs], res=self.res)
 
     def bounds(self) -> Bounds2D:
         """Return this shape's axis-aligned bounding box (SPEC S-2b).
@@ -1530,7 +1561,30 @@ def stroke2d(
     return PyShape2D(sdf_fn, [min(xs) - g, min(ys) - g], [max(xs) + g, max(ys) + g], res)
 
 
-def _hull_from_claims(claims: "Sequence[Hull2D]", res: int, directions: int) -> PyShape2D:
+def _claim_discs(shape: Any) -> "list[tuple[float, float, float]] | None":
+    """The shape's extreme set as discs, or None when it has none this is allowed to use.
+
+    A disc-level claim is preferred: the hull of unequal discs is extreme in several radii at once
+    and records them, so a hull can be hulled again. Otherwise a *tight* `Hull2D` is read as its
+    points at its single radius. A **loose** claim is no more usable than none at all -- `bounds`
+    only needs something containing the shape, and a hull built from that adds material at the
+    boundary the claim does not touch (T139).
+
+    Args:
+        shape: the operand.
+
+    """
+    discs = getattr(shape, "_hull_discs", None)
+    if discs is not None:
+        return [(float(c[0]), float(c[1]), float(c[2])) for c in discs]
+    claim = getattr(shape, "_hull", None)
+    if claim is None or not getattr(shape, "_hull_tight", True):
+        return None
+    points, radius = claim
+    return [(float(p[0]), float(p[1]), float(radius)) for p in points]
+
+
+def _hull_from_claims(discs: "Sequence[tuple[float, float, float]]", res: int) -> PyShape2D:
     """The 2-D convex hull of shapes described by their extreme-point claims.
 
     Each claim is `(points, radius)`: the shape lies inside the convex hull of its points grown by
@@ -1540,39 +1594,55 @@ def _hull_from_claims(claims: "Sequence[Hull2D]", res: int, directions: int) -> 
     * **Every radius the same** -- including the all-polygon case, where they are all zero. Then
       `hull(P + ball(r))` *is* `hull(P) + ball(r)`, so :func:`hull2d_discs` gives it exactly and
       the corners come out as genuine arcs rather than facets.
-    * **Radii differ** -- there is no single growth, and the exact hull of unequal discs is
-      tangent lines joined by arcs of two radii. The *support point* along a direction is still
-      exact and cheap: the disc maximising ``<c, d> + r``, at ``c + r*d``. The hull of those points
-      over `directions` directions is an inscribed polygon -- which is what the CSG backend builds
-      too, since it hulls a faceted circle. Faceting a curve is the library's model (SPEC R-1).
+    * **Radii differ** -- there is no single growth, so the boundary is tangent *segments* joined
+      by arcs of differing radii. T139 faceted that over a fixed number of support directions;
+      :func:`_hull_of_unequal_discs` builds it exactly (T140), so neither branch approximates and
+      there is no facet count to choose.
 
     Args:
-        claims: one claim per operand, each already known to be the operand's extreme set.
+        discs: every operand's extreme points, each read as a disc of its claim's radius.
         res: the SDF sampling resolution for the shape this returns.
-        directions: how many directions the mixed-radius path samples. It is a facet count and
-            `res` is a *meshing* resolution; conflating them is how the first version of this came
-            out 10% small in area on `circle(5).hull(square(6))`, because `res=10` gave twelve
-            directions for a hull spanning 22 units and cut the circle's arc into a few chords.
+
+    Returns:
+        The hull, as a 2-D SDF shape, carrying *these* discs as its own extreme set so that a hull
+        can be hulled again without widening.
+
+    """
+    if len({round(d[2], 12) for d in discs}) == 1:
+        out = hull2d_discs(list(discs), res=res)
+    else:
+        out = _hull_of_unequal_discs(discs, res=res)
+    out._hull_discs = [(float(d[0]), float(d[1]), float(d[2])) for d in discs]
+    return out
+
+
+def _hull_of_unequal_discs(discs: "Sequence[Sequence[float]]", res: int) -> PyShape2D:
+    """The exact convex hull of discs whose radii differ, as a 2-D SDF shape.
+
+    `hull2d_discs` offsets the centres' polygon, which is only the hull when every radius is the
+    same. With unequal radii the boundary is the discs' common outer tangent *segments* joined by
+    arcs of differing radii, and the signed distance is a `max` over those features -- see
+    :func:`~pybosl2.sdf.paths.disc_hull_sdf_xy`. Exact, so nothing here takes a facet count.
+
+    Args:
+        discs: the discs, each ``(x, y, radius)``.
+        res: the SDF sampling resolution for the shape this returns.
 
     Returns:
         The hull, as a 2-D SDF shape.
 
     """
-    discs = [(float(p[0]), float(p[1]), float(r)) for pts, r in claims for p in pts]
-    if len({round(d[2], 12) for d in discs}) == 1:
-        return hull2d_discs(discs, res=res)
-    support: list[list[float]] = []
-    for k in range(directions):
-        angle = 2.0 * math.pi * k / directions
-        dx, dy = math.cos(angle), math.sin(angle)
-        cx, cy, r = max(discs, key=lambda c: c[0] * dx + c[1] * dy + c[2])
-        support.append([cx + r * dx, cy + r * dy])
-    hull_pts = _hull2d_points(support)
-    if len(hull_pts) < 3:
-        # Coincident or collinear claims: a segment or a point, which `hull2d_discs` handles
-        # exactly through its own degenerate branch.
-        return hull2d_discs(discs, res=res)
-    return polygon2d(Path2D([[float(p[0]), float(p[1])] for p in hull_pts]), res=res)
+    kept = _drop_contained_discs(discs)
+    if len(kept) == 1:
+        cx, cy, radius = kept[0]
+        return circle2d(radius=radius, res=res).translate([cx, cy])
+    lines, arcs = _disc_hull_features(kept)
+    if not lines:  # pragma: no cover - defensive: two distinct discs always share a tangent once
+        # containment is removed, and a single disc returned above.
+        raise Bosl2ValueError("hull(): the shapes have no common supporting line")
+    low = [min(c[i] - c[2] for c in kept) for i in (0, 1)]
+    high = [max(c[i] + c[2] for c in kept) for i in (0, 1)]
+    return PyShape2D(lambda x, y: _disc_hull_sdf_xy(x, y, kept, lines, arcs), low, high, res)
 
 
 def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
