@@ -515,6 +515,7 @@ def text(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
+    res: int | None = None,
 ) -> Flat:
     """Return a text shape on the active backend.
 
@@ -536,10 +537,12 @@ def text(
         spin: Z-axis rotation in degrees after anchor.
         placement: Anchor and spin as one reusable value (SPEC G-1). A placement that also sets
             orient raises here: the plane has no third axis to turn a face towards (SPEC E-5).
-        fn: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fn=...)`` value applies;
+        fn: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fn=...)`` value applies;
             ``fn=0`` opts back out to fa/fs.
-        fa: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fa=...)`` value applies.
-        fs: Arc smoothness overrides (CSG backend only). Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        fa: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fa=...)`` value applies.
+        fs: Arc smoothness overrides. Omitted, the ambient ``use_defaults(fs=...)`` value applies.
+        res: SDF backend's resolution (SDF backend only). Omitted, the ambient ``use_defaults(res=...)`` value
+            applies.
 
     Returns:
         A 2-D flat shape representing text.
@@ -553,10 +556,29 @@ def text(
     """
     anchor, spin = resolve_placement_2d(placement, anchor=anchor, spin=spin, function="text")
     if current_backend() == "sdf":
-        raise UnsupportedByBackendError(
-            "text",
-            "sdf",
-            hint="the sdf backend has no 2-D text support; build on the default (csg) backend.",
+        from pybosl2.sdf.shapes2d import text2d
+
+        return cast(
+            "Flat",
+            _placed_2d(
+                text2d(
+                    text=text,
+                    size=size,
+                    font=font,
+                    halign=halign,
+                    valign=valign,
+                    spacing=spacing,
+                    direction=direction,
+                    language=language,
+                    script=script,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
+                    res=_resolve_res(res) or 10,
+                ),
+                spin,
+                anchor,
+            ),
         )
 
     from pybosl2.shapes2d.ops import text as csg_text
