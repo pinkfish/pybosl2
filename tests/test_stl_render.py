@@ -337,13 +337,21 @@ def test_rot_resample_then_sweep(tmp_path):
 
 
 def test_squircle_extruded(tmp_path):
+    """The squircle meshes closed and at its nominal size.
+
+    `atol` was 0.5 and there was no watertight check until T141, which is how a squircle whose
+    path ran through its own centre four times -- an open mesh, a third of the volume gone --
+    rendered on the spec sheet for as long as the shape existed. The volume is the library's own
+    path area times the height, so this is also a cross-check between the two.
+    """
     m = _render(
         tmp_path,
         "s2.squircle(40, squareness=0.7).linear_extrude(height=5)",
         name="squircle",
     )
-    assert m.volume > 0
-    np.testing.assert_allclose(m.size[:2], [40, 40], atol=0.5)
+    assert m.watertight, "an extruded 2-D shape bounds a solid"
+    assert m.volume == pytest.approx(7719.8019, rel=1e-4)
+    np.testing.assert_allclose(m.size[:2], [40, 40], atol=0.01)
     assert math.isclose(m.size[2], 5.0, abs_tol=1e-3)
 
 

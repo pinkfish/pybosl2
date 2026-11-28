@@ -10,10 +10,28 @@ minor bump is the signal that **rendered geometry has changed**, not that an API
 
 ## Unreleased
 
-**This changeset changes rendered geometry**, in one place: every rim treatment on a *tapered*
-cylinder. Read "Output changes" before upgrading a model that uses one.
+**This changeset changes rendered geometry**, in two places: every rim treatment on a *tapered*
+cylinder, and **every `squircle()` with a squareness above 0**. Read "Output changes" before
+upgrading a model that uses one.
 
 ### Output changes
+
+- **`squircle()` was missing a third of its area, and could not be exported.** The path ran
+  through the centre of the squircle on all four axes instead of reaching its extremes, so the
+  shape was a four-petalled pinwheel rather than a rounded square, and the mesh it extruded to was
+  not closed — `squircle(30, squareness=0.6).linear_extrude(2).export("out.stl")` raised
+  `export(): the mesh is not watertight -- 24 edge(s) are not shared by exactly two faces`. This
+  affected **every** squareness above 0 at **every** resolution; `squareness=0`, a plain circle,
+  was correct. Measured on the spec-sheet part, the volume goes **1,128.72 → 1,701.51** and the
+  bounding box **29.866 × 29.866 → 30 × 30**, with the extremes now exactly on the box. The cause
+  was BOSL2's radius expression ported literally: its `sin(2*angle) > 0` guard is exact in
+  OpenSCAD, whose degree trig returns exactly 0 on the axes, and misses in Python by 1.2e-16 —
+  after which `1-sqrt(1-s2a*s2a)` cancels to exactly 0.0 and the radius comes back as **zero**.
+  Rewriting the expression as `sqrt(2)/sqrt(1 + sqrt(1-x*x))`, the same function by an identity,
+  removes the division and the guard together. Any model built around the old shape's size will
+  change; anything that measured it will now agree with its nominal size. (At `squareness=1` the
+  result is a square to 1e-8 rather than exactly — a square-root singularity in the
+  parametrisation, measured and recorded, worth 3e-7 mm on a 30mm shape.)
 
 - **The 2-D `hull()` of shapes growing by *different* radii is now exact.** The last release note
   below describes the hull being computed from each shape's extreme-point claim; where the radii
@@ -155,6 +173,22 @@ cylinder. Read "Output changes" before upgrading a model that uses one.
   a superset.
 
 ### Internals
+
+- **A ratchet on the degree/radian port hazard behind the `squircle` fix.** No local assigned from
+  `sin`/`cos`/`tan` may be both compared against zero and used as a divisor in the same function —
+  the shape of an OpenSCAD `sin(x) > 0 ? f(x) : limit` guard ported literally, which is reliable
+  upstream and misses here. Run against the previous commit it finds exactly one such place and
+  nothing else, so the squircle was the only one in the package. A bare division by a near-zero
+  sine is *not* in the class and is left alone: it returns 1e16 or raises, which is loud. The
+  first version of this scan reported zero hits against the defect itself, which is why it also
+  ships with a control that feeds it both spellings as source text.
+
+- **The squircle's five existing tests are tightened.** Two used `squareness=0`, the one value
+  where the guard was correct; two allowed `abs_tol=0.2` on a bounding box where the defect was
+  0.0044; and the STL render test asserted `volume > 0` with no watertight check, unlike its
+  neighbours. The bounding boxes are now held to 1e-6 and the render test asserts watertightness
+  and an exact volume. Nothing had measured the shape's **area**, which is where a hole in the
+  middle shows up.
 
 - **The 2-D hull's `to_csg()` crossing is gone, and so is its entry in the boundary ratchet.**
   `CROSSES_AND_RETURNS` listed `sdf/shapes2d.py::hull` with a reason describing a code path that

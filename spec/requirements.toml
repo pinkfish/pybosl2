@@ -31,6 +31,9 @@ enforced_by = [
     "tests/test_bosl2_coverage.py::test_every_named_module_exists",
     "tests/test_rim_matches_bosl2.py::test_the_profile_is_the_path_bosl2_builds",
     "tests/test_rim_matches_bosl2.py::test_a_fillet_is_tangent_to_the_wall_it_rolls_against",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_the_enclosed_area_converges_to_the_curve",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_a_full_squareness_is_a_square",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_a_zero_squareness_is_exactly_a_circle",
 ]
 candidates = [
     "tests/test_example_claims.py",
@@ -1922,7 +1925,12 @@ enforced_by = [
     "tests/test_stl_render.py",
     "tests/test_the_watertight_measurement_is_sound.py::test_a_degenerate_triangle_does_not_make_a_closed_mesh_read_open",
     "tests/test_the_watertight_measurement_is_sound.py::test_an_open_mesh_still_reads_open",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_an_extruded_squircle_can_be_exported",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_the_extruded_squircle_is_watertight",
 ]
+note = '''
+The validation works, and T141 is the evidence: it had been refusing to export an extruded squircle at every squareness above 0, naming 24 bad edges. What it could not do is point at the squircle -- the message describes the mesh, because that is all `export()` is given. A check that refuses correctly still needs something upstream measuring the shape, which is why the squircle's own tests now assert its area.
+'''
 candidates = [
     "tests/test_export.py::test_an_inside_out_mesh_is_refused",
     "tests/test_export.py::test_writing_a_mesh_touches_no_native_module",
@@ -3195,6 +3203,8 @@ enforced_by = []
 status = "reviewed"
 note = '''
 The catalogue's measured metrics need the real binary, which CI has not got. The caches are committed and the render tests skip -- so nothing asserts it in CI by design.
+
+The four columns are not equally sensitive, which T141 measured. A squircle missing a third of its area published **124 triangles** (correct -- the facet count does not change), a bounding box of **30x30x2** (the column rounds to integers, and 29.866 rounds to 30), a volume of **1,128.7** (wrong by a third, with nothing on the page to compare it against), and `wt: false`. Only the watertightness column said anything, and it had been saying it since the formula landed in the first commit of the port (`d020265b`, 2026-07-21). A measured metric is worth having; a measured metric nobody has a reference value for is a number on a page.
 '''
 
 [[requirement]]
@@ -4749,11 +4759,16 @@ Never swallow an exception to return a degenerate shape. A constructor that cann
 '''
 enforced_by = [
     "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_the_path_has_no_repeated_point",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_the_path_winds_once_around_the_centre",
 ]
 candidates = [
     "tests/test_defaults.py::test_argument_free_constructors_either_build_or_explain",
 ]
 status = "enforced"
+note = '''
+"A polygon of coincident points" was not hypothetical. Until T141 `squircle()` returned one for every squareness above 0 -- four of its points were the origin -- and it arrived without an exception to swallow, from a floating-point guard that missed rather than from a caught error. So the rule needs probes on the *shape* a constructor returns, not only on the path from an exception to a return: the two added here are that, for paths.
+'''
 
 [[requirement]]
 id = "PLAN-E-P4a"
@@ -4896,11 +4911,18 @@ section = "8. Style"
 title = "Units are implicit and fixed."
 statement = '''
 Millimetres, degrees, right-handed Z-up (SPEC D-9). No API takes a `units=` parameter; a caller working in inches multiplies by `constants.INCH` at the call site. Do not introduce a second angular unit either — everything is degrees, and anything ported from a radians-based source converts on entry.
+
+The conversion is not free, and a ported expression MUST NOT assume it is. OpenSCAD's `sin()`/`cos()`/`tan()` take degrees and return **exact** zeros and ones at multiples of 90; `math.sin(math.radians(x))` does not — it is 1.2e-16 at 90 degrees. So an upstream guard of the form `sin(a) > 0 ? f(sin(a)) : limit`, which is reliable there, misses here and evaluates `f` exactly where the author knew it is undefined. Rewrite the expression so the singularity is gone rather than guarded; a guard against zero on a trig-derived divisor is the defect, not the fix.
 '''
-enforced_by = []
-status = "reviewed"
+enforced_by = [
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_no_other_call_guards_a_trig_divisor_against_zero",
+    "tests/test_the_squircle_reaches_its_own_extremes.py::test_the_ratchet_can_fail",
+]
+status = "enforced"
 note = '''
-No API takes a units argument today, but nothing forbids one being added. A scan for a `units=` parameter would make it enforced.
+No API takes a units argument today, but nothing forbids one being added. A scan for a `units=` parameter would make that half enforced too.
+
+The degree-trig half is enforced by a scan: no local assigned from `sin`/`cos`/`tan` may be both compared against zero and used as a divisor in the same function. Run against the commit before T141 it finds exactly one -- `squircle_radius_fg(): s2a` -- so the squircle was the only literal port of that pattern in the package. That one returned a radius of **zero on all four axes**, and the squircle ran through its own centre four times for as long as the shape had existed: a third of its area gone, its bounding box 29.866 instead of 30, and `export()` refusing the mesh (S-55) at every squareness above 0.
 '''
 
 [[requirement]]

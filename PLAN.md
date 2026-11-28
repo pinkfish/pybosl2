@@ -595,6 +595,13 @@ Python that means:
   working in inches multiplies by `constants.INCH` at the call site. Do not introduce a second
   angular unit either — everything is degrees, and anything ported from a radians-based source
   converts on entry.
+
+  The conversion is not free, and a ported expression MUST NOT assume it is. OpenSCAD's
+  `sin()`/`cos()`/`tan()` take degrees and return **exact** zeros and ones at multiples of 90;
+  `math.sin(math.radians(x))` does not — it is 1.2e-16 at 90 degrees. So an upstream guard of the
+  form `sin(a) > 0 ? f(sin(a)) : limit`, which is reliable there, misses here and evaluates `f`
+  exactly where the author knew it is undefined. Rewrite the expression so the singularity is gone
+  rather than guarded; a guard against zero on a trig-derived divisor is the defect, not the fix.
 * **S-5** BOSL2 parameter names are kept unless Python forbids them (`except` → `except_edges`) or a
   better
   Python spelling exists (SPEC B-8) — but the *call shape* is Python's, not OpenSCAD's.

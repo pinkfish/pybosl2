@@ -430,18 +430,28 @@ def _linearize_squareness(squareness: float) -> float:
 
 
 def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
-    """Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.
-
-    *radius*.
+    """Return the Fong-Garcia squircle radius at *angle* degrees.
 
     Args:
         squareness: How square the curve is, from 0 (a circle) to 1 (a square).
-        radius: The radius.
+        radius: The half-size of the bounding box -- the radius on the axes.
         angle: The angle in degrees.
 
     """
+    # BOSL2 writes this as `r*sqrt(2)/s2a*sqrt(1-sqrt(1-s2a*s2a))`, guarded by `s2a > 0 ? ... : r`
+    # for the axes. That form cannot be ported literally. OpenSCAD's `sin()` takes degrees and
+    # returns exactly 0 at every multiple of 180, so on the axes the guard fires and the quotient
+    # is never evaluated. `math.sin(math.radians(2 * angle))` is 1.2e-16 at 90 degrees, not 0, so
+    # the guard misses -- and then `1 - s2a*s2a` rounds to exactly 1.0, its root is 1.0, and
+    # `1 - 1.0` is 0.0. The function returned a radius of **zero on all four axes**, so the path
+    # ran through the centre of the squircle four times instead of reaching its extremes (T141).
+    #
+    # Multiplying through by `1 + sqrt(1-x*x)` removes the subtraction and the division both:
+    # `1 - sqrt(1-x*x) == x*x / (1 + sqrt(1-x*x))`, which leaves `sqrt(2)/sqrt(1 + sqrt(1-x*x))`.
+    # The same function -- the two agree to 1e-54 in 60-digit arithmetic -- with no cancellation,
+    # no division by `s2a`, and so no special case on the axes at all.
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))
-    return radius * math.sqrt(2) / s2a * math.sqrt(1 - math.sqrt(1 - s2a * s2a)) if s2a > 0 else radius
+    return radius * math.sqrt(2) / math.sqrt(1.0 + math.sqrt(1.0 - s2a * s2a))
 
 
 def _squircle_fg_path(

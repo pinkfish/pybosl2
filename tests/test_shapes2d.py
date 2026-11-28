@@ -131,23 +131,40 @@ def test_squircle_circle_at_zero_squareness() -> None:
 
 
 def test_squircle_square_at_high_squareness() -> None:
+    """A near-square squircle reaches its bounding box exactly, and encloses nearly all of it.
+
+    The `abs_tol` here was 0.2 until T141, which is 45 times the error the shape had: the path
+    ran through its own centre on all four axes, and the sample points either side of each axis
+    still reached 19.997, so a bounding-box check could not see a third of the area missing.
+    `tests/test_the_squircle_reaches_its_own_extremes.py` measures the area; this one is now
+    tight enough to be worth keeping beside it.
+    """
     from pybosl2.shapes2d.curves import _squircle_fg_path
 
     pts = _squircle_fg_path([40, 40], 0.99, None, None, None)
-    assert math.isclose(max(abs(x) for x, y in pts), 20.0, abs_tol=0.2)
-    assert math.isclose(max(abs(y) for x, y in pts), 20.0, abs_tol=0.2)
+    assert math.isclose(max(abs(x) for x, y in pts), 20.0, abs_tol=1e-9)
+    assert math.isclose(max(abs(y) for x, y in pts), 20.0, abs_tol=1e-9)
+    assert min(math.hypot(x, y) for x, y in pts) > 19.9, "no point may approach the centre"
 
 
 def test_squircle_radius_fg_circle() -> None:
+    """Zero squareness is a circle at every angle -- including the axes, where `sin(2a)` is not
+    numerically zero and the radius used to collapse to 0 (T141)."""
     assert math.isclose(squircle_radius_fg(0, 10, 45), 10.0)
+    for angle in (0.0, 90.0, 180.0, 270.0, 360.0):
+        assert math.isclose(squircle_radius_fg(0.5, 10, angle), 10.0, abs_tol=1e-12)
 
 
 def test_squircle_builds_solid() -> None:
-    """A squircle fills its nominal size: 40 across, near enough at any squareness."""
+    """A squircle fills its nominal size exactly: 40 across, at any squareness.
+
+    `abs=0.2` before T141. Exact now, because the four axis points are on the bounding box.
+    """
     shape = squircle(40, squareness=0.7)
     if shape.shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
-    assert [float(v) for v in shape.bounds().size] == pytest.approx([40.0, 40.0], abs=0.2)
+    assert [float(v) for v in shape.bounds().size] == pytest.approx([40.0, 40.0], abs=1e-6)
+    assert shape.linear_extrude(height=5).vnf().volume() == pytest.approx(7719.8019, abs=1e-3)
 
 
 def test_squircle_rejects_bad_squareness() -> None:
