@@ -89,14 +89,18 @@ spec renumbers as items close, and all but S-46a have.
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
 
-T14 (parts on the SDF backend) is the one remaining conformance item, and it is bounded by
-mathematics rather than effort. Its numbers are now **measured**, by
-`tests/test_parts_backend_coverage.py`, rather than written by hand: 40 of 51 parts build on either
-backend and 11 refuse, where the spec had long claimed 38 of 53 with 15 refusing. The total had
-double-counted an alias and neither figure had been rerun since parts were ported. The *reason*
-survived the audit intact — all 11 refusals were checked one by one and every one cites
-non-convexity — so what was wrong was the arithmetic, not the argument. That is the shape of most
-of what this wave found.
+T14 (parts on the SDF backend) is the one remaining conformance item. Its numbers are now
+**measured**, by `tests/test_parts_backend_coverage.py`, rather than written by hand: **47 of 51
+parts build on either backend and 4 refuse**, where the spec had long claimed 38 of 53 with 15
+refusing and then 40 of 51 with 11. The total had double-counted an alias and neither figure had
+been rerun since parts were ported.
+
+The *reason* did **not** survive the audit, and that took two more passes to establish. It read
+"all 11 refusals cite non-convexity, so what was wrong was the arithmetic, not the argument";
+T142 re-measured all eleven and **seven of them were wrong about why**, none needing a new engine
+to close (T103 had already found the first two of the seven). What is left is four lofts a field
+cannot read pointwise, and the obstacle is now stated as a property of the loft rather than of the
+mesh. The shape of most of what this wave found is a stated reason that nobody had re-measured.
 
 T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
 spec already stated that nothing measured — which is why T23's gate went in even though its
@@ -6382,11 +6386,20 @@ to 7 and the total to 87.
 
 ### Still open on T14
 
+*Superseded by T142, which closed seven of these eleven. Left here as written, because what it
+says is the thing that turned out to be wrong.*
+
 The 13 parts that need a **non-convex mesh** on the SDF backend — `BevelGear`, `Rail`,
 `ThinningWall`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates, and the four threaded
 fasteners that build their thread as a VNF grid. That one is bounded by mathematics rather than
 effort: an arbitrary non-convex mesh has no closed-form distance field, and answering it means a
 different engine (a BVH over triangles), not a different formula.
+
+Three things in that paragraph were not true. The count was 11 parts, not 13 (one of the
+"Manfrotto plates" is an alias of the other, the double-count this very task had already found
+once). "Non-convex mesh" described how each part *spelled* its geometry, not what its geometry is —
+a worm is a twisted prism and a threaded rod is a helical sweep, both of which have exact fields.
+And nothing needed a BVH: see T142.
 
 
 ## T137 — The second door nobody watched ✅
@@ -7199,3 +7212,267 @@ behaviour, so they must pass there), the exact-arithmetic identity, the corner-s
 and `test_the_path_fills_its_nominal_size[*-1.0]`, because at full squareness the bounding box
 read exactly 30 even with the centre visits. That last one is the fingerprint of why a
 bounding-box test missed this for years.
+
+## T142 — T14's last parts, and five reasons that were not true ✅
+
+**Requirement:** SPEC S-46a (parts honour the active backend), PAR-1 (one source, either backend),
+PAR-5 (the two backends agree about the same solid), B-9 (a tessellation option crosses; a geometry
+option refuses by name), A-1 (the layer model), SPEC E-5.
+
+T14 is the campaign's one remaining conformance item and it closed down to **four parts**. Eleven
+refused on the SDF backend; seven of those refusals were wrong about *why*, and not one of the
+seven needed a new engine to close. **47 of the 51 parts build on either backend now**, from 40.
+
+That is five tasks running in which a stated reason in `spec/spec.md.in` has not survived being
+checked — T50, T52/T53, T56, T58, and now this one — so the pattern is the finding. A gap recorded
+as mathematics is worth re-measuring before it is believed.
+
+### The two sweeps were one implementation too many
+
+`WireBundle`'s refusal read *"a swept tube that follows bends is a non-convex mesh with no
+distance-field form"*. The second clause was plainly false — `pybosl2.sdf.shapes3d.path_sweep`
+builds exactly that shape as a field — so T100 tried dispatching to it, found the two sweeps were
+different functions, and reverted with centres:
+
+| route, offset | façade (mesh) centre | `sdf.path_sweep` centre |
+|---|---|---|
+| straight, offset 0 | `[10, 0, 0]` | `[10, 0, 0]` |
+| straight, offset 3 | `[10, 0, +3]` | `[10, -3, 0]` |
+| bent, offset 0 | `[10.32, 9.68, 0]` | `[14.6, 5.4, 0]` |
+
+T119 then re-measured it on the field rather than on box centres: on a straight route the
+difference was *exactly* a −90° turn about X (0.0000 at all 48 vertices), and on a bent route no
+turn about X came within 13.92. The conclusion drawn was that the bend "needs more than a frame".
+
+**It needed one less implementation.** Both sweeps run Wang's double-reflection algorithm, so the
+algorithm was never the difference. The backend walked the path *itself*, and so differed in four
+places at once:
+
+| | façade (`skin._path_sweep`) | backend (`_rmf_frames`) |
+|---|---|---|
+| end tangents | `path_tangents(uniform=true)` — a one-sided **quadratic**, which on a cornered path leans the start tangent backwards: `[0.9487, -0.3162, 0]` for a path that sets off along +x | a one-sided **linear**: `[1, 0, 0]` |
+| seed normal | `BACK` above 1/√2 of vertical, else `UP` | `[1,0,0]` above 0.9, else `[0,0,1]` |
+| closing twist | `twistfix` distributed by arc length | none |
+| in-plane axes | `u` → binormal, `v` → normal | `u` → normal, `v` → binormal |
+
+The last of those is a **reflection**, not a roll. That is why a single rotation could never have
+reconciled the bend, and why the bend looked like a second problem rather than the same one.
+
+So `swept_profile` takes the **stations** — one 4×4 matrix per cross-section — and `path_sweep` asks
+`Sweepable.path_sweep_transforms` for them. There is one frame implementation in the library now,
+`_rmf_frames` is gone, and the agreement is structural: every vertex of the meshed sweep *is* a
+point of a cross-section the field places, so the field reads 0.0 there by construction.
+
+| | before | after |
+|---|---|---|
+| straight route, offset profile | 4.2063 outside | **0.0000** |
+| bent route, offset profile | 4.2063 outside | **0.0000** |
+| vertical, helical routes | not measured | **0.0000** |
+| asymmetric L on all four routes | not measured | **0.0000** |
+
+**Why nothing noticed is the kept lesson.** Every case in `tests/test_backend_sdf_sweep.py` sweeps
+along a path parallel to **Z**, and there the two frames are *both* the identity — the façade picks
+`BACK` as its seed normal above 1/√2 of vertical and the backend picks `[1,0,0]` above 0.9, and the
+two choices happen to agree for a vertical tangent. So the backend's sweep could be probed correctly
+in its own frame while building a differently-rolled solid from the same arguments as the façade.
+Run the new comparisons against the previous commit and the two `vertical` rows are the **only**
+geometry comparisons that pass.
+
+`WireBundle` builds on either backend. Measured at its own mesh's vertices on the full part — 13
+wires, four corners, rounded — the worst escape is **0.000000**. Its `_build` also ended with
+`Bosl2Solid(bundle.shape, size=None)`, a hand re-wrap that reaches `.shape`: an SDF solid has no
+native handle, so the part was CSG-only by its last line as well as by its sweep.
+
+**Three of `path_sweep`'s arguments do not cross and each refuses by name**: `scale=` (a scaled
+station is not a rigid motion, so the field cannot read the profile back out of it), `caps=NONE` (an
+uncapped sweep is an open surface and a field describes only solids) and a decorative `caps=`.
+`style=` *does* cross — it chooses how a grid cell is split into triangles, which B-9 carves out.
+
+### The thread grid's "geometry change" was one turn
+
+`Nut`, `Screw`, `ThreadedNut` and `ThreadedRod` refused with *"converting it is a geometry change,
+not a dispatch one"*. T120 had measured the change honestly and read it too cautiously: the worst
+departure was 0.5833 on an M20×2.5 and every departing vertex sat within a fifth of a millimetre of
+a cut end plane, which was recorded as an end treatment left to port.
+
+It is **one extra turn at each end** — which `_thread_grid` has always swept (`len1 = -length/2 -
+pitch`, `turns1 = floor(len1/pitch) - 1`) and the reconstruction did not. Sweeping only
+`length / pitch` turns leaves the last quarter-pitch unthreaded at each end, because the helix then
+starts and stops *inside* the rod where a rod cut flush shows a partial thread.
+
+| extra turns each end | M20×2.5 L30 | M16×2 L24 | M10×1.5 L18 | M10×1.5 L19.5 | M10×1.5 L22.5 |
+|---|---|---|---|---|---|
+| 0 | 0.5833 | 0.4615 | 0.3750 | 0.3750 | 0.3750 |
+| **1** | **0.0000** | **0.0000** | **0.0000** | **0.0000** | **0.0000** |
+
+The second detail is the **phase**, and it is the trap T120 warned about. A coil's crests sit at
+every `bottom + k·lead`; the grid's sit at every multiple of the pitch from z=0. A *centred* coil of
+height `length + 2·lead` puts `bottom` at `−(length/2 + lead)`, so the two agree only when
+`length / (2·pitch)` is a whole number and are **half a turn apart** when it is not — over half the
+rod's vertices wrong, and nothing a bounding box would show. `_rod_field` cannot be out of phase:
+it sweeps the coil up from z=0 and drops it by a whole number of leads.
+
+Multi-start threads needed the lead rather than the pitch (`lead = starts · pitch`) plus the
+`starts` rotated copies the grid also unions. Measured over **nineteen** configurations — five
+rods across trapezoidal, ISO and buttress profiles, plus 2 and 3 starts and a left-hand thread;
+whole and fractional turn counts throughout — seventeen read exactly **0.0000** at every grid
+vertex, and the other two are the trim-plane slivers recorded below.
+
+The grid stays the CSG route: it is the BOSL2 port, and a coaxial union of a helix with a core is
+what Manifold does badly. `_rod_field` is the SDF route, and PAR-5 holds because they are the same
+solid rather than two approximations of a thread.
+
+### `linear_extrude(twist=)` has a field, and T14 said it could not
+
+`Worm`'s refusal read *"sweeps its helical thread as a VNF, and a non-convex mesh has no
+distance-field form"*. A worm is a stack of **one fixed cross-section**, each copy turned a little
+further and raised — the stations are `zrot(i·astep) @ up(i·zstep)` of one outline. That is a
+twisted prism, and T14 had recorded the twisted prism as settled:
+
+> a *helical* gear still refuses, on `linear_extrude(twist=)`, which a constant-cross-section
+> prism genuinely cannot express
+
+The sentence is true about `polygon_prism` and irrelevant to the field. **The cross-section does not
+have to be constant for the field to be exact.** A twisted prism contains `(x, y, z)` exactly when
+the outline contains the point turned *back* by the twist accumulated at that height, so
+
+```
+u, v = x·cos t + y·sin t,  y·cos t − x·sin t      t = −radians(twist) · (z − bottom) / height
+```
+
+read through the outline's own 2-D field *is* the solid — no slicing, no approximation, and dearer
+than the untwisted prism by one sine and one cosine. Two other functions in the module already read
+a station the same way (`spiral_sweep` recovers its station from `atan2`, `tapered_polygon_prism`
+from `z`), so "recover the station, undo its transform" was the established device and a twist is
+its easiest case.
+
+| | outside | wrong sign |
+|---|---|---|
+| square, ±90°, 120°, 360°, 900° | **0.0000** | 1.4641–1.6569 |
+| ten-point star (concave), 180°, centred | **0.0000** | 1.0148 |
+| 20×2 blade, 90° | **0.0000** | — |
+
+`slices=` crossed with it, under B-9: it is how finely the *mesh* steps a twist, which is exactly
+the `convexity` mistake T14 found on this same constructor — a plain spur gear kept off the backend
+over a rendering flag. `scale=` keeps its refusal, because it can taper the two axes differently and
+that is not a uniform scale.
+
+**The box is the swept outline, not the circumcircle's disc.** A 20×2 blade's circumradius is 10.05,
+so the disc claims 20.10 × 20.10 at every angle while a 30° turn of it reaches 20.19 × 11.82. The
+sampling is capped at one revolution, because a worm turns 917° and the first 360 of them have
+already closed the circle — 3,669 angles down to 1,441. The first spelling of that test used a
+*quarter* turn, where the two answers agree because the blade's own tip has by then swept through
+90°: the cheap answer looks right until a small twist is measured.
+
+Turning the *solid* rather than the outline cost 5.6mm of box. `Worm` needs its bottom face
+pre-turned by half a sweep, and `worm.rotate(-180·revs)` recomputes the box from the box's own
+corners — 45.59 across a worm 40.00 wide, the case T136 fixed for rotated non-box shapes generally.
+Turning the outline instead is exact: 40.17 against CSG's 40.00, which is the documented domain
+slack.
+
+### `ManfrottoRC2Plate` was held by its last three lines
+
+Its refusal named `linear_sweep()`. The profile sweep *is* a plain extrusion — `linear_sweep` and
+`linear_extrude` of the same outline measure identically (bounds `[0,0,0]`–`[10,6,5]`, volume 180.0
+both ways) — and `linear_extrude` has dispatched since T14's `walls` finding. What actually held the
+part was `_finish3`: CSG-only anchoring machinery that unwraps to a native handle. `reorient(bbox=)`
+is the same three moves in the same order on the shared contract.
+
+Converting it surfaced `notch.scale([1, -1, 1])` — a reflection written as a negative scale, which
+the field backend refuses outright ("factors must be positive"). That is the same defect T14 fixed
+in `HerringboneGear`, recurring in a second module; `mirror([0, 1, 0])` is what it meant.
+
+The plate agrees exactly on both backends at every anchor, orient and chamfer setting, and reads
+**0.000000** outside on the field at its own mesh's vertices.
+
+### The app render, and the one thing that did move
+
+| | before | after |
+|---|---|---|
+| vertex set (3 dp) | 58 points | **identical** |
+| volume | 19,569.453 | **19,569.453** |
+| total surface area | 5,679.701 | **5,679.701** |
+| triangles | 112 | 112 |
+| watertight | True | True |
+| triangles re-cut | — | 7, all on x = −18.54 and y = 26.25 |
+| zero-area triangles | 0 | **2** |
+
+The golden is a hash, so a re-cut face fails it; the measurements are what say the shape is the
+same. The two zero-area triangles are new and are pinned rather than left to be found: both lie on
+x = −18.54 with all three vertices at z = 3.25 — a collinear chain along that face's boundary edge,
+which the end notches split at y = ±13 — so Manifold is fanning a straight line. Inert for volume,
+area and watertightness alike, and `export()` accepts the mesh.
+
+### What is left, and why it is a different kind of gap
+
+Four parts refuse, and the reason is now stated as a property of the **loft** rather than of the
+mesh. A field reads a loft pointwise, which needs two things: recovering which station a point
+belongs to, and undoing that station's transform. The library does exactly that three times —
+
+| loft | station from | transform undone |
+|---|---|---|
+| twisted prism | `z` | a rotation (T142) |
+| helical sweep | `atan2` | a rotation and a radius (T14) |
+| tapered prism | `z` | a uniform scale (T14) |
+
+— and the four that remain have neither half:
+
+| part | faces | why |
+|---|---|---|
+| `BevelGear` | 3,440 | sections **scaled** as well as turned, down a cone: a point does not say which station it came from |
+| `WormGear` | 11,016 | sections scaled, turned about X and moved, around a throat arc |
+| `Rail` | 52 | a hand-written triangle list; its two end profiles differ by no similarity — one vertex moves 0.40mm in x where another moves 1.00mm in z |
+| `ThinningWall` | 44 | a hand-written triangle list: a tapered web between two rims, given vertex by vertex |
+
+Closing those needs a convex decomposition of a 3-D mesh, or a lofted prism whose cross-section is
+interpolated per point from tree-valued vertices. A new primitive either way, not a route — which is
+the distinction `ROUTE_ONLY_PARTS` existed to keep, and that list is now empty and deleted rather
+than kept at zero. `test_a_loft_a_field_can_read_still_builds` keeps the reason honest by requiring
+the three readable lofts to still build, because otherwise it is a sentence with nothing behind it.
+
+### Found and not fixed
+
+* **Two zero-area triangles in the plate's render**, measured and pinned above. They are Manifold's
+  fan of a collinear boundary chain, not geometry, and removing them would mean telling the
+  renderer how to triangulate a face.
+* **`twisted_polygon_prism` makes no `Hull` claim.** The honest claim is every outline point
+  rotated to its own station's angle at that station's height, which for a worm is 1,441 × 90
+  points — too many for `_hull_box` to walk. So a rotated twisted prism reports the conservative
+  corner box, as `Worm` would have if it turned the solid instead of the outline. Over-reporting,
+  which is the safe direction (T136).
+* **One buttress rod reads 0.0020 and another 0.0038 outside**, on two vertices each, and both sit
+  *on the trim plane* to the digit. An intersection creates vertices that lie on neither surface it
+  cut, and an exact field reads one of those a sliver out — `field_probe`'s T122 case. Held to a
+  bound **and** a location, so it cannot grow into a disagreement about the thread.
+* **Four spec-sheet parts have cached metrics that no longer match a fresh render**, and this task
+  found it by accident rather than by looking. `docs/_specgen.py` overwrites its STL and metrics
+  cache only when triangle count or volume drifts more than **5%**, so a smaller drift reports
+  `unchanged` and keeps the old numbers. Running it with `--force` after a change that touches none
+  of these four:
+
+  | part | cached | fresh render |
+  |---|---|---|
+  | `shapes3d-cone` | 2,902.4 mm³, bbox 20×20×20 | **2,853.7 mm³, bbox 19×19×20** |
+  | `gears-bevel` | 3,400 tris | 3,440 tris |
+  | `gears-herringbone` | 8,700 tris, 71,880.4 mm³ | 8,680 tris, 71,882.4 mm³ |
+  | `gears-helical` | 47,901.7 mm³ | 47,903.4 mm³ |
+
+  The cone is the one that matters: a published bounding box of 20 for a solid the renderer now
+  measures at 19 is the DOC-3 failure T141 recorded for the squircle, in a different shape and
+  under the drift threshold instead of behind a rounding. It is **not** fixed here — I do not know
+  which side is right without finding out whether the code or the renderer moved, and republishing
+  four unrelated shapes' measurements with no code change behind them would be worse than leaving
+  the discrepancy recorded. Only the three `tripod_mounts-rc2-*` STLs are updated, because those
+  are the shapes this task re-triangulated. `--force` also rewrites the bytes of **17 further STLs
+  whose metrics are identical**, so the renderer's triangle *order* is not stable run to run, which
+  is why a forced regeneration cannot be used as a staleness check on its own.
+
+### The controls
+
+| | asserts | and would fail if |
+|---|---|---|
+| `test_a_reflected_frame_is_caught` | the swept-profile comparison sees a u/v swap | the profile were symmetric about its diagonal — the first spelling was a 4×4 L, which **is** its own swap and read 0.0000 |
+| `test_the_twist_turns_the_way_openscad_turns_it` | the opposite sign reads 1.0+ outside | the sign were unobservable, which a bounding box and a volume both are |
+| `test_the_comparison_is_sensitive_to_half_a_turn` | a half-turn phase error is visible | the probe could not see a thread rotated half a turn |
+| `test_the_end_turns_are_what_closed_the_gap` | the under-swept coil still departs by 0.5833, within 0.25 of an end | the end turns bought nothing |
+| `test_a_loft_a_field_can_read_still_builds` | helix, twisted prism and tapered prism all build | the stated reason for the remaining four lost its counter-examples |

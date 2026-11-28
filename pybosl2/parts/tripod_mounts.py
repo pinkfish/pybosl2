@@ -14,18 +14,18 @@
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
-from pybosl2._backend import csg_part
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
+
 from pybosl2._edges_lang import Anchor
-from pybosl2._helpers import anchor_vector, unwrap
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.masking import chamfer_edge_mask, edge_mask
 from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
-from pybosl2.shapes3d import Bosl2Solid, cuboid
-from pybosl2.shapes3d.base import _finish3
+from pybosl2.solid import cuboid
 from pybosl2.turtle import TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
@@ -139,7 +139,7 @@ class ManfrottoRC2Plate(Buildable):
         # (the top face is 0.32 mm right of the bottom one), which sits the body half of that
         # offset to the left of the anchor box.
         shift = 0.64115 / 2
-        body = Bosl2Solid(unwrap(pts.linear_sweep(height=length))).orient(Anchor.FRONT)
+        body = pts.linear_extrude(height=length).orient(Anchor.FRONT)
         body = body.left(shift / 2)
         # where the profile's own origin (its bottom-left corner) lands, so the cutouts below can
         # be placed in the same coordinates the profile was drawn in
@@ -164,14 +164,18 @@ class ManfrottoRC2Plate(Buildable):
                 0.0,
             ]
         )
-        body = body - (notch | notch.scale([1, -1, 1]))
+        # The far-end notch is the near one mirrored, which `scale([1, -1, 1])` spells as a
+        # negative factor -- a reflection written as a scale. The field backend refuses that
+        # outright ("factors must be positive"), and `mirror` is what it meant; same solid on
+        # either backend (the `HerringboneGear` finding, T14).
+        body = body - (notch | notch.mirror([0, 1, 0]))
 
         # 3. Subtract the facet down the left edge: the facet polygon is drawn in the profile's
         # own coordinates, so it is placed back onto them.
         cutout_len = 26.0
         facet_x = [p[0] for p in facet]
         facet_y = [p[1] for p in facet]
-        cut2 = Bosl2Solid(unwrap(Path2D(facet).linear_sweep(height=cutout_len))).orient(Anchor.FRONT)
+        cut2 = Path2D(facet).linear_extrude(height=cutout_len).orient(Anchor.FRONT)
         cut2 = cut2.translate(
             [
                 profile_x + (min(facet_x) + max(facet_x)) / 2,
@@ -218,17 +222,14 @@ class ManfrottoRC2Plate(Buildable):
             )
             assert body is not None
 
-        # Resolve anchor offset and finish using _finish3
-        a = anchor_vector(anchor)
-        offset = [-a[0] * botwid / 2, -a[1] * length / 2, -a[2] * thickness / 2]
-
-        self._solid = _finish3(
-            body.shape,
-            offset,
-            spin,
-            orient,
-            size=(botwid, length, thickness),
-            anchor=anchor,
+        # Anchor, spin and orient against the plate's nominal box. This used to go through
+        # `_finish3`, which unwraps to a native handle -- `.shape` -- that a field solid does not
+        # have, so the part was CSG-only by its last three lines rather than by its geometry.
+        # `reorient(bbox=)` is the same three moves in the same order, on the shared contract.
+        half = [botwid / 2.0, length / 2.0, thickness / 2.0]
+        box = [[-v for v in half], half]
+        self._solid = body.reorient(anchor, spin=spin, orient=orient, bbox=box).with_nominal_size(
+            [botwid, length, thickness], anchor=anchor
         )
 
     @property
@@ -237,9 +238,13 @@ class ManfrottoRC2Plate(Buildable):
         return self._chamfer
 
     @property
-    @csg_part("builds its body by sweeping a 2-D outline into a mesh with linear_sweep()")
-    def shape(self) -> Bosl2Solid:
-        """Return the RC2 plate geometry."""
+    def shape(self) -> "Solid":
+        """Return the RC2 plate geometry.
+
+        Builds on either backend since T142. The refusal here named `linear_sweep()`, which meshes
+        the profile and hands over a non-convex polyhedron -- but the profile sweep *is* a plain
+        extrusion, and `linear_extrude` has dispatched for a while (the `walls` finding, T14).
+        """
         return self._solid
 
 

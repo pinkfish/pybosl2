@@ -91,10 +91,36 @@ upgrading a model that uses one.
   so by name when handed a rounding.
 - `regular_prism` takes `outer_radius` / `outer_diameter`.
 - `Flat.linear_extrude` declares `scale`, `twist` and `slices` on the shared contract. The CSG
-  backend builds them; the SDF backend refuses them **by name** rather than raising a bare
+  backend builds all three. The SDF backend builds `twist` as an exact field and ignores `slices`
+  as tessellation (see "Backend parity"); `scale` refuses **by name** rather than raising a bare
   `TypeError` about a keyword from inside.
 
 ### Backend parity
+
+- **47 of the 51 parts build on either backend, up from 40.** `WireBundle`, `Screw`, `Nut`,
+  `ThreadedRod`, `ThreadedNut`, `Worm` and `ManfrottoRC2Plate` all build under
+  `use_backend("sdf")` now, and none of them needed a new engine — every one was refusing for a
+  reason that turned out to be false. Four parts still refuse: `BevelGear`, `WormGear`, `Rail` and
+  `ThinningWall`, each a loft a distance field cannot read pointwise, and each now saying *which*
+  property of the loft is in the way rather than "a non-convex mesh has no distance-field form" —
+  a sentence that was the stated reason for five of the seven that crossed.
+
+- **`linear_extrude(twist=)` builds on the SDF backend**, exactly. A twisted prism contains a
+  point exactly when its outline contains that point turned back by the twist accumulated at its
+  height, so there is nothing to approximate; checked against the meshed extruder at its own
+  vertices, where every vertex reads 0.0. `slices=` is accepted and ignored with it, being a
+  tessellation choice. `linear_extrude(scale=)` still refuses by name: it can taper the two axes
+  differently, which is not a scale a field can undo.
+
+- **`Path2D.path_sweep` / `Path3D.path_sweep` build a field on the SDF backend** instead of meshing
+  unconditionally. The backend had a sweep of its own all along and it built a *differently
+  oriented* solid from the same arguments — a 90-degree roll on a straight route and no rigid
+  motion at all on a bend — because it walked the path and derived its own frames rather than using
+  the stations the meshed sweep places its cross sections with. **If you called
+  `pybosl2.sdf.shapes3d.path_sweep` directly, its output has moved** and now matches
+  `Path3D.path_sweep`; its `twist=` also turns the other way, for the same reason. `scale=`, an
+  uncapped sweep and a decorative `caps=` refuse by name on a field; `style=` is accepted and
+  ignored.
 
 - **A shape from the other backend is refused wherever a call takes one, not just by the boolean
   operators.** Handing a CSG shape to an SDF call, or the reverse, raised `CrossBackendError` for
@@ -173,6 +199,16 @@ upgrading a model that uses one.
   a superset.
 
 ### Internals
+
+- **One frame implementation for sweeps, not two.** `pybosl2.sdf.shapes3d.swept_profile` takes a
+  list of 4x4 stations and `path_sweep` asks `Sweepable.path_sweep_transforms` for them;
+  `_rmf_frames` is gone. Both routes ran Wang's double-reflection algorithm and still disagreed,
+  which is the argument: running the same algorithm twice is not the same as running it once.
+
+- **The threaded rod has an exact field form.** `_rod_field` builds it from `spiral_sweep` where
+  `_rod_solid`'s vertex-array grid stays the CSG route, and the two are held to the same solid at
+  the grid's own vertices over nineteen configurations. What had been recorded as the remaining
+  geometry work was one extra turn swept at each end — which the grid itself has always done.
 
 - **A ratchet on the degree/radian port hazard behind the `squircle` fix.** No local assigned from
   `sin`/`cos`/`tan` may be both compared against zero and used as a divisor in the same function —

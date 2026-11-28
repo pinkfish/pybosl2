@@ -784,10 +784,14 @@ SDF_SHAPES3D_CASES: list[tuple[Callable[[], object], str]] = [
         "no supporting planes found",
     ),
     (
+        # Was "repeated point (zero-length tangent)", from the frame walk the backend used to run
+        # itself. T142 took the stations from `skin._path_sweep` instead, whose own guard names the
+        # index and the fix -- which is what E-4 asks for, so the expectation moved rather than the
+        # message.
         lambda: sdf3.path_sweep(
             Path2D([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]), path=Path3D([[0.0, 0.0, 0.0]] * 2 + [[0.0, 0.0, 5.0]])
         ),
-        "repeated point",
+        r"repeats a point at index 0 .*deduplicate",
     ),
     (
         lambda: sdf3.stroke_3d([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], width=1, endcap1=_BUTT, endcap2=_BUTT),

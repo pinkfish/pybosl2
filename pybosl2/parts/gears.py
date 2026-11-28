@@ -38,7 +38,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._backend import csg_part
+from pybosl2._backend import csg_part, current_backend
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._native import native
 from pybosl2.caps import CapType
@@ -1957,12 +1957,59 @@ class BevelGear(Buildable):
     # Not "2-D geometry" -- the same copy-paste that mislabelled Worm. A bevel gear's teeth are
     # built with `VNF.vertex_array`, and a non-convex mesh has no distance-field form. Both wrong
     # reasons were invisible while the refusal fired generically at construction.
-    @csg_part("builds its teeth as a VNF, and a non-convex mesh has no distance-field form")
+    @csg_part(
+        "lofts its 3,440-face tooth surface down a cone between sections that are **scaled** as "
+        "well as turned. A field reads a loft pointwise by recovering which station a point "
+        "belongs to -- `z` for a twisted prism, `atan2` for a helix -- and then undoing that "
+        "station's transform. A cone-swept tooth's station is recoverable from neither, so there "
+        "is no pointwise test to write (T142)"
+    )
     def shape(self) -> "Solid":
         """Return the bevel gear geometry."""
         if self._solid is None:
             self._solid = self._build()
         return self._solid
+
+
+def _worm_field(
+    cross: list[list[float]],
+    length: float,
+    revs: float,
+    diameter: float,
+    left_handed: bool,
+) -> "Solid":
+    """Return a worm as a twisted prism of its own cross-section -- the field route (T142).
+
+    `Worm`'s refusal used to read "sweeps its helical thread as a VNF, and a non-convex mesh has no
+    distance-field form". A worm is a stack of one outline turned a little further at each step, so
+    it is `linear_extrude(twist=)`, which has an exact field; what the refusal described was the
+    *spelling* the CSG side uses. Measured against that mesh at its own vertices, at exactly 0.0,
+    over four worms including a left-handed one and a three-start one.
+
+    Args:
+        cross: The worm's cross-section outline, as ``[x, y]`` points.
+        length: The worm's length along Z.
+        revs: How many revolutions the thread makes over that length.
+        diameter: The pitch diameter, which becomes the nominal anchor box.
+        left_handed: Mirror the thread.
+
+    Returns:
+        The worm.
+
+    """
+    # `linear_extrude` leaves the bottom face unturned, and the station walk starts the worm half a
+    # sweep back, so the half-sweep is applied to the *outline* rather than to the finished prism.
+    # Turning the solid instead recomputes its box from the box's own corners, which reads 45.59
+    # across for a worm 40.00 wide -- the case T136 fixed for rotated non-box shapes generally.
+    start = math.radians(-180 * revs)
+    cs, sn = math.cos(start), math.sin(start)
+    turned = Path2D([[x * cs - y * sn, x * sn + y * cs] for x, y in cross])
+    worm = turned.linear_extrude(height=length, twist=-360 * revs, center=True)
+    if left_handed:
+        # A reflection, not a negative scale: the field backend refuses a non-positive factor, and
+        # `mirror` is what the VNF route's own x-flip means (the `HerringboneGear` finding, T14).
+        worm = worm.mirror([1, 0, 0])
+    return worm.with_nominal_size([diameter, diameter, length])
 
 
 class Worm(Buildable):
@@ -2062,6 +2109,13 @@ class Worm(Buildable):
                 refined.append([polars[i][0] + j * delta / steps, _lerp(polars[i][1], polars[i + 1][1], j / steps)])
         cross = [_polar_xy(r, a).tolist() for a, r in refined]
         revs = length / center / starts
+        # The stations below are `zrot(i * astep) @ up(i * zstep)` of that one fixed cross-section,
+        # which makes the whole worm a *twisted prism* of it -- and a twisted prism has an exact
+        # field (T142). The VNF is the BOSL2 port and stays the CSG route; the two are the same
+        # solid, measured at the mesh's own vertices.
+        if current_backend() == "sdf":
+            return _worm_field(cross, length, revs, diameter, left_handed)
+
         zsteps = max(1, math.ceil(revs * 360 / maxang))
         zstep, astep = length / zsteps, revs * 360 / zsteps
         profiles = []
@@ -2102,9 +2156,13 @@ class Worm(Buildable):
     # Not "2-D geometry" -- that reason was copy-pasted from BevelGear. A worm is a swept helical
     # thread built with `VNF.vertex_array`, and a non-convex mesh has no distance-field form. The
     # wrong reason was invisible while the refusal fired at construction with a generic message.
-    @csg_part("sweeps its helical thread as a VNF, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
-        """Return the worm geometry."""
+        """Return the worm geometry.
+
+        Builds on either backend since T142. The refusal here said a worm's helical thread is a
+        non-convex mesh with no distance-field form; a worm is a *twisted prism* of one fixed
+        cross-section, which has an exact field (see `_build`).
+        """
         if self._solid is None:
             self._solid = self._build()
         return self._solid
@@ -2276,7 +2334,11 @@ class WormGear(Buildable):
         return self._teeth
 
     @property
-    @csg_part("cuts its throated teeth into a VNF, and a non-convex mesh has no distance-field form")
+    @csg_part(
+        "lofts its 11,016-face throat around an arc between sections that are **scaled**, turned "
+        "about X and moved -- so, like BevelGear, which station a point belongs to is not "
+        "recoverable from the point, and a field has no pointwise test for it (T142)"
+    )
     def shape(self) -> "Solid":
         """Return the worm gear geometry."""
         if self._solid is None:

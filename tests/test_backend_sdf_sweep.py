@@ -54,12 +54,18 @@ def _field(shape: PyShape) -> Callable[[float, float, float], float]:
 
 
 def _frame_probe(shape: PyShape, path: Sequence[Sequence[float]]) -> Callable[[float, float], float]:
-    """A helper to probe the field in the mid-station's (u, v) profile frame (for a straight path)."""
-    _, nrm, binorm = sdf._rmf_frames(np.asarray(path, dtype=float))
-    mid = len(nrm) // 2
-    center = np.asarray(path, dtype=float)[mid]
+    """A helper to probe the field in the mid-station's (u, v) profile frame (for a straight path).
+
+    The stations come from `path_sweep_transforms()`, which is the library's one frame
+    implementation since T142. This used to call a second frame walk that lived inside the backend,
+    and reading the field in *that* frame is why the sweep could be probed correctly here while
+    building a differently-rolled solid from the façade's sweep of the same arguments.
+    """
+    stations = np.asarray(Path3D(path).path_sweep_transforms(), dtype=float)
+    mid = len(stations) // 2
+    origin, uax, vax = stations[mid][:3, 3], stations[mid][:3, 0], stations[mid][:3, 1]
     f = _field(shape)
-    return lambda u, v: f(*(center + u * nrm[mid] + v * binorm[mid]))
+    return lambda u, v: f(*(origin + u * uax + v * vax))
 
 
 def test_sweep_builds_ffi_free() -> None:

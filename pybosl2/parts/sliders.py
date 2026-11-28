@@ -349,7 +349,13 @@ class Rail(Buildable):
         return self._height
 
     @property
-    @csg_part("builds from a VNF whose faces are not convex, so it has no distance-field form")
+    @csg_part(
+        "is a hand-written 52-face polyhedron whose ends taper into its body, so it is neither a "
+        "prism nor a loft of similar sections -- one end profile's vertices move 0.40mm in x where "
+        "others move 1.00mm in z, which no single similarity does. A field reads a loft by "
+        "recovering which station a point belongs to and then undoing that station's transform, "
+        "and here there is no station transform to undo (T142)"
+    )
     def shape(self) -> "Solid":
         """Return the rail geometry."""
         if self._solid is None:

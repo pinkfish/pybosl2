@@ -261,16 +261,32 @@ class SdfBackend:
         # this backend over a rendering hint.
         for name in ("convexity", "fa", "fn", "fs"):
             options.pop(name, None)
-        # These three shear the profile as it rises, which polygon_prism cannot express at all.
-        for name in ("twist", "scale", "slices"):
-            if options.pop(name, None) not in (None, 0, 1, False):
+        # `slices` is how finely the native extruder steps a twist -- a tessellation choice, which
+        # a field does not have, so it falls under SPEC B-9's carve-out. `scale` tapers the profile
+        # as it rises and is refused by name; `twist` turns it, which T142 found a field *can*
+        # express exactly, and is handled below.
+        options.pop("slices", None)
+        twist = options.pop("twist", None) or 0.0
+        if options.pop("scale", None) not in (None, 0, 1, False):
+            raise UnsupportedByBackendError(
+                "linear_extrude(scale=)",
+                "sdf",
+                hint="polygon_prism() extrudes a constant cross-section and a tapered one is a "
+                "different surface, not a render hint; build it on the csg backend, or use "
+                "pybosl2.solid.regular_prism(radius1=, radius2=) for a tapered prism.",
+            )
+        if twist:
+            if rounding_top or rounding_bottom:
                 raise UnsupportedByBackendError(
-                    f"linear_extrude({name}=)",
+                    "linear_extrude(twist=, rounding_top=/rounding_bottom=)",
                     "sdf",
-                    hint="polygon_prism() extrudes a constant cross-section; build the shape on "
-                    "the csg backend for a twisted/tapered extrusion, or sweep it with "
-                    "pybosl2.sdf.shapes3d.path_sweep(twist=...).",
+                    hint="a rim roundover is offset along the wall's own normal, and a twisted "
+                    "wall's normal is not the outline's; extrude the twist and round it after, or "
+                    "build the shape on the csg backend.",
                 )
+            if options:
+                raise Bosl2ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
+            return _s.twisted_polygon_prism(_as_outlines(paths), height, float(twist), center=center, res=res)
         if options:
             raise Bosl2ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
         shape = _s.polygon_prism(

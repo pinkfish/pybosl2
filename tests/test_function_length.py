@@ -70,7 +70,10 @@ BUDGET: dict[str, int] = {
     "rounding.py": 2,
     "sdf/joiners.py": 1,
     "sdf/paths.py": 1,
-    "sdf/shapes3d.py": 7,
+    # 7 until T142, which split `path_sweep` (82 lines) into a two-line wrapper over
+    # `swept_profile` -- the split that made it the same solid as the façade's sweep, since the
+    # stations now come from one frame implementation rather than two.
+    "sdf/shapes3d.py": 6,
     "sdf/skin.py": 1,
     "shapes2d/circle.py": 0,
     "shapes2d/square.py": 1,

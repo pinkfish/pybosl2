@@ -628,6 +628,71 @@ _EPS_SQ = 1e-18
 _EPS_LEN = 1e-9
 
 
+def _sweep_on_sdf(
+    shape: "PathLike",
+    stations: list[Any],
+    caps: CapsSpec,
+    closed: bool,
+    scalevals: list[list[float]],
+) -> "Solid":
+    """Build `path_sweep`'s solid as the SDF backend's own field rather than meshing it.
+
+    The same arrangement `spiral_sweep` has, and for the same reason: a profile swept along a path
+    has an exact distance-field form, and this module's own route builds a `VNF` and calls
+    `.polyhedron()` on it, which is SPEC B-5's lossy conversion -- and a one-way door, since
+    `to_sdf` refuses on a CSG solid outright. The stations are the ones computed above, so the two
+    routes are the same solid by construction rather than by agreement (T142).
+
+    Three of `path_sweep`'s arguments do not survive the crossing and each refuses by name. `style`
+    does survive: it chooses how a grid cell is split into triangles, and a field has no triangles,
+    so it falls under SPEC B-9's tessellation carve-out and is accepted and ignored.
+
+    Args:
+        shape: The cross-section being swept.
+        stations: The 4x4 transforms the cross sections are placed with.
+        caps: The caller's cap specification.
+        closed: Whether the sweep loops.
+        scalevals: The per-station ``[sx, sy]`` scale factors.
+
+    Returns:
+        The swept solid, on the SDF backend.
+
+    Raises:
+        UnsupportedByBackendError: if the sweep is scaled, uncapped or decoratively capped.
+
+    """
+    from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.path2d import Path2D as _Path2D
+    from pybosl2.sdf.shapes3d import swept_profile
+
+    if any(abs(sx - 1.0) > 1e-12 or abs(sy - 1.0) > 1e-12 for sx, sy in scalevals):
+        raise UnsupportedByBackendError(
+            "path_sweep(scale=)",
+            "sdf",
+            hint="a scaled cross-section makes each station a non-rigid motion, so the field "
+            'cannot read the profile back out of it; sweep it inside `with use_backend("csg")` '
+            "and bring it over with .to_csg().",
+        )
+    for spec in norm_caps(caps, closed):
+        if spec.cap_type == CapType.NONE and not closed:
+            raise UnsupportedByBackendError(
+                "path_sweep(caps=CapType.NONE)",
+                "sdf",
+                hint="an uncapped sweep is an open surface and a distance field describes only "
+                "solids -- there is no inside to be on. Sweep the path closed, or cap it with "
+                "CapType.BUTT.",
+            )
+        if spec.cap_type not in (CapType.BUTT, CapType.NONE):
+            raise UnsupportedByBackendError(
+                f"path_sweep(caps=CapType.{spec.cap_type.name})",
+                "sdf",
+                hint="a decorative cap is a profile revolved about the path's end, which this "
+                "backend's sweep does not build; CapType.BUTT is the flat end it does.",
+            )
+    profile = shape if isinstance(shape, _Path2D) else _Path2D(shape)
+    return swept_profile(profile, stations)
+
+
 def _path_sweep(
     shape: "PathLike",
     path: Sequence[Sequence[float]] | Path2D | Path3D,
@@ -798,6 +863,12 @@ def _path_sweep(
     transform_list = [unscaled[i] @ scale_list[i] for i in range(len(unscaled))]
     if transforms:
         return transform_list
+
+    from pybosl2._backend import current_backend
+
+    if current_backend() == "sdf":
+        return _sweep_on_sdf(shape, transform_list, caps, closed, scalevals)
+
     from pybosl2.path2d import Path2D as _Path2D
 
     shp = clockwise_polygon(shape if isinstance(shape, _Path2D) else _Path2D(shape))

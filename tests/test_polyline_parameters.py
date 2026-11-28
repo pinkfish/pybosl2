@@ -473,6 +473,11 @@ GUARDED_BY_DELEGATION = {
     "pybosl2/sdf/shapes2d.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
     "pybosl2/sdf/shapes3d.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
     "pybosl2/shapes3d/extrusions.py::path_text::path": "calls Path2D/Path3D methods that guard",
+    # T142 made this a two-line function: the stations come from skin._path_sweep (which guards the
+    # path, and refuses a repeated point by name) and the profile goes to swept_profile (which
+    # guards it). Guarding here as well would duplicate both messages.
+    "pybosl2/sdf/shapes3d.py::path_sweep::path": "calls skin._path_sweep(), which guards",
+    "pybosl2/sdf/shapes3d.py::path_sweep::profile": "calls swept_profile(), which guards",
     "pybosl2/vnf.py::from_skin::profiles": "calls skin.slice_profiles(), which guards",
 }
 
