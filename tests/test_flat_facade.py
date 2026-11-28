@@ -86,12 +86,14 @@ def test_polygon_csg_path() -> None:
     assert isinstance(p, Flat)
 
 
-def test_text_sdf_raises() -> None:
-    """flat.text() raises UnsupportedByBackendError on SDF backend."""
-    from pybosl2.exceptions import UnsupportedByBackendError
-
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        flat.text("hello")
+def test_text_sdf_path() -> None:
+    """flat.text() returns SDF shape under SDF backend."""
+    with use_backend("sdf"):
+        t = flat.text("hello", size=5)
+        assert t.backend == "sdf"
+        assert isinstance(t, Flat)
+        extruded = t.linear_extrude(height=2)
+        assert extruded.backend == "sdf"
 
 
 def test_text_csg_path() -> None:

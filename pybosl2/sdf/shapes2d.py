@@ -1515,6 +1515,78 @@ def region2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
 
 
+def text2d(
+    text: str,
+    *,
+    size: float = 10,
+    font: str = "Liberation Sans",
+    halign: str | None = None,
+    valign: str | None = None,
+    spacing: float = 1.0,
+    direction: str = "ltr",
+    language: str = "en",
+    script: str = "latin",
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int = 10,
+) -> PyShape2D:
+    """Return 2-D text as a :class:`PyShape2D` SDF built from PythonSCAD glyph outlines.
+
+    Extracts the 2-D glyph contours via PythonSCAD's native ``text()`` font engine and
+    assembles outer outlines and inner glyph holes (such as the counters in ``O``, ``A``,
+    ``B``) with :func:`region2d`.
+
+    Args:
+        text: The string content.
+        size: Text height.
+        font: Font family name.
+        halign: Horizontal alignment (``"left"``, ``"center"``, ``"right"``; default ``"center"``).
+        valign: Vertical alignment (``"top"``, ``"center"``, ``"baseline"``, ``"bottom"``; default ``"baseline"``).
+        spacing: Character spacing factor.
+        direction: Text direction (``"ltr"``, ``"rtl"``, ``"ttb"``, ``"btt"``).
+        language: Language code.
+        script: Script code.
+        fn: Curve fragment count passed to glyph outline extraction.
+        fa: Minimum fragment angle passed to glyph outline extraction.
+        fs: Minimum fragment size passed to glyph outline extraction.
+        res: Sampling resolution for the SDF backend.
+
+    Returns:
+        A 2-D SDF shape representing the text outlines.
+
+    """
+    from pybosl2._native import native
+
+    h = halign if halign is not None else "center"
+    v = valign if valign is not None else "baseline"
+    raw = native("text")(
+        text,
+        size=size,
+        font=font,
+        halign=h,
+        valign=v,
+        spacing=spacing,
+        direction=direction,
+        language=language,
+        script=script,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
+    contours = raw.mesh()
+    paths: list[Path2D] = []
+    for ring in contours:
+        pts = [[float(p[0]), float(p[1])] for p in ring]
+        if len(pts) >= 2 and pts[0] == pts[-1]:
+            pts = pts[:-1]
+        if len(pts) >= 3:
+            paths.append(Path2D(pts))
+    if not paths:
+        return PyShape2D(lambda x, _y: x * 0.0 + 1.0, [0.0, 0.0], [0.0, 0.0], res)
+    return region2d(paths, res=res)
+
+
 def stroke2d(
     path: "Path2D",
     width: float = 1,
