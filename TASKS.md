@@ -7007,3 +7007,195 @@ public call.
 
 Both moved **up**, which is the direction an inscribed approximation must move when it becomes
 exact. The equal-radius cases are untouched, because that branch was already exact.
+
+
+## T141 — The squircle that ran through its own centre ✅
+
+**Requirement:** PLAN S-4a (units are implicit and fixed — and the degree/radian conversion is not
+free), SPEC B2-1 (the same shapes BOSL2 builds), S-55 (export refuses to write nonsense),
+PLAN E-P4 (never return a polygon of coincident points), SPEC DOC-3.
+
+T134 fixed the watertightness *measurement* — a chamfered cone and a chamfered cylinder had been
+published as not watertight because the renderer emits degenerate slivers and the count could not
+survive one — and recorded what was left over: `shapes2d-squircle` still had **one real bad edge**
+after the slivers were dropped, "recorded rather than chased". Chased now. It is not a mesh
+artifact. It is the only visible symptom of a shape that was wrong.
+
+### One edge, eight faces, at the centre of the squircle
+
+The bad edge is the **vertical segment from (0,0,0) to (0,0,2)**, with **eight** incident faces
+where a closed mesh allows two. Four side walls meeting on the extrusion axis means the 2-D path
+visits the origin four times. It does:
+
+```
+ 0   0.000000  -0.000000   r= 0.000000      <- should be (15, 0)
+ 1  14.932769  -4.773207   r=15.677088
+ ...
+ 8  -0.000000  -0.000000   r= 0.000000      <- should be (0, -15)
+```
+
+Points 0, 8, 16 and 24 — exactly the four samples on the axes, where the squircle should touch its
+bounding box — are all the origin. The published shape was a four-petalled pinwheel.
+
+### BOSL2's expression cannot be ported literally
+
+```openscad
+s2a = abs(squareness*sin(2*angle));
+s2a > 0 ? r*sqrt(2)/s2a*sqrt(1-sqrt(1-s2a*s2a)) : r
+```
+
+The guard is there because the quotient is undefined at `s2a = 0`, and in OpenSCAD it is reliable:
+`sin()` takes **degrees** and returns *exactly* 0 at every multiple of 180, so on the axes the
+guard fires and the quotient is never evaluated. `math.sin(math.radians(2 * angle))` is not zero
+there — it is `-4.899e-16` at 360 degrees — so the guard misses, and the quotient is evaluated at
+the one place its author knew it must not be:
+
+| step | value |
+|---|---|
+| `s2a` | `4.698304021264313e-16` |
+| `s2a*s2a` | `2.2074060676228413e-31` |
+| `1 - s2a*s2a` | `1.0` — **exactly**, the term is below the ulp of 1 |
+| `sqrt(1.0)` | `1.0` |
+| `1 - 1.0` | `0.0` |
+| `r*sqrt(2)/s2a * 0.0` | **0.0** |
+
+Catastrophic cancellation, reached through a guard that in the source language is exact. Note
+`angle=0` is fine — `math.sin(0.0)` *is* 0.0 — which is why `squareness=0` and every test written
+at `angle=45` looked healthy.
+
+### The fix is an identity, not a tolerance
+
+`1 - sqrt(1-x²) == x²/(1 + sqrt(1-x²))`, so
+
+    sqrt(2)/x · sqrt(1 - sqrt(1-x²))  ==  sqrt(2)/sqrt(1 + sqrt(1-x²))
+
+The right-hand side has no subtraction of near-equal numbers, no division by `s2a`, and therefore
+**no special case on the axes at all** — at `x=0` it is `r·√2/√2 = r`, at `x=1` it is `r√2`, the
+corner of the square. The two are the same function to **1e-54** in 60-digit arithmetic, which the
+test checks rather than asserts. Accuracy against a 50-digit reference:
+
+| angle (deg) | literal port | shipped form |
+|---|---|---|
+| 1e-6 | 4.8e-3 | 2.2e-17 |
+| 1e-4 | 5.0e-6 | 1.6e-17 |
+| 0.01 | 3.8e-10 | 2.8e-17 |
+| 45 | 8.0e-18 | 8.0e-18 |
+| **90, 180, 270, 360** | **1.0** | **<1e-29** |
+
+### What a third of a solid looks like
+
+`squircle(30, squareness=0.6).linear_extrude(height=2)` — the part on the spec sheet — rendered in
+the real app:
+
+| | before | after |
+|---|---|---|
+| triangles | 124 | 124 |
+| degenerate triangles | 12 | **0** |
+| distinct edges | 165 | **186** |
+| edges with the wrong face count | **1** (eight faces) | **0** |
+| watertight | **False** | **True** |
+| bounding box | 29.866 × 29.866 × 2 | **30 × 30 × 2** |
+| volume | **1,128.72** | **1,701.51** |
+
+**33.6% of the solid was missing.** The library's own path area × height is 1701.5075 and the app's
+STL measures 1701.5075 — seven digits — so the two agree about the fixed shape as well.
+
+Across the sweep, before the fix: four origin visits and three repeated points at **every**
+squareness above 0 and **every** facet count, because `astep = 90/round(fn/4)` always divides 90,
+so the axis angles are always sampled exactly. There was no resolution at which this was absent,
+and that is now a probe (`test_the_axis_angles_are_always_sampled`) rather than a sentence.
+
+### `export()` was refusing the shape
+
+The sharpest statement of the cost. On `main`:
+
+```
+>>> s2.squircle(30, squareness=0.6).linear_extrude(height=2).export("out.stl")
+Bosl2ValueError: export(): the mesh is not watertight -- 24 edge(s) are not shared by exactly
+two faces, starting at (5, 6). Pass check=False to write it anyway ...
+```
+
+SPEC S-55's validation was working correctly, so a caller could not write a squircle to a file at
+all. The message names the mesh, because that is all `export()` is given — nothing pointed back at
+the squircle.
+
+**24 here against the 1 in the table above is T134's distinction, not a contradiction.**
+`VNF.is_watertight()` reads face *indices*, so it measures the mesh this library built: 112 faces,
+24 bad edges. `stl_metrics` re-identifies vertices by position in what the renderer tessellated
+that mesh into: 124 triangles, 12 of them degenerate slivers, and after dropping those, one bad
+edge carrying eight faces. Two meshes, one shape, and both said open — unlike `pco1810_neck`,
+where the index-based check said closed and only the position-based one disagreed.
+
+### Why every test passed
+
+Five tests covered the squircle. Each one was blind for a reason worth writing down.
+
+| test | why it passed |
+|---|---|
+| `test_squircle_circle_at_zero_squareness` | `squareness=0` makes `s2a` a product **with** zero, so it is exactly 0 and the guard fires correctly. The only value tested was the only safe one. |
+| `test_squircle_radius_fg_circle` | `squareness=0` again, and `angle=45`. |
+| `test_squircle_square_at_high_squareness` | `abs_tol=0.2` on the bounding box at `squareness=0.99`, where the error is **0.0044** — a tolerance 45× the defect, at the squareness where the defect is smallest. |
+| `test_squircle_builds_solid` | bounds within 0.2 at `squareness=0.7`. |
+| `test_squircle_extruded` (STL) | `m.volume > 0`, size within 0.5 — and **no `assert m.watertight`**, which its neighbour `test_keyhole_extruded` has. |
+
+**Nothing measured the area.** A bounding box cannot see a hole in the middle: the samples either
+side of each axis still reach 14.93 of 15, so the box reads 29.87 and a wedge is quietly gone from
+each of the four quadrants. All five are tightened here — the two bounding-box tolerances to 1e-6
+and 1e-9, the STL test to a watertight assertion plus an exact volume — and the new file measures
+the area at every squareness and facet count.
+
+The spec page's own columns were no better. **124 triangles** was correct, since the facet count
+does not change; the bounding-box column rounds to integers, so 29.866 printed as `30`; the volume
+was wrong by a third with nothing on the page to compare it against. Of four measured metrics,
+one said anything, and it had been saying it since the formula landed in `d020265b`
+(2026-07-21, the first commit of the port) — four months (SPEC DOC-3).
+
+### The defect class, scanned for
+
+The first scan I wrote found **zero** hits — and zero against `main` as well, which is how I knew
+it was broken rather than reassuring: it looked for a comparison against 0 whose left side
+contained a trig call, and the guard compares `s2a`, a plain name. A scan that cannot see the thing
+it was written to find is worse than no scan.
+
+Rewritten to follow the assignment, the rule is: **a local assigned from `sin`/`cos`/`tan` that is
+both compared against zero and used as a divisor in the same function.** That conjunction is what
+makes the defect quiet. A division by a near-zero sine on its own is loud — it returns 1e16, or
+raises — so it is a different class; the **89** of those in the package are left alone. A *guard*
+around such a division is a port of `x > 0 ? f(x) : limit`, written because the author knew `f` is
+undefined at zero.
+
+Against the commit before this one the rule finds **exactly one**:
+
+```
+pybosl2/shapes2d/curves.py:432 squircle_radius_fg(): `s2a` is both guarded against zero
+                               and divided by
+```
+
+and **zero** after. So the squircle was the only literal port of that pattern in the package. The
+rule is a ratchet now, with its own control (`test_the_ratchet_can_fail`) feeding it both spellings
+as source text.
+
+### Found and not fixed
+
+**`squareness=1` is a square to 1e-8, not exactly.** `_linearize_squareness(1.0)` is
+`0.9999999999999998`, half an ulp below 1, and no spelling of that formula is exact there — `x/d/d`
+in place of `x/(d*d)` gains one ulp and still misses, because `d*d` with `d` the float nearest
+`sqrt(2)` is `2.0000000000000004`. The amplification is the parametrisation's: with
+`eps = 1 - s2a` the radius is `r√2/√(1 + √(2·eps))`, so the corner falls short by `√(2·eps)/2` —
+a half-ulp input error comes out as **1.05e-8**, or 3e-7 mm on a 30mm squircle. That is a property
+of the Fong-Garcia parametrisation at its square endpoint and bounds what any implementation of it
+can promise, so it is **measured** (`test_the_corner_is_as_exact_as_the_parametrisation_allows`,
+which predicts the shortfall from `eps` to within 5%) rather than hidden inside a loose tolerance.
+
+### The control
+
+| | here | against `main` |
+|---|---|---|
+| `tests/test_the_squircle_reaches_its_own_extremes.py` | **643 passed** | **510 failed, 121 passed** |
+
+The 121 that pass on `main` are interpretable one by one, which is the point of running it: every
+`squareness=0.0` case, every `angle=0.0` case, the two controls (which *describe* the broken
+behaviour, so they must pass there), the exact-arithmetic identity, the corner-sensitivity probe —
+and `test_the_path_fills_its_nominal_size[*-1.0]`, because at full squareness the bounding box
+read exactly 30 even with the centre visits. That last one is the fingerprint of why a
+bounding-box test missed this for years.

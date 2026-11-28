@@ -558,9 +558,9 @@
   },
   "squircle": {
    "tris": 124,
-   "vol": "1,128.7",
+   "vol": "1,701.5",
    "bbox": "30\u00d730\u00d72",
-   "wt": false
+   "wt": true
   },
   "keyhole": {
    "tris": 136,
