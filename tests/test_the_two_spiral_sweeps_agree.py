@@ -117,7 +117,7 @@ def test_a_mirrored_profile_is_caught() -> None:
 
 
 # ----------------------------------------------------------------------------------------
-# What is still in the way of the four thread parts.
+# The four thread parts, and what was actually in the way.
 # ----------------------------------------------------------------------------------------
 
 #: Rods to compare, as (major diameter, pitch, length). The lengths are deliberately a mix of whole
@@ -131,44 +131,37 @@ RODS = [
     (10.0, 1.5, 22.5),
 ]
 
-#: How far in from an end plane a disagreement may sit and still count as end treatment. The
-#: measured figures are 0.065 to 0.181, so this is above the measurement and far below the 9.7 that
-#: the mis-phased reconstruction produced -- it cannot be satisfied by a thread that is wrong in the
-#: body of the rod.
-END_ZONE = 0.25
-
-#: The most any vertex departs, per rod. Scales with pitch, which is what an end-treatment
-#: difference should do. Figures may fall, never rise.
-WORST_DEPARTURE = 0.60
+#: The profiles every rod is built with, so the agreement is not one thread form's luck. `buttress`
+#: is the awkward one: its outline spans the whole pitch, so consecutive turns abut exactly rather
+#: than leaving a gap between them.
+PROFILES = ("trapezoidal", "iso", "buttress")
 
 
-def _swept_rod(diameter: float, pitch: float, length: float, spin: float) -> object:
-    """Build the rod the sweep route would build: a helical thread over a core, trimmed to length.
-
-    This is `ThreadHelix._build`'s own mapping of profile to section -- X is the offset outward from
-    the helix radius and Y is height, scaled by pitch -- plus the core cylinder the module header
-    describes, plus `_rod_solid`'s own trim.
-    """
+def _profile(name: str, pitch: float) -> "Any":
     import pybosl2.parts.threading as threading
 
-    profile = [[float(x), float(y)] for x, y in threading._trapezoidal_profile(pitch, 60.0, pitch / 2)]
-    heights = [p[1] for p in profile]
-    depth = (max(heights) - min(heights)) * pitch
-    section = Path2D([[(y - max(heights)) * pitch, x * pitch] for x, y in profile])
-    thread = sdf_shapes.spiral_sweep(
-        profile=section, height=length, radius=diameter / 2, turns=length / pitch, center=True
-    )
-    if spin:
-        thread = thread.rotate(spin, [0, 0, 1])
-    core = sdf_shapes.cyl(height=length, radius=diameter / 2 - depth, anchor=[0, 0, 0])
-    trim = sdf_shapes.cyl(height=length, radius=diameter / 2 + 1, anchor=[0, 0, 0])
-    return (thread | core) & trim
+    if name == "iso":
+        return threading._iso_profile()
+    if name == "buttress":
+        return threading._buttress_profile()
+    return threading._trapezoidal_profile(pitch, 60.0, pitch / 2)
 
 
-def _grid_against_sweep(diameter: float, pitch: float, length: float) -> "tuple[list[float], float, float]":
-    """Compare `_rod_solid`'s grid with the swept rod, at the better of the two phases.
+#: How far a grid vertex may sit outside the field, and only where `_on_a_cut_plane` allows it.
+#: The two are a pair: a bound on its own would accept a thread that is wrong everywhere by a
+#: little, and a location on its own would accept one that is wrong by a lot on the end faces.
+BOOLEAN_SLIVER = 0.01
 
-    Returns ``(how far each departing vertex sits in from an end plane, worst departure, count)``.
+
+def _grid_against_field(
+    diameter: float, pitch: float, length: float, profile: "Any", **kwargs: "Any"
+) -> "tuple[float, float]":
+    """Compare `_rod_solid`'s grid with `_rod_field`'s field at the grid's own vertices.
+
+    Returns ``(worst departure, how far the worst departing vertex is from a cut plane)``. The
+    second is what separates a boolean's own sliver from a thread that disagrees: see
+    `tests/field_probe.py`'s T122 note -- an intersection re-triangulates, and the vertices it
+    creates lie on *neither* input surface, so an exact field reads them a facet-width out.
     """
     import numpy as np
 
@@ -176,92 +169,174 @@ def _grid_against_sweep(diameter: float, pitch: float, length: float) -> "tuple[
     from pybosl2 import use_backend
     from pybosl2.sdf._libfive import lv
 
-    profile = threading._trapezoidal_profile(pitch, 60.0, pitch / 2)
     with use_backend("csg"):
-        rod = threading._rod_solid(d=diameter, length=length, pitch=pitch, profile=profile)
-    points = np.asarray(rod.vnf().vertices, dtype=float)
+        rod = threading._rod_solid(d=diameter, length=length, pitch=pitch, profile=profile, **kwargs)
+        points = np.asarray(rod.vnf().vertices, dtype=float)
+    with use_backend("sdf"):
+        field = threading._rod_field(
+            diameter,
+            length,
+            pitch,
+            profile,
+            kwargs.get("starts", 1),
+            kwargs.get("left_handed", False),
+            None,
+            None,
+            None,
+        )
+        tree = field._sdf_fn(lv.x(), lv.y(), lv.z())  # type: ignore[attr-defined]
+    found = np.asarray([float(tree(float(p[0]), float(p[1]), float(p[2]))) for p in points])
+    if not (found > 1e-6).any():
+        return 0.0, 0.0
+    worst = points[int(np.argmax(found))]
+    return float(found.max()), float(abs(abs(worst[2]) - length / 2))
 
-    best: "Any | None" = None
-    for spin in (0.0, 180.0):
-        with use_backend("sdf"):
-            swept = _swept_rod(diameter, pitch, length, spin)
-        tree = swept._sdf_fn(lv.x(), lv.y(), lv.z())  # type: ignore[attr-defined]
-        found = np.asarray([float(tree(float(p[0]), float(p[1]), float(p[2]))) for p in points])
-        if best is None or int((found > 1e-6).sum()) < int((best > 1e-6).sum()):
-            best = found
-    assert best is not None
-    departing = best > 1e-6
-    inset = (length / 2) - np.abs(points[departing, 2])
-    return [float(v) for v in inset], float(best.max()), float(departing.sum())
 
-
+@pytest.mark.parametrize("name", PROFILES)
 @pytest.mark.parametrize(("diameter", "pitch", "length"), RODS)
-def test_the_thread_grid_differs_only_at_its_cut_ends(diameter: float, pitch: float, length: float) -> None:
-    """The route gap is a geometry change, and this is how much of one.
+def test_the_thread_grid_and_the_field_are_the_same_rod(
+    name: str, pitch: float, diameter: float, length: float
+) -> None:
+    """The route gap is closed, and this is what closed it (SPEC PAR-1, PAR-5).
 
-    `ThreadedRod` builds a hand-rolled vertex-array grid, and its refusal says converting it to the
-    sweep route "is a geometry change, not a dispatch one". True -- and the change is confined to
-    the end treatment: the body of the rod matches the swept construction exactly, and every
-    departing vertex sits within a fifth of a millimetre of a cut end plane, where the grid carries
-    material the sweep does not. The module header records why: BOSL2's blunt-start and lead-in
-    machinery is not ported, so ends are cut flush.
+    `ThreadedRod` builds a hand-rolled vertex-array grid, and its refusal used to say that
+    converting it to the sweep route "is a geometry change, not a dispatch one". T120 measured the
+    change and found it confined to the end treatment -- every departing vertex within a fifth of a
+    millimetre of a cut end plane, worst 0.5833 on an M20x2.5. That reading was right and the
+    conclusion drawn from it was too cautious: the end treatment is not a treatment at all, it is
+    **one extra turn at each end**, which `_thread_grid` has always swept (`len1 = -length/2 -
+    pitch`, `turns1 = floor(len1/pitch) - 1`) and the reconstruction did not. Adding it takes the
+    worst departure from 0.5833 to 0.0000 on all five rods.
 
-    So whoever closes this gap is porting an end treatment, not a thread.
+    So the grid stays the CSG route -- it is the BOSL2 port, and a coaxial union of a helix with a
+    core is what Manifold does badly -- and `_rod_field` is the SDF one, and they are the same solid
+    rather than two approximations of a thread. PAR-5 wants exactly that: the same call, the same
+    solid, whichever backend is active.
     """
-    inset, worst, count = _grid_against_sweep(diameter, pitch, length)
-    assert count > 0, (
-        f"the grid and the swept rod now agree everywhere for M{diameter:g}x{pitch:g}. If that "
-        f"holds for every rod above, the route gap is closable by dispatch after all -- drop this "
-        f"test and convert the part."
+    outside, from_cut = _grid_against_field(diameter, pitch, length, _profile(name, pitch))
+    if outside <= OUTSIDE:
+        return
+    # Two of the fifteen rods -- both `buttress`, whose outline spans a whole pitch so consecutive
+    # turns abut exactly -- leave two vertices 0.0020 and 0.0038 outside, and both sit *on* the trim
+    # plane to the digit. The trim is an intersection, and an intersection creates vertices that lie
+    # on neither surface it cut; an exact field reads one of those a sliver out. That is
+    # `field_probe`'s T122 case, not a disagreement about the thread, and it is held to both a
+    # bound and a location so it cannot grow into one.
+    where = (
+        f"{name} M{diameter:g}x{pitch:g} length {length:g}: the grid has a vertex {outside:.4f} "
+        f"outside the field, {from_cut:.4f} from the nearest cut plane. Faceting inscribes, so a "
+        f"departure off a cut plane is a real disagreement -- thirteen of the fifteen rods read "
+        f"exactly 0.0000 and the other two only on the trim (SPEC PAR-5)."
     )
-    assert max(inset) <= END_ZONE, (
-        f"M{diameter:g}x{pitch:g} length {length:g}: a vertex departs {max(inset):.3f} in from the "
-        f"end plane, past the {END_ZONE} that end treatment explains. The two constructions now "
-        f"differ in the body of the rod, which is a different and larger claim."
-    )
-    assert worst <= WORST_DEPARTURE, (
-        f"M{diameter:g}x{pitch:g}: worst departure {worst:.4f}, above the {WORST_DEPARTURE} "
-        f"recorded. Conservative is fine; drifting is not."
+    assert from_cut <= 1e-6, where
+    assert outside <= BOOLEAN_SLIVER, where
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"starts": 2},
+        {"starts": 3},
+        {"left_handed": True},
+        {"starts": 2, "left_handed": True},
+    ],
+    ids=["2 starts", "3 starts", "left-handed", "2 starts left-handed"],
+)
+def test_the_two_rods_agree_on_starts_and_handedness(kwargs: "dict[str, Any]") -> None:
+    """Multi-start and left-hand threads, which are where the phase arithmetic actually bites.
+
+    A multi-start thread's *lead* is `starts * pitch`, not `pitch`, so the coil and the grid step
+    by different amounts and only line up once the `starts` rotated copies are unioned. A
+    single-start fixture cannot see that at all, which is why these are separate cases.
+    """
+    outside, _ = _grid_against_field(12.0, 1.5, 19.1, _profile("iso", 1.5), **kwargs)
+    assert outside <= OUTSIDE, (
+        f"a rod with {kwargs} has a grid vertex {outside:.4f} outside the field; the lead or the "
+        f"handedness is no longer carried through to the coil"
     )
 
 
 def test_the_comparison_is_sensitive_to_half_a_turn() -> None:
     """The trap this measurement fell into, kept so the next reader does not.
 
-    The sweep's phase and the grid's agree only for one of the two half-turn offsets, and *which*
-    one depends on the parity of the turn count. Measured at 12 turns the offset is zero and
-    everything lines up; at 13 and 15 turns it is 180 degrees. Two fixtures at 12 turns is how
-    "differs only at the ends" was nearly recorded from a reconstruction that was half a turn out,
-    which reports over half the rod's vertices as departing, by 9.7mm in from the ends rather than
-    0.07.
+    A coil's crests sit at every `bottom + k * lead`, and the grid's at every multiple of the pitch
+    from z=0. A *centred* coil of height `length + 2 * lead` puts `bottom` at `-(length/2 + lead)`,
+    so the two agree only when `length / (2 * pitch)` is a whole number -- and are half a turn apart
+    when it is not. Measured at 12 turns the offset is zero and everything lines up; at 13 and 15
+    turns it is 180 degrees, which reports over half the rod's vertices as departing, by 9.7mm in
+    from the ends rather than 0.07.
 
-    A part converted to the sweep route without getting this right builds a thread rotated half a
-    turn for odd turn counts -- which no bounding box would show.
+    `_rod_field` cannot be out of phase, because it sweeps the coil up from z=0 and drops it by a
+    whole number of leads. This is the control that the probe would have *noticed* if it could: it
+    spins the field half a turn and requires the comparison to break.
+    """
+    import pybosl2.parts.threading as threading
+
+    diameter, pitch, length = 10.0, 1.5, 19.5  # 13 turns: odd, so the offset is not zero
+    profile = threading._trapezoidal_profile(pitch, 60.0, pitch / 2)
+    outside, _, _ = worst_escape(
+        lambda: threading._rod_solid(d=diameter, length=length, pitch=pitch, profile=profile),
+        lambda: threading._rod_field(diameter, length, pitch, profile, 1, False, None, None, None).rotate(
+            180.0, [0, 0, 1]
+        ),
+    )
+    # 0.51 rather than the 9.7 the mis-phased *reconstruction* produced, because this rod is
+    # thread-over-core: a half-turn error moves the thread but not the core, so the departure is
+    # bounded by the thread depth rather than by the rod. Five orders of magnitude above EXACT is
+    # what the control needs, and 9.7 was never the figure to hold it to.
+    assert outside > 0.1, (
+        f"turning the field half a turn leaves the grid only {outside:.4f} outside it, so this "
+        f"comparison cannot see a mis-phased thread -- which is a thread rotated half a turn for "
+        f"odd turn counts, and nothing a bounding box would show"
+    )
+
+
+def test_the_end_turns_are_what_closed_the_gap() -> None:
+    """The one measurement the old reading turned on, kept as the standing correction.
+
+    Sweeping only `length / pitch` turns leaves the last quarter-pitch at each end unthreaded,
+    because the helix then starts and stops *inside* the rod where a rod cut flush shows a partial
+    thread. That is the 0.5833 T120 recorded and read as "a geometry change": it is one turn.
     """
     import numpy as np
 
     import pybosl2.parts.threading as threading
     from pybosl2 import use_backend
+    from pybosl2.path2d import Path2D as _Path2D
     from pybosl2.sdf._libfive import lv
 
-    diameter, pitch, length = 10.0, 1.5, 19.5  # 13 turns: odd, so the offset is not zero
+    diameter, pitch, length = 20.0, 2.5, 30.0
     profile = threading._trapezoidal_profile(pitch, 60.0, pitch / 2)
     with use_backend("csg"):
-        rod = threading._rod_solid(d=diameter, length=length, pitch=pitch, profile=profile)
-    points = np.asarray(rod.vnf().vertices, dtype=float)
-
-    departures = []
-    for spin in (0.0, 180.0):
-        with use_backend("sdf"):
-            swept = _swept_rod(diameter, pitch, length, spin)
-        tree = swept._sdf_fn(lv.x(), lv.y(), lv.z())  # type: ignore[attr-defined]
-        found = np.asarray([float(tree(float(p[0]), float(p[1]), float(p[2]))) for p in points])
-        departures.append(int((found > 1e-6).sum()))
-
-    assert min(departures) < len(points) * 0.1 < max(departures), (
-        f"the two half-turn phases now depart on {departures} of {len(points)} vertices. One of "
-        f"them used to be a near match and the other half the rod; if they have converged, the "
-        f"phase no longer matters and this test has nothing to warn about."
+        points = np.asarray(
+            threading._rod_solid(d=diameter, length=length, pitch=pitch, profile=profile).vnf().vertices,
+            dtype=float,
+        )
+    prof = [[float(x), float(y)] for x, y in profile]
+    section = _Path2D([[y * pitch, x * pitch] for x, y in prof])
+    with use_backend("sdf"):
+        # The under-swept coil: exactly `length / pitch` turns, centred -- the reconstruction T120
+        # measured -- over the same core and trim the shipped form uses.
+        short = sdf_shapes.spiral_sweep(
+            profile=section, height=length, radius=diameter / 2, turns=length / pitch, center=True
+        )
+        core = sdf_shapes.cyl(height=length, radius=diameter / 2 + min(p[1] for p in prof) * pitch, anchor=[0, 0, 0])
+        trim = sdf_shapes.cyl(height=length, radius=diameter / 2 + 1, anchor=[0, 0, 0])
+        tree = ((short | core) & trim)._sdf_fn(lv.x(), lv.y(), lv.z())
+    found = np.asarray([float(tree(float(p[0]), float(p[1]), float(p[2]))) for p in points])
+    departing = found > 1e-6
+    assert departing.any(), (
+        "the under-swept coil now contains the whole grid, so the end turns buy nothing and "
+        "`_rod_field` is carrying two turns it does not need"
+    )
+    inset = (length / 2) - np.abs(points[departing, 2])
+    assert float(found.max()) == pytest.approx(0.5833, abs=0.01), (
+        f"the under-swept coil's worst departure is {found.max():.4f}, not the 0.5833 recorded. "
+        f"The figure is pitch-dependent, so this is a different rod or a different sweep."
+    )
+    assert float(max(inset)) <= 0.25, (
+        f"a vertex departs {max(inset):.3f} in from the end plane, past the quarter-millimetre "
+        f"that end treatment explains -- so what the end turns fix is no longer only the ends"
     )
 
 

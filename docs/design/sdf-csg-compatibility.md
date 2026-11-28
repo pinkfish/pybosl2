@@ -31,13 +31,20 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
 1. **Distribution on 2-D SDF shapes.** `SdfSolid` has `_distribute` and the whole copier surface
    (`xcopies`, `ycopies`, `distribute_on_path`, …); `PyShape2D` has none of it, so a 2-D field
    cannot be laid out the way a 2-D CSG shape can.
-2. **Eleven parts have no SDF form.** 40 of the 51 build on either backend (T14). The eleven that
-   refuse all need the same thing — a non-convex mesh, which has no closed-form distance field —
-   so closing this fully would mean approximating one, which SPEC B-5 forbids. The refusal is
-   tracked rather than a silent CSG shape, which is what S-46a asks for (SPEC §12.2 item 2).
-   *This entry said "all 53 build CSG directly" until T40, which is what the preamble above warns
-   about: the total double-counted an alias and the claim had not been rerun since parts were
-   ported.*
+2. **Four parts have no SDF form.** 47 of the 51 build on either backend (T14, T142). The four
+   that refuse are all **lofts**: a field reads a loft pointwise by recovering which station a
+   point belongs to and undoing that station's transform, which the library does for a twisted
+   prism (station from `z`), a helical sweep (from `atan2`) and a tapered prism (from `z`, undoing
+   a uniform scale). `BevelGear` and `WormGear` scale their sections as well as turning them, so a
+   point does not say which station it came from; `Rail` and `ThinningWall` are hand-written
+   triangle lists whose sections are related by no single transform. Closing those needs a convex
+   decomposition of a 3-D mesh or a lofted prism interpolated per point — a new primitive, not a
+   route. The refusal is tracked rather than a silent CSG shape, which is what S-46a asks for
+   (SPEC §12.2 item 2).
+   *This entry said "all 53 build CSG directly" until T40, then "eleven parts, all needing a
+   non-convex mesh" until T142 — which re-measured all eleven and found **seven** refusing for a
+   reason that was false. Both corrections are what the preamble above warns about: the figure had
+   not been rerun, and the reason had not been re-measured.*
 3. **0 options one backend takes and the other does not.** Parity is measured per option, not
    per shape (`tests/test_option_parity.py`), and a missing one is refused with the parameter
    named rather than dropped (B-9). The last two were `cuboid`/`cube`'s `teardrop`, which after

@@ -5817,149 +5817,287 @@ def regular_prism(
 # ---------------------------------------------------------------------------
 
 
-def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
-    """Rotation-minimizing frames along a 3-D polyline (Wang et al.'s double-reflection method).
+def _swept_outline_box(points: "Sequence[Sequence[float]]", span: float) -> "tuple[list[float], list[float]]":
+    """The XY box an outline covers while turning through *span* radians about the origin.
 
-    Returns (T, N, B) arrays -- unit tangent, normal and binormal at each point. Unlike a Frenet
-    frame this does not flip at inflection points, so the swept profile does not suddenly twist.
+    Not the disc of its circumradius, which would be correct and wasteful: a 20 x 2 blade's
+    circumradius is 10.05, so the disc claims 20.10 x 20.10 at every angle while a 30-degree turn
+    of it reaches 20.19 x 11.82. (At a quarter turn the two agree, because by then the blade's own
+    tip has swept through 90 degrees and the envelope really is square -- which is why the cheap
+    answer looks right until a small twist is measured.) Sampled at a quarter of a degree and then
+    widened by that sampling error, so the box stays a **superset** -- `frep()`'s octree clips
+    anything outside the domain, so under-reporting loses geometry while over-reporting only costs
+    resolution.
+
+    Args:
+        points: The outline's points.
+        span: The signed angle, in radians, the outline turns through.
+
+    Returns:
+        The ``([x, y] low, [x, y] high)`` corners.
+
     """
-    p = np.asarray(points, dtype=float)
-    n = len(p)
-    t = np.zeros((n, 3))
-    t[1:-1] = p[2:] - p[:-2]
-    t[0] = p[1] - p[0]
-    t[-1] = p[-1] - p[-2]
-    tl = np.linalg.norm(t, axis=1, keepdims=True)
-    if not (np.all(tl > 1e-12)):
-        raise Bosl2ValueError("path has a repeated point (zero-length tangent)")
-    t /= tl
-    nrm = np.zeros((n, 3))
-    ref = np.array([0.0, 0.0, 1.0]) if abs(t[0][2]) < 0.9 else np.array([1.0, 0.0, 0.0])
-    n0 = ref - np.dot(ref, t[0]) * t[0]
-    nrm[0] = n0 / np.linalg.norm(n0)
-    for i in range(n - 1):
-        v1 = p[i + 1] - p[i]
-        c1 = float(np.dot(v1, v1))
-        if c1 < 1e-18:
-            nrm[i + 1] = nrm[i]
-            continue
-        r_l = nrm[i] - (2.0 / c1) * np.dot(v1, nrm[i]) * v1
-        t_l = t[i] - (2.0 / c1) * np.dot(v1, t[i]) * v1
-        v2 = t[i + 1] - t_l
-        c2 = float(np.dot(v2, v2))
-        nn = r_l if c2 < 1e-18 else r_l - (2.0 / c2) * np.dot(v2, r_l) * v2
-        nrm[i + 1] = nn / np.linalg.norm(nn)
-    b = np.cross(t, nrm)
-    return t, nrm, b
+    corners = np.asarray(points, dtype=float)
+    # A turn of more than a full revolution sweeps the same envelope as one revolution, so the
+    # sampling is capped there -- a worm turns 917 degrees and would otherwise sample 3,669 angles
+    # to describe the circle the first 360 of them have already closed.
+    span = math.copysign(min(abs(span), 2 * math.pi), span)
+    steps = max(2, int(math.degrees(abs(span)) * 4) + 1)
+    turned = np.concatenate(
+        [
+            np.stack(
+                [
+                    corners[:, 0] * math.cos(a) - corners[:, 1] * math.sin(a),
+                    corners[:, 0] * math.sin(a) + corners[:, 1] * math.cos(a),
+                ],
+                axis=1,
+            )
+            for a in np.linspace(0.0, span, steps)
+        ]
+    )
+    slack = float(np.hypot(corners[:, 0], corners[:, 1]).max()) * math.radians(0.25)
+    return (
+        [float(turned[:, 0].min()) - slack, float(turned[:, 1].min()) - slack],
+        [float(turned[:, 0].max()) + slack, float(turned[:, 1].max()) + slack],
+    )
 
 
-def path_sweep(profile: "Path2D", path: "Path2D | Path3D", res: int = 12, twist: float = 0.0) -> PyShape:
-    """Sweep a 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`.
+def twisted_polygon_prism(
+    paths: "Path2D | Sequence[Path2D]",
+    height: float,
+    twist: float,
+    center: bool = False,
+    res: int = 10,
+) -> PyShape:
+    """Extrude SIMPLE polygons while turning them about Z -- `linear_extrude(twist=)` as a field.
 
-    (a list of ``[x, y, z]`` points -- 2-D points are lifted to ``z = 0``), as a libfive SDF.
+    T14 recorded this as the one extrusion option a field could not express: *"a helical gear still
+    refuses, on `linear_extrude(twist=)`, which a constant-cross-section prism genuinely cannot
+    express"*. The premise is the mistake -- the cross-section does not have to be constant for the
+    field to be exact. A twisted prism contains ``(x, y, z)`` exactly when the outline contains the
+    point turned **back** by the twist accumulated at that height, so reading the outline's own 2-D
+    field at ``(x cos t + y sin t, -x sin t + y cos t)`` with ``t`` linear in ``z`` is the solid
+    itself, not an approximation of it. Checked against the meshed extrusion at its own vertices --
+    a square and a ten-point star at 90, 180 and 360 degrees of twist -- where every vertex reads
+    exactly 0.0, and the opposite sign reads 1.0 to 1.66 outside, so the comparison discriminates
+    (T142).
 
-    At each path sample the profile is placed in a rotation-minimizing frame (see
-    :func:`_rmf_frames`) -- ``u`` along the frame normal, ``v`` along the binormal -- and the swept
-    solid is the union (``min``) of those oriented cross-sections. Because a union of exact SDFs is
-    exact, this is a true signed-distance field: it can be ``.round()``/``.chamfer()``ed, meshed at
-    any resolution, or combined with other backends' solids via ``.to_csg()`` like any other
-    :class:`PyShape`. Denser paths give a smoother lateral surface (the sweep converges from the
-    faceted union of cross-sections). The ends are capped perpendicular to the path.
+    The sign follows OpenSCAD's: a positive `twist` turns the top face clockwise seen from above,
+    which is the convention the meshed extruder and BOSL2 both use.
 
-    `profile` may be any SIMPLE polygon -- convex OR concave (the cross-section is evaluated with
-    :func:`_polygon_sdf_xy`'s convex-deficiency decomposition, the same one :func:`polygon_prism`
-    uses over the convex-only :func:`polygon_extrude`). `twist` is a total rotation of the profile
-    (in degrees) applied evenly along the path.
+    As everywhere else in this module the **zero set** is exact while the *value* is the outline's
+    2-D distance read in the turned frame, which is shorter than the true 3-D distance to a helical
+    surface -- the same trade :func:`spiral_sweep` documents. Rim treatments are not available with
+    a twist: a roundover is offset along the surface normal, and the normal of a twisted wall is not
+    the outline's.
+
+    Args:
+        paths: One outline, or a list of NON-OVERLAPPING outlines (min/union-combined).
+        height: Height of the extrusion.
+        twist: Total rotation in degrees from the bottom face to the top.
+        center: Centre the prism on z=0 rather than standing it on z=0.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+
+    Returns:
+        The twisted prism.
+
+    Raises:
+        ValueError: If height is not positive or an outline has fewer than 3 points.
+
+    """
+    if not (height > 0):
+        raise Bosl2ValueError(f"twisted_polygon_prism(): height must be positive, got {height}")
+    outlines = [
+        [[float(x), float(y)] for x, y in as_points(require_path(p, "paths", "twisted_polygon_prism", Path2D))]
+        for p in (paths if isinstance(paths, (list, tuple)) else [paths])
+    ]
+    for outline in outlines:
+        if not (len(outline) >= 3):
+            raise Bosl2ValueError(f"twisted_polygon_prism(): an outline needs at least 3 points, got {len(outline)}")
+    bottom = -height / 2.0 if center else 0.0
+    # Negative because OpenSCAD's `twist` turns the top face *clockwise* seen from above, which is
+    # the negative direction for every angle elsewhere in this module.
+    rate = -math.radians(twist) / height
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        t = rate * (z - bottom)
+        ca, sa = lv.cos(t), lv.sin(t)
+        # The query point turned *back* by the twist at this height, so the fixed outline is read
+        # in the frame the material at `z` was rotated into.
+        u, v = ca * x + sa * y, ca * y - sa * x
+        d2d = None
+        for outline in outlines:
+            d = _polygon_sdf_xy(u, v, outline)
+            d2d = d if d2d is None else lv.min(d2d, d)
+        return lv.max(cast("LVTree", d2d), lv.max(z - (bottom + height), bottom - z))
+
+    low, high = _swept_outline_box([p for outline in outlines for p in outline], rate * height)
+    return PyShape(sdf_fn, [*low, bottom], [*high, bottom + height], res)
+
+
+def _sweep_stations(
+    transforms: "Sequence[Sequence[Sequence[float]]]",
+) -> list[tuple[tuple[float, ...], tuple[float, ...], tuple[float, ...], tuple[float, ...], float, float]]:
+    """Unpack a 4x4 station list into ``(origin, u axis, v axis, tangent, back reach, forward reach)``.
+
+    A station's local x carries the profile's ``u``, its local y carries ``v`` and its local z is
+    the direction the sweep runs -- the convention :meth:`Sweepable.path_sweep` places its cross
+    sections with, which is where these matrices come from.
+
+    The two reaches are how far each cross-section extends along its own tangent. Interior stations
+    reach 0.6 of the way into each neighbouring segment, so consecutive slabs always overlap and
+    the union has no gap even where the path curves; the two ends reach 0 on the outward side, so
+    the sweep stops exactly at the path's endpoints rather than overshooting.
+
+    Args:
+        transforms: One 4x4 matrix per station, as ``path_sweep_transforms()`` returns them.
+
+    Returns:
+        One tuple per station.
+
+    Raises:
+        ValueError: if the list is not 4x4 matrices, has fewer than two stations, or carries a
+            station that is not a rigid motion.
+
+    """
+    mats = np.asarray(transforms, dtype=float)
+    if mats.ndim != 3 or mats.shape[1:] != (4, 4):
+        raise Bosl2ValueError(
+            f"sweep stations must be a list of 4x4 matrices, got an array of shape {list(mats.shape)}"
+        )
+    if len(mats) < 2:
+        raise Bosl2ValueError(f"a sweep needs at least 2 stations, got {len(mats)}")
+    rot, origin = mats[:, :3, :3], mats[:, :3, 3]
+    # The field reads a station by projecting onto its axes, which is the inverse of the station's
+    # rotation only while that rotation is orthonormal. A scaled station is not, and would read as
+    # a silently distorted cross-section, so it is refused here rather than approximated.
+    drift = float(np.abs(np.einsum("nij,nik->njk", rot, rot) - np.eye(3)).max())
+    if drift > 1e-9:
+        raise Bosl2ValueError(
+            f"a sweep station is not a rigid motion -- it departs from orthonormal by {drift:.3g}. "
+            f"A scaled cross-section has no closed-form distance field; sweep it on the csg backend."
+        )
+    seg = np.linalg.norm(np.diff(origin, axis=0), axis=1)
+    back = np.concatenate(([0.0], 0.6 * seg))
+    fwd = np.concatenate((0.6 * seg, [0.0]))
+    return [
+        (
+            tuple(origin[i]),
+            tuple(rot[i, :, 0]),
+            tuple(rot[i, :, 1]),
+            tuple(rot[i, :, 2]),
+            float(back[i]),
+            float(fwd[i]),
+        )
+        for i in range(len(mats))
+    ]
+
+
+def swept_profile(profile: "Path2D", transforms: "Sequence[Sequence[Sequence[float]]]", res: int = 12) -> PyShape:
+    """Place a 2-D `profile` at each 4x4 station in `transforms` and union the cross-sections.
+
+    This is the primitive every profile-along-path solid on this backend is built from, and it takes
+    the **stations** rather than the path on purpose. The backend used to walk the path and build
+    its own rotation-minimizing frames, which is the same algorithm :func:`~pybosl2.skin._path_sweep`
+    runs -- and the two nonetheless disagreed, by a 90-degree roll on a straight route and by no
+    rigid motion at all on a bent one, because the two walks differ in their end tangents, their
+    seed normal, their closing-twist correction and which in-plane axis carries ``u``. Taking the
+    stations leaves nothing for them to disagree about: there is one frame implementation in the
+    library now, and every vertex of the meshed sweep is a point of a cross-section placed here
+    (T142; see `tests/test_the_two_sweeps_agree.py` for what the second implementation cost).
+
+    The solid is the union (``min``) of the oriented cross-sections, each clipped to a slab along
+    its own tangent -- see :func:`_sweep_stations` for the reaches. A union of exact fields is
+    exact, so this is a true signed-distance field: it can be ``.round()``/``.chamfer()``ed, meshed
+    at any resolution, or combined with the other backend's solids via ``.to_csg()``. Denser
+    stations give a smoother lateral surface, which is how the sweep converges.
+
+    `profile` may be any SIMPLE polygon -- convex OR concave, through :func:`_polygon_sdf_xy`'s
+    convex-deficiency decomposition, the same one :func:`polygon_prism` uses.
 
     Args:
         profile: The cross-section to sweep, as ``[u, v]`` points.
-        path: The path to sweep it along.
+        transforms: One 4x4 matrix per station, as ``path_sweep_transforms()`` returns them.
         res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
-        twist: Total twist in degrees applied along the sweep.
+
+    Returns:
+        The swept solid.
+
+    Raises:
+        ValueError: if the profile has fewer than 3 points, or `transforms` is not a usable
+            station list (see :func:`_sweep_stations`).
 
     """
-    prof = as_points(require_path(profile, "profile", "path_sweep", Path2D))
+    prof = as_points(require_path(profile, "profile", "swept_profile", Path2D))
     if not (len(prof) >= 3):
         raise Bosl2ValueError("sweep profile needs at least 3 points")
-    spine = require_path(path, "path", "path_sweep")
-    pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(spine, dtype=float).tolist()]
-    if not (len(pts3) >= 2):
-        raise Bosl2ValueError("sweep path needs at least 2 points")
-    p = np.asarray(pts3, dtype=float)
-    tang, norm, binorm = _rmf_frames(p)
-    n = len(p)
-
-    seg = np.linalg.norm(p[1:] - p[:-1], axis=1)
-    # Each station's cross-section occupies [-ext_back, +ext_fwd] along its tangent. Interior
-    # stations reach 0.6 of the way into each neighbouring segment, so consecutive slabs always
-    # overlap (a gap-free union even where the path curves); the two ends cap exactly at the path
-    # endpoints (ext = 0 on the outward side), so the sweep does not overshoot.
-    ext_back = np.zeros(n)
-    ext_fwd = np.zeros(n)
-    for i in range(n):
-        ext_fwd[i] = 0.0 if i == n - 1 else 0.6 * seg[i]
-        ext_back[i] = 0.0 if i == 0 else 0.6 * seg[i - 1]
-
-    tws = np.radians(twist) * (np.arange(n) / (n - 1)) if twist else np.zeros(n)
-
-    stations = []
-    for i in range(n):
-        ca, sa = math.cos(tws[i]), math.sin(tws[i])
-        stations.append(
-            (
-                tuple(p[i]),
-                tuple(norm[i]),
-                tuple(binorm[i]),
-                tuple(tang[i]),
-                float(ext_back[i]),
-                float(ext_fwd[i]),
-                ca,
-                sa,
-            )
-        )
-
-    # The concave-safe cross-section decomposition depends only on the profile, so normalise its
-    # winding once here rather than re-deriving it inside _polygon_sdf_xy at every station.
+    stations = _sweep_stations(transforms)
+    # The concave-safe decomposition depends only on the profile, so its winding is normalised once
+    # here rather than re-derived inside _polygon_sdf_xy at every station.
     prof_ccw = _ccw(prof)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         total = None
-        for (cx, cy, cz), (nx, ny, nz), (bx, by, bz), (tx, ty, tz), eb, ef, ca, sa in stations:
+        for (cx, cy, cz), (ux, uy, uz), (vx, vy, vz), (tx, ty, tz), eb, ef in stations:
             dx, dy, dz = x - cx, y - cy, z - cz
-            u = nx * dx + ny * dy + nz * dz
-            v = bx * dx + by * dy + bz * dz
+            u = ux * dx + uy * dy + uz * dz
+            v = vx * dx + vy * dy + vz * dz
             w = tx * dx + ty * dy + tz * dz
-            if sa:  # twist: rotate the query into the profile's frame
-                u, v = ca * u + sa * v, -sa * u + ca * v
-            # cross-section SDF in the frame's (u, v) plane -- concave-safe decomposition
-            pd = _convex_deficiency_sdf(u, v, prof_ccw)
-            # signed distance to the tangent interval [-eb, ef]
-            cap = lv.max((-eb) - w, w - ef)
-            slab = lv.max(pd, cap)
+            # cross-section SDF in the station's (u, v) plane -- concave-safe decomposition --
+            # intersected with the signed distance to the tangent interval [-eb, ef]
+            slab = lv.max(_convex_deficiency_sdf(u, v, prof_ccw), lv.max((-eb) - w, w - ef))
             total = slab if total is None else lv.min(total, slab)
         return total
 
-    # Bounds: the profile's bounding-box corners, rotated by each station's twist, placed in the
-    # frame. Using the bbox corners (rather than the exact vertices) deliberately leaves a little
-    # slack around a convex outline -- frep()'s octree needs the surface strictly *inside* the
-    # sampled domain to see a sign change (see PyShape.mesh) -- while rotating them keeps a twisted
-    # profile's true extent inside the domain (a corner reaches sqrt2x its bbox half-width).
+    # Bounds: the profile's bounding-box corners placed in each station's frame and extended along
+    # its tangent. Using the bbox corners rather than the exact vertices deliberately leaves a
+    # little slack around a convex outline -- frep()'s octree needs the surface strictly *inside*
+    # the sampled domain to see a sign change (see PyShape.mesh).
     umin, umax = float(prof[:, 0].min()), float(prof[:, 0].max())
     vmin, vmax = float(prof[:, 1].min()), float(prof[:, 1].max())
-    bbox = [(umin, vmin), (umax, vmin), (umin, vmax), (umax, vmax)]
     world = []
-    for i in range(n):
-        ca, sa = math.cos(tws[i]), math.sin(tws[i])
-        for cu, cv in bbox:
-            fu = ca * cu - sa * cv  # frame coords of the corner (inverse of the query twist)
-            fv = sa * cu + ca * cv
-            base = p[i] + fu * norm[i] + fv * binorm[i]
-            world.append(base + ext_fwd[i] * tang[i])
-            world.append(base - ext_back[i] * tang[i])
-    world_arr = np.asarray(world)
-    mn = world_arr.min(axis=0).tolist()
-    mx = world_arr.max(axis=0).tolist()
-    return PyShape(sdf_fn, mn, mx, res)
+    for origin, uax, vax, tan, eb, ef in stations:
+        for cu in (umin, umax):
+            for cv in (vmin, vmax):
+                base = np.asarray(origin) + cu * np.asarray(uax) + cv * np.asarray(vax)
+                world.append(base + ef * np.asarray(tan))
+                world.append(base - eb * np.asarray(tan))
+    corners = np.asarray(world)
+    return PyShape(sdf_fn, corners.min(axis=0).tolist(), corners.max(axis=0).tolist(), res)
+
+
+def path_sweep(
+    profile: "Path2D",
+    path: "Path2D | Path3D",
+    res: int = 12,
+    twist: float = 0.0,
+    closed: bool = False,
+) -> PyShape:
+    """Sweep a 2-D `profile` along a 3-D `path`, as a libfive SDF.
+
+    The stations come from :meth:`~pybosl2.skin.Sweepable.path_sweep_transforms` -- the same frames
+    the meshed sweep places its cross sections with -- and the field is built from them by
+    :func:`swept_profile`. So this builds the *same solid* the façade's ``path_sweep`` builds,
+    which it did not before T142.
+
+    Args:
+        profile: The cross-section to sweep, as ``[u, v]`` points.
+        path: The path to sweep it along. A 2-D path is lifted to ``z = 0``.
+        res: Sampling resolution for the SDF backend. Omitted, the ambient ``use_defaults(res=...)`` value applies.
+        twist: Total twist in degrees applied along the sweep.
+        closed: Sweep the path as a loop, joining its two ends.
+
+    Returns:
+        The swept solid.
+
+    Raises:
+        ValueError: if the profile has fewer than 3 points or the path has fewer than 2.
+
+    """
+    from pybosl2.skin import _path_sweep
+
+    stations = _path_sweep(profile, path, twist=twist, closed=closed, transforms=True)
+    return swept_profile(profile, cast("Sequence[Sequence[Sequence[float]]]", stations), res=res)
 
 
 def bezier_sweep(

@@ -2002,6 +2002,8 @@ A part builds through the backend-neutral façade (L3), not by importing a backe
 '''
 enforced_by = [
     "tests/test_parts_backend_coverage.py",
+    "tests/test_parts_backend_coverage.py::test_a_loft_a_field_can_read_still_builds",
+    "tests/test_part_show.py::test_the_converted_list_matches_what_actually_builds",
 ]
 candidates = [
     "tests/test_part_show.py::test_every_part_refuses_on_another_backend",
@@ -2011,6 +2013,8 @@ candidates = [
 status = "enforced"
 note = '''
 Every part is built under both backends and required to build or refuse, which is the rule.
+
+**47 of the 51 parts build on either backend as of T142**, up from 40, and the seven that crossed did so because a *stated reason* was false rather than because a new engine was written. The refusal vocabulary this rule accepts narrowed with them: "a non-convex mesh has no distance-field form" was the reason five parts carried, and it is not one any more. What is accepted now names the specific obstacle -- for the four that remain, a loft whose station cannot be recovered from the point, or sections related by no single transform. `test_a_loft_a_field_can_read_still_builds` keeps that claim from becoming a sentence with nothing behind it, by requiring the three lofts a field *can* read -- a twisted prism, a helical sweep, a tapered prism -- to still build on both backends.
 '''
 
 [[requirement]]
@@ -2277,6 +2281,9 @@ enforced_by = [
     "tests/test_backend_matrix.py::test_turning_something_off_is_a_request_the_backend_has_to_honour",
     "tests/test_backend_matrix.py::test_no_option_is_left_that_one_backend_builds_and_the_other_refuses",
     "tests/test_sdf_shapes3d.py::TestPassthroughMethods::test_oversample_is_itself_because_a_field_has_no_facets",
+    "tests/test_a_twisted_extrusion_has_a_field.py::test_slices_is_accepted_and_ignored",
+    "tests/test_a_twisted_extrusion_has_a_field.py::test_a_tapered_extrusion_still_refuses_by_name",
+    "tests/test_backend_matrix.py::test_sdf_extrude_rejects_the_option_that_shears_the_profile",
 ]
 candidates = [
     "tests/test_backend_matrix.py::test_an_argument_the_backend_cannot_honour_is_refused_not_dropped",
@@ -2293,6 +2300,8 @@ The carve-out for a value that asks for nothing had a hole in it, found in T40. 
 This rule's own worked example went stale **six times**: `cube(10, spin=45)` until T40 built `spin`, then `cuboid(p1=, p2=)` (T42), `rect_tube(size1=)` (T44), `cyl(teardrop=)` (T45), `cuboid(trimcorners=)` (T47) and `regular_prism(shift=)` (T48). Each carried an implicit claim -- that the option was CSG-only -- and **not one of the six was ever true**; every one was simply unwritten. What the rule governs is the refusal, not any particular gap.
 
 T48 closed the last of them, so there is no example left to draw on and the tests are retired rather than repointed a seventh time: the worked example is a test of `refuse_unhonoured` itself on a synthetic constructor, and the parametrised refusal is an assertion that the measured gap table is empty -- one that *calls* `cuboid(teardrop=)` to check the two remaining entries really are unbuilt on both backends, rather than taking it on trust. If a CSG-only option is ever added, that assertion fails and the refusal test comes back with it, which is the right time for it to exist.
+
+**The carve-out cuts both ways, and T142 found the second direction on the same constructor as the first.** `linear_extrude` refused `twist`, `scale` and `slices` with one loop over three names. `slices` is tessellation -- how finely the *mesh* steps a twist -- so under this rule it should always have been accepted and ignored, which is exactly what T14 found for `convexity` on this very constructor (a plain spur gear kept off the backend over a rendering flag). And `twist` was never a gap at all: a twisted prism's field is exact, because the cross-section does not have to be constant for the field to read it. Only `scale` survives, and for a reason that is about geometry rather than about `polygon_prism`: it can taper the two axes differently, which is not a uniform scale and so is not a transform the field can undo. Refusing three options with one loop is how a tessellation hint and a geometry gap came to share a message.
 '''
 
 [[requirement]]
@@ -2317,6 +2326,10 @@ enforced_by = [
     "tests/test_neutral_geometry_is_not_gated.py::test_importing_regions_does_not_drag_in_a_backend_module",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_path_extrusions_take_a_profile_a_sweep_cannot",
     "tests/test_neutral_geometry_is_not_gated.py::test_the_bezier_debug_helper_builds_where_it_can_and_refuses_where_it_cannot",
+    "tests/test_the_two_sweeps_agree.py::test_the_two_sweeps_build_the_same_solid",
+    "tests/test_the_two_sweeps_agree.py::test_a_reflected_frame_is_caught",
+    "tests/test_the_two_sweeps_agree.py::test_the_facade_sweep_takes_the_exact_route_on_sdf",
+    "tests/test_a_twisted_extrusion_has_a_field.py::test_the_meshed_twist_lies_on_the_field",
 ]
 candidates = [
     "tests/test_dimension_validation.py",
@@ -2334,6 +2347,8 @@ or arrays` for **any** argument, same backend or not. A parity walk over `vars(c
 a name the class does not define, and a walk that only calls the no-argument form never passes
 one. Both halves are symmetric now (T138), and the same-backend half of T138's table is what
 holds it: it calls each n-ary method with a real shape, which is the thing nothing did.
+
+**Two implementations of one operation is how parity goes wrong quietly, and T142 found the case.** The SDF backend had a `path_sweep` of its own that walked the path and built its own rotation-minimizing frames -- the same algorithm `skin._path_sweep` runs -- and the two nonetheless built different solids, because running the same algorithm twice is not the same as running it once. They differed in the end tangents, the seed normal, the closing-twist correction and which in-plane axis carried the profile's `u`; the last of those is a reflection, which is why the measured "-90 degrees about X" on a straight route did not generalise to a bend and the bend looked like a separate problem for two tasks. The backend's sweep takes the **stations** now, from `path_sweep_transforms`, so the two agree by construction: every vertex of the meshed sweep is a point of a cross-section the field places. Parity between two spellings of one operation is better bought by deleting one of them than by measuring the pair.
 '''
 
 [[requirement]]
@@ -2451,6 +2466,9 @@ enforced_by = [
     "tests/test_sdf_corners.py::test_a_sheared_prism_matches_the_csg_mesh",
     "tests/test_sdf_corners.py::test_a_sheared_prism_reports_the_box_it_fills",
     "tests/test_part_show.py::test_a_turned_plug_reports_the_same_box_on_both_backends",
+    "tests/test_the_two_spiral_sweeps_agree.py::test_the_thread_grid_and_the_field_are_the_same_rod",
+    "tests/test_the_two_spiral_sweeps_agree.py::test_the_two_rods_agree_on_starts_and_handedness",
+    "tests/test_the_two_spiral_sweeps_agree.py::test_the_comparison_is_sensitive_to_half_a_turn",
 ]
 candidates = [
     "tests/test_backend_matrix.py",
@@ -2478,6 +2496,8 @@ note = '''
 **And there was a better instrument available the whole time.** `PyOpenSCAD.mesh()` returns real vertices, so "is the field zero at every vertex of the mesh the other backend builds" was always askable, and it is strictly stronger than either of the two used through T40-T46 -- a box cannot see the shape inside it, and a CSG-side geometry builder cannot see what the backend does with what it builds. T47 found it while chasing `trimcorners`, which no box could settle: the trimmed and untrimmed chamfered cubes have the same bounding box and differ by one vertex out of 24. The mesh also corrected a wrong guess in the same sitting -- that the flag applies to a rounding, which the CSG backend's own byte-identical meshes say it does not.
 
 **A bounds comparison could only see two of the three.** An SDF shape's `bounds()` is the box it *declares*, not a measurement of its field, so the wrong shear plane moves the geometry and leaves the reported box alone -- planting that defect again leaves the cross-backend bounds test green. It took a test that asks the field where the material is (`test_the_oblique_shear_is_taken_about_the_mid_plane`, sampling either side of each end disc). That is a general limit on how far the cross-backend comparison can reach on this backend, not a fact about `shift`.
+
+**Where a construction is genuinely built twice -- once per backend -- this rule is what holds the pair together, and T142 added the threaded rod to it.** `_rod_solid` builds a vertex-array thread grid on CSG (the BOSL2 port, and a coaxial union of a helix with a core is what Manifold does badly) and `_rod_field` builds the same rod from `spiral_sweep`'s closed form on SDF. They are checked at the grid's own vertices over nineteen configurations -- five rods across three thread forms, plus two- and three-start and left-hand threads, whole and fractional turn counts throughout -- and seventeen read exactly 0.0000, with two vertices on each of two buttress rods reading 0.0020 and 0.0038 *on the trim plane*, which is an intersection creating vertices on neither surface it cut and is held to a bound **and** a location so it cannot grow into a disagreement about the thread. The phase is the part that would have failed silently: a centred coil agrees with the grid only when `length/(2 * pitch)` is a whole number and is otherwise half a turn out, which is over half the rod's vertices wrong and nothing a bounding box would show.
 '''
 
 [[requirement]]

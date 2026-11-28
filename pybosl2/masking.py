@@ -257,7 +257,7 @@ def _extrude_mask_along_edge(
 
 
 def edge_mask(
-    body: "Bosl2Solid",
+    body: "Solid",
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
     mask: "Solid | None" = None,
@@ -268,6 +268,13 @@ def edge_mask(
     return_cutter: bool = False,
 ) -> "Solid | None":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
+
+    *body* was annotated `Bosl2Solid` -- the CSG wrapper -- until T142, and it was the last
+    CSG-only annotation in this pipeline: the body is only ever subtracted from and handed back,
+    which is the shared contract and nothing more. The declaration was what kept
+    `ManfrottoRC2Plate` off the field backend as far as the checker was concerned, after the part
+    itself had been converted. Widened on the signature rather than cast at the call site, because
+    a cast there would have asserted something untrue about every other caller too.
 
     Args:
         body: The box solid to cut.

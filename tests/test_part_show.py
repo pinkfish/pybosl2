@@ -111,6 +111,13 @@ def test_every_part_refuses_on_another_backend() -> None:
 #: Parts that build on BOTH backends, not just CSG (SPEC S-46a, TASKS T14 phase 3). The list only
 #: grows: a part converted to the façade goes in, and a part that stops building on SDF is a
 #: regression, not a bookkeeping change.
+#:
+#: The last seven went in with T142, and none of them needed a new engine -- `WireBundle` needed
+#: the two `path_sweep` implementations reconciled into one, the four threaded fasteners needed one
+#: extra turn swept at each end, `Worm` needed `linear_extrude(twist=)` to have a field (it does),
+#: and `ManfrottoRC2Plate` needed its last three lines off CSG-only anchoring machinery. Four parts
+#: refuse now, all of them lofts a field cannot read pointwise; see
+#: `tests/test_parts_backend_coverage.py`.
 BACKEND_NEUTRAL_PARTS = frozenset(
     {
         "CorrugatedWall",
@@ -121,15 +128,18 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "KnuckleHinge",
         "KnuckleHingePair",
         "LivingHingeMask",
+        "ManfrottoRC2Plate",
         "NarrowingStrut",
         "NemaMotor",
         "NemaMountMask",
+        "Nut",
         "PhillipsMask",
         "Rack",
         "RegularPolyhedron",
         "RingGear",
         "RingHook",
         "RobertsonMask",
+        "Screw",
         "ScrewHole",
         "Slider",
         "SnapLock",
@@ -139,6 +149,8 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "SparseCuboid",
         "SparseWall",
         "SpurGear",
+        "ThreadedNut",
+        "ThreadedRod",
         "ThinningTriangle",
         "TorxMask",
         "ThreadHelix",
@@ -150,7 +162,10 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "TrussSegment",
         "TrussSupport",
         "TrussUClip",
+        "WireBundle",
+        "Worm",
         "hex_mask",
+        "manfrotto_rc2_plate",  # the alias *is* ManfrottoRC2Plate, and `_part_classes()` lists both
     }
 )
 
@@ -251,34 +266,47 @@ def test_a_refusal_names_what_the_part_needs() -> None:
 def test_the_named_reason_reaches_the_message() -> None:
     """The decorator is only worth its argument if the argument is what the caller reads.
 
-    `ThreadedRod` is the subject because its guard is what actually fires: it builds its thread as
-    a VNF grid, which has no dispatched form to refuse first, so the refusal comes from `shape`.
-    Where a part reaches a *dispatched* operation instead -- `WireBundle` hits `polyhedron()`'s
-    convexity check -- the primitive refuses before the guard is consulted, which is the more
-    precise message anyway.
+    `ThinningWall` is the subject because its guard is what actually fires: it hands over a
+    hand-written triangle list, which has no dispatched form to refuse first, so the refusal comes
+    from `shape`. It was `ThreadedRod` until T142 gave the thread an exact field.
     """
     import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
     from pybosl2._backend import use_backend
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.parts.threading import _iso_profile
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
-        _ = parts.ThreadedRod(16.0, 24.0, 2.0, _iso_profile()).shape
+        _ = parts.ThinningWall(height=50, length=80, thick=4).shape
     message = str(excinfo.value)
-    assert "ThreadedRod" in message
-    assert "VNF grid" in message  # the operation that is actually in the way
+    assert "ThinningWall" in message
+    assert "vertex by vertex" in message  # the operation that is actually in the way
 
 
-def test_a_dispatched_operation_refuses_before_the_part_guard() -> None:
-    """A part that reaches a dispatched op gets the primitive's reason, which is more specific."""
+def test_a_dispatched_operation_refuses_before_a_part_guard_would() -> None:
+    """A dispatched op refuses with its own, more specific reason -- the ordering the guards rely on.
+
+    This used to be asserted through `WireBundle`, which reached `polyhedron()`'s convexity check
+    on its way to a part guard. **No part reaches a dispatched refusal any more** (T142): the four
+    that still refuse all do so from their own `shape`, because what is in their way is their own
+    triangle list rather than an operation. So the ordering is asserted on the operation directly,
+    and on the one that mattered -- a non-convex `polyhedron()`, which is where `WireBundle` and
+    `ManfrottoRC2Plate` both used to land.
+
+    Asserting it somewhere is the point: `@csg_part`'s docstring promises the caller is told *what*
+    is in the way, and a part that reaches a dispatched op must get the op's reason rather than the
+    part's blanket one.
+    """
     import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
     from pybosl2._backend import use_backend
     from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.vnf import VNF
 
-    route = [[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]]
+    # An L-shaped prism: its faces bound a concavity, so the hull is not the solid.
+    ell = [[0, 0, 0], [4, 0, 0], [4, 2, 0], [2, 2, 0], [2, 4, 0], [0, 4, 0]]
+    verts = ell + [[x, y, 3] for x, y, _ in ell]
+    faces = [[0, 1, 2, 3, 4, 5], [11, 10, 9, 8, 7, 6]] + [[i, (i + 1) % 6, (i + 1) % 6 + 6, i + 6] for i in range(6)]
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="non-convex") as excinfo:
-        _ = parts.WireBundle(route, 3).shape
-    assert ".to_csg()" in str(excinfo.value)
+        _ = VNF(verts, faces).polyhedron()
+    assert ".to_csg()" in str(excinfo.value), f"the refusal does not say how to get the shape built: {excinfo.value}"
 
 
 #: The two parts `CONSERVATIVE_SDF_BOUNDS` held, with the size both backends now report. They turn

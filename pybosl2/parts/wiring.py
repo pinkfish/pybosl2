@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -27,13 +27,11 @@ if TYPE_CHECKING:
 
 import math
 
-from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2.color import Color
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.parts._buildable import Buildable
 from pybosl2.path3d import Path3D
-from pybosl2.shapes3d import Bosl2Solid
 
 __all__ = ["WireBundle", "hex_offsets"]
 
@@ -167,9 +165,9 @@ class WireBundle(Buildable):
             wirenum,
             corner_steps,
         )
-        self._solid: "Bosl2Solid | None" = None
+        self._solid: "Solid | None" = None
 
-    def _build(self) -> "Bosl2Solid":
+    def _build(self) -> "Solid":
         """Build the geometry. Called once, on the first access to `shape`."""
         (
             path,
@@ -197,7 +195,7 @@ class WireBundle(Buildable):
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None
-        return Bosl2Solid(cast("Bosl2Solid", bundle).shape, size=None)
+        return bundle
 
     @property
     def wires(self) -> int:
@@ -210,14 +208,13 @@ class WireBundle(Buildable):
         return self._wirediam
 
     @property
-    @csg_part(
-        "sweeps each wire with path_sweep(), which meshes and then needs a non-convex polyhedron. "
-        "The SDF backend has a path_sweep of its own that does build this shape as a field, but it "
-        "is not the same sweep -- it puts the profile in a different plane (T100), so dispatching "
-        "to it would silently build the bundle wrong"
-    )
-    def shape(self) -> Bosl2Solid:
-        """Return the wire bundle geometry."""
+    def shape(self) -> "Solid":
+        """Return the wire bundle geometry.
+
+        Builds on either backend since T142 reconciled the two `path_sweep` implementations: the
+        SDF backend places its cross sections with the same frames the meshed sweep does, so a
+        swept bundle is the same solid either way.
+        """
         if self._solid is None:
             self._solid = self._build()
         return self._solid

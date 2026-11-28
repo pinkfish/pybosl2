@@ -35,12 +35,11 @@ if TYPE_CHECKING:
 
     from pybosl2._backend import Solid
 
-from pybosl2._backend import csg_part
 from pybosl2.enums import VNFStyle
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.parts._buildable import Buildable
 from pybosl2.parts.enums import NutShape
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
+from pybosl2.solid import cuboid, cyl, regular_prism
 from pybosl2.vnf import VNF
 
 __all__ = ["ThreadedRod", "ThreadedNut", "ThreadHelix", "ThreadProfile"]
@@ -185,6 +184,80 @@ def _rot_z(pts: list[list[float]], deg: float) -> list[list[float]]:
     return [[x * c - y * s, x * s + y * c, z] for x, y, z in pts]
 
 
+def _rod_field(
+    d: float,
+    length: float,
+    pitch: float,
+    profile: list[list[float]] | ThreadProfile,
+    starts: int,
+    left_handed: bool,
+    fn: int | None,
+    fa: float | None,
+    fs: float | None,
+) -> "Solid":
+    """Return the threaded rod as an exact distance field: the thread helix over its own core.
+
+    The same solid :func:`_rod_solid`'s vertex-array grid builds, by the route `ThreadHelix` has
+    always taken -- `spiral_sweep`, which this backend has a closed-form field for. Measured at the
+    grid's own vertices over **nineteen** configurations -- five rods across three thread forms,
+    plus two- and three-start and left-hand threads -- where seventeen read exactly 0.0 and the
+    other two read 0.0020 and 0.0038 on the *trim plane*, which is a boolean creating vertices on
+    neither surface it cut. So these are not two approximations of a thread but one solid built two
+    ways. See `tests/test_the_two_spiral_sweeps_agree.py`.
+
+    Two details the construction turns on, and T120 measured both as what was left to port.
+
+    **The ends.** Sweeping `length / pitch` turns leaves the last quarter-pitch at each end
+    unthreaded -- 0.58mm on an M20x2.5 -- because the helix then starts and stops *inside* the rod,
+    where a rod cut flush shows a partial thread. The grid already knew this: it runs its turns a
+    whole pitch past each end and lets the trim cut them. Doing the same takes the worst departure
+    from 0.5833 to 0.0000.
+
+    **The phase.** A crest sits at ``z = 0`` on the grid, and on a coil swept from ``bottom`` at
+    every ``bottom + k * lead``. Centring a coil of height ``length + 2 * lead`` puts ``bottom`` at
+    ``-(length / 2 + lead)``, so the two agree only when ``length / (2 * pitch)`` is a whole number
+    -- and are half a turn apart when it is not, which is over half the rod's vertices wrong and
+    nothing a bounding box would show. So the coil is swept from ``z = 0`` and dropped by a whole
+    number of leads, which cannot be out of phase at all.
+
+    Args:
+        d: Major diameter in mm.
+        length: Rod length in mm.
+        pitch: Thread pitch in mm.
+        profile: The thread cross-section, in pitch units.
+        starts: Number of thread starts.
+        left_handed: Flip the helix.
+        fn: Number of facets, or None.
+        fa: Minimum facet angle in degrees, or None.
+        fs: Minimum facet size in mm, or None.
+
+    Returns:
+        The threaded rod.
+
+    """
+    from pybosl2.path2d import Path2D
+
+    prof = [[float(x), float(y)] for x, y in profile]
+    radius = d / 2
+    # `spiral_sweep` reads X as the offset outward from the helix radius and Y as height; the grid
+    # places the same point at `radius + py * pitch` and `px * pitch`, so this is its own mapping.
+    section = Path2D([[y * pitch, x * pitch] for x, y in prof])
+    lead = starts * pitch
+    reach = math.ceil((length / 2 + lead) / lead) * lead
+    turns = (-1 if left_handed else 1) * 2 * reach / lead
+    thread: "Solid | None" = None
+    for k in range(starts):
+        coil = section.spiral_sweep(
+            height=2 * reach, radius=radius, turns=turns, center=False, fn=fn, fa=fa, fs=fs
+        ).down(reach)
+        if k:
+            coil = coil.rotate(k * 360.0 / starts, [0, 0, 1])
+        thread = coil if thread is None else (thread | coil)
+    assert thread is not None
+    core = cyl(height=length, radius=radius + min(p[1] for p in prof) * pitch, fn=fn, fa=fa, fs=fs)
+    return (thread | core) & cyl(height=length, radius=radius + 1, fn=fn, fa=fa, fs=fs)
+
+
 def _rod_solid(
     d: float,
     length: float,
@@ -202,8 +275,14 @@ def _rod_solid(
     merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)
     into one polyhedron, then trimmed to length with an intersection.
     """
+    from pybosl2._backend import current_backend
     from pybosl2._helpers import frag_count, quantup
     from pybosl2.vnf import VNF
+
+    if current_backend() == "sdf":
+        # A field backend has no mesh for the grid below to be, and the thread has an exact
+        # closed-form field. Same solid, measured at the grid's own vertices (T142).
+        return _rod_field(d, length, pitch, profile, starts, left_handed, fn, fa, fs)
 
     radius = d / 2
     sides = int(quantup(frag_count(radius, fn, fa, fs), starts))
@@ -245,7 +324,7 @@ def _nut_solid(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return a nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
     if shape == NutShape.HEX:
         body = regular_prism(6, height=h, inner_diameter=nutwidth, fn=fn, fa=fa, fs=fs)
@@ -366,14 +445,12 @@ class ThreadedRod(Buildable):
         return self._left_handed
 
     @property
-    @csg_part(
-        "builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "
-        "does have a distance-field form -- ThreadHelix, in this file, routes through "
-        "spiral_sweep and builds on both backends -- so what is in the way is this part's "
-        "route, not the shape (T103). Converting it is a geometry change, not a dispatch one."
-    )
     def shape(self) -> "Solid":
-        """Build and return the threaded rod geometry (cached)."""
+        """Build and return the threaded rod geometry (cached).
+
+        Builds on either backend since T142: the grid below is the CSG route, and on a field
+        backend the same rod comes from `spiral_sweep`'s closed form (see `_rod_field`).
+        """
         if self._solid is not None:
             return self._solid
         self._solid = _rod_solid(
@@ -490,14 +567,11 @@ class ThreadedNut(Buildable):
         return self._left_handed
 
     @property
-    @csg_part(
-        "builds its thread surface as a hand-rolled VNF grid and meshes it. A helical thread "
-        "does have a distance-field form -- ThreadHelix, in this file, routes through "
-        "spiral_sweep and builds on both backends -- so what is in the way is this part's "
-        "route, not the shape (T103). Converting it is a geometry change, not a dispatch one."
-    )
     def shape(self) -> "Solid":
-        """Build and return the nut geometry (cached)."""
+        """Build and return the nut geometry (cached).
+
+        Builds on either backend since T142, because the tap it cuts the thread with does.
+        """
         if self._solid is not None:
             return self._solid
         self._solid = _nut_solid(

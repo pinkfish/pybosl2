@@ -148,14 +148,24 @@ def test_region_with_holes_extrudes_only_on_csg() -> None:
         plate.linear_extrude(height=5)
 
 
-def test_sdf_extrude_rejects_the_profile_shearing_options() -> None:
+def test_sdf_extrude_rejects_the_option_that_shears_the_profile() -> None:
+    """Only `scale=` shears it. `twist=` turns it and `slices=` counts the mesh's steps.
+
+    All three were refused by one loop over three names until T142, which cost `Worm` and every
+    helical gear the backend: a twisted prism's field is exact (`twisted_polygon_prism`), and
+    `slices=` is tessellation, which SPEC B-9 says a field accepts and ignores. `scale=` stays
+    refused -- it can taper the two axes differently, which is not a uniform scale and so is not a
+    transform the field can undo. See `tests/test_a_twisted_extrusion_has_a_field.py`.
+    """
     from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path2d import Path2D
 
-    for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
-        with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-            Path2D(SQUARE).linear_extrude(height=5, **kw)
-    # ...but the CSG backend takes them all
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match=r"linear_extrude\(scale="):
+        Path2D(SQUARE).linear_extrude(height=5, scale=2)
+    with use_backend("sdf"):
+        for kw in ({"twist": 45}, {"slices": 8}, {"twist": 45, "slices": 8}):
+            assert Path2D(SQUARE).linear_extrude(height=5, **kw).backend == "sdf"
+    # ...and the CSG backend takes all three
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
         assert Path2D(SQUARE).linear_extrude(height=5, **kw).backend == "csg"
 

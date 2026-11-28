@@ -5,23 +5,16 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 
-"""The SDF backend has a sweep of its own, and it is not the façade's sweep (SPEC PAR-1).
+"""The SDF backend's sweep and the façade's build the same solid (SPEC PAR-1, A-1).
 
-`WireBundle` is listed CSG-only under the reason
+They did not, for as long as there were two of them, and the reason was not the one on the file.
+`WireBundle` was listed CSG-only under
 
     a swept tube that follows bends is a non-convex mesh with no distance-field form
 
-The first clause describes the CSG implementation: `Path3D.path_sweep` builds a VNF and calls
-`polyhedron()`, whatever backend is active, and the SDF backend refuses a polyhedron whose faces are
-not convex -- which a tube following a bend has none of. The second clause looked false, because
-`pybosl2.sdf.shapes3d.path_sweep` builds exactly that shape as a field and the backend registry
-already exposes it under the name `path_sweep`. Nothing asks it. That is the shape of T41's finding,
-where `texture=` was called impossible by three records that had read the CSG *signature* rather
-than the CSG *code*.
-
-**It is not that finding, and only measuring says so.** Routing the façade to the native sweep makes
-`WireBundle` build on both backends with agreeing *extents* -- and the two sweeps are nonetheless
-different functions:
+The second clause is plainly false -- `pybosl2.sdf.shapes3d.path_sweep` builds exactly that shape
+as a field -- so T100 tried dispatching to it, found the two sweeps were *different functions*, and
+reverted with the numbers:
 
 ====================  ========================  ========================
 route, offset         façade (mesh) centre      ``sdf.path_sweep`` centre
@@ -31,39 +24,36 @@ straight, offset 3    ``[10, 0, +3]``           ``[10, -3, 0]``
 bent, offset 0        ``[10.32, 9.68, 0]``      ``[14.6, 5.4, 0]``
 ====================  ========================  ========================
 
-On a straight route the façade sends the profile's y to world **z** and the native sweep sends it to
-world **-y**. On a bent route they do not even agree about where the solid is. A guard comparing
-sizes would have passed both rows, because the sizes match.
+T119 then measured it on the field rather than on box centres: on a straight route the difference
+was *exactly* a -90 degree turn about X (0.0000 at all 48 vertices), and on a bent route it was no
+rigid motion at all -- no turn about X came within 13.92. The conclusion drawn was that
+reconciling the frame would fix the straight case and leave the bend, and that the bend "needs more
+than a frame".
 
-So the gap stands and the delegation was reverted, but **its reason was wrong**: not that a swept
-tube has no distance-field form -- it plainly has one -- but that the backend's own sweep does not
-build the same solid the façade's does. Closing it means reconciling two sweeps, not routing to one.
+**It needed one less implementation.** Both sweeps ran Wang's double-reflection algorithm, so the
+difference was never the algorithm: it was that the backend walked the path *itself* and so differed
+in four places at once -- the end tangents (`path_tangents(uniform=true)` takes a one-sided
+quadratic at the ends, which on a cornered path leans the start tangent backwards; the backend took
+a one-sided linear), the seed normal (`BACK` above 1/sqrt2 of vertical against `[1,0,0]` above 0.9),
+the closing-twist correction the backend had no equivalent of, and which in-plane axis carried
+``u`` -- the last of which is a *reflection*, not a roll, which is why a single rotation could never
+have reconciled the bend.
 
-Recorded as a `strict=True` xfail carrying the numbers, the instrument T89 used for the teardrop
-mask and T90 then had to delete to go green.
+So `pybosl2.sdf.shapes3d.swept_profile` takes the **stations** rather than the path, and
+`path_sweep` asks `Sweepable.path_sweep_transforms` for them. There is one frame implementation in
+the library now, and the agreement below is not a measurement that happened to come out well: every
+vertex of the meshed sweep *is* a point of a cross-section this field places, so it reads 0.0 by
+construction. The measurement is still here because "by construction" has been wrong before.
 
-**The reason given for not fixing it here was itself wrong, and T119 measured that too.** It read:
-*this environment cannot check a fix: libfive is stubbed, so an SDF solid meshes to nothing and only
-its analytic box can be read, and a matching box is not evidence of a matching field.* The last
-clause is exactly right, and it is why the comparison below used to be a comparison of box centres.
-The middle clause is false. An SDF solid does mesh to nothing, but its field evaluates to exact
-signed distances and `inside()` answers correctly, so the two solids can be compared where both are
-defined -- at the CSG mesh's own vertices. See `tests/field_probe.py`.
+**Why nothing noticed is the kept lesson.** Every case in `tests/test_backend_sdf_sweep.py` sweeps
+along a path parallel to **Z**, and there the two frames are *both* the identity -- the façade picks
+`BACK` as its seed normal above 1/sqrt2 of vertical and the backend picks `[1,0,0]` above 0.9, and
+the two choices happen to produce the same frame for a vertical tangent. So the backend's own sweep
+could be probed correctly in its own frame while building a differently-rolled solid from the same
+arguments as the façade. Run the cases below against the commit before this one and the two
+`vertical` rows are the *only* geometry comparisons that pass.
 
-Asked that way the disagreement is sharper than a box centre could show:
-
-* on the **straight** route it is *exactly* a -90 degree turn about X. Rotating the native sweep by
-  -90 puts the field at **0.0000** at all 48 of the façade's vertices. T100's frame hypothesis was
-  right, and is now measured rather than inferred from two centres.
-* on the **bent** route it is not a rigid motion at all. No turn about X matches: 0 degrees leaves
-  22 of 72 vertices outside the field and 22 inside, -90 and +90 both reach 19.17, and 180 reaches
-  13.92. The largest departure is **+0.3162 at [-0.316, -0.949, 0.0]**, which is behind the route's
-  start -- an end-cap difference, not a displacement.
-
-So reconciling the frame fixes the straight case and leaves the bend, which is a smaller claim than
-"the two sweeps are different functions" and a more useful one. It is still not fixed here, for the
-one reason that survives: guessing a frame convention is how T89's two mask profiles came to be
-wrong in the first place, and the bend needs more than a frame.
+T142. `WireBundle`'s guard is gone.
 """
 
 from __future__ import annotations
@@ -74,16 +64,27 @@ import pytest
 
 import pybosl2.sdf.shapes3d as sdf_shapes
 from pybosl2 import use_backend
+from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
-from tests.field_probe import worst_escape
+from tests.field_probe import csg_vertices, worst_escape
 
 STRAIGHT = Path3D([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0]], closed=False)
 BENT = Path3D([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], closed=False)
+VERTICAL = Path3D([[0.0, 0.0, z] for z in (0.0, 5.0, 10.0, 15.0, 20.0)], closed=False)
+HELICAL = Path3D(
+    [[8 * math.cos(t), 8 * math.sin(t), 2.5 * t] for t in [i * math.pi / 6 for i in range(13)]],
+    closed=False,
+)
 
 #: How far the profile sits off its own origin. Hex-packing a wire bundle offsets every wire but the
-#: first, so an offset profile is the normal case rather than a contrived one.
+#: first, so an offset profile is the normal case rather than a contrived one -- and it is what made
+#: the old disagreement visible, since a centred profile hid the frame difference entirely.
 OFFSET = 3.0
+
+#: The figure every case is held to. Not a faceting tolerance: a mesh vertex sits *on* the
+#: cross-section the field places, so this is the arithmetic of evaluating the tree and nothing else.
+OUTSIDE = 1e-6
 
 
 def _circle(offset: float, radius: float = 1.0, sides: int = 24) -> Path2D:
@@ -98,96 +99,144 @@ def _circle(offset: float, radius: float = 1.0, sides: int = 24) -> Path2D:
     )
 
 
-def _facade_centre(route: Path3D, offset: float) -> list[float]:
-    with use_backend("csg"):
-        return [float(v) for v in route.path_sweep(_circle(offset)).bounds().center]
+#: An L with unequal arms, so a reflected frame cannot pass as a matching one. The u/v swap the two
+#: sweeps used to differ by is exactly a reflection, and a circle -- offset or not -- cannot see it.
+#: Neither can an L with *equal* arms, which is symmetric about its own diagonal and so is its own
+#: swap: the first spelling of the control here was 4 x 4 and read 0.0000, which is the control
+#: passing its own test by being unable to fail it.
+ELL = Path2D([[0.0, 0.0], [5.0, 0.0], [5.0, 1.2], [1.8, 1.2], [1.8, 3.5], [0.0, 3.5]])
+
+#: A loop, swept closed. Worth its own case because the station list then has one *extra* entry --
+#: the first station repeated at the end, carrying the closing-twist correction -- and the two slab
+#: reaches have to meet there rather than cap.
+RING = Path3D([[12 * math.cos(t), 12 * math.sin(t), 0.0] for t in [i * math.pi / 12 for i in range(24)]], closed=True)
+
+ROUTES = {"straight": STRAIGHT, "bent": BENT, "vertical": VERTICAL, "helical": HELICAL}
 
 
-def _native_centre(route: Path3D, offset: float) -> list[float]:
-    with use_backend("sdf"):
-        swept = sdf_shapes.path_sweep(profile=_circle(offset), path=route)
-    return [float(v) for v in swept.bounds().center]
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="the two sweeps are different functions; see the module docstring for the measurement",
-)
-@pytest.mark.parametrize("route", [STRAIGHT, BENT], ids=["straight", "bent"])
-def test_the_backends_two_sweeps_build_the_same_solid(route: Path3D) -> None:
+@pytest.mark.parametrize("route", sorted(ROUTES))
+@pytest.mark.parametrize("profile", ["offset circle", "asymmetric ell"])
+def test_the_two_sweeps_build_the_same_solid(route: str, profile: str) -> None:
     """SPEC PAR-1: the backend's own sweep must agree with the one the façade builds.
 
-    On the field, at the façade mesh's own vertices -- not on the box centres this used to compare.
-    A vertex outside the native field cannot be faceting, which inscribes; see `field_probe`.
+    On the field, at the façade mesh's own vertices -- not on the box centres T100 compared. A
+    vertex outside the field cannot be faceting, which inscribes; see `field_probe`.
     """
+    spine = ROUTES[route]
+    shape = _circle(OFFSET) if profile == "offset circle" else ELL
     outside, inside, where = worst_escape(
-        lambda: route.path_sweep(_circle(OFFSET)),
-        lambda: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=route),
+        lambda: spine.path_sweep(shape),
+        lambda: sdf_shapes.path_sweep(profile=shape, path=spine),
     )
-    assert outside <= 1e-6, (
-        f"the façade's sweep has a vertex at {where} lying {outside:.4f} outside the native "
-        f"sweep's field (furthest inside {inside:.4f}); the gap in `WireBundle` cannot be closed "
-        f"by dispatching to it until these build the same solid"
+    assert outside <= OUTSIDE, (
+        f"the façade's sweep of {profile} along the {route} route has a vertex at {where} lying "
+        f"{outside:.4f} outside the native sweep's field (furthest inside {inside:.4f}). The two "
+        f"read the same station list, so a departure means one of them has stopped using it."
+    )
+    assert abs(inside) <= OUTSIDE, (
+        f"the façade's sweep of {profile} along the {route} route sits {inside:.4f} inside the "
+        f"native sweep's field. Every mesh vertex is a point of a cross-section the field places, "
+        f"so this has been exactly 0; a departure means the frames have diverged again."
     )
 
 
-def test_the_disagreement_is_still_the_one_measured() -> None:
-    """Pinned, so a partial change is not mistaken for a fix.
+@pytest.mark.parametrize("route", sorted(ROUTES))
+def test_each_case_has_real_vertices_to_compare(route: str) -> None:
+    """A case whose mesh came back empty would pass the test above by having nothing to check."""
+    points = csg_vertices(lambda: ROUTES[route].path_sweep(ELL))
+    assert len(points) >= 12, (
+        f"the {route} route produced {len(points)} vertices; a six-point profile over two or more "
+        f"stations has many more, so the comparison above is not measuring the sweep."
+    )
 
-    Without this, moving the native sweep's frame to some *third* convention would leave the xfail
-    above still xfailing -- green, and no closer.
+
+def test_a_reflected_frame_is_caught() -> None:
+    """The control: the comparison must be able to see the error the two sweeps actually had.
+
+    Agreeing to 0.0 means nothing unless disagreement is visible, and the disagreement here was a
+    *reflection* -- the backend sent the profile's `u` to the frame normal and `v` to the binormal
+    where the façade sends `u` to the binormal and `v` to the normal. A circle cannot see that
+    however far it is offset, which is part of why two box centres read as a frame difference.
     """
-    assert _facade_centre(STRAIGHT, OFFSET) == pytest.approx([10.0, 0.0, OFFSET], abs=0.05), (
-        "the façade's sweep has moved; the comparison above is no longer the one documented"
+    flipped = Path2D([[y, x] for x, y in ELL])
+    outside, _, _ = worst_escape(
+        lambda: BENT.path_sweep(ELL),
+        lambda: sdf_shapes.path_sweep(profile=flipped, path=BENT),
     )
-    assert _native_centre(STRAIGHT, OFFSET) == pytest.approx([10.0, -OFFSET, 0.0], abs=0.05), (
-        f"the native sweep no longer centres at y=-{OFFSET}. If it now matches the façade, delete "
-        f"this test and the xfail above; if it has moved elsewhere, it is still not reconciled"
+    assert outside > 0.1, (
+        f"sweeping the profile with its two axes swapped reads only {outside:.4f} outside the "
+        f"unswapped field, so this comparison cannot see a reflected frame and the agreements "
+        f"above prove less than they appear to."
     )
 
 
-def test_the_straight_route_differs_by_exactly_one_turn_about_x() -> None:
-    """The frame hypothesis, measured on the field rather than inferred from two box centres.
+@pytest.mark.parametrize("profile", ["offset circle", "asymmetric ell"])
+def test_a_closed_sweep_builds_the_same_loop(profile: str) -> None:
+    """A loop joins its two ends, and the station list says so by repeating the first station.
 
-    This is the half of the disagreement that *is* a rigid motion, and pinning it means a later
-    change to the native sweep's frame cannot land halfway without being noticed.
+    Separate from the open routes because the join is where the slab reaches have to meet instead of
+    cap: station 0 reaches forward only and the repeated last station reaches back only, and they
+    coincide, so the union closes there. Capping both would leave a gap the size of a facet.
     """
+    shape = _circle(OFFSET) if profile == "offset circle" else ELL
     outside, inside, where = worst_escape(
-        lambda: STRAIGHT.path_sweep(_circle(OFFSET)),
-        lambda: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=STRAIGHT).rotate(-90, [1, 0, 0]),
+        lambda: RING.path_sweep(shape, closed=True),
+        lambda: sdf_shapes.path_sweep(profile=shape, path=RING, closed=True),
     )
-    assert max(outside, abs(inside)) <= 1e-6, (
-        f"turning the native sweep -90 degrees about X used to put its field at 0.0000 on every "
-        f"vertex of the façade's straight sweep; now the worst is {outside:.4f} outside and "
-        f"{inside:.4f} inside, at {where}. The straight-route frame difference has moved."
+    assert max(outside, abs(inside)) <= OUTSIDE, (
+        f"a closed sweep of {profile} has a vertex at {where} lying {outside:.4f} outside and "
+        f"{inside:.4f} inside the native sweep's field -- the two no longer close the loop alike"
     )
 
 
-def test_the_bent_route_is_not_a_turn_about_x_at_all() -> None:
-    """The other half, which no rotation fixes -- so the fix is not just a frame.
+def test_the_facade_sweep_takes_the_exact_route_on_sdf() -> None:
+    """Under `use_backend("sdf")`, `Path3D.path_sweep` must *be* the field, not a mesh of it.
 
-    Without this the xfail above could be "closed" by rotating the native sweep, which would make
-    the straight route agree and leave the bend silently wrong.
+    The same claim `test_the_skin_sweep_takes_the_exact_route_on_sdf` makes for `spiral_sweep`, and
+    the reason the `skin -> sdf` import is architecture rather than debt: meshing is a one-way door,
+    since `to_sdf` refuses on a CSG solid outright, so a sweep that went through `VNF.polyhedron()`
+    would have thrown the exactness away with nothing able to recover it.
     """
-    best = min(
-        worst_escape(
-            lambda: BENT.path_sweep(_circle(OFFSET)),
-            lambda angle=angle: sdf_shapes.path_sweep(profile=_circle(OFFSET), path=BENT).rotate(angle, [1, 0, 0]),
-        )[0]
-        for angle in (0, -90, 90, 180)
-    )
-    assert best > 1.0, (
-        f"some turn about X now brings the bent route within {best:.4f} of agreement. If one of "
-        f"them matches, the bend was a frame difference after all and this test and the xfail "
-        f"above should go."
-    )
-
-
-def test_the_native_sweep_builds_what_the_refusal_says_it_cannot() -> None:
-    """The part of the original reason that is simply false, kept as the standing correction."""
     with use_backend("sdf"):
-        swept = sdf_shapes.path_sweep(profile=_circle(0.0), path=BENT)
-    assert min(float(v) for v in swept.bounds().size) > 0.0, (
-        "the SDF backend built a swept tube following bends, which `WireBundle`'s refusal calls "
-        "a shape with no distance-field form"
+        through_facade = BENT.path_sweep(ELL)
+    assert type(through_facade).__name__ == "SdfSolid", (
+        f"Path3D.path_sweep under use_backend('sdf') handed back {type(through_facade).__name__}, "
+        f"so it meshed the sweep instead of building the field (SPEC A-6, B-5)"
+    )
+
+
+@pytest.mark.parametrize(
+    ("label", "kwargs", "named"),
+    [
+        ("a scaled sweep", {"scale": 0.5}, "path_sweep(scale=)"),
+        ("an uncapped sweep", {"caps": "none"}, "path_sweep(caps=CapType.NONE)"),
+        ("a domed sweep", {"caps": "round"}, "path_sweep(caps=CapType.ROUND)"),
+    ],
+)
+def test_what_the_field_cannot_sweep_refuses_by_name(label: str, kwargs: dict[str, object], named: str) -> None:
+    """Three of `path_sweep`'s arguments do not cross, and each says which one it is (SPEC E-5).
+
+    A scaled station is not a rigid motion, so the field cannot read the profile back out of it; an
+    uncapped sweep is an open surface, and a distance field describes only solids. `style=` is the
+    one that *does* cross -- it chooses how a grid cell is split into triangles, and a field has no
+    triangles, so it falls under B-9's tessellation carve-out and is accepted and ignored.
+    """
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        STRAIGHT.path_sweep(ELL, **kwargs)  # type: ignore[arg-type]
+    assert named in str(excinfo.value), f"{label} refused without naming {named}: {excinfo.value}"
+
+
+def test_the_tessellation_argument_is_accepted_and_ignored() -> None:
+    """`style=` is a triangulation choice, and B-9 says a field accepts and ignores those.
+
+    Refusing it would turn away a perfectly buildable sweep over how the *other* backend would cut
+    its quads -- the mistake `convexity` was making on `linear_extrude` until T14.
+    """
+    from pybosl2.enums import VNFStyle
+
+    with use_backend("sdf"):
+        plain = STRAIGHT.path_sweep(ELL)
+        styled = STRAIGHT.path_sweep(ELL, style=VNFStyle.QUINCUNX)
+    assert [float(v) for v in plain.bounds().size] == pytest.approx([float(v) for v in styled.bounds().size]), (
+        "style= changed the field, which it must not: it names how a mesh is triangulated and the field has no mesh"
     )

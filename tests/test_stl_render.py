@@ -1949,6 +1949,23 @@ def test_sliders_rail_builds(tmp_path):
 
 
 def test_tripod_rc2_plate_builds(tmp_path):
+    """The plate, rendered through the real app and pinned against BOSL2's own figure.
+
+    The golden moved in T142, and the solid did not. Converting the part off `linear_sweep` (which
+    meshes the profile and hands over a non-convex polyhedron, so the part was CSG-only) onto
+    `linear_extrude` (which dispatches) hands Manifold a differently-triangulated body, and it cuts
+    two of the finished faces differently in turn: 7 of the 112 triangles change, all of them on
+    the planes x = -18.54 and y = 26.25. Measured either side of the change, the **vertex set is
+    identical** (58 points, to three decimals), as are the volume (19,569.453), the total surface
+    area (5,679.701) and watertightness. A golden is a hash, so a re-cut face fails it; the
+    measurements below are what says the shape is the same.
+
+    The new cut carries **two zero-area triangles**, where the old one carried none, and they are
+    pinned below rather than left to be discovered. Both lie on x = -18.54 with all three vertices
+    at z = 3.25 -- a collinear chain along that face's boundary edge, which the end notches split
+    at y = +/-13 -- so they are Manifold fanning a straight line, inert for volume, area and
+    watertightness alike. The library's own mesh is watertight and `export()` accepts it.
+    """
     m = _render_golden(
         tmp_path,
         "ManfrottoRC2Plate(fn=None, fa=None, fs=None).shape",
@@ -1956,6 +1973,7 @@ def test_tripod_rc2_plate_builds(tmp_path):
     )
     assert m.watertight
     assert m.volume > 0
+    assert m.ntris == 112, f"the plate's triangle count has moved from 112 to {m.ntris}"
     # the plate is a dovetail with a relief notch cut in at each end and a facet down one side --
     # pinned against BOSL2's own render of manfrotto_rc2_plate(), which is 19549 mm^3
     np.testing.assert_allclose(m.size, [42.4, 52.5, 10.5], atol=1e-3)

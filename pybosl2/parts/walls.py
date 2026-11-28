@@ -658,7 +658,12 @@ class ThinningWall(Buildable):
         return self._thick
 
     @property
-    @csg_part("builds its braced sheet from a VNF handed over vertex by vertex, which has no distance-field form")
+    @csg_part(
+        "is a hand-written 44-face polyhedron -- a tapered web between two rims, given vertex by "
+        "vertex rather than built from an operation a field has a form for. Closing it needs "
+        "either a convex decomposition of the mesh or a lofted prism whose cross-section is "
+        "interpolated per point, which is a new primitive rather than a route (T142)"
+    )
     def shape(self) -> "Solid":
         """Return the wall geometry."""
         if self._solid is None:
