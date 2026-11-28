@@ -2455,6 +2455,8 @@ candidates = [
 ]
 status = "enforced"
 note = '''
+**Which side is the approximate one is not always the SDF side.** T140 made the 2-D hull of unequal discs exact, and the CSG backend reports 1.7% *less* area for the same hull because it hulls faceted circles. Cross-backend agreement would have ratified the smaller figure, so that case is settled by a hand derivation instead -- 214.2077 from the trapezoid between the tangent chords plus each disc's circular segment, against 214.224 measured. An instrument that compares two implementations cannot say which of them is right.
+
 "Same result" is the half of parity that a per-shape matrix cannot see, and giving the SDF backend the options it was missing (T40) is what made the disagreements reachable. Three were found by comparing the two backends on the *same call*, and each had a symmetric case that would have hidden it:
 
 * **`shift` sheared from the wrong plane.** BOSL2's `shift` is the far end's offset *relative to* the near one, and CSG takes the shear about the mid-plane (`x' = x + shift_x * z / length`, on a cylinder spanning `-h/2 .. h/2`). The SDF backend interpolated from the bottom face, so it built the same lean half a shift from where CSG built it. The relative offset -- the thing anyone would check -- was right.
@@ -2808,6 +2810,14 @@ candidates = [
     "tests/test_tripod_mounts.py::test_facet_controls_are_accepted_and_passed_down",
 ]
 status = "enforced"
+note = '''
+The rule is about constructions that *must* tessellate. A facet control on one that does not is
+the opposite defect, and T139 added one: the 2-D hull of unequal discs took `directions=64`
+because it sampled support points. T140 derived the exact form -- the signed distance to a convex
+set is the supremum over unit directions of `<d, x> - h(d)`, and for a hull of discs that supremum
+is attained at a finite set of features -- so the argument is gone. A resolution argument is a
+promise that the answer is approximate, and it should not be made where it is not true.
+'''
 
 [[requirement]]
 id = "SPEC-R-1a"

@@ -45,6 +45,24 @@ import pybosl2.shapes2d.ops as ops2
 from pybosl2 import flat, use_backend
 from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.path2d import Path2D
+from pybosl2.sdf._libfive import lv
+
+
+def _support_distance(x: float, y: float, discs: list[tuple[float, float, float]]) -> float:
+    """The signed distance to the hull of *discs*, from its support function.
+
+    `f(x) = sup over unit d of (<d, x> - h(d))` with `h(d) = max_i(<d, c_i> + r_i)` is the signed
+    distance to a convex set, by definition -- so this is a reference the implementation cannot be
+    accidentally consistent with: it shares no code and no construction, only the mathematics.
+    Sampled at 40000 directions, which makes the reference the less accurate of the two.
+    """
+    n = 40000
+    best = -1e30
+    for k in range(n):
+        angle = 2.0 * math.pi * k / n
+        dx, dy = math.cos(angle), math.sin(angle)
+        best = max(best, min(dx * (x - c[0]) + dy * (y - c[1]) - c[2] for c in discs))
+    return best
 
 
 def _claim_area(shape: Any) -> float:
@@ -390,53 +408,49 @@ def test_the_probes_can_fail() -> None:
         sdf2.SdfShape2D.hull = saved  # type: ignore[method-assign]
 
 
-def test_the_support_point_count_matters() -> None:
-    """Fewer directions give a visibly smaller hull, so `directions` is doing work.
+def test_the_mixed_radius_hull_is_exact() -> None:
+    """T139 faceted the mixed-radius hull; T140 made it exact, so there is no facet count left.
 
-    The first version of the mixed-radius path derived its direction count from `res` -- a
-    *meshing* resolution, not a facet count -- which gave twelve directions for a hull spanning 22
-    units and came out 10% small in area against CSG. This pins that the parameter is live, so a
-    future default that is too low fails here rather than quietly shrinking geometry.
+    This replaces `test_the_support_point_count_matters`, which measured a `directions=` argument
+    that existed only because the construction approximated. It is checked against the support
+    function -- `f(x) = sup over unit d of (<d,x> - max_i(<d,c_i> + r_i))`, which is the signed
+    distance to a convex set by definition -- sampled finely enough that the *reference* is the
+    less accurate of the two.
     """
+    discs = [(0.0, 0.0, 5.0), (20.0, 0.0, 2.0)]
     with use_backend("sdf"):
-        a = sdf2.circle2d(radius=5)
-        b = sdf2.rect2d(size=[6, 6]).translate([14.0, 6.0])
-        coarse = a.hull(b, directions=8)
-        fine = a.hull(b, directions=256)
-    # The *box* is the wrong instrument here, and measuring said so: direction k=0 is always
-    # (1, 0), so even eight directions include the four axes and capture the circle's extremes
-    # exactly -- both boxes read -5. The area is what the missing directions cost.
-    coarse_area, fine_area = _claim_area(coarse), _claim_area(fine)
-    assert fine_area > coarse_area, "8 directions must enclose visibly less than 256"
-    assert (fine_area - coarse_area) / fine_area > 0.02, (
-        f"8 directions cost only {100 * (fine_area - coarse_area) / fine_area:.2f}% of the area, "
-        f"so this does not show that `directions` is doing work"
-    )
-    # More directions can only push an inscribed hull outward, never pull it in.
-    assert float(fine.bounds().min[0]) <= float(coarse.bounds().min[0]) + 1e-9
+        hull = sdf2.circle2d(radius=5).hull(sdf2.circle2d(radius=2).translate([20.0, 0.0]))
+    tree = hull._sdf_fn(lv.x(), lv.y())
+    worst = 0.0
+    for px, py in ((0, 0), (10, 0), (25, 0), (-8, 0), (0, 10), (6, 6), (12, 7), (3, 2), (30, 20)):
+        worst = max(worst, abs(float(tree(px, py, 0.0)) - _support_distance(px, py, discs)))
+    assert worst < 5e-3, f"worst disagreement with the support function: {worst:.3e}"
 
 
 def test_the_hull_is_convex() -> None:
-    """A hull of a non-convex input is convex: the polygon2d it returns has no reflex vertex.
+    """The hull of a non-convex input is convex, measured on the field rather than on a claim.
 
-    Asserted on the claim the result carries, which is the hull's own point set in order.
+    Convexity is exactly "the sublevel set is convex": if two points are inside, every point on
+    the segment between them is too. That is a statement about the shape, where reading the
+    result's own point list would only restate how it was built -- and the claim moved from
+    `_hull` to `_hull_discs` in T140, which a structural assertion would have had to chase.
     """
     with use_backend("sdf"):
         star = sdf2.polygon2d(Path2D([[0, 0], [10, 2], [20, 0], [18, 10], [10, 6], [2, 10]]))
         hull = star.hull(sdf2.circle2d(radius=1).translate([10.0, -8.0]))
-    claim = hull._hull
-    assert claim is not None
-    pts = claim[0]
-    assert len(pts) >= 3
-    turns = []
-    for i in range(len(pts)):
-        ax, ay = pts[i]
-        bx, by = pts[(i + 1) % len(pts)]
-        cx, cy = pts[(i + 2) % len(pts)]
-        turns.append((bx - ax) * (cy - ay) - (by - ay) * (cx - ax))
-    assert all(t >= -1e-9 for t in turns) or all(t <= 1e-9 for t in turns), (
-        f"the hull has a reflex vertex, so it is not a hull: {turns}"
-    )
+    tree = hull._sdf_fn(lv.x(), lv.y())
+    inside = [(px, py) for px in range(-2, 21) for py in range(-9, 11) if float(tree(px, py, 0.0)) <= 0.0]
+    assert len(inside) > 100, "the probe grid found too little of the shape to say anything"
+    worst = 0.0
+    for ax, ay in inside[::7]:
+        for bx, by in inside[::11]:
+            for t in (0.25, 0.5, 0.75):
+                mx, my = ax + (bx - ax) * t, ay + (by - ay) * t
+                worst = max(worst, float(tree(mx, my, 0.0)))
+    assert worst <= 1e-9, f"a midpoint of two interior points reads {worst:.3e} outside: not convex"
+    # And the star's own reflex vertex is covered, which is what makes this a hull rather than
+    # the star again: (10, 6) is the dent, and the hull fills it.
+    assert float(tree(10.0, 7.5, 0.0)) < 0.0
 
 
 def test_a_degenerate_hull_does_not_raise() -> None:
@@ -468,13 +482,39 @@ def test_the_arc_path_is_exact_where_it_claims_to_be() -> None:
     assert round(float(box.max[1]) - float(box.min[1]), 6) == 10.0
 
 
-def test_the_faceted_path_is_only_taken_for_mixed_radii() -> None:
-    """`directions` changes nothing when every radius agrees, because that path is exact."""
+def test_both_branches_agree_where_they_overlap() -> None:
+    """The equal-radius branch and the unequal one must agree on an equal-radius input.
+
+    `hull2d_discs` offsets the centres' polygon, which is exact only when the radii agree, and
+    `_hull_of_unequal_discs` takes the general route. They are independent constructions, so
+    running the general one on an input the special one also handles is a cross-check on both --
+    and it replaces `test_the_faceted_path_is_only_taken_for_mixed_radii`, which distinguished an
+    exact path from an approximate one and has nothing left to distinguish.
+    """
+    discs = [(0.0, 0.0, 4.0), (18.0, 0.0, 4.0), (9.0, 14.0, 4.0)]
     with use_backend("sdf"):
-        a = sdf2.circle2d(radius=5)
-        b = sdf2.circle2d(radius=5).translate([20.0, 0.0])
-        coarse = a.hull(b, directions=8).bounds()
-        fine = a.hull(b, directions=256).bounds()
-    assert [round(float(v), 9) for v in coarse.min] == [round(float(v), 9) for v in fine.min]
-    assert [round(float(v), 9) for v in coarse.max] == [round(float(v), 9) for v in fine.max]
-    assert math.isclose(float(fine.max[0]), 25.0, abs_tol=1e-9)
+        special = sdf2.hull2d_discs(list(discs), res=10)
+        general = sdf2._hull_of_unequal_discs(discs, res=10)
+    a = special._sdf_fn(lv.x(), lv.y())
+    b = general._sdf_fn(lv.x(), lv.y())
+    worst = 0.0
+    for px in range(-8, 27, 3):
+        for py in range(-8, 21, 3):
+            worst = max(worst, abs(float(a(px, py, 0.0)) - float(b(px, py, 0.0))))
+    assert worst < 1e-6, f"the two constructions disagree by {worst:.3e} on equal radii"
+
+
+def test_a_hull_can_be_hulled() -> None:
+    """A hull records its own extreme discs, so it is itself a valid operand.
+
+    The hull of unequal discs is extreme in several radii at once, which `Hull2D`'s single radius
+    cannot express -- so T140 gave the shape a disc-level claim rather than letting a hull become
+    un-hullable. Without it this refuses.
+    """
+    with use_backend("sdf"):
+        first = sdf2.circle2d(radius=5).hull(sdf2.circle2d(radius=2).translate([20.0, 0.0]))
+        again = first.hull(sdf2.circle2d(radius=3).translate([8.0, 18.0]))
+    box = again.bounds()
+    assert round(float(box.min[0]), 6) == -5.0
+    assert round(float(box.max[0]), 6) == 22.0
+    assert round(float(box.max[1]), 6) == 21.0
