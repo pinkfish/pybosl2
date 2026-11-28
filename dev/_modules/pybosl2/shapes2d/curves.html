@@ -2595,18 +2595,28 @@
 <div class="viewcode-block" id="squircle_radius_fg">
 <a class="viewcode-back" href="../../../foundational/shapes2d/curves.html#pybosl2.shapes2d.curves.squircle_radius_fg">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">squircle_radius_fg</span><span class="p">(</span><span class="n">squareness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.</span>
-
-<span class="sd">    *radius*.</span>
+<span class="w">    </span><span class="sd">"""Return the Fong-Garcia squircle radius at *angle* degrees.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        squareness: How square the curve is, from 0 (a circle) to 1 (a square).</span>
-<span class="sd">        radius: The radius.</span>
+<span class="sd">        radius: The half-size of the bounding box -- the radius on the axes.</span>
 <span class="sd">        angle: The angle in degrees.</span>
 
 <span class="sd">    """</span>
+    <span class="c1"># BOSL2 writes this as `r*sqrt(2)/s2a*sqrt(1-sqrt(1-s2a*s2a))`, guarded by `s2a &gt; 0 ? ... : r`</span>
+    <span class="c1"># for the axes. That form cannot be ported literally. OpenSCAD's `sin()` takes degrees and</span>
+    <span class="c1"># returns exactly 0 at every multiple of 180, so on the axes the guard fires and the quotient</span>
+    <span class="c1"># is never evaluated. `math.sin(math.radians(2 * angle))` is 1.2e-16 at 90 degrees, not 0, so</span>
+    <span class="c1"># the guard misses -- and then `1 - s2a*s2a` rounds to exactly 1.0, its root is 1.0, and</span>
+    <span class="c1"># `1 - 1.0` is 0.0. The function returned a radius of **zero on all four axes**, so the path</span>
+    <span class="c1"># ran through the centre of the squircle four times instead of reaching its extremes (T141).</span>
+    <span class="c1">#</span>
+    <span class="c1"># Multiplying through by `1 + sqrt(1-x*x)` removes the subtraction and the division both:</span>
+    <span class="c1"># `1 - sqrt(1-x*x) == x*x / (1 + sqrt(1-x*x))`, which leaves `sqrt(2)/sqrt(1 + sqrt(1-x*x))`.</span>
+    <span class="c1"># The same function -- the two agree to 1e-54 in 60-digit arithmetic -- with no cancellation,</span>
+    <span class="c1"># no division by `s2a`, and so no special case on the axes at all.</span>
     <span class="n">s2a</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">squareness</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angle</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">s2a</span><span class="p">))</span> <span class="k">if</span> <span class="n">s2a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">radius</span></div>
+    <span class="k">return</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">s2a</span><span class="p">))</span></div>
 
 
 
